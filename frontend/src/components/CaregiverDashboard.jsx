@@ -154,7 +154,7 @@ export const CaregiverDashboard = ({ onBack }) => {
             >
               <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center">
                     <Sparkles className="w-5 h-5 text-white" />
                   </div>
                   <span className="font-semibold text-gray-900">ADLTrack</span>
@@ -170,7 +170,7 @@ export const CaregiverDashboard = ({ onBack }) => {
                     onClick={() => { setActiveView(item.id); setSidebarOpen(false); }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                       activeView === item.id
-                        ? 'bg-purple-50 text-purple-700'
+                        ? 'bg-[#E6F4EA] text-[#146C2E]'
                         : 'text-gray-600 hover:bg-gray-50'
                     }`}
                   >
@@ -251,7 +251,7 @@ export const CaregiverDashboard = ({ onBack }) => {
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
-                  className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"
+                  className="h-full bg-[#25D366] rounded-full"
                 />
               </div>
               <span className="text-sm font-medium text-gray-600">{progress}%</span>
@@ -295,7 +295,7 @@ export const CaregiverDashboard = ({ onBack }) => {
                       >
                         <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                           msg.role === 'assistant'
-                            ? 'bg-gradient-to-br from-purple-500 to-blue-500'
+                            ? 'bg-[#25D366]'
                             : 'bg-gray-200'
                         }`}>
                           {msg.role === 'assistant' ? (
@@ -307,7 +307,7 @@ export const CaregiverDashboard = ({ onBack }) => {
                         <div className={`max-w-[70%] sm:max-w-[75%] rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 ${
                           msg.role === 'assistant'
                             ? 'bg-white border border-gray-100 shadow-sm'
-                            : 'bg-purple-600 text-white'
+                            : 'bg-[#25D366] text-white'
                         }`}>
                           <p className={`text-sm whitespace-pre-line break-words ${msg.role === 'assistant' ? 'text-gray-700' : 'text-white'}`}>
                             {msg.content}
@@ -343,7 +343,7 @@ export const CaregiverDashboard = ({ onBack }) => {
                           className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
                             task.completed
                               ? 'bg-green-500 text-white'
-                              : 'border-2 border-gray-300 hover:border-purple-400'
+                              : 'border-2 border-gray-300 hover:border-[#25D366]'
                           }`}
                           data-testid={`task-checkbox-${task.id}`}
                         >
@@ -368,7 +368,7 @@ export const CaregiverDashboard = ({ onBack }) => {
                           {task.completed && !task.verified && (
                             <Button
                               onClick={() => { setSelectedTask(task.id); setShowCamera(true); }}
-                              className="mt-3 h-8 text-xs bg-purple-600 hover:bg-purple-700 rounded-full"
+                              className="mt-3 h-8 text-xs bg-[#25D366] hover:bg-[#20bd5a] rounded-full"
                               size="sm"
                             >
                               <Camera className="w-3 h-3 mr-1.5" />
@@ -400,7 +400,7 @@ export const CaregiverDashboard = ({ onBack }) => {
                 >
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-semibold text-gray-900">Vitals</h2>
-                    <Button size="sm" className="rounded-full bg-purple-600 hover:bg-purple-700 h-9">
+                    <Button size="sm" className="rounded-full bg-[#25D366] hover:bg-[#20bd5a] h-9">
                       <Plus className="w-4 h-4 mr-1" /> Record
                     </Button>
                   </div>
@@ -422,8 +422,8 @@ export const CaregiverDashboard = ({ onBack }) => {
                       <p className="text-xs text-gray-400 mt-1">9:30 AM</p>
                     </div>
                     <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-                      <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center mb-3">
-                        <Activity className="w-5 h-5 text-purple-500" />
+                      <div className="w-10 h-10 rounded-xl bg-[#E6F4EA] flex items-center justify-center mb-3">
+                        <Activity className="w-5 h-5 text-[#25D366]" />
                       </div>
                       <p className="text-2xl font-bold text-gray-900">72 bpm</p>
                       <p className="text-sm text-gray-500">Heart Rate</p>
@@ -462,7 +462,7 @@ export const CaregiverDashboard = ({ onBack }) => {
                         <Camera className="w-4 h-4 mr-2" />
                         Add Photo
                       </Button>
-                      <Button size="sm" className="rounded-full bg-purple-600 hover:bg-purple-700">
+                      <Button size="sm" className="rounded-full bg-[#25D366] hover:bg-[#20bd5a]">
                         Save Notes
                       </Button>
                     </div>
@@ -483,7 +483,7 @@ export const CaregiverDashboard = ({ onBack }) => {
                   key={i}
                   className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-200 rounded-full text-xs sm:text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all whitespace-nowrap shadow-sm flex-shrink-0"
                 >
-                  <chip.icon className="w-4 h-4 text-purple-500" />
+                  <chip.icon className="w-4 h-4 text-[#25D366]" />
                   {chip.text}
                 </button>
               ))}
@@ -507,7 +507,7 @@ export const CaregiverDashboard = ({ onBack }) => {
               </button>
               <button
                 onClick={handleSendMessage}
-                className="p-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all"
+                className="p-2 rounded-full bg-[#25D366] hover:bg-[#20bd5a] transition-all"
               >
                 <Send className="w-4 h-4 text-white" />
               </button>
@@ -549,7 +549,7 @@ export const CaregiverDashboard = ({ onBack }) => {
                   Cancel
                 </Button>
                 <Button
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 rounded-full h-12"
+                  className="flex-1 bg-[#25D366] hover:bg-[#20bd5a] rounded-full h-12"
                   onClick={() => {
                     setTasks(prev => prev.map(t =>
                       t.id === selectedTask ? { ...t, verified: true } : t
