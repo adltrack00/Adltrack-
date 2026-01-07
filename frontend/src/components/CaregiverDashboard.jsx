@@ -80,10 +80,10 @@ export const CaregiverDashboard = ({ onBack }) => {
   }
 
   const sidebarItems = [
-    { id: 'chat', label: 'AI Assistant', icon: Sparkles },
     { id: 'tasks', label: 'Tasks', icon: ListTodo },
     { id: 'vitals', label: 'Vitals', icon: Activity },
     { id: 'notes', label: 'Notes', icon: FileText },
+    { id: 'chat', label: 'AI Assistant', icon: Sparkles },
   ]
 
   return (

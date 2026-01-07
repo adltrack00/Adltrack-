@@ -77,12 +77,12 @@ export const EnterpriseDashboard = ({ onBack }) => {
   }
 
   const sidebarItems = [
-    { id: 'chat', label: 'AI Assistant', icon: Sparkles },
     { id: 'overview', label: 'Dashboard', icon: LayoutGrid },
     { id: 'staff', label: 'Staff', icon: Users },
     { id: 'clients', label: 'Clients', icon: Building2 },
     { id: 'billing', label: 'Billing', icon: DollarSign },
     { id: 'compliance', label: 'EVV', icon: Shield },
+    { id: 'chat', label: 'AI Assistant', icon: Sparkles },
   ]
 
   const getStatusColor = (status) => {

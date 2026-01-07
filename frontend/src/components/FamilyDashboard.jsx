@@ -72,11 +72,11 @@ export const FamilyDashboard = ({ onBack }) => {
   }
 
   const sidebarItems = [
-    { id: 'chat', label: 'AI Assistant', icon: Sparkles },
     { id: 'overview', label: 'Overview', icon: Home },
     { id: 'vitals', label: 'Vitals', icon: Activity },
     { id: 'messages', label: 'Messages', icon: MessageCircle },
     { id: 'schedule', label: 'Schedule', icon: Calendar },
+    { id: 'chat', label: 'AI Assistant', icon: Sparkles },
   ]
 
   return (
