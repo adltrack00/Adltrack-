@@ -203,32 +203,37 @@ export const EnterpriseDashboard = ({ onBack }) => {
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Top Header */}
         <header className="bg-white border-b border-gray-100 sticky top-0 z-30">
-          <div className="flex items-center justify-between px-2 lg:px-6 py-3 gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-gray-100 lg:hidden flex-shrink-0">
-                <Menu className="w-5 h-5 text-gray-600" />
-              </button>
-              <div className="hidden lg:block">
-                <h1 className="font-semibold text-gray-900">CareFirst Home Health</h1>
-                <p className="text-xs text-gray-500">Agency Dashboard</p>
-              </div>
-              <div className="lg:hidden flex items-center gap-1.5 min-w-0 flex-1">
-                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-3 h-3 text-white" />
-                </div>
-                <span className="font-semibold text-gray-900 text-sm truncate">ADLTrack</span>
-              </div>
+          <div className="hidden lg:flex items-center justify-between px-6 py-3">
+            <div>
+              <h1 className="font-semibold text-gray-900">CareFirst Home Health</h1>
+              <p className="text-xs text-gray-500">Agency Dashboard</p>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2">
               <button className="p-2 rounded-lg hover:bg-gray-100 relative">
                 <Bell className="w-5 h-5 text-gray-600" />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
-              <Button size="sm" className="hidden sm:flex rounded-full bg-purple-600 hover:bg-purple-700 h-9">
+              <Button size="sm" className="flex rounded-full bg-purple-600 hover:bg-purple-700 h-9">
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </Button>
             </div>
+          </div>
+          {/* Mobile Header */}
+          <div className="lg:hidden grid grid-cols-[48px_1fr_48px] items-center px-2 py-3">
+            <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-gray-100 justify-self-start">
+              <Menu className="w-5 h-5 text-gray-600" />
+            </button>
+            <div className="flex items-center gap-1.5 justify-center">
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-3 h-3 text-white" />
+              </div>
+              <span className="font-semibold text-gray-900 text-sm">ADLTrack</span>
+            </div>
+            <button className="p-2 rounded-lg hover:bg-gray-100 relative justify-self-end">
+              <Bell className="w-5 h-5 text-gray-600" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
           </div>
         </header>
 
