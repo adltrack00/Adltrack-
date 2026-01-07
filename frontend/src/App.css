@@ -1,10 +1,19 @@
-/* ADLTrack App Styles */
+/* ADLTrack App Styles - Google Gemini Inspired */
 
 /* Reset and base styles */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+/* Safe area support for mobile */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-pt {
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 html {
