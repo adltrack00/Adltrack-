@@ -58,7 +58,7 @@ const suggestionChips = [
 
 export const EnterpriseDashboard = ({ onBack }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeView, setActiveView] = useState('chat')
+  const [activeView, setActiveView] = useState('overview')
   const [searchQuery, setSearchQuery] = useState('')
   const [inputMessage, setInputMessage] = useState('')
   const [chatHistory, setChatHistory] = useState(mockChatHistory)

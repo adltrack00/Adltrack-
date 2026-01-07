@@ -51,7 +51,7 @@ const suggestionChips = [
 
 export const FamilyDashboard = ({ onBack }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeView, setActiveView] = useState('chat')
+  const [activeView, setActiveView] = useState('overview')
   const [inputMessage, setInputMessage] = useState('')
   const [chatHistory, setChatHistory] = useState(mockChatHistory)
 

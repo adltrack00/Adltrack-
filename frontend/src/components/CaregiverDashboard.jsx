@@ -48,7 +48,7 @@ const suggestionChips = [
 
 export const CaregiverDashboard = ({ onBack }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeView, setActiveView] = useState('chat')
+  const [activeView, setActiveView] = useState('tasks')
   const [tasks, setTasks] = useState(mockTasks)
   const [inputMessage, setInputMessage] = useState('')
   const [chatHistory, setChatHistory] = useState(mockChatHistory)
