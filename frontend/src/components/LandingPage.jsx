@@ -459,7 +459,7 @@ export const LandingPage = ({ onSelectRole, onNavigateToFAQ }) => {
         {isMobileMenuOpen && (
           <div className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 p-6 flex flex-col gap-4 shadow-xl lg:hidden">
             <a href="#how-it-works" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-[#111B21]">How it Works</a>
-            <a href="#faq" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-[#111B21]">FAQ</a>
+            <button onClick={() => { setIsMobileMenuOpen(false); onNavigateToFAQ(); }} className="text-lg font-medium text-[#111B21]">FAQ</button>
             <div className="h-px bg-gray-100 my-2"></div>
             <p className="text-xs font-bold text-slate-400 uppercase">Log In</p>
             <button onClick={() => onSelectRole(UserRole.FAMILY)} className="text-left text-lg font-medium text-purple-600">Family Portal</button>
