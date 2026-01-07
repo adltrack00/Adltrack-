@@ -85,7 +85,7 @@ export const FamilyDashboard = ({ onBack }) => {
       <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-gray-100 h-screen sticky top-0">
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -102,7 +102,7 @@ export const FamilyDashboard = ({ onBack }) => {
               onClick={() => setActiveView(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                 activeView === item.id
-                  ? 'bg-purple-50 text-purple-700'
+                  ? 'bg-[#E6F4EA] text-[#146C2E]'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
@@ -144,7 +144,7 @@ export const FamilyDashboard = ({ onBack }) => {
             >
               <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center">
                     <Sparkles className="w-5 h-5 text-white" />
                   </div>
                   <span className="font-semibold text-gray-900">ADLTrack</span>
@@ -160,7 +160,7 @@ export const FamilyDashboard = ({ onBack }) => {
                     onClick={() => { setActiveView(item.id); setSidebarOpen(false); }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                       activeView === item.id
-                        ? 'bg-purple-50 text-purple-700'
+                        ? 'bg-[#E6F4EA] text-[#146C2E]'
                         : 'text-gray-600 hover:bg-gray-50'
                     }`}
                   >
@@ -189,7 +189,7 @@ export const FamilyDashboard = ({ onBack }) => {
               <Menu className="w-5 h-5 text-gray-600" />
             </button>
             <div className="flex items-center gap-1.5 justify-center">
-              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+              <div className="w-6 h-6 rounded-lg bg-[#25D366] flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-3 h-3 text-white" />
               </div>
               <span className="font-semibold text-gray-900 text-sm">ADLTrack</span>
@@ -221,14 +221,14 @@ export const FamilyDashboard = ({ onBack }) => {
                 <button className="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
                   <Phone className="w-5 h-5 text-gray-600" />
                 </button>
-                <button className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 flex items-center justify-center transition-all shadow-lg shadow-purple-200">
+                <button className="w-10 h-10 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] flex items-center justify-center transition-all shadow-lg shadow-green-200">
                   <Video className="w-5 h-5 text-white" />
                 </button>
               </div>
             </div>
 
             {/* Caregiver Strip */}
-            <div className="mt-4 p-3 bg-purple-50 rounded-xl flex items-center justify-between">
+            <div className="mt-4 p-3 bg-[#E6F4EA] rounded-xl flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl overflow-hidden">
                   <img src={mockPatient.caregiver.avatar} alt="" className="w-full h-full object-cover" />
@@ -268,7 +268,7 @@ export const FamilyDashboard = ({ onBack }) => {
                     >
                       <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                         msg.role === 'assistant'
-                          ? 'bg-gradient-to-br from-purple-500 to-blue-500'
+                          ? 'bg-[#25D366]'
                           : 'bg-gray-200'
                       }`}>
                         {msg.role === 'assistant' ? (
@@ -280,7 +280,7 @@ export const FamilyDashboard = ({ onBack }) => {
                       <div className={`max-w-[70%] sm:max-w-[75%] rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 ${
                         msg.role === 'assistant'
                           ? 'bg-white border border-gray-100 shadow-sm'
-                          : 'bg-purple-600 text-white'
+                          : 'bg-[#25D366] text-white'
                       }`}>
                         <p className={`text-sm whitespace-pre-line break-words ${msg.role === 'assistant' ? 'text-gray-700' : 'text-white'}`}>
                           {msg.content}
@@ -339,7 +339,7 @@ export const FamilyDashboard = ({ onBack }) => {
                         >
                           <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
                             item.completed
-                              ? 'bg-gradient-to-r from-purple-500 to-blue-500'
+                              ? 'bg-[#25D366]'
                               : 'bg-gray-100'
                           }`}>
                             {item.completed ? (
@@ -370,11 +370,11 @@ export const FamilyDashboard = ({ onBack }) => {
                       <div key={i} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
                         <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-2 ${
                           vital.color === 'red' ? 'bg-red-50' :
-                          vital.color === 'amber' ? 'bg-amber-50' : 'bg-purple-50'
+                          vital.color === 'amber' ? 'bg-amber-50' : 'bg-[#E6F4EA]'
                         }`}>
                           <vital.icon className={`w-5 h-5 ${
                             vital.color === 'red' ? 'text-red-500' :
-                            vital.color === 'amber' ? 'text-amber-500' : 'text-purple-500'
+                            vital.color === 'amber' ? 'text-amber-500' : 'text-[#25D366]'
                           }`} />
                         </div>
                         <p className="text-xl font-bold text-gray-900">{vital.value}</p>
@@ -401,11 +401,11 @@ export const FamilyDashboard = ({ onBack }) => {
                         <div className="flex items-center gap-4">
                           <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                             vital.color === 'red' ? 'bg-red-50' :
-                            vital.color === 'amber' ? 'bg-amber-50' : 'bg-purple-50'
+                            vital.color === 'amber' ? 'bg-amber-50' : 'bg-[#E6F4EA]'
                           }`}>
                             <vital.icon className={`w-6 h-6 ${
                               vital.color === 'red' ? 'text-red-500' :
-                              vital.color === 'amber' ? 'text-amber-500' : 'text-purple-500'
+                              vital.color === 'amber' ? 'text-amber-500' : 'text-[#25D366]'
                             }`} />
                           </div>
                           <div>
@@ -439,9 +439,9 @@ export const FamilyDashboard = ({ onBack }) => {
                   exit={{ opacity: 0, y: -10 }}
                   className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
                 >
-                  <div className="p-4 border-b border-gray-100 bg-purple-50">
+                  <div className="p-4 border-b border-gray-100 bg-[#E6F4EA]">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white font-bold shadow-lg">
+                      <div className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center text-white font-bold shadow-lg">
                         FC
                       </div>
                       <div>
@@ -458,10 +458,10 @@ export const FamilyDashboard = ({ onBack }) => {
                       <input
                         type="text"
                         placeholder="Type a message..."
-                        className="flex-1 bg-gray-100 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-purple-200"
+                        className="flex-1 bg-gray-100 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-200"
                         data-testid="message-input"
                       />
-                      <Button className="rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 px-4">
+                      <Button className="rounded-xl bg-[#25D366] hover:bg-[#20bd5a] px-4">
                         <Send className="w-5 h-5" />
                       </Button>
                     </div>
@@ -534,7 +534,7 @@ export const FamilyDashboard = ({ onBack }) => {
                   key={i}
                   className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-200 rounded-full text-xs sm:text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all whitespace-nowrap shadow-sm flex-shrink-0"
                 >
-                  <chip.icon className="w-4 h-4 text-purple-500" />
+                  <chip.icon className="w-4 h-4 text-[#25D366]" />
                   {chip.text}
                 </button>
               ))}
@@ -555,7 +555,7 @@ export const FamilyDashboard = ({ onBack }) => {
               />
               <button
                 onClick={handleSendMessage}
-                className="p-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all"
+                className="p-2 rounded-full bg-[#25D366] hover:bg-[#20bd5a] transition-all"
               >
                 <Send className="w-4 h-4 text-white" />
               </button>
