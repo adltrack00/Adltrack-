@@ -184,17 +184,17 @@ export const FamilyDashboard = ({ onBack }) => {
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Top Header - Mobile */}
         <header className="lg:hidden bg-white border-b border-gray-100 sticky top-0 z-30">
-          <div className="flex items-center justify-between px-4 py-3">
-            <button onClick={() => setSidebarOpen(true)} className="p-2 -ml-2 rounded-lg hover:bg-gray-100">
+          <div className="flex items-center justify-between px-3 py-3">
+            <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-gray-100 flex-shrink-0">
               <Menu className="w-5 h-5 text-gray-600" />
             </button>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-white" />
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                <Sparkles className="w-3.5 h-3.5 text-white" />
               </div>
-              <span className="font-semibold text-gray-900">ADLTrack</span>
+              <span className="font-semibold text-gray-900 text-sm">ADLTrack</span>
             </div>
-            <button className="p-2 -mr-2 rounded-lg hover:bg-gray-100 relative">
+            <button className="p-2 rounded-lg hover:bg-gray-100 relative flex-shrink-0">
               <Bell className="w-5 h-5 text-gray-600" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
@@ -257,32 +257,32 @@ export const FamilyDashboard = ({ onBack }) => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="space-y-4"
+                  className="space-y-4 overflow-x-hidden"
                 >
                   {chatHistory.map((msg) => (
                     <motion.div
                       key={msg.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+                      className={`flex gap-2 sm:gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
                     >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                         msg.role === 'assistant'
                           ? 'bg-gradient-to-br from-purple-500 to-blue-500'
                           : 'bg-gray-200'
                       }`}>
                         {msg.role === 'assistant' ? (
-                          <Sparkles className="w-4 h-4 text-white" />
+                          <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
                         ) : (
-                          <User className="w-4 h-4 text-gray-600" />
+                          <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600" />
                         )}
                       </div>
-                      <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                      <div className={`max-w-[75%] sm:max-w-[80%] rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 ${
                         msg.role === 'assistant'
                           ? 'bg-white border border-gray-100 shadow-sm'
                           : 'bg-purple-600 text-white'
                       }`}>
-                        <p className={`text-sm whitespace-pre-line ${msg.role === 'assistant' ? 'text-gray-700' : 'text-white'}`}>
+                        <p className={`text-sm whitespace-pre-line break-words ${msg.role === 'assistant' ? 'text-gray-700' : 'text-white'}`}>
                           {msg.content}
                         </p>
                       </div>
