@@ -91,7 +91,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
       case 'Break': return 'bg-amber-100 text-amber-700'
       case 'Offline': return 'bg-gray-100 text-gray-500'
       case 'Receiving Care': return 'bg-blue-100 text-blue-700'
-      case 'Scheduled': return 'bg-purple-100 text-purple-700'
+      case 'Scheduled': return 'bg-[#E6F4EA] text-[#146C2E]'
       case 'Approved': return 'bg-green-100 text-green-700'
       case 'Pending': return 'bg-amber-100 text-amber-700'
       default: return 'bg-gray-100 text-gray-500'
@@ -104,7 +104,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
       <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-gray-100 h-screen sticky top-0">
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -121,7 +121,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
               onClick={() => setActiveView(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                 activeView === item.id
-                  ? 'bg-purple-50 text-purple-700'
+                  ? 'bg-[#E6F4EA] text-[#146C2E]'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
@@ -163,7 +163,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
             >
               <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center">
                     <Sparkles className="w-5 h-5 text-white" />
                   </div>
                   <span className="font-semibold text-gray-900">ADLTrack</span>
@@ -179,7 +179,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
                     onClick={() => { setActiveView(item.id); setSidebarOpen(false); }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                       activeView === item.id
-                        ? 'bg-purple-50 text-purple-700'
+                        ? 'bg-[#E6F4EA] text-[#146C2E]'
                         : 'text-gray-600 hover:bg-gray-50'
                     }`}
                   >
@@ -213,7 +213,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
                 <Bell className="w-5 h-5 text-gray-600" />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
-              <Button size="sm" className="flex rounded-full bg-purple-600 hover:bg-purple-700 h-9">
+              <Button size="sm" className="flex rounded-full bg-[#25D366] hover:bg-[#20bd5a] h-9">
                 <Download className="w-4 h-4 mr-2" />
                 Export
               </Button>
@@ -225,7 +225,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
               <Menu className="w-5 h-5 text-gray-600" />
             </button>
             <div className="flex items-center gap-1.5 justify-center">
-              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+              <div className="w-6 h-6 rounded-lg bg-[#25D366] flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-3 h-3 text-white" />
               </div>
               <span className="font-semibold text-gray-900 text-sm">ADLTrack</span>
@@ -259,7 +259,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
                     >
                       <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                         msg.role === 'assistant'
-                          ? 'bg-gradient-to-br from-purple-500 to-blue-500'
+                          ? 'bg-[#25D366]'
                           : 'bg-gray-200'
                       }`}>
                         {msg.role === 'assistant' ? (
@@ -271,7 +271,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
                       <div className={`max-w-[75%] sm:max-w-[80%] rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 ${
                         msg.role === 'assistant'
                           ? 'bg-white border border-gray-100 shadow-sm'
-                          : 'bg-purple-600 text-white'
+                          : 'bg-[#25D366] text-white'
                       }`}>
                         <p className={`text-sm whitespace-pre-line break-words ${msg.role === 'assistant' ? 'text-gray-700' : 'text-white'}`}>
                           {msg.content}
@@ -299,7 +299,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                             stat.color === 'blue' ? 'bg-blue-50 text-blue-600' :
                             stat.color === 'green' ? 'bg-green-50 text-green-600' :
-                            stat.color === 'purple' ? 'bg-purple-50 text-purple-600' :
+                            stat.color === 'purple' ? 'bg-[#E6F4EA] text-[#25D366]' :
                             'bg-amber-50 text-amber-600'
                           }`}>
                             <stat.icon className="w-5 h-5" />
@@ -319,7 +319,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
                     <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="font-semibold text-gray-900">Alerts</h3>
-                        <button className="text-sm text-purple-600 font-medium">View All</button>
+                        <button className="text-sm text-[#25D366] font-medium">View All</button>
                       </div>
                       <div className="space-y-3">
                         {mockAlerts.map((alert) => (
@@ -405,7 +405,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search staff..."
-                        className="w-full pl-11 pr-4 py-3 bg-white rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-purple-100 focus:border-purple-300"
+                        className="w-full pl-11 pr-4 py-3 bg-white rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-green-100 focus:border-[#25D366]"
                         data-testid="staff-search-input"
                       />
                     </div>
@@ -443,7 +443,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
                     ))}
                   </div>
 
-                  <Button className="w-full rounded-xl bg-purple-600 hover:bg-purple-700 h-12">
+                  <Button className="w-full rounded-xl bg-[#25D366] hover:bg-[#20bd5a] h-12">
                     <UserPlus className="w-4 h-4 mr-2" /> Add Caregiver
                   </Button>
                 </motion.div>
@@ -464,7 +464,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
                       <input
                         type="text"
                         placeholder="Search clients..."
-                        className="w-full pl-11 pr-4 py-3 bg-white rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-purple-100"
+                        className="w-full pl-11 pr-4 py-3 bg-white rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-green-100"
                       />
                     </div>
                   </div>
@@ -473,7 +473,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
                     {mockClients.map((client) => (
                       <div key={client.id} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
                         <div className="flex items-center gap-4">
-                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center text-purple-600 font-bold text-sm">
+                          <div className="w-11 h-11 rounded-xl bg-[#E6F4EA] flex items-center justify-center text-[#25D366] font-bold text-sm">
                             {client.name.split(' ').map(n => n[0]).join('')}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -488,7 +488,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
                     ))}
                   </div>
 
-                  <Button className="w-full rounded-xl bg-purple-600 hover:bg-purple-700 h-12">
+                  <Button className="w-full rounded-xl bg-[#25D366] hover:bg-[#20bd5a] h-12">
                     <UserPlus className="w-4 h-4 mr-2" /> Add Client
                   </Button>
                 </motion.div>
@@ -530,7 +530,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
                   <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold text-gray-900">Recent Invoices</h3>
-                      <button className="text-sm text-purple-600 font-medium">Generate Report</button>
+                      <button className="text-sm text-[#25D366] font-medium">Generate Report</button>
                     </div>
                     <div className="space-y-3">
                       {mockBilling.map((item) => (
@@ -632,7 +632,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
                   key={i}
                   className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all whitespace-nowrap shadow-sm"
                 >
-                  <chip.icon className="w-4 h-4 text-purple-500" />
+                  <chip.icon className="w-4 h-4 text-[#25D366]" />
                   {chip.text}
                 </button>
               ))}
@@ -653,7 +653,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
               />
               <button
                 onClick={handleSendMessage}
-                className="p-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all"
+                className="p-2 rounded-full bg-[#25D366] hover:bg-[#20bd5a] transition-all"
               >
                 <Send className="w-4 h-4 text-white" />
               </button>
