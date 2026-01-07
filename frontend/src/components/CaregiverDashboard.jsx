@@ -93,7 +93,7 @@ export const CaregiverDashboard = ({ onBack }) => {
         {/* Logo */}
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -111,7 +111,7 @@ export const CaregiverDashboard = ({ onBack }) => {
               onClick={() => setActiveView(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                 activeView === item.id
-                  ? 'bg-purple-50 text-purple-700'
+                  ? 'bg-[#E6F4EA] text-[#146C2E]'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
