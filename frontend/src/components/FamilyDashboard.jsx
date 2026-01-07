@@ -304,7 +304,7 @@ export const FamilyDashboard = ({ onBack }) => {
                   <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h3 className="font-semibold text-gray-900">Today's Progress</h3>
+                        <h3 className="font-semibold text-gray-900">Today&apos;s Progress</h3>
                         <p className="text-sm text-gray-500">{completedTasks} of {mockTimeline.length} tasks completed</p>
                       </div>
                       <div className="relative w-14 h-14">
@@ -479,7 +479,7 @@ export const FamilyDashboard = ({ onBack }) => {
                   className="space-y-4"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold text-gray-900">Today's Schedule</h2>
+                    <h2 className="text-xl font-semibold text-gray-900">Today&apos;s Schedule</h2>
                     <button className="px-4 py-2 bg-white rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50">
                       View Week
                     </button>
