@@ -304,7 +304,7 @@ export const CaregiverDashboard = ({ onBack }) => {
                             <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600" />
                           )}
                         </div>
-                        <div className={`max-w-[75%] sm:max-w-[80%] rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 ${
+                        <div className={`max-w-[70%] sm:max-w-[75%] rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 ${
                           msg.role === 'assistant'
                             ? 'bg-white border border-gray-100 shadow-sm'
                             : 'bg-purple-600 text-white'
