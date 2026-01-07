@@ -1,52 +1,39 @@
-import { useEffect } from "react";
+import React, { useState } from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import { UserRole } from "./types";
+import { LandingPage } from "./components/LandingPage";
+import { FamilyDashboard } from "./components/FamilyDashboard";
+import { CaregiverDashboard } from "./components/CaregiverDashboard";
+import { EnterpriseDashboard } from "./components/EnterpriseDashboard";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+function App() {
+  const [currentRole, setCurrentRole] = useState(null);
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+  const handleSelectRole = (role) => {
+    setCurrentRole(role);
+  };
+
+  const handleBack = () => {
+    setCurrentRole(null);
+  };
+
+  // Render the appropriate view based on current role
+  const renderView = () => {
+    switch (currentRole) {
+      case UserRole.FAMILY:
+        return <FamilyDashboard onBack={handleBack} />;
+      case UserRole.CAREGIVER:
+        return <CaregiverDashboard onBack={handleBack} />;
+      case UserRole.ENTERPRISE:
+        return <EnterpriseDashboard onBack={handleBack} />;
+      default:
+        return <LandingPage onSelectRole={handleSelectRole} />;
     }
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
-
-function App() {
   return (
     <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      {renderView()}
     </div>
   );
 }
