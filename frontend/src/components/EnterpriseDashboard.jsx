@@ -233,8 +233,8 @@ export const EnterpriseDashboard = ({ onBack }) => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto">
-          <div className="max-w-5xl mx-auto px-4 lg:px-6 py-6">
+        <main className="flex-1 overflow-auto overflow-x-hidden">
+          <div className="max-w-5xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
             <AnimatePresence mode="wait">
               {/* Chat View */}
               {activeView === 'chat' && (
