@@ -199,7 +199,7 @@ export const CaregiverDashboard = ({ onBack }) => {
               <Menu className="w-5 h-5 text-gray-600" />
             </button>
             <div className="flex items-center gap-1.5 justify-center">
-              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+              <div className="w-6 h-6 rounded-lg bg-[#25D366] flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-3 h-3 text-white" />
               </div>
               <span className="font-semibold text-gray-900 text-sm">ADLTrack</span>
