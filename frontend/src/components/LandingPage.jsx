@@ -394,7 +394,7 @@ export const LandingPage = ({ onSelectRole, onNavigateToFAQ }) => {
           <nav className="hidden lg:flex items-center gap-8">
             <a href="#how-it-works" className="text-sm font-semibold text-[#111B21] hover:text-[#25D366] transition-colors">How it Works</a>
             <a href="#demo" className="text-sm font-semibold text-[#111B21] hover:text-[#25D366] transition-colors">Features</a>
-            <a href="#faq" className="text-sm font-semibold text-[#111B21] hover:text-[#25D366] transition-colors">FAQ</a>
+            <button onClick={onNavigateToFAQ} className="text-sm font-semibold text-[#111B21] hover:text-[#25D366] transition-colors">FAQ</button>
             
             {/* Login Dropdown */}
             <DropdownMenu>
