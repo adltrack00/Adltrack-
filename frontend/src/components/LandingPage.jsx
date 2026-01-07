@@ -492,154 +492,215 @@ export const LandingPage = ({ onSelectRole }) => {
               </Button>
             </div>
 
-            {/* Phone Mockup */}
+            {/* Dual Phone Mockup */}
             <div className="flex-1 relative w-full flex justify-center lg:justify-end">
-              {/* CSS Phone Frame */}
-              <div className="relative w-[300px] sm:w-[340px] h-[680px] bg-[#111B21] rounded-[48px] border-[10px] border-[#111B21] shadow-2xl overflow-hidden ring-1 ring-white/10">
-                {/* Notch */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-7 bg-[#111B21] rounded-b-3xl z-30"></div>
-                {/* Status Bar Mock */}
-                <div className="w-full h-10 bg-white flex justify-between items-center px-6 pt-2 text-[#1F1F1F] z-20 relative">
-                  <span className="text-[10px] font-bold">9:41</span>
-                  <div className="flex gap-1.5">
-                    <Signal className="w-3 h-3" />
-                    <Wifi className="w-3 h-3" />
-                    <Battery className="w-3 h-3" />
+              <div className="relative flex items-center justify-center">
+                
+                {/* PRIMARY PHONE - Dashboard (Left, Front) */}
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="relative w-[260px] sm:w-[280px] h-[560px] sm:h-[580px] bg-[#1a1a1a] rounded-[40px] border-[8px] border-[#1a1a1a] shadow-2xl overflow-hidden z-20"
+                  style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)' }}
+                >
+                  {/* Notch */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-[#1a1a1a] rounded-b-2xl z-30"></div>
+                  {/* Status Bar */}
+                  <div className="w-full h-8 bg-white flex justify-between items-center px-5 pt-1 text-[#1F1F1F] z-20 relative">
+                    <span className="text-[9px] font-semibold">9:41</span>
+                    <div className="flex gap-1">
+                      <Signal className="w-3 h-3" />
+                      <Wifi className="w-3 h-3" />
+                      <Battery className="w-3 h-3" />
+                    </div>
                   </div>
-                </div>
-                {/* Screen */}
-                <div className="w-full h-full bg-[#F0F4F9] overflow-y-auto relative no-scrollbar pb-20 font-sans">
-                  {/* App Header */}
-                  <div className="bg-white px-5 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-100">
-                        <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100&q=80" alt="Dad" className="w-full h-full object-cover" />
+                  {/* Screen Content */}
+                  <div className="w-full h-full bg-white overflow-hidden relative font-sans">
+                    {/* App Header */}
+                    <div className="bg-white px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-9 h-9 rounded-full overflow-hidden border border-slate-100">
+                          <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100&q=80" alt="Dad" className="w-full h-full object-cover" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-sm text-[#1F1F1F]">Johnathan Doe</h3>
+                          <p className="text-[10px] text-green-600 flex items-center">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1"></span>
+                            Online
+                          </p>
+                        </div>
                       </div>
+                      <Settings className="w-4 h-4 text-slate-400" />
+                    </div>
+
+                    {/* Dashboard Content */}
+                    <div className="p-3 space-y-3 bg-[#F8F9FA]">
+                      {/* Current Vitals Card */}
+                      <div className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2">Current Vitals</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="bg-rose-50 rounded-xl p-2.5">
+                            <Heart className="w-4 h-4 text-rose-500 mb-1" />
+                            <p className="text-lg font-bold text-slate-900">120/80</p>
+                            <p className="text-[9px] text-slate-500">Blood Pressure</p>
+                          </div>
+                          <div className="bg-amber-50 rounded-xl p-2.5">
+                            <Thermometer className="w-4 h-4 text-amber-500 mb-1" />
+                            <p className="text-lg font-bold text-slate-900">98.6°</p>
+                            <p className="text-[9px] text-slate-500">Temperature</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Today's Tasks */}
+                      <div className="bg-white rounded-2xl p-3 shadow-sm border border-slate-100">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mb-2">Today's Tasks</p>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full bg-[#25D366] flex items-center justify-center">
+                              <CircleCheck className="w-3 h-3 text-white" />
+                            </div>
+                            <span className="text-xs text-slate-500 line-through">Morning Meds</span>
+                            <span className="ml-auto text-[9px] text-slate-400">8:00 AM</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full bg-[#25D366] flex items-center justify-center">
+                              <CircleCheck className="w-3 h-3 text-white" />
+                            </div>
+                            <span className="text-xs text-slate-500 line-through">Breakfast</span>
+                            <span className="ml-auto text-[9px] text-slate-400">9:15 AM</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full border-2 border-[#25D366]"></div>
+                            <span className="text-xs text-slate-900 font-medium">Physical Therapy</span>
+                            <span className="ml-auto text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">NOW</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full border-2 border-slate-200"></div>
+                            <span className="text-xs text-slate-400">Lunch</span>
+                            <span className="ml-auto text-[9px] text-slate-400">12:00 PM</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Quick Actions */}
+                      <div className="flex gap-2">
+                        <button className="flex-1 bg-[#25D366] text-white text-[10px] font-bold py-2.5 rounded-xl flex items-center justify-center gap-1">
+                          <Camera className="w-3 h-3" /> Add Photo
+                        </button>
+                        <button className="flex-1 bg-slate-100 text-slate-700 text-[10px] font-bold py-2.5 rounded-xl flex items-center justify-center gap-1">
+                          <Activity className="w-3 h-3" /> Record Vitals
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Bottom Nav */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-2 flex justify-around">
+                      <div className="flex flex-col items-center">
+                        <Activity className="w-5 h-5 text-[#25D366]" />
+                        <span className="text-[8px] text-[#25D366] font-medium">Dashboard</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <Clock className="w-5 h-5 text-slate-300" />
+                        <span className="text-[8px] text-slate-400">Schedule</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <MessageCircle className="w-5 h-5 text-slate-300" />
+                        <span className="text-[8px] text-slate-400">Messages</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <Settings className="w-5 h-5 text-slate-300" />
+                        <span className="text-[8px] text-slate-400">Settings</span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* SECONDARY PHONE - Chat (Right, Behind, Angled) */}
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="absolute -right-16 sm:-right-20 top-8 w-[240px] sm:w-[260px] h-[520px] sm:h-[540px] bg-[#1a1a1a] rounded-[36px] border-[8px] border-[#1a1a1a] shadow-xl overflow-hidden z-10 hidden sm:block"
+                  style={{ 
+                    transform: 'perspective(1000px) rotateY(-8deg)',
+                    boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.3)'
+                  }}
+                >
+                  {/* Notch */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 bg-[#1a1a1a] rounded-b-xl z-30"></div>
+                  {/* Status Bar */}
+                  <div className="w-full h-7 bg-white flex justify-between items-center px-4 pt-1 text-[#1F1F1F] z-20 relative">
+                    <span className="text-[8px] font-semibold">9:41</span>
+                    <div className="flex gap-1">
+                      <Signal className="w-2.5 h-2.5" />
+                      <Wifi className="w-2.5 h-2.5" />
+                      <Battery className="w-2.5 h-2.5" />
+                    </div>
+                  </div>
+                  {/* Chat Screen */}
+                  <div className="w-full h-full bg-[#F0F4F9] overflow-hidden relative font-sans">
+                    {/* Chat Header */}
+                    <div className="bg-white px-3 py-2.5 border-b border-gray-100 flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold text-xs">F</div>
                       <div>
-                        <h3 className="font-bold text-base text-[#1F1F1F]">Johnathan Doe</h3>
-                        <p className="text-[11px] text-[#444746] font-medium text-green-600 flex items-center">
-                          <div className="w-1.5 h-1.5 rounded-full bg-green-600 mr-1 animate-pulse"></div>
-                          Online Now
-                        </p>
+                        <h3 className="font-bold text-xs text-[#1F1F1F]">Family Chat</h3>
+                        <p className="text-[9px] text-slate-500">Sarah, Mom, Tom</p>
                       </div>
                     </div>
-                    <div className="p-2 bg-slate-50 rounded-full">
-                      <Settings className="w-5 h-5 text-[#444746]" />
+
+                    {/* Chat Messages */}
+                    <div className="p-3 space-y-2">
+                      {/* Message from Sarah */}
+                      <div className="flex gap-2">
+                        <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-[9px] flex-shrink-0">S</div>
+                        <div>
+                          <p className="text-[9px] text-slate-500 mb-0.5">Sarah</p>
+                          <div className="bg-white rounded-xl rounded-tl-none px-2.5 py-1.5 shadow-sm text-[11px] text-slate-700 max-w-[160px]">
+                            Dad had a great morning! Just finished his exercises 💪
+                          </div>
+                          <p className="text-[8px] text-slate-400 mt-0.5">9:32 AM</p>
+                        </div>
+                      </div>
+
+                      {/* Message from Mom */}
+                      <div className="flex gap-2">
+                        <div className="w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold text-[9px] flex-shrink-0">M</div>
+                        <div>
+                          <p className="text-[9px] text-slate-500 mb-0.5">Mom</p>
+                          <div className="bg-white rounded-xl rounded-tl-none px-2.5 py-1.5 shadow-sm text-[11px] text-slate-700 max-w-[160px]">
+                            Thanks for the update! 😊
+                          </div>
+                          <p className="text-[8px] text-slate-400 mt-0.5">9:35 AM</p>
+                        </div>
+                      </div>
+
+                      {/* My Message */}
+                      <div className="flex justify-end">
+                        <div>
+                          <div className="bg-[#25D366] text-white rounded-xl rounded-tr-none px-2.5 py-1.5 shadow-sm text-[11px] max-w-[160px]">
+                            I will visit this evening!
+                          </div>
+                          <p className="text-[8px] text-slate-400 mt-0.5 text-right">9:38 AM ✓✓</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Chat Input */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-3 py-2 flex gap-2">
+                      <input className="flex-1 bg-slate-100 rounded-full px-3 py-1.5 text-[10px] placeholder:text-slate-400" placeholder="Message..." />
+                      <button className="w-7 h-7 rounded-full bg-[#25D366] flex items-center justify-center">
+                        <Send className="w-3 h-3 text-white" />
+                      </button>
                     </div>
                   </div>
+                </motion.div>
 
-                  {/* Scrollable Feed Content */}
-                  <div className="p-4 space-y-5">
-                    {/* 1. Progress & Vitals */}
-                    <div className="grid grid-cols-2 gap-3">
-                      {/* Progress Card */}
-                      <div className="col-span-2 bg-white p-5 rounded-[24px] shadow-sm border border-slate-50 relative overflow-hidden flex items-center justify-between">
-                        <div>
-                          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Today's Care</span>
-                          <div className="text-3xl font-bold text-[#1F1F1F] mt-1">85%</div>
-                          <span className="text-xs font-medium text-[#146C2E] bg-[#E6F4EA] px-2 py-1 rounded-md mt-2 inline-block">On Track</span>
-                        </div>
-                        {/* Simple SVG Ring */}
-                        <div className="relative w-16 h-16">
-                          <svg className="w-full h-full transform -rotate-90">
-                            <circle cx="32" cy="32" r="28" stroke="#F3F4F6" strokeWidth="6" fill="none" />
-                            <circle cx="32" cy="32" r="28" stroke="#0B57D0" strokeWidth="6" fill="none" strokeDasharray="175.9" strokeDashoffset="26" strokeLinecap="round" />
-                          </svg>
-                        </div>
-                      </div>
-                      {/* Vitals */}
-                      <div className="bg-[#FFD8E4] p-4 rounded-[20px] flex flex-col justify-between h-28">
-                        <div className="flex justify-between items-start">
-                          <Heart className="w-5 h-5 text-[#31111D]" />
-                          <span className="text-[10px] font-bold text-[#31111D]/60 uppercase">BP</span>
-                        </div>
-                        <div>
-                          <span className="text-2xl font-bold text-[#31111D]">120/80</span>
-                          <span className="text-[10px] block text-[#31111D]/70">Normal</span>
-                        </div>
-                      </div>
-                      <div className="bg-[#FFDCC2] p-4 rounded-[20px] flex flex-col justify-between h-28">
-                        <div className="flex justify-between items-start">
-                          <Thermometer className="w-5 h-5 text-[#2E1500]" />
-                          <span className="text-[10px] font-bold text-[#2E1500]/60 uppercase">Temp</span>
-                        </div>
-                        <div>
-                          <span className="text-2xl font-bold text-[#2E1500]">98.6°</span>
-                          <span className="text-[10px] block text-[#2E1500]/70">Stable</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 2. Timeline Label */}
-                    <div className="flex items-center justify-between px-1">
-                      <h4 className="font-bold text-[#1F1F1F]">Timeline</h4>
-                      <span className="text-xs text-[#0B57D0] font-bold">View Full</span>
-                    </div>
-
-                    {/* 3. Timeline Items */}
-                    <div className="space-y-0 relative">
-                      {/* Vertical Line */}
-                      <div className="absolute left-[19px] top-2 bottom-4 w-[2px] bg-[#E1E3E1]"></div>
-                      {/* Item 1 */}
-                      <div className="flex gap-4 relative mb-6">
-                        <div className="z-10 w-10 h-10 rounded-full bg-[#E6F4EA] border-2 border-white shadow-sm flex items-center justify-center shrink-0">
-                          <CircleCheck className="w-5 h-5 text-[#146C2E]" />
-                        </div>
-                        <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-50 flex-1">
-                          <div className="flex justify-between items-start mb-1">
-                            <span className="font-bold text-sm text-[#1F1F1F]">Morning Meds</span>
-                            <span className="text-[10px] text-slate-400">08:00 AM</span>
-                          </div>
-                          <p className="text-xs text-slate-500 mb-2">Administered Lisinopril 10mg.</p>
-                          <div className="inline-flex items-center px-2 py-1 bg-slate-50 rounded-lg border border-slate-100">
-                            <Camera className="w-3 h-3 text-slate-400 mr-1" />
-                            <span className="text-[10px] font-bold text-slate-600">Photo Verified</span>
-                          </div>
-                        </div>
-                      </div>
-                      {/* Item 2 */}
-                      <div className="flex gap-4 relative mb-6">
-                        <div className="z-10 w-10 h-10 rounded-full bg-[#E6F4EA] border-2 border-white shadow-sm flex items-center justify-center shrink-0">
-                          <CircleCheck className="w-5 h-5 text-[#146C2E]" />
-                        </div>
-                        <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-50 flex-1">
-                          <div className="flex justify-between items-start mb-1">
-                            <span className="font-bold text-sm text-[#1F1F1F]">Breakfast</span>
-                            <span className="text-[10px] text-slate-400">09:15 AM</span>
-                          </div>
-                          <p className="text-xs text-slate-500">Oatmeal and fresh fruit. Good appetite.</p>
-                        </div>
-                      </div>
-                      {/* Item 3 */}
-                      <div className="flex gap-4 relative">
-                        <div className="z-10 w-10 h-10 rounded-full bg-white border-2 border-[#0B57D0] shadow-sm flex items-center justify-center shrink-0">
-                          <div className="w-3 h-3 bg-[#0B57D0] rounded-full animate-pulse"></div>
-                        </div>
-                        <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-50 flex-1 opacity-80">
-                          <div className="flex justify-between items-start mb-1">
-                            <span className="font-bold text-sm text-[#1F1F1F]">PT Exercises</span>
-                            <span className="text-[10px] text-slate-400">Now</span>
-                          </div>
-                          <p className="text-xs text-slate-500">Leg lifts and stretching routine.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Floating Nav Bar at Bottom */}
-                  <div className="absolute bottom-6 left-0 right-0 flex justify-center">
-                    <div className="bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border border-slate-100 flex gap-8">
-                      <div className="text-[#0B57D0]"><Activity className="w-6 h-6" /></div>
-                      <div className="text-slate-300"><MessageCircle className="w-6 h-6" /></div>
-                      <div className="text-slate-300"><Shield className="w-6 h-6" /></div>
-                    </div>
-                  </div>
-                </div>
+                {/* Decorative blurs */}
+                <div className="absolute top-10 -right-32 w-64 h-64 bg-[#25D366] rounded-full blur-[100px] opacity-15 pointer-events-none -z-10"></div>
+                <div className="absolute bottom-10 -left-20 w-48 h-48 bg-purple-400 rounded-full blur-[80px] opacity-15 pointer-events-none -z-10"></div>
               </div>
-
-              {/* Decorative elements behind phone */}
-              <div className="absolute top-20 -right-20 w-80 h-80 bg-[#25D366] rounded-full blur-[120px] opacity-10 pointer-events-none -z-10"></div>
-              <div className="absolute bottom-20 -left-20 w-80 h-80 bg-blue-400 rounded-full blur-[120px] opacity-10 pointer-events-none -z-10"></div>
             </div>
           </div>
         </div>
