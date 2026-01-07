@@ -181,7 +181,7 @@ export const FamilyDashboard = ({ onBack }) => {
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col min-h-screen min-w-0 overflow-hidden">
         {/* Top Header - Mobile */}
         <header className="lg:hidden bg-white border-b border-gray-100 sticky top-0 z-30">
           <div className="grid grid-cols-[48px_1fr_48px] items-center px-2 py-3">

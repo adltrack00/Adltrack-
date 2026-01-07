@@ -200,7 +200,7 @@ export const EnterpriseDashboard = ({ onBack }) => {
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col min-h-screen min-w-0 overflow-hidden">
         {/* Top Header */}
         <header className="bg-white border-b border-gray-100 sticky top-0 z-30">
           <div className="hidden lg:flex items-center justify-between px-6 py-3">
