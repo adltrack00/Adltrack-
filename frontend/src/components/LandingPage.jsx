@@ -173,7 +173,7 @@ const FamilyChatMock = () => (
   </div>
 )
 
-export const LandingPage = ({ onSelectRole }) => {
+export const LandingPage = ({ onSelectRole, onNavigateToFAQ }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
