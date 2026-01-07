@@ -4,7 +4,8 @@ import {
   Activity, Heart, Thermometer, Clock, CircleCheck,
   Camera, MapPin, Bell, ArrowLeft, Send, Plus, Sparkles,
   AlertTriangle, CheckCircle2, Pill, Utensils, Dumbbell, Bath,
-  ListTodo, FileText, Mic, Play, Pause
+  ListTodo, FileText, Mic, Play, Pause, Menu, X, Home,
+  MessageSquare, User, Settings, ChevronRight, Image
 } from "lucide-react"
 import { Button } from "./ui/button"
 
@@ -20,7 +21,7 @@ const mockShift = {
   },
   startTime: "08:00 AM",
   endTime: "04:00 PM",
-};
+}
 
 const mockTasks = [
   { id: 1, title: "Morning Medications", time: "08:00 AM", priority: "critical", completed: true, verified: true, icon: Pill },
@@ -30,348 +31,490 @@ const mockTasks = [
   { id: 5, title: "Lunch", time: "12:00 PM", priority: "standard", completed: false, verified: false, icon: Utensils },
   { id: 6, title: "Afternoon Meds", time: "02:00 PM", priority: "critical", completed: false, verified: false, icon: Pill },
   { id: 7, title: "Bathing Assistance", time: "03:00 PM", priority: "standard", completed: false, verified: false, icon: Bath },
-];
+]
 
-const mockCopilotSuggestions = [
-  { id: 1, text: "Blood pressure was slightly elevated yesterday. Consider extra monitoring.", type: "alert" },
-  { id: 2, text: "Tip: Johnathan prefers his medication with applesauce.", type: "tip" },
-  { id: 3, text: "Great work! You are ahead of schedule today.", type: "success" },
-];
+const mockChatHistory = [
+  { id: 1, role: "assistant", content: "Good morning! I see you're starting your shift with Johnathan Doe. Here's a quick summary: Blood pressure was slightly elevated yesterday (142/88). Remember, he prefers his medication with applesauce." },
+  { id: 2, role: "user", content: "Thanks! What should I watch out for today?" },
+  { id: 3, role: "assistant", content: "Great question! Key things to monitor:\n• Blood pressure - take reading before and after physical therapy\n• Blood sugar levels - he had a low reading two days ago\n• Hydration - encourage fluids throughout the day" },
+]
+
+const suggestionChips = [
+  { text: "Log vital signs", icon: Heart },
+  { text: "View care plan", icon: FileText },
+  { text: "Report concern", icon: AlertTriangle },
+  { text: "Take photo", icon: Camera },
+]
 
 export const CaregiverDashboard = ({ onBack }) => {
-  const [activeTab, setActiveTab] = useState('tasks');
-  const [tasks, setTasks] = useState(mockTasks);
-  const [showCamera, setShowCamera] = useState(false);
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [shiftActive, setShiftActive] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [activeView, setActiveView] = useState('chat')
+  const [tasks, setTasks] = useState(mockTasks)
+  const [inputMessage, setInputMessage] = useState('')
+  const [chatHistory, setChatHistory] = useState(mockChatHistory)
+  const [shiftActive, setShiftActive] = useState(true)
+  const [showCamera, setShowCamera] = useState(false)
+  const [selectedTask, setSelectedTask] = useState(null)
 
-  const completedTasks = tasks.filter(t => t.completed).length;
-  const progress = (completedTasks / tasks.length) * 100;
+  const completedTasks = tasks.filter(t => t.completed).length
+  const progress = Math.round((completedTasks / tasks.length) * 100)
 
   const handleCompleteTask = (taskId) => {
     setTasks(prev => prev.map(t => 
       t.id === taskId ? { ...t, completed: !t.completed } : t
-    ));
-  };
+    ))
+  }
 
-  const tabs = [
+  const handleSendMessage = () => {
+    if (!inputMessage.trim()) return
+    setChatHistory(prev => [...prev, { id: Date.now(), role: 'user', content: inputMessage }])
+    setInputMessage('')
+    // Simulate AI response
+    setTimeout(() => {
+      setChatHistory(prev => [...prev, {
+        id: Date.now() + 1,
+        role: 'assistant',
+        content: "I understand. Let me help you with that. Based on the care plan and current patient status, here are my recommendations..."
+      }])
+    }, 1000)
+  }
+
+  const sidebarItems = [
+    { id: 'chat', label: 'AI Assistant', icon: Sparkles },
     { id: 'tasks', label: 'Tasks', icon: ListTodo },
     { id: 'vitals', label: 'Vitals', icon: Activity },
-    { id: 'copilot', label: 'AI', icon: Sparkles },
     { id: 'notes', label: 'Notes', icon: FileText },
-  ];
+  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50/50 to-white font-sans">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-xl border-b border-slate-100 sticky top-0 z-50">
-        <div className="max-w-2xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={onBack} 
-                className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
-                data-testid="back-btn"
-              >
-                <ArrowLeft className="w-5 h-5 text-slate-600" />
-              </button>
-              <div>
-                <h1 className="font-semibold text-slate-900">Caregiver</h1>
-                <p className="text-xs text-slate-500">{mockShift.startTime} - {mockShift.endTime}</p>
-              </div>
+    <div className="min-h-screen bg-[#f9f9f9] font-sans flex">
+      {/* Sidebar - Desktop */}
+      <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-gray-100 h-screen sticky top-0">
+        {/* Logo */}
+        <div className="p-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <button 
-              onClick={() => setShiftActive(!shiftActive)}
-              className={`px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all ${
-                shiftActive 
-                  ? 'bg-emerald-100 text-emerald-700' 
-                  : 'bg-slate-100 text-slate-600'
+            <div>
+              <h1 className="font-semibold text-gray-900">ADLTrack</h1>
+              <p className="text-xs text-gray-500">Caregiver Portal</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Nav Items */}
+        <nav className="flex-1 p-3 space-y-1">
+          {sidebarItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveView(item.id)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                activeView === item.id
+                  ? 'bg-purple-50 text-purple-700'
+                  : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
-              {shiftActive ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
-              {shiftActive ? 'On Shift' : 'Paused'}
+              <item.icon className="w-5 h-5" />
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* Back Button */}
+        <div className="p-4 border-t border-gray-100">
+          <button
+            onClick={onBack}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all"
+            data-testid="back-btn"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back to Home
+          </button>
+        </div>
+      </aside>
+
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: -280 }}
+              animate={{ x: 0 }}
+              exit={{ x: -280 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="fixed left-0 top-0 bottom-0 w-72 bg-white z-50 lg:hidden flex flex-col"
+            >
+              <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="font-semibold text-gray-900">ADLTrack</span>
+                </div>
+                <button onClick={() => setSidebarOpen(false)} className="p-2 rounded-lg hover:bg-gray-100">
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+              <nav className="flex-1 p-3 space-y-1">
+                {sidebarItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => { setActiveView(item.id); setSidebarOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                      activeView === item.id
+                        ? 'bg-purple-50 text-purple-700'
+                        : 'text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    {item.label}
+                  </button>
+                ))}
+              </nav>
+              <div className="p-4 border-t border-gray-100">
+                <button onClick={onBack} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">
+                  <ArrowLeft className="w-5 h-5" />
+                  Back to Home
+                </button>
+              </div>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-h-screen">
+        {/* Top Header - Mobile */}
+        <header className="lg:hidden bg-white border-b border-gray-100 sticky top-0 z-30">
+          <div className="flex items-center justify-between px-4 py-3">
+            <button onClick={() => setSidebarOpen(true)} className="p-2 -ml-2 rounded-lg hover:bg-gray-100">
+              <Menu className="w-5 h-5 text-gray-600" />
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-white" />
+              </div>
+              <span className="font-semibold text-gray-900">ADLTrack</span>
+            </div>
+            <button className="p-2 -mr-2 rounded-lg hover:bg-gray-100 relative">
+              <Bell className="w-5 h-5 text-gray-600" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Patient Banner */}
-      <div className="max-w-2xl mx-auto px-4 py-4">
-        <div className="bg-white rounded-3xl p-4 shadow-sm border border-slate-100">
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-100 to-emerald-50 flex-shrink-0">
-              <img src={mockShift.patient.avatar} alt="" className="w-full h-full object-cover" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="font-semibold text-slate-900 truncate">{mockShift.patient.name}</h2>
-              <p className="text-sm text-slate-500 truncate flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                {mockShift.patient.address}
-              </p>
-            </div>
-            <div className="flex items-center gap-1 px-2 py-1 bg-emerald-50 rounded-full text-emerald-600 flex-shrink-0">
-              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
-              <span className="text-xs font-medium">In</span>
-            </div>
-          </div>
-          
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mt-3">
-            {mockShift.patient.conditions.map((c, i) => (
-              <span key={i} className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full">{c}</span>
-            ))}
-            {mockShift.patient.allergies.map((a, i) => (
-              <span key={i} className="text-xs bg-rose-50 text-rose-600 px-2 py-1 rounded-full flex items-center gap-1">
-                <AlertTriangle className="w-3 h-3" />{a}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mt-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-          <div className="flex justify-between text-sm mb-2">
-            <span className="text-slate-600 font-medium">Progress</span>
-            <span className="text-slate-500">{completedTasks}/{tasks.length}</span>
-          </div>
-          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <main className="max-w-2xl mx-auto px-4 pb-24">
-        <AnimatePresence mode="wait">
-          {activeTab === 'tasks' && (
-            <motion.div
-              key="tasks"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="space-y-3"
-            >
-              {tasks.map((task) => (
-                <motion.div
-                  key={task.id}
-                  layout
-                  className={`bg-white rounded-2xl p-4 shadow-sm border transition-all ${
-                    task.completed ? 'border-emerald-100 bg-emerald-50/30' : 'border-slate-100'
+        {/* Patient Card - Always visible */}
+        <div className="bg-white border-b border-gray-100 px-4 lg:px-6 py-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100">
+                  <img src={mockShift.patient.avatar} alt="" className="w-full h-full object-cover" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="font-semibold text-gray-900">{mockShift.patient.name}</h2>
+                <p className="text-sm text-gray-500 flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span className="truncate">{mockShift.patient.address}</span>
+                </p>
+              </div>
+              <div className="hidden sm:flex items-center gap-2">
+                <button
+                  onClick={() => setShiftActive(!shiftActive)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    shiftActive
+                      ? 'bg-green-50 text-green-700 border border-green-200'
+                      : 'bg-gray-100 text-gray-600'
                   }`}
                 >
-                  <div className="flex items-start gap-3">
-                    {/* Checkbox */}
-                    <button
-                      onClick={() => handleCompleteTask(task.id)}
-                      className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
-                        task.completed 
-                          ? 'bg-emerald-500 text-white' 
-                          : 'border-2 border-slate-300 hover:border-emerald-400'
-                      }`}
-                      data-testid={`task-checkbox-${task.id}`}
-                    >
-                      {task.completed && <CheckCircle2 className="w-4 h-4" />}
-                    </button>
+                  {shiftActive ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
+                  {shiftActive ? 'On Shift' : 'Paused'}
+                </button>
+              </div>
+            </div>
 
-                    {/* Task Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        {task.priority === 'critical' && (
-                          <span className="text-[10px] bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded font-bold uppercase">Critical</span>
-                        )}
-                        {task.priority === 'high' && (
-                          <span className="text-[10px] bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded font-bold uppercase">High</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <task.icon className={`w-4 h-4 flex-shrink-0 ${task.completed ? 'text-slate-400' : 'text-slate-500'}`} />
-                        <h4 className={`font-medium truncate ${task.completed ? 'text-slate-400 line-through' : 'text-slate-900'}`}>
-                          {task.title}
-                        </h4>
-                      </div>
-                      <p className="text-xs text-slate-400 mt-1">{task.time}</p>
-                      
-                      {/* Actions */}
-                      {task.completed && !task.verified && (
-                        <Button
-                          onClick={() => { setSelectedTask(task.id); setShowCamera(true); }}
-                          className="mt-3 h-8 text-xs bg-blue-500 hover:bg-blue-600 rounded-full"
-                          size="sm"
-                        >
-                          <Camera className="w-3 h-3 mr-1.5" />
-                          Add Photo
-                        </Button>
-                      )}
-                      {task.verified && (
-                        <div className="mt-2 flex items-center text-emerald-600 text-xs font-medium">
-                          <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
-                          Verified
+            {/* Progress bar */}
+            <div className="mt-4 flex items-center gap-4">
+              <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"
+                />
+              </div>
+              <span className="text-sm font-medium text-gray-600">{progress}%</span>
+            </div>
+
+            {/* Tags */}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {mockShift.patient.conditions.map((c, i) => (
+                <span key={i} className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-medium">{c}</span>
+              ))}
+              {mockShift.patient.allergies.map((a, i) => (
+                <span key={i} className="text-xs bg-red-50 text-red-700 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3" />{a}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-auto">
+          <div className="max-w-4xl mx-auto px-4 lg:px-6 py-6">
+            <AnimatePresence mode="wait">
+              {/* Chat View - Copilot Style */}
+              {activeView === 'chat' && (
+                <motion.div
+                  key="chat"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-6"
+                >
+                  {/* Chat History */}
+                  <div className="space-y-4">
+                    {chatHistory.map((msg) => (
+                      <motion.div
+                        key={msg.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          msg.role === 'assistant'
+                            ? 'bg-gradient-to-br from-purple-500 to-blue-500'
+                            : 'bg-gray-200'
+                        }`}>
+                          {msg.role === 'assistant' ? (
+                            <Sparkles className="w-4 h-4 text-white" />
+                          ) : (
+                            <User className="w-4 h-4 text-gray-600" />
+                          )}
                         </div>
-                      )}
+                        <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                          msg.role === 'assistant'
+                            ? 'bg-white border border-gray-100 shadow-sm'
+                            : 'bg-purple-600 text-white'
+                        }`}>
+                          <p className={`text-sm whitespace-pre-line ${msg.role === 'assistant' ? 'text-gray-700' : 'text-white'}`}>
+                            {msg.content}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Tasks View */}
+              {activeView === 'tasks' && (
+                <motion.div
+                  key="tasks"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-3"
+                >
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Today's Tasks</h2>
+                  {tasks.map((task) => (
+                    <motion.div
+                      key={task.id}
+                      layout
+                      className={`bg-white rounded-2xl p-4 border transition-all ${
+                        task.completed ? 'border-green-100 bg-green-50/30' : 'border-gray-100 shadow-sm'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <button
+                          onClick={() => handleCompleteTask(task.id)}
+                          className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
+                            task.completed
+                              ? 'bg-green-500 text-white'
+                              : 'border-2 border-gray-300 hover:border-purple-400'
+                          }`}
+                          data-testid={`task-checkbox-${task.id}`}
+                        >
+                          {task.completed && <CheckCircle2 className="w-4 h-4" />}
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            {task.priority === 'critical' && (
+                              <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold uppercase">Critical</span>
+                            )}
+                            {task.priority === 'high' && (
+                              <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold uppercase">High</span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <task.icon className={`w-4 h-4 ${task.completed ? 'text-gray-400' : 'text-gray-500'}`} />
+                            <span className={`font-medium ${task.completed ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                              {task.title}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-400 mt-1">{task.time}</p>
+                          {task.completed && !task.verified && (
+                            <Button
+                              onClick={() => { setSelectedTask(task.id); setShowCamera(true); }}
+                              className="mt-3 h-8 text-xs bg-purple-600 hover:bg-purple-700 rounded-full"
+                              size="sm"
+                            >
+                              <Camera className="w-3 h-3 mr-1.5" />
+                              Verify with Photo
+                            </Button>
+                          )}
+                          {task.verified && (
+                            <div className="mt-2 flex items-center text-green-600 text-xs font-medium">
+                              <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+                              Verified
+                            </div>
+                          )}
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-300" />
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Vitals View */}
+              {activeView === 'vitals' && (
+                <motion.div
+                  key="vitals"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-4"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold text-gray-900">Vitals</h2>
+                    <Button size="sm" className="rounded-full bg-purple-600 hover:bg-purple-700 h-9">
+                      <Plus className="w-4 h-4 mr-1" /> Record
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                      <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center mb-3">
+                        <Heart className="w-5 h-5 text-red-500" />
+                      </div>
+                      <p className="text-2xl font-bold text-gray-900">120/80</p>
+                      <p className="text-sm text-gray-500">Blood Pressure</p>
+                      <p className="text-xs text-gray-400 mt-1">9:30 AM</p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                      <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center mb-3">
+                        <Thermometer className="w-5 h-5 text-amber-500" />
+                      </div>
+                      <p className="text-2xl font-bold text-gray-900">98.6°F</p>
+                      <p className="text-sm text-gray-500">Temperature</p>
+                      <p className="text-xs text-gray-400 mt-1">9:30 AM</p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                      <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center mb-3">
+                        <Activity className="w-5 h-5 text-purple-500" />
+                      </div>
+                      <p className="text-2xl font-bold text-gray-900">72 bpm</p>
+                      <p className="text-sm text-gray-500">Heart Rate</p>
+                      <p className="text-xs text-gray-400 mt-1">9:30 AM</p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
+                        <Activity className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <p className="text-2xl font-bold text-gray-900">105</p>
+                      <p className="text-sm text-gray-500">Blood Sugar</p>
+                      <p className="text-xs text-gray-400 mt-1">8:00 AM</p>
                     </div>
                   </div>
                 </motion.div>
-              ))}
-            </motion.div>
-          )}
+              )}
 
-          {activeTab === 'vitals' && (
-            <motion.div
-              key="vitals"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="space-y-4"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-slate-900">Record Vitals</h3>
-                <Button size="sm" className="rounded-full bg-emerald-500 hover:bg-emerald-600 h-9">
-                  <Plus className="w-4 h-4 mr-1" /> Add
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-rose-50 rounded-2xl p-4">
-                  <Heart className="w-5 h-5 text-rose-500 mb-2" />
-                  <p className="text-2xl font-bold text-slate-900">120/80</p>
-                  <p className="text-xs text-slate-500">Blood Pressure</p>
-                  <p className="text-[10px] text-slate-400 mt-1">9:30 AM</p>
-                </div>
-                <div className="bg-amber-50 rounded-2xl p-4">
-                  <Thermometer className="w-5 h-5 text-amber-500 mb-2" />
-                  <p className="text-2xl font-bold text-slate-900">98.6°F</p>
-                  <p className="text-xs text-slate-500">Temperature</p>
-                  <p className="text-[10px] text-slate-400 mt-1">9:30 AM</p>
-                </div>
-                <div className="bg-violet-50 rounded-2xl p-4">
-                  <Activity className="w-5 h-5 text-violet-500 mb-2" />
-                  <p className="text-2xl font-bold text-slate-900">72 bpm</p>
-                  <p className="text-xs text-slate-500">Heart Rate</p>
-                  <p className="text-[10px] text-slate-400 mt-1">9:30 AM</p>
-                </div>
-                <div className="bg-blue-50 rounded-2xl p-4">
-                  <Activity className="w-5 h-5 text-blue-500 mb-2" />
-                  <p className="text-2xl font-bold text-slate-900">105</p>
-                  <p className="text-xs text-slate-500">Blood Sugar</p>
-                  <p className="text-[10px] text-slate-400 mt-1">8:00 AM</p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {activeTab === 'copilot' && (
-            <motion.div
-              key="copilot"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="space-y-4"
-            >
-              {/* AI Header */}
-              <div className="bg-gradient-to-br from-violet-500 to-purple-600 rounded-3xl p-5 text-white">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center">
-                    <Sparkles className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">AI Care Copilot</h3>
-                    <p className="text-xs text-white/70">Your intelligent assistant</p>
-                  </div>
-                </div>
-                <p className="text-sm text-white/90">Ask me anything about care procedures or get personalized suggestions.</p>
-              </div>
-
-              {/* Suggestions */}
-              <h4 className="font-medium text-slate-900">Today's Insights</h4>
-              {mockCopilotSuggestions.map((s) => (
-                <div key={s.id} className={`bg-white rounded-2xl p-4 shadow-sm border-l-4 ${
-                  s.type === 'alert' ? 'border-l-amber-400' :
-                  s.type === 'tip' ? 'border-l-blue-400' : 'border-l-emerald-400'
-                }`}>
-                  <div className="flex gap-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      s.type === 'alert' ? 'bg-amber-100' :
-                      s.type === 'tip' ? 'bg-blue-100' : 'bg-emerald-100'
-                    }`}>
-                      {s.type === 'alert' ? <AlertTriangle className="w-4 h-4 text-amber-600" /> :
-                       s.type === 'tip' ? <Sparkles className="w-4 h-4 text-blue-600" /> :
-                       <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
+              {/* Notes View */}
+              {activeView === 'notes' && (
+                <motion.div
+                  key="notes"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-4"
+                >
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Shift Notes</h2>
+                  <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+                    <textarea
+                      placeholder="Add notes about today's shift..."
+                      className="w-full h-40 bg-transparent text-sm outline-none resize-none text-gray-700 placeholder:text-gray-400"
+                      data-testid="shift-notes-input"
+                    />
+                    <div className="flex justify-between items-center pt-4 border-t border-gray-100 mt-4">
+                      <Button variant="outline" size="sm" className="rounded-full">
+                        <Camera className="w-4 h-4 mr-2" />
+                        Add Photo
+                      </Button>
+                      <Button size="sm" className="rounded-full bg-purple-600 hover:bg-purple-700">
+                        Save Notes
+                      </Button>
                     </div>
-                    <p className="text-sm text-slate-700 flex-1">{s.text}</p>
                   </div>
-                </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </main>
+
+        {/* Copilot-style Bottom Input - Always visible */}
+        <div className="sticky bottom-0 bg-gradient-to-t from-[#f9f9f9] via-[#f9f9f9] to-transparent pt-6 pb-4 px-4 lg:px-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Suggestion Chips */}
+            <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">
+              {suggestionChips.map((chip, i) => (
+                <button
+                  key={i}
+                  className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all whitespace-nowrap shadow-sm"
+                >
+                  <chip.icon className="w-4 h-4 text-purple-500" />
+                  {chip.text}
+                </button>
               ))}
+            </div>
 
-              {/* Chat Input */}
-              <div className="flex gap-3 pt-4">
-                <input
-                  type="text"
-                  placeholder="Ask the AI Copilot..."
-                  className="flex-1 bg-slate-100 rounded-full px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-violet-200"
-                />
-                <Button className="w-12 h-12 rounded-full bg-gradient-to-r from-violet-500 to-purple-600 p-0">
-                  <Mic className="w-5 h-5" />
-                </Button>
-              </div>
-            </motion.div>
-          )}
-
-          {activeTab === 'notes' && (
-            <motion.div
-              key="notes"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="space-y-4"
-            >
-              <h3 className="font-semibold text-slate-900">Shift Notes</h3>
-              <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
-                <textarea
-                  placeholder="Add notes about today's shift..."
-                  className="w-full h-40 bg-transparent text-sm outline-none resize-none text-slate-700 placeholder:text-slate-400"
-                  data-testid="shift-notes-input"
-                />
-                <div className="flex justify-between items-center pt-4 border-t border-slate-100">
-                  <Button variant="outline" size="sm" className="rounded-full">
-                    <Camera className="w-4 h-4 mr-2" />
-                    Photo
-                  </Button>
-                  <Button size="sm" className="rounded-full bg-emerald-500 hover:bg-emerald-600">
-                    Save Notes
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </main>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-100 safe-area-pb">
-        <div className="max-w-2xl mx-auto px-6 py-3">
-          <div className="flex justify-around">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex flex-col items-center gap-1 px-4 py-2 rounded-2xl transition-all ${
-                  activeTab === tab.id
-                    ? 'bg-emerald-100 text-emerald-600'
-                    : 'text-slate-400 hover:text-slate-600'
-                }`}
-                data-testid={`tab-${tab.id}`}
-              >
-                <tab.icon className="w-5 h-5" />
-                <span className="text-xs font-medium">{tab.label}</span>
+            {/* Input Bar */}
+            <div className="flex items-center gap-3 bg-white rounded-full border border-gray-200 shadow-lg px-4 py-2">
+              <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <Plus className="w-5 h-5 text-gray-500" />
               </button>
-            ))}
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                placeholder="Ask the AI Care Assistant..."
+                className="flex-1 bg-transparent text-sm outline-none text-gray-700 placeholder:text-gray-400"
+              />
+              <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <Mic className="w-5 h-5 text-gray-500" />
+              </button>
+              <button
+                onClick={handleSendMessage}
+                className="p-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all"
+              >
+                <Send className="w-4 h-4 text-white" />
+              </button>
+            </div>
           </div>
         </div>
-      </nav>
+      </div>
 
       {/* Camera Modal */}
       <AnimatePresence>
@@ -380,38 +523,38 @@ export const CaregiverDashboard = ({ onBack }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={() => setShowCamera(false)}
           >
             <motion.div
-              initial={{ y: 100, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 100, opacity: 0 }}
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
               className="bg-white rounded-3xl p-6 w-full max-w-sm"
               onClick={e => e.stopPropagation()}
             >
-              <h3 className="font-semibold text-lg text-slate-900 mb-4">Photo Verification</h3>
-              <div className="aspect-[4/3] bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
-                <Camera className="w-12 h-12 text-slate-300" />
+              <h3 className="font-semibold text-lg text-gray-900 mb-4">Photo Verification</h3>
+              <div className="aspect-[4/3] bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
+                <Camera className="w-12 h-12 text-gray-300" />
               </div>
-              <p className="text-sm text-slate-500 mb-4 text-center">
+              <p className="text-sm text-gray-500 mb-4 text-center">
                 Take a photo to verify task completion.
               </p>
               <div className="flex gap-3">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="flex-1 rounded-full h-12"
                   onClick={() => setShowCamera(false)}
                 >
                   Cancel
                 </Button>
-                <Button 
-                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 rounded-full h-12"
+                <Button
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 rounded-full h-12"
                   onClick={() => {
-                    setTasks(prev => prev.map(t => 
+                    setTasks(prev => prev.map(t =>
                       t.id === selectedTask ? { ...t, verified: true } : t
-                    ));
-                    setShowCamera(false);
+                    ))
+                    setShowCamera(false)
                   }}
                 >
                   <Camera className="w-4 h-4 mr-2" />
@@ -423,7 +566,7 @@ export const CaregiverDashboard = ({ onBack }) => {
         )}
       </AnimatePresence>
     </div>
-  );
-};
+  )
+}
 
-export default CaregiverDashboard;
+export default CaregiverDashboard
