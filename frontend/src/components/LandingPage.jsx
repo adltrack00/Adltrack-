@@ -1007,7 +1007,7 @@ export const LandingPage = ({ onSelectRole, onNavigateToFAQ }) => {
               <ul className="space-y-4 text-slate-300 text-sm">
                 <li><a href="#how-it-works" className="hover:text-[#25D366] transition-colors">How it Works</a></li>
                 <li><a href="#demo" className="hover:text-[#25D366] transition-colors">Features</a></li>
-                <li><a href="#faq" className="hover:text-[#25D366] transition-colors">Help Center</a></li>
+                <li><button onClick={onNavigateToFAQ} className="hover:text-[#25D366] transition-colors">Help Center</button></li>
                 <li><a href="#contact" className="hover:text-[#25D366] transition-colors">Contact Us</a></li>
               </ul>
             </div>
