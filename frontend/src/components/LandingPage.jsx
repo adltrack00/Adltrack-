@@ -931,32 +931,6 @@ export const LandingPage = ({ onSelectRole, onNavigateToFAQ }) => {
         />
       </section>
 
-      {/* --- FAQ SECTION --- */}
-      <section id="faq" className="bg-[#F0F4F9] py-20 px-6 border-t border-slate-200">
-        <div className="container mx-auto max-w-4xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-[#111B21] mb-4">Frequently Asked Questions</h2>
-            <p className="text-slate-600">Common questions about getting started with ADLTrack.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[
-              { q: "Is ADLTrack HIPAA Compliant?", a: "Yes, we use enterprise-grade encryption and strictly adhere to HIPAA standards to protect all patient health information." },
-              { q: "Do I need special hardware?", a: "No. ADLTrack works on any modern smartphone (iOS and Android). Caregivers just download the app to get started." },
-              { q: "Can multiple family members join?", a: "Absolutely. The primary account holder can invite unlimited family members to view the care feed." },
-              { q: "How much does it cost?", a: "Families get a 14-day free trial. Agencies have custom tiered pricing based on the number of active clients." }
-            ].map((item, i) => (
-              <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                <h3 className="font-bold text-[#1F1F1F] mb-3 flex items-start">
-                  <CircleHelp className="w-5 h-5 text-[#25D366] mr-2 shrink-0 mt-0.5" />
-                  {item.q}
-                </h3>
-                <p className="text-sm text-slate-600 ml-7 leading-relaxed">{item.a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* --- CONTACT SECTION --- */}
       <section id="contact" className="bg-[#111B21] py-20 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-[#25D366] opacity-5 skew-x-12 transform origin-top-right"></div>
