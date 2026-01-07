@@ -328,7 +328,7 @@ export const CaregiverDashboard = ({ onBack }) => {
                   exit={{ opacity: 0, y: -10 }}
                   className="space-y-3"
                 >
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Today's Tasks</h2>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Today&apos;s Tasks</h2>
                   {tasks.map((task) => (
                     <motion.div
                       key={task.id}
