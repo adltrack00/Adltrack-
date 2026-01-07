@@ -87,7 +87,7 @@ export const CaregiverDashboard = ({ onBack }) => {
   ]
 
   return (
-    <div className="min-h-screen bg-[#f9f9f9] font-sans flex">
+    <div className="min-h-screen bg-[#f9f9f9] font-sans flex overflow-x-hidden">
       {/* Sidebar - Desktop */}
       <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-gray-100 h-screen sticky top-0">
         {/* Logo */}
