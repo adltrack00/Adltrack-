@@ -525,14 +525,14 @@ export const FamilyDashboard = ({ onBack }) => {
         </main>
 
         {/* Copilot-style Bottom Input */}
-        <div className="sticky bottom-0 bg-gradient-to-t from-[#f9f9f9] via-[#f9f9f9] to-transparent pt-6 pb-4 px-4 lg:px-6">
+        <div className="sticky bottom-0 bg-gradient-to-t from-[#f9f9f9] via-[#f9f9f9] to-transparent pt-6 pb-4 px-3 sm:px-4 lg:px-6">
           <div className="max-w-4xl mx-auto">
             {/* Suggestion Chips */}
-            <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide">
+            <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide -mx-1 px-1">
               {suggestionChips.map((chip, i) => (
                 <button
                   key={i}
-                  className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all whitespace-nowrap shadow-sm"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-200 rounded-full text-xs sm:text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all whitespace-nowrap shadow-sm flex-shrink-0"
                 >
                   <chip.icon className="w-4 h-4 text-purple-500" />
                   {chip.text}
