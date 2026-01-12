@@ -254,13 +254,21 @@ export const INITIAL_VITALS = {
   ]
 };
 
+// AI-Generated Images for care moments
+export const CARE_IMAGES = {
+  medication: 'https://static.prod-images.emergentagent.com/jobs/2b918343-0fe7-4d73-803a-a8a8c813b61f/images/453bd1aab795a8d4c312f29d43640ac6652d636e5e19337acdc001016a4e77c3.png',
+  meal: 'https://static.prod-images.emergentagent.com/jobs/2b918343-0fe7-4d73-803a-a8a8c813b61f/images/cafa07225118a63f61111220ac6230125b17389a84d7450834c273696c27b3b7.png',
+  walk: 'https://static.prod-images.emergentagent.com/jobs/2b918343-0fe7-4d73-803a-a8a8c813b61f/images/c527b65ae92f45fb0d1b3073f2d9982be28fd338adaa3f25d6f48e6f9a64e813.png',
+  vitals: 'https://static.prod-images.emergentagent.com/jobs/2b918343-0fe7-4d73-803a-a8a8c813b61f/images/1e85b317545e5b7c120268579cc779fadaef5109861b649162128123f74bb2a1.png'
+};
+
 // Patient profile data
 export const PATIENT_PROFILE = {
   id: 'patient-1',
   name: 'David Smith',
   age: 78,
   dateOfBirth: '1946-03-15',
-  photo: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=80',
+  photo: 'https://static.prod-images.emergentagent.com/jobs/2b918343-0fe7-4d73-803a-a8a8c813b61f/images/7c7bc024ec1065d47fb0f219e7359a96b1a85d63628823238fca62051d1d2712.png',
   address: '123 Oak Street, Springfield, IL 62701',
   phone: '(555) 123-4567',
   medicalConditions: [
@@ -294,7 +302,7 @@ export const CAREGIVER_PROFILE = {
   id: 'caregiver-1',
   name: 'Julia Martinez',
   role: 'Certified Nursing Assistant',
-  photo: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=400&q=80',
+  photo: 'https://static.prod-images.emergentagent.com/jobs/2b918343-0fe7-4d73-803a-a8a8c813b61f/images/0d5b21a613a79f2e524a35cfa17574e562820a771203c2d63f5294db092f5e94.png',
   phone: '(555) 567-8901',
   email: 'julia.martinez@careagency.com',
   certifications: ['CNA', 'CPR/First Aid', 'Dementia Care'],
