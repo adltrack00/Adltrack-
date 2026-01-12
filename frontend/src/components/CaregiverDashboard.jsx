@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Home, MessageSquare, Clock, Settings, Bot, User, Heart, Activity, Thermometer,
-  MapPin, Play, Square, ChevronRight, Bell
+  MapPin, Play, ChevronRight, Bell, CheckCircle, Sparkles
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
 import { TaskCard } from './TaskCard';
@@ -16,6 +16,7 @@ import { AccountsPage } from './pages/AccountsPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { SupportPage } from './pages/SupportPage';
 import { ChatPage } from './pages/ChatPage';
+import { CAREGIVER_PROFILE } from '../services/mockData';
 
 export const CaregiverDashboard = ({ 
   onBack, 
@@ -49,6 +50,7 @@ export const CaregiverDashboard = ({
   // Filter tasks
   const todayTasks = tasks.filter(t => t.status !== TaskStatus.PROPOSED);
   const pendingRequests = proposedTasks.filter(t => t.status === TaskStatus.PROPOSED);
+  const completedCount = todayTasks.filter(t => t.status === TaskStatus.COMPLETED).length;
 
   const handleStartShift = () => {
     setIsShiftActive(true);
@@ -95,131 +97,194 @@ export const CaregiverDashboard = ({
   // Render Home Content
   const renderHomeContent = () => {
     if (!isShiftActive) {
-      // Offline State - Show Start Shift
+      // Offline State - Uber-style GO interface
       return (
-        <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MapPin className="w-10 h-10 text-zinc-400" />
+        <div className="flex-1 flex flex-col bg-stone-50">
+          {/* Header with caregiver info */}
+          <div className="px-6 pt-6 pb-4">
+            <div className="flex items-center gap-4">
+              <img 
+                src={CAREGIVER_PROFILE.photo} 
+                alt="You"
+                className="w-14 h-14 rounded-full object-cover ring-2 ring-white shadow-lg"
+              />
+              <div>
+                <p className="text-stone-500 text-sm font-medium">Good morning,</p>
+                <h1 className="text-xl font-bold text-stone-900 tracking-tight">Julia</h1>
+              </div>
             </div>
-            <h2 className="text-2xl font-bold text-zinc-900 mb-2">You're Offline</h2>
-            <p className="text-zinc-500">Start your shift to begin caring for {patient?.name || 'the patient'}</p>
           </div>
-          
-          {/* Start Shift Button */}
-          <button
-            onClick={handleStartShift}
-            className="relative group"
-            data-testid="start-shift-btn"
-          >
-            {/* Pulse Ring */}
-            <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-20" />
-            {/* Button */}
-            <div className="relative w-32 h-32 bg-green-500 rounded-full flex items-center justify-center shadow-xl group-hover:bg-green-600 transition-colors">
-              <Play className="w-12 h-12 text-white ml-2" />
+
+          {/* Patient Card */}
+          <div className="px-6 mb-6">
+            <div className="bg-white rounded-3xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+              <p className="text-stone-400 text-sm font-medium mb-3">Ready to care for</p>
+              <div className="flex items-center gap-4">
+                <img 
+                  src={patient?.photo || 'https://via.placeholder.com/80'} 
+                  alt={patient?.name}
+                  className="w-16 h-16 rounded-2xl object-cover"
+                />
+                <div className="flex-1">
+                  <h2 className="text-lg font-bold text-stone-900">{patient?.name || 'Patient'}</h2>
+                  <p className="text-stone-500 text-sm">{patient?.age} years old</p>
+                </div>
+                <button 
+                  onClick={() => setShowPatientProfile(true)}
+                  className="p-3 bg-stone-100 rounded-full hover:bg-stone-200 transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5 text-stone-600" />
+                </button>
+              </div>
             </div>
-          </button>
-          <p className="text-sm text-zinc-500 mt-4">Tap to start shift</p>
+          </div>
+
+          {/* Start Shift Section */}
+          <div className="flex-1 flex flex-col items-center justify-center px-6 pb-32">
+            <p className="text-stone-400 font-medium mb-2">You're offline</p>
+            <h2 className="text-2xl font-bold text-stone-900 mb-8 text-center">
+              Tap to start your shift
+            </h2>
+            
+            {/* Uber-style GO Button */}
+            <button
+              onClick={handleStartShift}
+              className="relative group"
+              data-testid="start-shift-btn"
+            >
+              {/* Outer pulse ring */}
+              <div className="absolute inset-0 bg-rose-400 rounded-full animate-ping opacity-20 scale-110" />
+              {/* Middle glow */}
+              <div className="absolute inset-[-8px] bg-gradient-to-br from-rose-400 to-rose-500 rounded-full opacity-30 group-hover:opacity-50 transition-opacity blur-xl" />
+              {/* Main button */}
+              <div className="relative w-36 h-36 bg-gradient-to-br from-rose-500 to-rose-600 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(244,63,94,0.4)] group-hover:shadow-[0_12px_40px_rgba(244,63,94,0.5)] transition-all group-hover:scale-105">
+                <Play className="w-14 h-14 text-white ml-2" fill="white" />
+              </div>
+            </button>
+            
+            <p className="text-stone-400 text-sm mt-6">
+              {todayTasks.length} tasks scheduled for today
+            </p>
+          </div>
         </div>
       );
     }
 
-    // Online State - Show Dashboard
+    // Online State - Dashboard
     return (
-      <div className="flex-1 overflow-y-auto pb-24">
-        {/* Patient Header */}
-        <div className="px-4 pt-4">
+      <div className="flex-1 overflow-y-auto bg-stone-50 pb-24">
+        {/* Active Shift Header */}
+        <div className="bg-gradient-to-br from-teal-600 to-teal-700 px-6 pt-6 pb-8 rounded-b-[32px]">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+              <span className="text-white/80 text-sm font-medium">Shift active since {shiftStartTime}</span>
+            </div>
+            <button 
+              onClick={handleEndShift}
+              className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm font-medium hover:bg-white/20 transition-colors"
+            >
+              End Shift
+            </button>
+          </div>
+          
+          {/* Patient Info */}
           <button 
             onClick={() => setShowPatientProfile(true)}
-            className="flex items-center gap-3 w-full"
+            className="flex items-center gap-4 w-full"
           >
             <img 
               src={patient?.photo || 'https://via.placeholder.com/60'} 
               alt={patient?.name}
-              className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-md"
+              className="w-16 h-16 rounded-2xl object-cover ring-2 ring-white/30"
             />
             <div className="flex-1 text-left">
-              <h2 className="font-semibold text-zinc-900">{patient?.name || 'Patient'}</h2>
-              <p className="text-sm text-green-600 flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                Shift started at {shiftStartTime}
-              </p>
+              <p className="text-white/70 text-sm font-medium">Caring for</p>
+              <h2 className="text-xl font-bold text-white">{patient?.name || 'Patient'}</h2>
             </div>
-            <ChevronRight className="w-5 h-5 text-zinc-400" />
+            <ChevronRight className="w-5 h-5 text-white/60" />
           </button>
         </div>
 
-        {/* Vitals Cards */}
-        <div className="px-4 py-4">
-          <div className="flex gap-2 justify-center">
-            {/* BP */}
+        {/* Vitals Row */}
+        <div className="px-6 -mt-4">
+          <div className="flex gap-3">
+            {/* BP Card */}
             <button 
               onClick={() => setShowVitals(true)}
-              className="relative flex-1 max-w-[100px] aspect-square rounded-2xl overflow-hidden group"
+              className="flex-1 bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-rose-400 to-rose-500" />
-              <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
-              <div className="absolute inset-[3px] rounded-xl bg-white/90 flex flex-col items-center justify-center">
-                <Heart className="w-5 h-5 text-rose-500 mb-1" />
-                <span className="text-xs font-bold text-zinc-800">BP</span>
-                <span className="text-[10px] text-zinc-500">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</span>
+              <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center mb-2">
+                <Heart className="w-5 h-5 text-rose-500" />
               </div>
+              <p className="text-lg font-bold text-stone-900">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
+              <p className="text-xs text-stone-400 font-medium">Blood Pressure</p>
             </button>
 
-            {/* HR */}
+            {/* HR Card */}
             <button 
               onClick={() => setShowVitals(true)}
-              className="relative flex-1 max-w-[100px] aspect-square rounded-2xl overflow-hidden group"
+              className="flex-1 bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-500" />
-              <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
-              <div className="absolute inset-[3px] rounded-xl bg-white/90 flex flex-col items-center justify-center">
-                <Activity className="w-5 h-5 text-orange-500 mb-1" />
-                <span className="text-xs font-bold text-zinc-800">HR</span>
-                <span className="text-[10px] text-zinc-500">{latestHR ? `${latestHR.value} bpm` : '--'}</span>
+              <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mb-2">
+                <Activity className="w-5 h-5 text-orange-500" />
               </div>
+              <p className="text-lg font-bold text-stone-900">{latestHR ? latestHR.value : '--'}</p>
+              <p className="text-xs text-stone-400 font-medium">Heart Rate</p>
             </button>
 
-            {/* Temp */}
+            {/* Temp Card */}
             <button 
               onClick={() => setShowVitals(true)}
-              className="relative flex-1 max-w-[100px] aspect-square rounded-2xl overflow-hidden group"
+              className="flex-1 bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-500" />
-              <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
-              <div className="absolute inset-[3px] rounded-xl bg-white/90 flex flex-col items-center justify-center">
-                <Thermometer className="w-5 h-5 text-blue-500 mb-1" />
-                <span className="text-xs font-bold text-zinc-800">Temp</span>
-                <span className="text-[10px] text-zinc-500">{latestTemp ? `${latestTemp.value}°F` : '--'}</span>
+              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-2">
+                <Thermometer className="w-5 h-5 text-blue-500" />
               </div>
+              <p className="text-lg font-bold text-stone-900">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
+              <p className="text-xs text-stone-400 font-medium">Temperature</p>
             </button>
           </div>
         </div>
 
-        {/* Task Tabs */}
-        <div className="px-4 mb-4">
-          <div className="flex gap-2">
+        {/* Progress Section */}
+        <div className="px-6 py-5">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-stone-500">Today's Progress</span>
+            <span className="text-sm font-bold text-stone-900">{completedCount}/{todayTasks.length}</span>
+          </div>
+          <div className="h-2 bg-stone-200 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-teal-500 to-teal-600 rounded-full transition-all duration-500"
+              style={{ width: `${(completedCount / todayTasks.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Task Tabs - Segmented Control */}
+        <div className="px-6 mb-4">
+          <div className="bg-stone-200/60 p-1.5 rounded-2xl flex">
             <button
               onClick={() => setActiveTaskTab('today')}
-              className={`flex-1 py-3 rounded-xl font-medium transition-all ${
+              className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all ${
                 activeTaskTab === 'today'
-                  ? 'bg-zinc-900 text-white'
-                  : 'bg-zinc-100 text-zinc-600'
+                  ? 'bg-white text-stone-900 shadow-sm'
+                  : 'text-stone-500 hover:text-stone-700'
               }`}
             >
-              Today's Plan
+              Today's Tasks
             </button>
             <button
               onClick={() => setActiveTaskTab('requests')}
-              className={`flex-1 py-3 rounded-xl font-medium transition-all relative ${
+              className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all relative ${
                 activeTaskTab === 'requests'
-                  ? 'bg-zinc-900 text-white'
-                  : 'bg-zinc-100 text-zinc-600'
+                  ? 'bg-white text-stone-900 shadow-sm'
+                  : 'text-stone-500 hover:text-stone-700'
               }`}
             >
               Requests
               {pendingRequests.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-500 text-white text-xs rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                   {pendingRequests.length}
                 </span>
               )}
@@ -228,7 +293,7 @@ export const CaregiverDashboard = ({
         </div>
 
         {/* Task List */}
-        <div className="px-4 space-y-3">
+        <div className="px-6 space-y-3 pb-4">
           {activeTaskTab === 'today' ? (
             todayTasks.length > 0 ? (
               todayTasks.map((task) => (
@@ -241,8 +306,10 @@ export const CaregiverDashboard = ({
                 />
               ))
             ) : (
-              <div className="text-center py-12">
-                <p className="text-zinc-500">No tasks for today</p>
+              <div className="text-center py-12 bg-white rounded-3xl">
+                <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
+                <p className="text-stone-900 font-semibold">All done for today!</p>
+                <p className="text-stone-500 text-sm">Great work, Julia</p>
               </div>
             )
           ) : (
@@ -256,8 +323,9 @@ export const CaregiverDashboard = ({
                 />
               ))
             ) : (
-              <div className="text-center py-12">
-                <p className="text-zinc-500">No pending requests</p>
+              <div className="text-center py-12 bg-white rounded-3xl">
+                <Sparkles className="w-12 h-12 text-stone-300 mx-auto mb-3" />
+                <p className="text-stone-500">No pending requests</p>
               </div>
             )
           )}
@@ -268,37 +336,41 @@ export const CaregiverDashboard = ({
 
   // Render Shift Tab
   const renderShiftContent = () => (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
-      {/* Shift Status */}
-      <div className={`p-6 rounded-2xl ${isShiftActive ? 'bg-green-50 border border-green-200' : 'bg-zinc-50'}`}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-zinc-900">Current Shift</h3>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-            isShiftActive ? 'bg-green-100 text-green-700' : 'bg-zinc-200 text-zinc-600'
+    <div className="flex-1 overflow-y-auto bg-stone-50 p-6 space-y-4 pb-24">
+      {/* Shift Status Card */}
+      <div className={`rounded-3xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] ${isShiftActive ? 'bg-teal-600' : 'bg-white'}`}>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className={`font-bold text-lg ${isShiftActive ? 'text-white' : 'text-stone-900'}`}>Current Shift</h3>
+          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+            isShiftActive ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600'
           }`}>
             {isShiftActive ? 'Active' : 'Inactive'}
           </span>
         </div>
         
         {isShiftActive && (
-          <div className="space-y-3 mb-4">
-            <div className="flex justify-between text-sm">
-              <span className="text-zinc-500">Started</span>
-              <span className="font-medium text-zinc-900">{shiftStartTime}</span>
+          <div className="space-y-3 mb-5">
+            <div className="flex justify-between">
+              <span className="text-white/70">Started</span>
+              <span className="font-semibold text-white">{shiftStartTime}</span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-zinc-500">Patient</span>
-              <span className="font-medium text-zinc-900">{patient?.name}</span>
+            <div className="flex justify-between">
+              <span className="text-white/70">Patient</span>
+              <span className="font-semibold text-white">{patient?.name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-white/70">Tasks completed</span>
+              <span className="font-semibold text-white">{completedCount}/{todayTasks.length}</span>
             </div>
           </div>
         )}
 
         <button
           onClick={isShiftActive ? handleEndShift : handleStartShift}
-          className={`w-full py-4 rounded-xl font-semibold transition-colors ${
+          className={`w-full py-4 rounded-2xl font-bold transition-all ${
             isShiftActive 
-              ? 'bg-red-500 text-white hover:bg-red-600' 
-              : 'bg-green-500 text-white hover:bg-green-600'
+              ? 'bg-white text-rose-600 hover:bg-stone-50' 
+              : 'bg-teal-600 text-white hover:bg-teal-700'
           }`}
         >
           {isShiftActive ? 'End Shift' : 'Start Shift'}
@@ -306,19 +378,22 @@ export const CaregiverDashboard = ({
       </div>
 
       {/* Quick Actions */}
-      <div className="space-y-3">
-        <h3 className="font-semibold text-zinc-900">Quick Actions</h3>
+      <div className="bg-white rounded-3xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+        <h3 className="font-bold text-stone-900 mb-4">Quick Actions</h3>
         {[
-          { label: 'View Earnings', action: () => setActivePage('earnings') },
-          { label: 'Shift History', action: () => setActivePage('history') },
+          { label: 'View Earnings', action: () => setActivePage('earnings'), icon: '💰' },
+          { label: 'Shift History', action: () => setActivePage('history'), icon: '📋' },
         ].map((item, idx) => (
           <button
             key={idx}
             onClick={item.action}
-            className="w-full flex items-center justify-between p-4 bg-zinc-50 rounded-xl hover:bg-zinc-100 transition-colors"
+            className="w-full flex items-center justify-between p-4 hover:bg-stone-50 rounded-2xl transition-colors"
           >
-            <span className="font-medium text-zinc-900">{item.label}</span>
-            <ChevronRight className="w-5 h-5 text-zinc-400" />
+            <div className="flex items-center gap-3">
+              <span className="text-xl">{item.icon}</span>
+              <span className="font-medium text-stone-900">{item.label}</span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-stone-400" />
           </button>
         ))}
       </div>
@@ -327,7 +402,23 @@ export const CaregiverDashboard = ({
 
   // Render Settings Tab
   const renderSettingsContent = () => (
-    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+    <div className="flex-1 overflow-y-auto bg-stone-50 p-6 space-y-3 pb-24">
+      {/* Profile Card */}
+      <div className="bg-white rounded-3xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+        <div className="flex items-center gap-4">
+          <img 
+            src={CAREGIVER_PROFILE.photo}
+            alt="Profile"
+            className="w-16 h-16 rounded-2xl object-cover"
+          />
+          <div className="flex-1">
+            <h3 className="font-bold text-stone-900">Julia Martinez</h3>
+            <p className="text-stone-500 text-sm">Certified Nursing Assistant</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Menu Items */}
       {[
         { label: 'Profile', icon: User, action: () => setActivePage('profile') },
         { label: 'Earnings', icon: Activity, action: () => setActivePage('earnings') },
@@ -338,20 +429,20 @@ export const CaregiverDashboard = ({
         <button
           key={idx}
           onClick={item.action}
-          className="w-full flex items-center gap-4 p-4 bg-zinc-50 rounded-xl hover:bg-zinc-100 transition-colors"
+          className="w-full flex items-center gap-4 p-4 bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
         >
-          <div className="w-10 h-10 bg-zinc-200 rounded-full flex items-center justify-center">
-            <item.icon className="w-5 h-5 text-zinc-600" />
+          <div className="w-11 h-11 bg-stone-100 rounded-xl flex items-center justify-center">
+            <item.icon className="w-5 h-5 text-stone-600" />
           </div>
-          <span className="font-medium text-zinc-900">{item.label}</span>
-          <ChevronRight className="w-5 h-5 text-zinc-400 ml-auto" />
+          <span className="font-medium text-stone-900 flex-1 text-left">{item.label}</span>
+          <ChevronRight className="w-5 h-5 text-stone-400" />
         </button>
       ))}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-['Inter',sans-serif]">
+    <div className="min-h-screen bg-stone-50 flex flex-col font-['Manrope',sans-serif]">
       {/* Main Content */}
       {activeTab === 'home' && renderHomeContent()}
       {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.CAREGIVER} />}
@@ -362,34 +453,41 @@ export const CaregiverDashboard = ({
       {activeTab === 'home' && isShiftActive && (
         <button
           onClick={() => setShowCopilot(true)}
-          className="fixed bottom-24 right-4 w-14 h-14 bg-zinc-900 rounded-full shadow-xl flex items-center justify-center hover:bg-zinc-800 transition-colors z-40"
+          className="fixed bottom-28 right-6 w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl shadow-[0_8px_30px_rgba(99,102,241,0.4)] flex items-center justify-center hover:shadow-[0_12px_40px_rgba(99,102,241,0.5)] transition-all hover:scale-105 z-40"
           data-testid="copilot-btn"
         >
           <Bot className="w-6 h-6 text-white" />
         </button>
       )}
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-zinc-100 px-6 py-2 flex justify-around items-center z-30">
-        {[
-          { id: 'home', icon: Home, label: 'Home' },
-          { id: 'chat', icon: MessageSquare, label: 'Chats' },
-          { id: 'shift', icon: Clock, label: 'Shift', badge: isShiftActive },
-          { id: 'settings', icon: Settings, label: 'Settings' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex flex-col items-center py-2 px-4 rounded-xl transition-colors relative ${
-              activeTab === tab.id ? 'text-zinc-900' : 'text-zinc-400'
-            }`}
-          >
-            <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'text-zinc-900' : ''}`} />
-            {tab.badge && (
-              <div className="absolute top-1 right-3 w-2 h-2 bg-green-500 rounded-full" />
-            )}
-          </button>
-        ))}
+      {/* Bottom Navigation - Floating with blur */}
+      <nav className="fixed bottom-0 left-0 right-0 px-6 pb-6 pt-2 z-30">
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] px-2 py-2 flex justify-around items-center">
+          {[
+            { id: 'home', icon: Home, label: 'Home' },
+            { id: 'chat', icon: MessageSquare, label: 'Chat' },
+            { id: 'shift', icon: Clock, label: 'Shift', badge: isShiftActive },
+            { id: 'settings', icon: Settings, label: 'Menu' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex flex-col items-center py-2 px-5 rounded-xl transition-all relative ${
+                activeTab === tab.id 
+                  ? 'text-rose-600' 
+                  : 'text-stone-400 hover:text-stone-600'
+              }`}
+            >
+              <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
+              {activeTab === tab.id && (
+                <span className="text-[10px] font-bold mt-1">{tab.label}</span>
+              )}
+              {tab.badge && (
+                <div className="absolute top-1 right-4 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-white" />
+              )}
+            </button>
+          ))}
+        </div>
       </nav>
 
       {/* Modals */}
