@@ -11,47 +11,73 @@ ADLTrack is a Care Operating System that bridges the gap between caregivers, fam
 
 ---
 
-## Implemented Features (December 2024)
+## Design System (Airbnb-Inspired) - December 2024
 
-### ✅ Landing Page
-- Hero section with value proposition
+### Design Philosophy
+- **Human, welcoming, and story-driven**
+- **Calm, minimal, and intentionally simple**
+- **Trust-first design that feels personal, not corporate**
+- **Every element thoughtfully placed and emotionally reassuring**
+
+### Visual System
+- **Typography**: Manrope font family (friendly, modern sans-serif)
+- **Color Palette**: Stone/neutral tones (stone-50 to stone-900)
+- **Accent Colors**: Rose (caregiver actions), Teal (active states), Indigo (AI features), Emerald (success)
+- **Shadows**: Soft box-shadows (0_2px_12px_rgba(0,0,0,0.04))
+- **Corners**: Generous rounding (rounded-2xl, rounded-3xl)
+- **Spacing**: 20px (p-5), 24px (p-6) standard padding
+
+### AI-Generated Imagery
+- **Patient (David Smith)**: Warm elderly gentleman portrait
+- **Caregiver (Julia Martinez)**: Professional, approachable CNA portrait
+- **Care Moments**: Medication, meals, walks, vitals imagery
+- **Source**: AI-generated via Emergent imaging system
+
+---
+
+## Implemented Features
+
+### ✅ Landing Page (UNCHANGED)
+- Hero section with "Simple. Secure." messaging
 - Phone mockups showing app interface
-- Timeline section explaining the platform
-- Feature sections (Audit-Proof, Family Trust, Billing)
+- Timeline and feature sections
 - Contact form
-- Mobile-responsive with hamburger menu
-- Navigation to Caregiver, Family, and Enterprise dashboards
+- Mobile-responsive
 
-### ✅ Caregiver Dashboard
-- **Shift Management**: Uber-style "GO" button to start/end shifts
-- **Patient Profile**: David Smith with photo, medical info, emergency contacts
-- **Vitals Display**: BP, HR, Temp cards with glass morphism effect
-- **Task Management**:
-  - Today's Plan tab with 12 daily tasks
-  - Requests tab for family-proposed tasks (accept/decline)
-  - Task cards with priority colors (Critical=red, Standard=blue, Quality of Life=green)
-  - Task completion modal with photo upload and notes
-- **AI Copilot**: Gemini-powered assistant for care guidance
-- **Bottom Navigation**: Home, Chats, Shift, Settings
-- **Settings Pages**: Profile, Earnings, Shift History, Settings, Support
-- **Sign Out Flow**: Returns to role selection
+### ✅ Caregiver Dashboard (Redesigned)
+- **Offline State**: 
+  - Greeting with caregiver profile photo
+  - Patient preview card with AI-generated image
+  - Uber-style "GO" button with pulse animation
+  - Task count preview
+- **Online State**:
+  - Teal gradient header with shift status
+  - Patient profile with photo
+  - Vitals cards (BP, HR, Temp) with icons
+  - Progress bar (tasks completed/total)
+  - Segmented tab control (Today's Tasks / Requests)
+  - Task cards with priority colors and emoji icons
+  - AI Copilot floating button (indigo gradient)
+- **Bottom Navigation**: Home, Chat, Shift, Menu (floating with blur)
 
-### ✅ Family Dashboard  
-- **Vitals Display**: BP, HR, Temp, Pain cards with glass morphism
-- **Care Timeline**: Feed of completed tasks with caregiver photos/notes
-- **AI Copilot**: Family-specific assistant for care understanding
-- **Bottom Navigation**: Activity, Messages, Notifications, Settings
-- **Pages**: Profile, Billing, Care History, Caregiver Info, Settings, Support
-- **Sign Out Flow**: Returns to role selection
+### ✅ Family Dashboard (Redesigned)
+- **Hero Header**: Rose gradient with reassuring message
+- **Patient Card**: Profile with AI-generated photo
+- **Vitals Row**: Horizontal scroll with 4 vitals (BP, HR, Temp, Pain)
+- **Care Progress Card**: Visual task completion status
+- **Active Caregiver Card**: Real-time shift info with caregiver photo
+- **Care Timeline**: Feed of completed tasks with evidence photos
+- **AI Copilot**: Floating button for questions
+- **Bottom Navigation**: Activity, Chat, Alerts, Menu
 
-### ✅ Sign-In Page
-- Role selection (Caregiver, Family, Enterprise)
-- Clean, accessible design
-
-### ✅ Backend API
-- FastAPI with MongoDB
-- AI Copilot endpoint (/api/copilot/chat)
-- Emergent LLM Key integration for Gemini
+### ✅ Supporting Components
+- **TaskCard**: Priority badges with emojis, expandable details
+- **TaskRequestCard**: Family request cards with accept/decline
+- **TaskCompletionModal**: Photo upload, notes, status selection
+- **VitalsModal**: Charts, history, add readings (caregiver)
+- **PatientProfileModal**: Medical ID, allergies, contacts, share for EMS
+- **AICopilot**: Gemini-powered chat with role-specific personas
+- **SignInPage**: Role selection cards
 
 ---
 
@@ -59,58 +85,41 @@ ADLTrack is a Care Operating System that bridges the gap between caregivers, fam
 
 ### Frontend Stack
 - React 19 with JavaScript/JSX
-- Tailwind CSS for styling
-- Lucide React for icons
+- Tailwind CSS with custom design tokens
+- Manrope font (Google Fonts)
+- Lucide React icons
 - Recharts for vitals charts
 - Framer Motion for animations
-- Shadcn/UI components
 
 ### Backend Stack
 - FastAPI (Python)
 - MongoDB (Motor async driver)
-- emergentintegrations for LLM
+- emergentintegrations for Gemini LLM
 
-### Key Files
-```
-/app/frontend/src/
-├── App.js                    # Main app with state management
-├── types/index.js            # UserRole, TaskStatus, Priority enums
-├── services/
-│   ├── mockData.js           # Initial tasks, vitals, patient data
-│   └── geminiService.js      # AI copilot frontend service
-├── components/
-│   ├── LandingPage.jsx       # Landing page (DO NOT MODIFY)
-│   ├── SignInPage.jsx        # Role selection
-│   ├── CaregiverDashboard.jsx # Caregiver main view
-│   ├── FamilyDashboard.jsx   # Family main view
-│   ├── TaskCard.jsx          # Task display component
-│   ├── TaskRequestCard.jsx   # Family request component
-│   ├── TaskCompletionModal.jsx # Task completion flow
-│   ├── PatientProfileModal.jsx # Patient medical info
-│   ├── VitalsModal.jsx       # Vitals charts and input
-│   ├── AICopilot.jsx         # AI assistant modal
-│   ├── IncidentModal.jsx     # Incident reporting
-│   └── pages/                # Sub-pages (Profile, Settings, etc.)
-
-/app/backend/
-├── server.py                 # FastAPI server with copilot endpoint
-└── .env                      # EMERGENT_LLM_KEY for Gemini
+### AI-Generated Image URLs
+```javascript
+PATIENT_PROFILE.photo = "emergentagent.com/.../7c7bc024ec1065d47fb0f219e7359a96b1a85d63628823238fca62051d1d2712.png"
+CAREGIVER_PROFILE.photo = "emergentagent.com/.../0d5b21a613a79f2e524a35cfa17574e562820a771203c2d63f5294db092f5e94.png"
+CARE_IMAGES.medication = "emergentagent.com/.../453bd1aab795a8d4c312f29d43640ac6652d636e5e19337acdc001016a4e77c3.png"
+CARE_IMAGES.meal = "emergentagent.com/.../cafa07225118a63f61111220ac6230125b17389a84d7450834c273696c27b3b7.png"
+CARE_IMAGES.walk = "emergentagent.com/.../c527b65ae92f45fb0d1b3073f2d9982be28fd338adaa3f25d6f48e6f9a64e813.png"
+CARE_IMAGES.vitals = "emergentagent.com/.../1e85b317545e5b7c120268579cc779fadaef5109861b649162128123f74bb2a1.png"
 ```
 
 ---
 
-## Mocked Data (for MVP)
-- **Patient**: David Smith (78 years old, Diabetes, Hypertension)
-- **Caregiver**: Julia Martinez (CNA, 5 years experience, 4.9 rating)
-- **Tasks**: 12 daily care tasks (medications, meals, walks, etc.)
-- **Proposed Tasks**: 2 family requests (garden walk, video call)
-- **Vitals**: 7-day history for BP, HR, Temp, Pain
+## Testing Status (Iteration 4)
+- **Frontend**: 100% pass rate
+- **Landing Page**: Unchanged ✅
+- **Caregiver Dashboard**: All flows working ✅
+- **Family Dashboard**: All flows working ✅
+- **Design Verification**: All Airbnb patterns applied ✅
 
 ---
 
 ## Prioritized Backlog
 
-### P0 - Critical (Next Sprint)
+### P0 - Critical
 - [ ] Connect frontend to real backend APIs
 - [ ] Implement user authentication (JWT or Emergent OAuth)
 - [ ] Persist task completions to MongoDB
@@ -123,10 +132,10 @@ ADLTrack is a Care Operating System that bridges the gap between caregivers, fam
 - [ ] Incident report submission
 
 ### P2 - Medium Priority
-- [ ] Enterprise Dashboard implementation
+- [ ] Enterprise Dashboard with Airbnb styling
 - [ ] Shift history analytics
 - [ ] Care plan template management
-- [ ] Multi-patient support for caregivers
+- [ ] Multi-patient support
 
 ### P3 - Lower Priority
 - [ ] Pattern detection & anomaly alerts
@@ -136,24 +145,10 @@ ADLTrack is a Care Operating System that bridges the gap between caregivers, fam
 
 ---
 
-## Testing Status
-- Landing Page: ✅ Passed
-- Caregiver Dashboard: ✅ Passed (100%)
-- Family Dashboard: ✅ Passed (100%)
-- AI Copilot: ✅ Working with fallback
-- Sign Out Flow: ✅ Passed
-
----
-
-## Known Issues
-- Minor: Emergent badge may overlay bottom navigation (use force click)
-
----
-
-## Design Guidelines
-- Mobile-first approach (430px width primary)
-- Inter font family
-- Green (#25D366) as primary action color
-- Glass morphism for vitals cards
-- White/zinc color palette for clean Cal.ai aesthetic
-- Bottom navigation for mobile apps
+## Data Status
+**MOCKED**: All data uses mock data from `/app/frontend/src/services/mockData.js`
+- Patient: David Smith (78 years old)
+- Caregiver: Julia Martinez (CNA)
+- Tasks: 12 daily care tasks
+- Proposed Tasks: 2 family requests
+- Vitals: 7-day history
