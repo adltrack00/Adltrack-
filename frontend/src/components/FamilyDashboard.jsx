@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Activity, MessageSquare, Bell, Settings, Bot, Heart, Thermometer, 
-  ChevronRight, User, Clock, CheckCircle, Camera, Frown
+  ChevronRight, User, Clock, CheckCircle, Camera, Frown, Sparkles
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
 import { PatientProfileModal } from './PatientProfileModal';
@@ -15,6 +15,7 @@ import { SupportPage } from './pages/SupportPage';
 import { ChatPage } from './pages/ChatPage';
 import { UpdatesPage } from './pages/UpdatesPage';
 import { CaregiverPage } from './pages/CaregiverPage';
+import { CARE_IMAGES, CAREGIVER_PROFILE } from '../services/mockData';
 
 export const FamilyDashboard = ({ 
   onBack, 
@@ -37,22 +38,16 @@ export const FamilyDashboard = ({
 
   // Filter completed tasks for timeline
   const completedTasks = tasks.filter(t => t.status === TaskStatus.COMPLETED);
+  const totalTasks = tasks.filter(t => t.status !== TaskStatus.PROPOSED).length;
 
-  // Helper to get task image
+  // Helper to get task image with AI-generated fallbacks
   const getTaskImage = (task) => {
     if (task.evidenceUrl) return task.evidenceUrl;
-    // Default images based on task type
     const title = task.title.toLowerCase();
-    if (title.includes('medication') || title.includes('med')) {
-      return 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80';
-    }
-    if (title.includes('breakfast') || title.includes('lunch') || title.includes('dinner') || title.includes('meal')) {
-      return 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80';
-    }
-    if (title.includes('walk') || title.includes('exercise')) {
-      return 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=400&q=80';
-    }
-    return 'https://images.unsplash.com/photo-1576091160550-217358c7e618?w=400&q=80';
+    if (title.includes('medication') || title.includes('med')) return CARE_IMAGES.medication;
+    if (title.includes('breakfast') || title.includes('lunch') || title.includes('dinner') || title.includes('meal')) return CARE_IMAGES.meal;
+    if (title.includes('walk') || title.includes('exercise')) return CARE_IMAGES.walk;
+    return CARE_IMAGES.vitals;
   };
 
   // Render sub-pages
@@ -83,132 +78,203 @@ export const FamilyDashboard = ({
 
   // Render Home Content
   const renderHomeContent = () => (
-    <div className="flex-1 overflow-y-auto pb-24">
-      {/* Vitals Row */}
-      <div className="px-4 pt-4">
-        <div className="flex gap-2 justify-center">
+    <div className="flex-1 overflow-y-auto bg-stone-50 pb-28">
+      {/* Hero Header */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-rose-500 to-rose-600" />
+        <div className="relative px-6 pt-6 pb-8">
+          {/* Greeting */}
+          <div className="mb-6">
+            <p className="text-white/70 text-sm font-medium">Good morning, Mary</p>
+            <h1 className="text-2xl font-bold text-white tracking-tight">
+              {patient?.name || 'Your loved one'} is doing well
+            </h1>
+          </div>
+
+          {/* Patient Card */}
+          <button 
+            onClick={() => setShowPatientProfile(true)}
+            className="w-full bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center gap-4"
+          >
+            <img 
+              src={patient?.photo || 'https://via.placeholder.com/60'} 
+              alt={patient?.name}
+              className="w-14 h-14 rounded-xl object-cover ring-2 ring-white/30"
+            />
+            <div className="flex-1 text-left">
+              <h2 className="text-lg font-bold text-white">{patient?.name || 'Patient'}</h2>
+              <p className="text-white/70 text-sm">{patient?.age} years old • View Profile</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-white/60" />
+          </button>
+        </div>
+      </div>
+
+      {/* Vitals Summary - Horizontal scroll */}
+      <div className="px-6 -mt-4 mb-6">
+        <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
           {/* BP */}
           <button 
             onClick={() => setShowVitals(true)}
-            className="relative flex-1 max-w-[80px] aspect-square rounded-2xl overflow-hidden"
+            className="flex-shrink-0 w-[120px] bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-rose-400 to-rose-500" />
-            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
-            <div className="absolute inset-[3px] rounded-xl bg-white/90 flex flex-col items-center justify-center">
-              <Heart className="w-4 h-4 text-rose-500 mb-0.5" />
-              <span className="text-[10px] font-bold text-zinc-800">BP</span>
-              <span className="text-[9px] text-zinc-500">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</span>
+            <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center mb-3">
+              <Heart className="w-5 h-5 text-rose-500" />
             </div>
+            <p className="text-xl font-bold text-stone-900">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
+            <p className="text-xs text-stone-400 font-medium mt-1">Blood Pressure</p>
           </button>
 
           {/* HR */}
           <button 
             onClick={() => setShowVitals(true)}
-            className="relative flex-1 max-w-[80px] aspect-square rounded-2xl overflow-hidden"
+            className="flex-shrink-0 w-[120px] bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-500" />
-            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
-            <div className="absolute inset-[3px] rounded-xl bg-white/90 flex flex-col items-center justify-center">
-              <Activity className="w-4 h-4 text-orange-500 mb-0.5" />
-              <span className="text-[10px] font-bold text-zinc-800">HR</span>
-              <span className="text-[9px] text-zinc-500">{latestHR ? latestHR.value : '--'}</span>
+            <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mb-3">
+              <Activity className="w-5 h-5 text-orange-500" />
             </div>
+            <p className="text-xl font-bold text-stone-900">{latestHR ? latestHR.value : '--'}</p>
+            <p className="text-xs text-stone-400 font-medium mt-1">Heart Rate</p>
           </button>
 
           {/* Temp */}
           <button 
             onClick={() => setShowVitals(true)}
-            className="relative flex-1 max-w-[80px] aspect-square rounded-2xl overflow-hidden"
+            className="flex-shrink-0 w-[120px] bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-500" />
-            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
-            <div className="absolute inset-[3px] rounded-xl bg-white/90 flex flex-col items-center justify-center">
-              <Thermometer className="w-4 h-4 text-blue-500 mb-0.5" />
-              <span className="text-[10px] font-bold text-zinc-800">Temp</span>
-              <span className="text-[9px] text-zinc-500">{latestTemp ? `${latestTemp.value}°` : '--'}</span>
+            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-3">
+              <Thermometer className="w-5 h-5 text-blue-500" />
             </div>
+            <p className="text-xl font-bold text-stone-900">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
+            <p className="text-xs text-stone-400 font-medium mt-1">Temperature</p>
           </button>
 
           {/* Pain */}
           <button 
             onClick={() => setShowVitals(true)}
-            className="relative flex-1 max-w-[80px] aspect-square rounded-2xl overflow-hidden"
+            className="flex-shrink-0 w-[120px] bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-purple-500" />
-            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
-            <div className="absolute inset-[3px] rounded-xl bg-white/90 flex flex-col items-center justify-center">
-              <Frown className="w-4 h-4 text-purple-500 mb-0.5" />
-              <span className="text-[10px] font-bold text-zinc-800">Pain</span>
-              <span className="text-[9px] text-zinc-500">{latestPain ? `${latestPain.value}/10` : '--'}</span>
+            <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center mb-3">
+              <Frown className="w-5 h-5 text-purple-500" />
             </div>
+            <p className="text-xl font-bold text-stone-900">{latestPain ? `${latestPain.value}/10` : '--'}</p>
+            <p className="text-xs text-stone-400 font-medium mt-1">Pain Level</p>
           </button>
         </div>
       </div>
 
-      {/* Timeline Header */}
-      <div className="px-4 py-4">
-        <h2 className="text-lg font-semibold text-zinc-900">Care Timeline</h2>
-        <p className="text-sm text-zinc-500">Today's completed tasks</p>
+      {/* Progress Card */}
+      <div className="px-6 mb-6">
+        <div className="bg-white rounded-3xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-stone-400 text-sm font-medium">Today's Care Progress</p>
+              <p className="text-2xl font-bold text-stone-900">{completedTasks.length} of {totalTasks} tasks</p>
+            </div>
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500"
+              style={{ width: totalTasks > 0 ? `${(completedTasks.length / totalTasks) * 100}%` : '0%' }}
+            />
+          </div>
+        </div>
       </div>
 
-      {/* Timeline Feed */}
-      <div className="px-4 space-y-4">
+      {/* Active Caregiver */}
+      <div className="px-6 mb-6">
+        <button 
+          onClick={() => setActivePage('caregiver')}
+          className="w-full bg-teal-50 border border-teal-100 rounded-2xl p-4 flex items-center gap-4"
+        >
+          <div className="relative">
+            <img 
+              src={CAREGIVER_PROFILE.photo}
+              alt="Caregiver"
+              className="w-12 h-12 rounded-xl object-cover"
+            />
+            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full ring-2 ring-teal-50" />
+          </div>
+          <div className="flex-1 text-left">
+            <p className="font-semibold text-teal-900">Julia is currently on shift</p>
+            <p className="text-teal-600 text-sm">Started at 8:00 AM</p>
+          </div>
+          <ChevronRight className="w-5 h-5 text-teal-400" />
+        </button>
+      </div>
+
+      {/* Care Timeline */}
+      <div className="px-6">
+        <h2 className="text-lg font-bold text-stone-900 mb-4">Care Timeline</h2>
+        
         {completedTasks.length > 0 ? (
-          completedTasks.map((task) => (
-            <div key={task.id} className="bg-white rounded-2xl shadow-sm border border-zinc-100 overflow-hidden">
-              {/* Task Image */}
-              <div className="relative aspect-video">
-                <img 
-                  src={getTaskImage(task)} 
-                  alt={task.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                
-                {/* Verified Badge */}
-                <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-full">
-                  <CheckCircle className="w-3 h-3" />
-                  {task.evidenceUrl ? 'Verified' : 'Completed'}
+          <div className="space-y-4">
+            {completedTasks.map((task) => (
+              <div 
+                key={task.id} 
+                className="bg-white rounded-3xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
+              >
+                {/* Task Image */}
+                <div className="relative aspect-[16/9]">
+                  <img 
+                    src={getTaskImage(task)} 
+                    alt={task.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  
+                  {/* Verified Badge */}
+                  <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-emerald-600 text-xs font-semibold rounded-full">
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    {task.evidenceUrl ? 'Verified' : 'Completed'}
+                  </div>
+
+                  {/* Task Info Overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-5">
+                    <h3 className="text-white font-bold text-lg">{task.title}</h3>
+                    <p className="text-white/80 text-sm flex items-center gap-1 mt-1">
+                      <Clock className="w-4 h-4" />
+                      Completed at {task.completedAt}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Task Info Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <h3 className="text-white font-semibold text-lg">{task.title}</h3>
-                  <p className="text-white/80 text-sm">Completed at {task.completedAt}</p>
+                {/* Notes & Attribution */}
+                <div className="p-5">
+                  {task.completionNote && (
+                    <p className="text-stone-600 text-sm mb-4">
+                      "{task.completionNote}"
+                    </p>
+                  )}
+                  
+                  {/* Caregiver Attribution */}
+                  <div className="flex items-center gap-3">
+                    <img 
+                      src={CAREGIVER_PROFILE.photo}
+                      alt="Caregiver"
+                      className="w-10 h-10 rounded-xl object-cover"
+                    />
+                    <div className="flex-1">
+                      <p className="font-semibold text-stone-900 text-sm">Julia Martinez</p>
+                      <p className="text-stone-400 text-xs">Caregiver</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              {/* Notes */}
-              {task.completionNote && (
-                <div className="p-4 border-t border-zinc-100">
-                  <p className="text-sm text-zinc-600">
-                    <span className="font-medium text-zinc-900">Note:</span> {task.completionNote}
-                  </p>
-                </div>
-              )}
-
-              {/* Caregiver Attribution */}
-              <div className="px-4 py-3 bg-zinc-50 flex items-center gap-3">
-                <img 
-                  src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=100&q=80"
-                  alt="Caregiver"
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-zinc-900">Julia Martinez</p>
-                  <p className="text-xs text-zinc-500">Caregiver</p>
-                </div>
-                <Clock className="w-4 h-4 text-zinc-400" />
-              </div>
-            </div>
-          ))
+            ))}
+          </div>
         ) : (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Camera className="w-8 h-8 text-zinc-400" />
+          <div className="bg-white rounded-3xl p-8 text-center shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+            <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Camera className="w-8 h-8 text-stone-400" />
             </div>
-            <p className="text-zinc-500">No completed tasks yet today</p>
-            <p className="text-sm text-zinc-400 mt-1">Updates will appear here as care is delivered</p>
+            <h3 className="font-semibold text-stone-900 mb-1">No updates yet</h3>
+            <p className="text-stone-400 text-sm">
+              Photos and notes will appear here as tasks are completed
+            </p>
           </div>
         )}
       </div>
@@ -217,50 +283,65 @@ export const FamilyDashboard = ({
 
   // Render Settings Content
   const renderSettingsContent = () => (
-    <div className="flex-1 overflow-y-auto p-4 space-y-3">
-      {/* Patient Profile Quick Access */}
-      <button
-        onClick={() => setShowPatientProfile(true)}
-        className="w-full flex items-center gap-4 p-4 bg-zinc-50 rounded-xl hover:bg-zinc-100 transition-colors"
-      >
-        <img 
-          src={patient?.photo || 'https://via.placeholder.com/60'} 
-          alt={patient?.name}
-          className="w-12 h-12 rounded-full object-cover"
-        />
-        <div className="flex-1 text-left">
-          <p className="font-medium text-zinc-900">{patient?.name || 'Patient'}</p>
-          <p className="text-sm text-zinc-500">View Medical Profile</p>
+    <div className="flex-1 overflow-y-auto bg-stone-50 p-6 space-y-3 pb-28">
+      {/* Profile Header */}
+      <div className="bg-white rounded-3xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+        <div className="flex items-center gap-4 mb-4">
+          <img 
+            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80"
+            alt="Profile"
+            className="w-16 h-16 rounded-2xl object-cover"
+          />
+          <div>
+            <h3 className="font-bold text-stone-900">Mary Smith</h3>
+            <p className="text-stone-500 text-sm">Family Guardian</p>
+          </div>
         </div>
-        <ChevronRight className="w-5 h-5 text-zinc-400" />
-      </button>
+        
+        {/* Quick Patient Access */}
+        <button
+          onClick={() => setShowPatientProfile(true)}
+          className="w-full flex items-center gap-3 p-3 bg-stone-50 rounded-xl"
+        >
+          <img 
+            src={patient?.photo || 'https://via.placeholder.com/40'} 
+            alt={patient?.name}
+            className="w-10 h-10 rounded-lg object-cover"
+          />
+          <div className="flex-1 text-left">
+            <p className="font-medium text-stone-900 text-sm">{patient?.name}</p>
+            <p className="text-stone-500 text-xs">View Medical Profile</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-stone-400" />
+        </button>
+      </div>
 
       {/* Menu Items */}
       {[
         { label: 'My Profile', icon: User, action: () => setActivePage('profile') },
+        { label: 'Current Caregiver', icon: Heart, action: () => setActivePage('caregiver') },
         { label: 'Billing', icon: Activity, action: () => setActivePage('billing') },
         { label: 'Care History', icon: Clock, action: () => setActivePage('history') },
-        { label: 'Current Caregiver', icon: Heart, action: () => setActivePage('caregiver') },
         { label: 'Settings', icon: Settings, action: () => setActivePage('settings') },
         { label: 'Support', icon: Bell, action: () => setActivePage('support') },
       ].map((item, idx) => (
         <button
           key={idx}
           onClick={item.action}
-          className="w-full flex items-center gap-4 p-4 bg-zinc-50 rounded-xl hover:bg-zinc-100 transition-colors"
+          className="w-full flex items-center gap-4 p-4 bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
         >
-          <div className="w-10 h-10 bg-zinc-200 rounded-full flex items-center justify-center">
-            <item.icon className="w-5 h-5 text-zinc-600" />
+          <div className="w-11 h-11 bg-stone-100 rounded-xl flex items-center justify-center">
+            <item.icon className="w-5 h-5 text-stone-600" />
           </div>
-          <span className="font-medium text-zinc-900">{item.label}</span>
-          <ChevronRight className="w-5 h-5 text-zinc-400 ml-auto" />
+          <span className="font-medium text-stone-900 flex-1 text-left">{item.label}</span>
+          <ChevronRight className="w-5 h-5 text-stone-400" />
         </button>
       ))}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-['Inter',sans-serif]">
+    <div className="min-h-screen bg-stone-50 flex flex-col font-['Manrope',sans-serif]">
       {/* Main Content */}
       {activeTab === 'home' && renderHomeContent()}
       {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.FAMILY} />}
@@ -271,31 +352,38 @@ export const FamilyDashboard = ({
       {activeTab === 'home' && (
         <button
           onClick={() => setShowCopilot(true)}
-          className="fixed bottom-24 right-4 w-14 h-14 bg-zinc-900 rounded-full shadow-xl flex items-center justify-center hover:bg-zinc-800 transition-colors z-40"
+          className="fixed bottom-28 right-6 w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl shadow-[0_8px_30px_rgba(99,102,241,0.4)] flex items-center justify-center hover:shadow-[0_12px_40px_rgba(99,102,241,0.5)] transition-all hover:scale-105 z-40"
           data-testid="family-copilot-btn"
         >
           <Bot className="w-6 h-6 text-white" />
         </button>
       )}
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-zinc-100 px-6 py-2 flex justify-around items-center z-30">
-        {[
-          { id: 'home', icon: Activity },
-          { id: 'chat', icon: MessageSquare },
-          { id: 'notifications', icon: Bell },
-          { id: 'settings', icon: Settings },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex flex-col items-center py-2 px-4 rounded-xl transition-colors ${
-              activeTab === tab.id ? 'text-zinc-900' : 'text-zinc-400'
-            }`}
-          >
-            <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'text-zinc-900' : ''}`} />
-          </button>
-        ))}
+      {/* Bottom Navigation - Floating with blur */}
+      <nav className="fixed bottom-0 left-0 right-0 px-6 pb-6 pt-2 z-30">
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] px-2 py-2 flex justify-around items-center">
+          {[
+            { id: 'home', icon: Activity, label: 'Home' },
+            { id: 'chat', icon: MessageSquare, label: 'Chat' },
+            { id: 'notifications', icon: Bell, label: 'Alerts' },
+            { id: 'settings', icon: Settings, label: 'Menu' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex flex-col items-center py-2 px-5 rounded-xl transition-all ${
+                activeTab === tab.id 
+                  ? 'text-rose-600' 
+                  : 'text-stone-400 hover:text-stone-600'
+              }`}
+            >
+              <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
+              {activeTab === tab.id && (
+                <span className="text-[10px] font-bold mt-1">{tab.label}</span>
+              )}
+            </button>
+          ))}
+        </div>
       </nav>
 
       {/* Modals */}
