@@ -1,570 +1,325 @@
-import React, { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import {
-  Activity, Heart, Thermometer, MessageCircle, Clock, CircleCheck,
-  Camera, Phone, Video, Bell, ChevronRight, Calendar,
-  ArrowLeft, Send, Plus, Home, Sparkles, User, Menu, X,
-  TrendingUp, Shield, MapPin, FileText, Image
-} from "lucide-react"
-import { Button } from "./ui/button"
+import React, { useState } from 'react';
+import { 
+  Activity, MessageSquare, Bell, Settings, Bot, Heart, Thermometer, 
+  ChevronRight, User, Clock, CheckCircle, Camera, Frown
+} from 'lucide-react';
+import { TaskStatus, UserRole } from '../types';
+import { PatientProfileModal } from './PatientProfileModal';
+import { VitalsModal } from './VitalsModal';
+import { AICopilot } from './AICopilot';
+import { ProfilePage } from './pages/ProfilePage';
+import { SettingsPage } from './pages/SettingsPage';
+import { AccountsPage } from './pages/AccountsPage';
+import { HistoryPage } from './pages/HistoryPage';
+import { SupportPage } from './pages/SupportPage';
+import { ChatPage } from './pages/ChatPage';
+import { UpdatesPage } from './pages/UpdatesPage';
+import { CaregiverPage } from './pages/CaregiverPage';
 
-// Mock Data
-const mockPatient = {
-  name: "Johnathan Doe",
-  age: 78,
-  status: "Comfortable",
-  avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=100&q=80",
-  caregiver: {
-    name: "Sarah Jenkins",
-    role: "CNA",
-    avatar: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=100&q=80",
-    status: "On Shift"
+export const FamilyDashboard = ({ 
+  onBack, 
+  onSignOut,
+  tasks = [],
+  patient,
+  vitalsData
+}) => {
+  const [activeTab, setActiveTab] = useState('home');
+  const [showPatientProfile, setShowPatientProfile] = useState(false);
+  const [showVitals, setShowVitals] = useState(false);
+  const [showCopilot, setShowCopilot] = useState(false);
+  const [activePage, setActivePage] = useState(null);
+
+  // Get latest vitals
+  const latestBP = vitalsData?.bloodPressure?.[vitalsData.bloodPressure.length - 1];
+  const latestHR = vitalsData?.heartRate?.[vitalsData.heartRate.length - 1];
+  const latestTemp = vitalsData?.temperature?.[vitalsData.temperature.length - 1];
+  const latestPain = vitalsData?.pain?.[vitalsData.pain.length - 1];
+
+  // Filter completed tasks for timeline
+  const completedTasks = tasks.filter(t => t.status === TaskStatus.COMPLETED);
+
+  // Helper to get task image
+  const getTaskImage = (task) => {
+    if (task.evidenceUrl) return task.evidenceUrl;
+    // Default images based on task type
+    const title = task.title.toLowerCase();
+    if (title.includes('medication') || title.includes('med')) {
+      return 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80';
+    }
+    if (title.includes('breakfast') || title.includes('lunch') || title.includes('dinner') || title.includes('meal')) {
+      return 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80';
+    }
+    if (title.includes('walk') || title.includes('exercise')) {
+      return 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=400&q=80';
+    }
+    return 'https://images.unsplash.com/photo-1576091160550-217358c7e618?w=400&q=80';
+  };
+
+  // Render sub-pages
+  if (activePage === 'profile') {
+    return <ProfilePage onBack={() => setActivePage(null)} role={UserRole.FAMILY} onSignOut={onSignOut} />;
   }
-}
-
-const mockVitals = [
-  { type: "HR", value: "72", unit: "bpm", label: "Heart Rate", trend: "+2", icon: Heart, color: "red" },
-  { type: "TEMP", value: "98.6", unit: "°F", label: "Temperature", trend: "0", icon: Thermometer, color: "amber" },
-  { type: "BP", value: "120/80", unit: "mmHg", label: "Blood Pressure", trend: "-3", icon: Activity, color: "purple" },
-]
-
-const mockTimeline = [
-  { id: 1, task: "Morning Medications", time: "08:00 AM", completed: true, verified: true },
-  { id: 2, task: "Breakfast", time: "09:15 AM", completed: true, verified: false },
-  { id: 3, task: "Physical Therapy", time: "10:30 AM", completed: true, verified: true },
-  { id: 4, task: "Lunch", time: "12:00 PM", completed: false, verified: false },
-  { id: 5, task: "Afternoon Meds", time: "02:00 PM", completed: false, verified: false },
-]
-
-const mockChatHistory = [
-  { id: 1, role: "assistant", content: "Good morning! I'm here to help you stay connected with your father's care. Sarah just checked in for her shift and reported that Johnathan is in great spirits today." },
-  { id: 2, role: "user", content: "That's wonderful! How was his sleep last night?" },
-  { id: 3, role: "assistant", content: "According to the night report, Johnathan slept well from 10 PM to 6 AM with only one brief awakening at 2 AM. His sleep quality has been improving over the past week." },
-]
-
-const suggestionChips = [
-  { text: "View today's schedule", icon: Calendar },
-  { text: "Check vitals", icon: Heart },
-  { text: "Message caregiver", icon: MessageCircle },
-  { text: "View photos", icon: Image },
-]
-
-export const FamilyDashboard = ({ onBack }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeView, setActiveView] = useState('overview')
-  const [inputMessage, setInputMessage] = useState('')
-  const [chatHistory, setChatHistory] = useState(mockChatHistory)
-
-  const completedTasks = mockTimeline.filter(t => t.completed).length
-  const progress = Math.round((completedTasks / mockTimeline.length) * 100)
-
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return
-    setChatHistory(prev => [...prev, { id: Date.now(), role: 'user', content: inputMessage }])
-    setInputMessage('')
-    setTimeout(() => {
-      setChatHistory(prev => [...prev, {
-        id: Date.now() + 1,
-        role: 'assistant',
-        content: "I understand your concern. Let me check the latest updates and get back to you with detailed information about your father's care today."
-      }])
-    }, 1000)
+  if (activePage === 'settings') {
+    return <SettingsPage onBack={() => setActivePage(null)} />;
+  }
+  if (activePage === 'billing') {
+    return <AccountsPage onBack={() => setActivePage(null)} role={UserRole.FAMILY} />;
+  }
+  if (activePage === 'history') {
+    return <HistoryPage onBack={() => setActivePage(null)} role={UserRole.FAMILY} />;
+  }
+  if (activePage === 'support') {
+    return <SupportPage onBack={() => setActivePage(null)} />;
+  }
+  if (activePage === 'chat') {
+    return <ChatPage onBack={() => setActivePage(null)} role={UserRole.FAMILY} />;
+  }
+  if (activePage === 'updates') {
+    return <UpdatesPage onBack={() => setActivePage(null)} />;
+  }
+  if (activePage === 'caregiver') {
+    return <CaregiverPage onBack={() => setActivePage(null)} />;
   }
 
-  const sidebarItems = [
-    { id: 'overview', label: 'Overview', icon: Home },
-    { id: 'vitals', label: 'Vitals', icon: Activity },
-    { id: 'messages', label: 'Messages', icon: MessageCircle },
-    { id: 'schedule', label: 'Schedule', icon: Calendar },
-    { id: 'chat', label: 'AI Assistant', icon: Sparkles },
-  ]
-
-  return (
-    <div className="min-h-screen bg-[#f9f9f9] font-sans flex overflow-x-hidden">
-      {/* Sidebar - Desktop */}
-      <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-gray-100 h-screen sticky top-0">
-        <div className="p-4 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="font-semibold text-gray-900">ADLTrack</h1>
-              <p className="text-xs text-gray-500">Family Portal</p>
-            </div>
-          </div>
-        </div>
-
-        <nav className="flex-1 p-3 space-y-1">
-          {sidebarItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveView(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                activeView === item.id
-                  ? 'bg-[#E6F4EA] text-[#146C2E]'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        <div className="p-4 border-t border-gray-100">
-          <button
-            onClick={onBack}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all"
-            data-testid="back-btn"
+  // Render Home Content
+  const renderHomeContent = () => (
+    <div className="flex-1 overflow-y-auto pb-24">
+      {/* Vitals Row */}
+      <div className="px-4 pt-4">
+        <div className="flex gap-2 justify-center">
+          {/* BP */}
+          <button 
+            onClick={() => setShowVitals(true)}
+            className="relative flex-1 max-w-[80px] aspect-square rounded-2xl overflow-hidden"
           >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Home
+            <div className="absolute inset-0 bg-gradient-to-br from-rose-400 to-rose-500" />
+            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
+            <div className="absolute inset-[3px] rounded-xl bg-white/90 flex flex-col items-center justify-center">
+              <Heart className="w-4 h-4 text-rose-500 mb-0.5" />
+              <span className="text-[10px] font-bold text-zinc-800">BP</span>
+              <span className="text-[9px] text-zinc-500">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</span>
+            </div>
+          </button>
+
+          {/* HR */}
+          <button 
+            onClick={() => setShowVitals(true)}
+            className="relative flex-1 max-w-[80px] aspect-square rounded-2xl overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-500" />
+            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
+            <div className="absolute inset-[3px] rounded-xl bg-white/90 flex flex-col items-center justify-center">
+              <Activity className="w-4 h-4 text-orange-500 mb-0.5" />
+              <span className="text-[10px] font-bold text-zinc-800">HR</span>
+              <span className="text-[9px] text-zinc-500">{latestHR ? latestHR.value : '--'}</span>
+            </div>
+          </button>
+
+          {/* Temp */}
+          <button 
+            onClick={() => setShowVitals(true)}
+            className="relative flex-1 max-w-[80px] aspect-square rounded-2xl overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-blue-500" />
+            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
+            <div className="absolute inset-[3px] rounded-xl bg-white/90 flex flex-col items-center justify-center">
+              <Thermometer className="w-4 h-4 text-blue-500 mb-0.5" />
+              <span className="text-[10px] font-bold text-zinc-800">Temp</span>
+              <span className="text-[9px] text-zinc-500">{latestTemp ? `${latestTemp.value}°` : '--'}</span>
+            </div>
+          </button>
+
+          {/* Pain */}
+          <button 
+            onClick={() => setShowVitals(true)}
+            className="relative flex-1 max-w-[80px] aspect-square rounded-2xl overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-purple-500" />
+            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm" />
+            <div className="absolute inset-[3px] rounded-xl bg-white/90 flex flex-col items-center justify-center">
+              <Frown className="w-4 h-4 text-purple-500 mb-0.5" />
+              <span className="text-[10px] font-bold text-zinc-800">Pain</span>
+              <span className="text-[9px] text-zinc-500">{latestPain ? `${latestPain.value}/10` : '--'}</span>
+            </div>
           </button>
         </div>
-      </aside>
+      </div>
 
-      {/* Mobile Sidebar */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
-              onClick={() => setSidebarOpen(false)}
-            />
-            <motion.aside
-              initial={{ x: -280 }}
-              animate={{ x: 0 }}
-              exit={{ x: -280 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed left-0 top-0 bottom-0 w-72 bg-white z-50 lg:hidden flex flex-col"
-            >
-              <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="font-semibold text-gray-900">ADLTrack</span>
+      {/* Timeline Header */}
+      <div className="px-4 py-4">
+        <h2 className="text-lg font-semibold text-zinc-900">Care Timeline</h2>
+        <p className="text-sm text-zinc-500">Today's completed tasks</p>
+      </div>
+
+      {/* Timeline Feed */}
+      <div className="px-4 space-y-4">
+        {completedTasks.length > 0 ? (
+          completedTasks.map((task) => (
+            <div key={task.id} className="bg-white rounded-2xl shadow-sm border border-zinc-100 overflow-hidden">
+              {/* Task Image */}
+              <div className="relative aspect-video">
+                <img 
+                  src={getTaskImage(task)} 
+                  alt={task.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                
+                {/* Verified Badge */}
+                <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-full">
+                  <CheckCircle className="w-3 h-3" />
+                  {task.evidenceUrl ? 'Verified' : 'Completed'}
                 </div>
-                <button onClick={() => setSidebarOpen(false)} className="p-2 rounded-lg hover:bg-gray-100">
-                  <X className="w-5 h-5 text-gray-500" />
-                </button>
+
+                {/* Task Info Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <h3 className="text-white font-semibold text-lg">{task.title}</h3>
+                  <p className="text-white/80 text-sm">Completed at {task.completedAt}</p>
+                </div>
               </div>
-              <nav className="flex-1 p-3 space-y-1">
-                {sidebarItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => { setActiveView(item.id); setSidebarOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                      activeView === item.id
-                        ? 'bg-[#E6F4EA] text-[#146C2E]'
-                        : 'text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    {item.label}
-                  </button>
-                ))}
-              </nav>
-              <div className="p-4 border-t border-gray-100">
-                <button onClick={onBack} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">
-                  <ArrowLeft className="w-5 h-5" />
-                  Back to Home
-                </button>
+
+              {/* Notes */}
+              {task.completionNote && (
+                <div className="p-4 border-t border-zinc-100">
+                  <p className="text-sm text-zinc-600">
+                    <span className="font-medium text-zinc-900">Note:</span> {task.completionNote}
+                  </p>
+                </div>
+              )}
+
+              {/* Caregiver Attribution */}
+              <div className="px-4 py-3 bg-zinc-50 flex items-center gap-3">
+                <img 
+                  src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=100&q=80"
+                  alt="Caregiver"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-zinc-900">Julia Martinez</p>
+                  <p className="text-xs text-zinc-500">Caregiver</p>
+                </div>
+                <Clock className="w-4 h-4 text-zinc-400" />
               </div>
-            </motion.aside>
-          </>
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Camera className="w-8 h-8 text-zinc-400" />
+            </div>
+            <p className="text-zinc-500">No completed tasks yet today</p>
+            <p className="text-sm text-zinc-400 mt-1">Updates will appear here as care is delivered</p>
+          </div>
         )}
-      </AnimatePresence>
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-h-screen min-w-0 overflow-hidden">
-        {/* Top Header - Mobile */}
-        <header className="lg:hidden bg-white border-b border-gray-100 sticky top-0 z-30">
-          <div className="grid grid-cols-[48px_1fr_48px] items-center px-2 py-3">
-            <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-gray-100 justify-self-start">
-              <Menu className="w-5 h-5 text-gray-600" />
-            </button>
-            <div className="flex items-center gap-1.5 justify-center">
-              <div className="w-6 h-6 rounded-lg bg-[#25D366] flex items-center justify-center flex-shrink-0">
-                <Sparkles className="w-3 h-3 text-white" />
-              </div>
-              <span className="font-semibold text-gray-900 text-sm">ADLTrack</span>
-            </div>
-            <button className="p-2 rounded-lg hover:bg-gray-100 relative justify-self-end">
-              <Bell className="w-5 h-5 text-gray-600" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
-          </div>
-        </header>
-
-        {/* Patient & Caregiver Card */}
-        <div className="bg-white border-b border-gray-100 px-4 lg:px-6 py-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100">
-                  <img src={mockPatient.avatar} alt="" className="w-full h-full object-cover" />
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h2 className="font-semibold text-gray-900">{mockPatient.name}</h2>
-                <p className="text-sm text-gray-500">Age {mockPatient.age} • {mockPatient.status}</p>
-              </div>
-              <div className="flex gap-2">
-                <button className="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
-                  <Phone className="w-5 h-5 text-gray-600" />
-                </button>
-                <button className="w-10 h-10 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] flex items-center justify-center transition-all shadow-lg shadow-green-200">
-                  <Video className="w-5 h-5 text-white" />
-                </button>
-              </div>
-            </div>
-
-            {/* Caregiver Strip */}
-            <div className="mt-4 p-3 bg-[#E6F4EA] rounded-xl flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl overflow-hidden">
-                  <img src={mockPatient.caregiver.avatar} alt="" className="w-full h-full object-cover" />
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900 text-sm">{mockPatient.caregiver.name}</p>
-                  <p className="text-xs text-gray-500">{mockPatient.caregiver.role} • {mockPatient.caregiver.status}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-full shadow-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-xs font-medium text-gray-600">Live</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <main className="flex-1 overflow-auto overflow-x-hidden">
-          <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
-            <AnimatePresence mode="wait">
-              {/* Chat View */}
-              {activeView === 'chat' && (
-                <motion.div
-                  key="chat"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="space-y-4 overflow-x-hidden"
-                >
-                  {chatHistory.map((msg) => (
-                    <motion.div
-                      key={msg.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={`flex gap-2 sm:gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
-                    >
-                      <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        msg.role === 'assistant'
-                          ? 'bg-[#25D366]'
-                          : 'bg-gray-200'
-                      }`}>
-                        {msg.role === 'assistant' ? (
-                          <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
-                        ) : (
-                          <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600" />
-                        )}
-                      </div>
-                      <div className={`max-w-[70%] sm:max-w-[75%] rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 ${
-                        msg.role === 'assistant'
-                          ? 'bg-white border border-gray-100 shadow-sm'
-                          : 'bg-[#25D366] text-white'
-                      }`}>
-                        <p className={`text-sm whitespace-pre-line break-words ${msg.role === 'assistant' ? 'text-gray-700' : 'text-white'}`}>
-                          {msg.content}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </motion.div>
-              )}
-
-              {/* Overview View */}
-              {activeView === 'overview' && (
-                <motion.div
-                  key="overview"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="space-y-6"
-                >
-                  {/* Progress Card */}
-                  <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">Today&apos;s Progress</h3>
-                        <p className="text-sm text-gray-500">{completedTasks} of {mockTimeline.length} tasks completed</p>
-                      </div>
-                      <div className="relative w-14 h-14">
-                        <svg className="w-full h-full transform -rotate-90">
-                          <circle cx="28" cy="28" r="24" stroke="#f1f5f9" strokeWidth="5" fill="none" />
-                          <circle
-                            cx="28" cy="28" r="24"
-                            stroke="url(#progressGradient)"
-                            strokeWidth="5"
-                            fill="none"
-                            strokeDasharray="150.8"
-                            strokeDashoffset={150.8 - (150.8 * progress / 100)}
-                            strokeLinecap="round"
-                          />
-                          <defs>
-                            <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                              <stop offset="0%" stopColor="#25D366" />
-                              <stop offset="100%" stopColor="#128C7E" />
-                            </linearGradient>
-                          </defs>
-                        </svg>
-                        <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-900">{progress}%</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      {mockTimeline.slice(0, 4).map((item) => (
-                        <div
-                          key={item.id}
-                          className={`flex items-center gap-3 p-3 rounded-xl ${
-                            item.completed ? 'bg-gray-50' : 'bg-white border border-gray-100'
-                          }`}
-                        >
-                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                            item.completed
-                              ? 'bg-[#25D366]'
-                              : 'bg-gray-100'
-                          }`}>
-                            {item.completed ? (
-                              <CircleCheck className="w-4 h-4 text-white" />
-                            ) : (
-                              <Clock className="w-4 h-4 text-gray-400" />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <p className={`text-sm font-medium ${item.completed ? 'text-gray-400' : 'text-gray-900'}`}>
-                              {item.task}
-                            </p>
-                          </div>
-                          <span className="text-xs text-gray-400">{item.time}</span>
-                          {item.verified && (
-                            <div className="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center">
-                              <Camera className="w-3 h-3 text-blue-600" />
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Quick Vitals */}
-                  <div className="grid grid-cols-3 gap-3">
-                    {mockVitals.map((vital, i) => (
-                      <div key={i} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
-                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-2 ${
-                          vital.color === 'red' ? 'bg-red-50' :
-                          vital.color === 'amber' ? 'bg-amber-50' : 'bg-[#E6F4EA]'
-                        }`}>
-                          <vital.icon className={`w-5 h-5 ${
-                            vital.color === 'red' ? 'text-red-500' :
-                            vital.color === 'amber' ? 'text-amber-500' : 'text-[#25D366]'
-                          }`} />
-                        </div>
-                        <p className="text-xl font-bold text-gray-900">{vital.value}</p>
-                        <p className="text-xs text-gray-500">{vital.label}</p>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Vitals View */}
-              {activeView === 'vitals' && (
-                <motion.div
-                  key="vitals"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="space-y-4"
-                >
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">Health Vitals</h2>
-                  {mockVitals.map((vital, i) => (
-                    <div key={i} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                            vital.color === 'red' ? 'bg-red-50' :
-                            vital.color === 'amber' ? 'bg-amber-50' : 'bg-[#E6F4EA]'
-                          }`}>
-                            <vital.icon className={`w-6 h-6 ${
-                              vital.color === 'red' ? 'text-red-500' :
-                              vital.color === 'amber' ? 'text-amber-500' : 'text-[#25D366]'
-                            }`} />
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">{vital.label}</p>
-                            <p className="text-2xl font-bold text-gray-900">
-                              {vital.value} <span className="text-base font-normal text-gray-400">{vital.unit}</span>
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${
-                            parseFloat(vital.trend) >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                          }`}>
-                            <TrendingUp className="w-4 h-4" />
-                            {vital.trend}%
-                          </div>
-                          <p className="text-xs text-gray-400 mt-1">vs yesterday</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </motion.div>
-              )}
-
-              {/* Messages View */}
-              {activeView === 'messages' && (
-                <motion.div
-                  key="messages"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
-                >
-                  <div className="p-4 border-b border-gray-100 bg-[#E6F4EA]">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center text-white font-bold shadow-lg">
-                        FC
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">Family Chat</h3>
-                        <p className="text-sm text-gray-500">4 members • 2 online</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="h-64 p-4 bg-gray-50 flex items-center justify-center">
-                    <p className="text-gray-400 text-sm">Messages will appear here</p>
-                  </div>
-                  <div className="p-4 border-t border-gray-100 bg-white">
-                    <div className="flex gap-3">
-                      <input
-                        type="text"
-                        placeholder="Type a message..."
-                        className="flex-1 bg-gray-100 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-200"
-                        data-testid="message-input"
-                      />
-                      <Button className="rounded-xl bg-[#25D366] hover:bg-[#20bd5a] px-4">
-                        <Send className="w-5 h-5" />
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Schedule View */}
-              {activeView === 'schedule' && (
-                <motion.div
-                  key="schedule"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="space-y-4"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold text-gray-900">Today&apos;s Schedule</h2>
-                    <button className="px-4 py-2 bg-white rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50">
-                      View Week
-                    </button>
-                  </div>
-                  {mockTimeline.map((item) => (
-                    <div
-                      key={item.id}
-                      className={`bg-white rounded-2xl p-4 border shadow-sm ${
-                        item.completed ? 'border-green-100 bg-green-50/30' : 'border-gray-100'
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                          item.completed
-                            ? 'bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg shadow-green-200'
-                            : 'bg-gray-100'
-                        }`}>
-                          {item.completed ? (
-                            <CircleCheck className="w-5 h-5 text-white" />
-                          ) : (
-                            <Clock className="w-5 h-5 text-gray-400" />
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className={`font-medium ${item.completed ? 'text-gray-500' : 'text-gray-900'}`}>
-                            {item.task}
-                          </h4>
-                          <p className="text-sm text-gray-400">{item.time}</p>
-                        </div>
-                        {item.verified && (
-                          <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 rounded-full">
-                            <Camera className="w-4 h-4 text-blue-600" />
-                            <span className="text-xs font-medium text-blue-600">Verified</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </main>
-
-        {/* Copilot-style Bottom Input */}
-        <div className="sticky bottom-0 bg-gradient-to-t from-[#f9f9f9] via-[#f9f9f9] to-transparent pt-6 pb-4 px-3 sm:px-4 lg:px-6">
-          <div className="max-w-4xl mx-auto">
-            {/* Suggestion Chips */}
-            <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-hide -mx-1 px-1">
-              {suggestionChips.map((chip, i) => (
-                <button
-                  key={i}
-                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-200 rounded-full text-xs sm:text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all whitespace-nowrap shadow-sm flex-shrink-0"
-                >
-                  <chip.icon className="w-4 h-4 text-[#25D366]" />
-                  {chip.text}
-                </button>
-              ))}
-            </div>
-
-            {/* Input Bar */}
-            <div className="flex items-center gap-3 bg-white rounded-full border border-gray-200 shadow-lg px-4 py-2">
-              <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-                <Plus className="w-5 h-5 text-gray-500" />
-              </button>
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Ask about your loved one's care..."
-                className="flex-1 bg-transparent text-sm outline-none text-gray-700 placeholder:text-gray-400"
-              />
-              <button
-                onClick={handleSendMessage}
-                className="p-2 rounded-full bg-[#25D366] hover:bg-[#20bd5a] transition-all"
-              >
-                <Send className="w-4 h-4 text-white" />
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
-  )
-}
+  );
 
-export default FamilyDashboard
+  // Render Settings Content
+  const renderSettingsContent = () => (
+    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      {/* Patient Profile Quick Access */}
+      <button
+        onClick={() => setShowPatientProfile(true)}
+        className="w-full flex items-center gap-4 p-4 bg-zinc-50 rounded-xl hover:bg-zinc-100 transition-colors"
+      >
+        <img 
+          src={patient?.photo || 'https://via.placeholder.com/60'} 
+          alt={patient?.name}
+          className="w-12 h-12 rounded-full object-cover"
+        />
+        <div className="flex-1 text-left">
+          <p className="font-medium text-zinc-900">{patient?.name || 'Patient'}</p>
+          <p className="text-sm text-zinc-500">View Medical Profile</p>
+        </div>
+        <ChevronRight className="w-5 h-5 text-zinc-400" />
+      </button>
+
+      {/* Menu Items */}
+      {[
+        { label: 'My Profile', icon: User, action: () => setActivePage('profile') },
+        { label: 'Billing', icon: Activity, action: () => setActivePage('billing') },
+        { label: 'Care History', icon: Clock, action: () => setActivePage('history') },
+        { label: 'Current Caregiver', icon: Heart, action: () => setActivePage('caregiver') },
+        { label: 'Settings', icon: Settings, action: () => setActivePage('settings') },
+        { label: 'Support', icon: Bell, action: () => setActivePage('support') },
+      ].map((item, idx) => (
+        <button
+          key={idx}
+          onClick={item.action}
+          className="w-full flex items-center gap-4 p-4 bg-zinc-50 rounded-xl hover:bg-zinc-100 transition-colors"
+        >
+          <div className="w-10 h-10 bg-zinc-200 rounded-full flex items-center justify-center">
+            <item.icon className="w-5 h-5 text-zinc-600" />
+          </div>
+          <span className="font-medium text-zinc-900">{item.label}</span>
+          <ChevronRight className="w-5 h-5 text-zinc-400 ml-auto" />
+        </button>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-white flex flex-col font-['Inter',sans-serif]">
+      {/* Main Content */}
+      {activeTab === 'home' && renderHomeContent()}
+      {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.FAMILY} />}
+      {activeTab === 'notifications' && <UpdatesPage onBack={() => setActiveTab('home')} />}
+      {activeTab === 'settings' && renderSettingsContent()}
+
+      {/* Floating Copilot Button */}
+      {activeTab === 'home' && (
+        <button
+          onClick={() => setShowCopilot(true)}
+          className="fixed bottom-24 right-4 w-14 h-14 bg-zinc-900 rounded-full shadow-xl flex items-center justify-center hover:bg-zinc-800 transition-colors z-40"
+          data-testid="family-copilot-btn"
+        >
+          <Bot className="w-6 h-6 text-white" />
+        </button>
+      )}
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-zinc-100 px-6 py-2 flex justify-around items-center z-30">
+        {[
+          { id: 'home', icon: Activity },
+          { id: 'chat', icon: MessageSquare },
+          { id: 'notifications', icon: Bell },
+          { id: 'settings', icon: Settings },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex flex-col items-center py-2 px-4 rounded-xl transition-colors ${
+              activeTab === tab.id ? 'text-zinc-900' : 'text-zinc-400'
+            }`}
+          >
+            <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'text-zinc-900' : ''}`} />
+          </button>
+        ))}
+      </nav>
+
+      {/* Modals */}
+      <PatientProfileModal
+        isOpen={showPatientProfile}
+        onClose={() => setShowPatientProfile(false)}
+        patient={patient}
+      />
+
+      <VitalsModal
+        isOpen={showVitals}
+        onClose={() => setShowVitals(false)}
+        vitalsData={vitalsData}
+        isCaregiver={false}
+      />
+
+      <AICopilot
+        isOpen={showCopilot}
+        onClose={() => setShowCopilot(false)}
+        role="family"
+        patientName={patient?.name}
+      />
+    </div>
+  );
+};
+
+export default FamilyDashboard;
