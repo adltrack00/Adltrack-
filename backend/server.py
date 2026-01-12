@@ -44,6 +44,20 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+# Copilot models
+class CopilotChatRequest(BaseModel):
+    session_id: str
+    message: str
+    role: str = "caregiver"
+    context: Optional[Dict[str, Any]] = None
+
+class CopilotChatResponse(BaseModel):
+    response: str
+    session_id: str
+
+# Store chat sessions
+chat_sessions = {}
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
