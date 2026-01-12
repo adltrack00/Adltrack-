@@ -6,13 +6,20 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, timezone
 
-
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Import emergentintegrations for LLM
+try:
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+    LLM_AVAILABLE = True
+except ImportError:
+    LLM_AVAILABLE = False
+    logging.warning("emergentintegrations not available, copilot will use fallback responses")
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
