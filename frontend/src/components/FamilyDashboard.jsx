@@ -79,39 +79,8 @@ export const FamilyDashboard = ({
   // Render Home Content
   const renderHomeContent = () => (
     <div className="flex-1 overflow-y-auto bg-stone-50 pb-28">
-      {/* Hero Header */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-rose-500 to-rose-600" />
-        <div className="relative px-6 pt-6 pb-8">
-          {/* Greeting */}
-          <div className="mb-6">
-            <p className="text-white/70 text-sm font-medium">Good morning, Mary</p>
-            <h1 className="text-2xl font-bold text-white tracking-tight">
-              {patient?.name || 'Your loved one'} is doing well
-            </h1>
-          </div>
-
-          {/* Patient Card */}
-          <button 
-            onClick={() => setShowPatientProfile(true)}
-            className="w-full bg-white/10 backdrop-blur-sm rounded-2xl p-4 flex items-center gap-4"
-          >
-            <img 
-              src={patient?.photo || 'https://via.placeholder.com/60'} 
-              alt={patient?.name}
-              className="w-14 h-14 rounded-xl object-cover ring-2 ring-white/30"
-            />
-            <div className="flex-1 text-left">
-              <h2 className="text-lg font-bold text-white">{patient?.name || 'Patient'}</h2>
-              <p className="text-white/70 text-sm">{patient?.age} years old • View Profile</p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-white/60" />
-          </button>
-        </div>
-      </div>
-
       {/* Vitals Summary - Grid Layout */}
-      <div className="px-6 -mt-4 mb-6">
+      <div className="px-6 pt-6 mb-6">
         <div className="grid grid-cols-4 gap-2">
           {/* BP */}
           <button 
