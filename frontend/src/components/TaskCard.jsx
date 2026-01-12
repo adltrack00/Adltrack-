@@ -1,13 +1,38 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Clock, Camera, ChevronDown, ChevronUp, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { TaskStatus, Priority } from '../types';
 
-const priorityColors = {
-  [Priority.CRITICAL]: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', stripe: 'bg-red-500' },
-  [Priority.HIGH]: { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', stripe: 'bg-orange-500' },
-  [Priority.STANDARD]: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', stripe: 'bg-blue-500' },
-  [Priority.LOW]: { bg: 'bg-gray-50', border: 'border-gray-200', text: 'text-gray-700', stripe: 'bg-gray-400' },
-  [Priority.QUALITY_OF_LIFE]: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', stripe: 'bg-green-500' }
+const priorityConfig = {
+  [Priority.CRITICAL]: { 
+    bg: 'bg-rose-50', 
+    text: 'text-rose-600', 
+    stripe: 'bg-rose-500',
+    icon: '🔴'
+  },
+  [Priority.HIGH]: { 
+    bg: 'bg-orange-50', 
+    text: 'text-orange-600', 
+    stripe: 'bg-orange-500',
+    icon: '🟠'
+  },
+  [Priority.STANDARD]: { 
+    bg: 'bg-blue-50', 
+    text: 'text-blue-600', 
+    stripe: 'bg-blue-500',
+    icon: '🔵'
+  },
+  [Priority.LOW]: { 
+    bg: 'bg-stone-100', 
+    text: 'text-stone-600', 
+    stripe: 'bg-stone-400',
+    icon: '⚪'
+  },
+  [Priority.QUALITY_OF_LIFE]: { 
+    bg: 'bg-emerald-50', 
+    text: 'text-emerald-600', 
+    stripe: 'bg-emerald-500',
+    icon: '🟢'
+  }
 };
 
 export const TaskCard = ({ 
@@ -17,79 +42,92 @@ export const TaskCard = ({
   onToggleExpand,
   readOnly = false 
 }) => {
-  const colors = priorityColors[task.priority] || priorityColors[Priority.STANDARD];
+  const config = priorityConfig[task.priority] || priorityConfig[Priority.STANDARD];
   const isCompleted = task.status === TaskStatus.COMPLETED;
   const isMissed = task.status === TaskStatus.MISSED;
 
   return (
     <div 
-      className={`relative bg-white rounded-2xl shadow-sm border overflow-hidden transition-all duration-200 ${
-        isCompleted ? 'opacity-60' : ''
-      } ${isExpanded ? 'shadow-md' : 'hover:shadow-md'}`}
+      className={`relative bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-300 font-['Manrope',sans-serif] ${
+        isCompleted ? 'opacity-70' : ''
+      } ${isExpanded ? 'shadow-[0_4px_20px_rgba(0,0,0,0.08)]' : 'hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)]'}`}
     >
       {/* Priority Stripe */}
-      <div className={`absolute left-0 top-0 bottom-0 w-1 ${colors.stripe}`} />
+      <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${config.stripe}`} />
       
       {/* Main Content */}
       <div 
-        className="pl-4 pr-4 py-4 cursor-pointer"
+        className="pl-5 pr-4 py-4 cursor-pointer"
         onClick={() => !readOnly && onToggleExpand && onToggleExpand(task.id)}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             {/* Priority Badge */}
-            <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2 ${colors.bg} ${colors.text}`}>
-              {task.priority}
-            </span>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${config.bg} ${config.text}`}>
+                {config.icon} {task.priority}
+              </span>
+              {task.requiresPhoto && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-stone-100 text-stone-500 text-[10px] font-medium rounded-full">
+                  <Camera className="w-3 h-3" />
+                  Photo
+                </span>
+              )}
+            </div>
             
             {/* Task Title */}
-            <h3 className={`font-semibold text-zinc-900 ${isCompleted ? 'line-through' : ''}`}>
+            <h3 className={`font-bold text-stone-900 ${isCompleted ? 'line-through text-stone-400' : ''}`}>
               {task.title}
             </h3>
             
             {/* Time */}
-            <div className="flex items-center gap-1 mt-1 text-zinc-500 text-sm">
-              <Clock className="w-3.5 h-3.5" />
-              <span>{task.scheduledTime}</span>
-              {task.requiresPhoto && (
-                <span className="flex items-center gap-1 ml-2 text-zinc-400">
-                  <Camera className="w-3.5 h-3.5" />
-                  Photo required
-                </span>
-              )}
+            <div className="flex items-center gap-1.5 mt-1.5 text-stone-400 text-sm">
+              <Clock className="w-4 h-4" />
+              <span className="font-medium">{task.scheduledTime}</span>
             </div>
           </div>
           
-          {/* Status Icon */}
-          <div className="flex-shrink-0">
+          {/* Status Indicator */}
+          <div className="flex-shrink-0 mt-1">
             {isCompleted ? (
-              <CheckCircle className="w-6 h-6 text-green-500" />
+              <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-emerald-500" />
+              </div>
             ) : isMissed ? (
-              <XCircle className="w-6 h-6 text-red-500" />
+              <div className="w-8 h-8 bg-rose-100 rounded-full flex items-center justify-center">
+                <XCircle className="w-5 h-5 text-rose-500" />
+              </div>
             ) : (
-              <div className="w-6 h-6 rounded-full border-2 border-zinc-300" />
+              <div className="w-8 h-8 border-2 border-stone-200 rounded-full flex items-center justify-center">
+                {isExpanded ? (
+                  <ChevronUp className="w-4 h-4 text-stone-400" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-stone-400" />
+                )}
+              </div>
             )}
           </div>
         </div>
 
         {/* Completed Info */}
         {isCompleted && task.completedAt && (
-          <div className="mt-2 pt-2 border-t border-zinc-100">
-            <p className="text-xs text-green-600 font-medium">
-              ✓ Completed at {task.completedAt}
+          <div className="mt-3 pt-3 border-t border-stone-100">
+            <p className="text-sm text-emerald-600 font-medium flex items-center gap-1.5">
+              <CheckCircle className="w-4 h-4" />
+              Completed at {task.completedAt}
             </p>
             {task.completionNote && (
-              <p className="text-xs text-zinc-500 mt-1">Note: {task.completionNote}</p>
+              <p className="text-sm text-stone-500 mt-1 italic">"{task.completionNote}"</p>
             )}
           </div>
         )}
 
         {/* Missed Info */}
         {isMissed && task.missedReason && (
-          <div className="mt-2 pt-2 border-t border-zinc-100">
-            <p className="text-xs text-red-600 font-medium flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" />
-              Reason: {task.missedReason}
+          <div className="mt-3 pt-3 border-t border-stone-100">
+            <p className="text-sm text-rose-600 font-medium flex items-center gap-1.5">
+              <AlertCircle className="w-4 h-4" />
+              {task.missedReason}
             </p>
           </div>
         )}
@@ -100,7 +138,7 @@ export const TaskCard = ({
             <img 
               src={task.evidenceUrl} 
               alt="Task evidence" 
-              className="w-full h-32 object-cover rounded-lg"
+              className="w-full h-32 object-cover rounded-xl"
             />
           </div>
         )}
@@ -108,16 +146,16 @@ export const TaskCard = ({
 
       {/* Expanded Section */}
       {isExpanded && !isCompleted && !isMissed && !readOnly && (
-        <div className="px-4 pb-4 pt-2 border-t border-zinc-100">
-          <div className="space-y-3">
+        <div className="px-5 pb-5 pt-2 border-t border-stone-100 bg-stone-50/50">
+          <div className="space-y-4">
             <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Instructions</p>
-              <p className="text-sm text-zinc-700">{task.instructions || task.description}</p>
+              <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1.5">Instructions</p>
+              <p className="text-sm text-stone-700 leading-relaxed">{task.instructions || task.description}</p>
             </div>
             
             <div>
-              <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">Time Window</p>
-              <p className="text-sm text-zinc-700">{task.timeWindow}</p>
+              <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1.5">Time Window</p>
+              <p className="text-sm text-stone-700">{task.timeWindow}</p>
             </div>
 
             <button
@@ -125,23 +163,12 @@ export const TaskCard = ({
                 e.stopPropagation();
                 onStartTask && onStartTask(task);
               }}
-              className="w-full py-3 bg-zinc-900 text-white rounded-xl font-medium hover:bg-zinc-800 transition-colors"
+              className="w-full py-4 bg-stone-900 text-white rounded-xl font-bold hover:bg-stone-800 transition-colors shadow-[0_4px_14px_rgba(0,0,0,0.1)]"
               data-testid={`start-task-${task.id}`}
             >
               Start Task
             </button>
           </div>
-        </div>
-      )}
-
-      {/* Expand/Collapse Indicator */}
-      {!isCompleted && !isMissed && !readOnly && (
-        <div className="absolute right-4 top-1/2 -translate-y-1/2">
-          {isExpanded ? (
-            <ChevronUp className="w-5 h-5 text-zinc-400" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-zinc-400" />
-          )}
         </div>
       )}
     </div>
