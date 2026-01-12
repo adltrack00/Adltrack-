@@ -110,55 +110,55 @@ export const FamilyDashboard = ({
         </div>
       </div>
 
-      {/* Vitals Summary - Horizontal scroll */}
+      {/* Vitals Summary - Grid Layout */}
       <div className="px-6 -mt-4 mb-6">
-        <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+        <div className="grid grid-cols-4 gap-2">
           {/* BP */}
           <button 
             onClick={() => setShowVitals(true)}
-            className="flex-shrink-0 w-[120px] bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
+            className="bg-white rounded-2xl p-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
           >
-            <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center mb-3">
-              <Heart className="w-5 h-5 text-rose-500" />
+            <div className="w-9 h-9 bg-rose-50 rounded-xl flex items-center justify-center mb-2 mx-auto">
+              <Heart className="w-4 h-4 text-rose-500" />
             </div>
-            <p className="text-xl font-bold text-stone-900">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
-            <p className="text-xs text-stone-400 font-medium mt-1">Blood Pressure</p>
+            <p className="text-base font-bold text-stone-900 text-center">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
+            <p className="text-[10px] text-stone-400 font-medium mt-0.5 text-center">BP</p>
           </button>
 
           {/* HR */}
           <button 
             onClick={() => setShowVitals(true)}
-            className="flex-shrink-0 w-[120px] bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
+            className="bg-white rounded-2xl p-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
           >
-            <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mb-3">
-              <Activity className="w-5 h-5 text-orange-500" />
+            <div className="w-9 h-9 bg-orange-50 rounded-xl flex items-center justify-center mb-2 mx-auto">
+              <Activity className="w-4 h-4 text-orange-500" />
             </div>
-            <p className="text-xl font-bold text-stone-900">{latestHR ? latestHR.value : '--'}</p>
-            <p className="text-xs text-stone-400 font-medium mt-1">Heart Rate</p>
+            <p className="text-base font-bold text-stone-900 text-center">{latestHR ? latestHR.value : '--'}</p>
+            <p className="text-[10px] text-stone-400 font-medium mt-0.5 text-center">Heart</p>
           </button>
 
           {/* Temp */}
           <button 
             onClick={() => setShowVitals(true)}
-            className="flex-shrink-0 w-[120px] bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
+            className="bg-white rounded-2xl p-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
           >
-            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-3">
-              <Thermometer className="w-5 h-5 text-blue-500" />
+            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center mb-2 mx-auto">
+              <Thermometer className="w-4 h-4 text-blue-500" />
             </div>
-            <p className="text-xl font-bold text-stone-900">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
-            <p className="text-xs text-stone-400 font-medium mt-1">Temperature</p>
+            <p className="text-base font-bold text-stone-900 text-center">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
+            <p className="text-[10px] text-stone-400 font-medium mt-0.5 text-center">Temp</p>
           </button>
 
           {/* Pain */}
           <button 
             onClick={() => setShowVitals(true)}
-            className="flex-shrink-0 w-[120px] bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
+            className="bg-white rounded-2xl p-3 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
           >
-            <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center mb-3">
-              <Frown className="w-5 h-5 text-purple-500" />
+            <div className="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center mb-2 mx-auto">
+              <Frown className="w-4 h-4 text-purple-500" />
             </div>
-            <p className="text-xl font-bold text-stone-900">{latestPain ? `${latestPain.value}/10` : '--'}</p>
-            <p className="text-xs text-stone-400 font-medium mt-1">Pain Level</p>
+            <p className="text-base font-bold text-stone-900 text-center">{latestPain ? `${latestPain.value}/10` : '--'}</p>
+            <p className="text-[10px] text-stone-400 font-medium mt-0.5 text-center">Pain</p>
           </button>
         </div>
       </div>
