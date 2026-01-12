@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Bot, User, Loader2 } from 'lucide-react';
+import { X, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
 import { sendChatMessage, getGreeting } from '../services/geminiService';
 
 export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = 'the patient' }) => {
@@ -57,63 +57,63 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center justify-center" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/50 z-[100] flex items-end sm:items-center justify-center font-['Manrope',sans-serif]" onClick={onClose}>
       <div 
-        className="bg-white w-full sm:max-w-lg h-[80vh] sm:h-[600px] sm:rounded-2xl rounded-t-3xl flex flex-col overflow-hidden"
+        className="bg-white w-full sm:max-w-lg h-[85vh] sm:h-[600px] sm:rounded-3xl rounded-t-3xl flex flex-col overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-zinc-100 bg-zinc-50">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100 bg-gradient-to-r from-indigo-500 to-indigo-600">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center">
-              <Bot className="w-5 h-5 text-white" />
+            <div className="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-zinc-900">Ask Me</h3>
-              <p className="text-xs text-zinc-500">AI Care Assistant</p>
+              <h3 className="font-bold text-white">AI Care Assistant</h3>
+              <p className="text-xs text-white/70">Powered by Gemini</p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="p-2 hover:bg-zinc-200 rounded-full transition-colors"
+            className="p-2 hover:bg-white/10 rounded-xl transition-colors"
           >
-            <X className="w-5 h-5 text-zinc-500" />
+            <X className="w-5 h-5 text-white" />
           </button>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-stone-50">
           {messages.map((msg, idx) => (
             <div 
               key={idx}
               className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
             >
-              <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center ${
-                msg.role === 'user' ? 'bg-zinc-200' : 'bg-zinc-900'
+              <div className={`w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center ${
+                msg.role === 'user' ? 'bg-stone-200' : 'bg-indigo-100'
               }`}>
                 {msg.role === 'user' ? (
-                  <User className="w-4 h-4 text-zinc-600" />
+                  <User className="w-5 h-5 text-stone-600" />
                 ) : (
-                  <Bot className="w-4 h-4 text-white" />
+                  <Sparkles className="w-5 h-5 text-indigo-600" />
                 )}
               </div>
               <div className={`max-w-[80%] px-4 py-3 rounded-2xl ${
                 msg.role === 'user' 
-                  ? 'bg-zinc-900 text-white rounded-tr-md' 
-                  : 'bg-zinc-100 text-zinc-800 rounded-tl-md'
+                  ? 'bg-stone-900 text-white rounded-tr-md' 
+                  : 'bg-white text-stone-800 rounded-tl-md shadow-[0_2px_8px_rgba(0,0,0,0.04)]'
               }`}>
-                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
               </div>
             </div>
           ))}
           
           {isLoading && (
             <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-zinc-900 flex items-center justify-center">
-                <Bot className="w-4 h-4 text-white" />
+              <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-indigo-600" />
               </div>
-              <div className="bg-zinc-100 px-4 py-3 rounded-2xl rounded-tl-md">
-                <Loader2 className="w-5 h-5 text-zinc-500 animate-spin" />
+              <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-md shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+                <Loader2 className="w-5 h-5 text-indigo-500 animate-spin" />
               </div>
             </div>
           )}
@@ -122,28 +122,28 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
         </div>
 
         {/* Input */}
-        <div className="border-t border-zinc-100 p-4">
-          <div className="flex gap-2">
+        <div className="border-t border-stone-100 p-4 bg-white">
+          <div className="flex gap-3">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Ask me anything..."
-              className="flex-1 px-4 py-3 bg-zinc-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              className="flex-1 px-4 py-3 bg-stone-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
               data-testid="copilot-input"
             />
             <button
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
-              className="px-4 py-3 bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 transition-colors disabled:bg-zinc-300 disabled:cursor-not-allowed"
+              className="px-5 py-3 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-colors disabled:bg-stone-300 disabled:cursor-not-allowed"
               data-testid="copilot-send"
             >
               <Send className="w-5 h-5" />
             </button>
           </div>
-          <p className="text-[10px] text-zinc-400 text-center mt-2">
-            AI assistant for care guidance. Not a substitute for medical advice.
+          <p className="text-[10px] text-stone-400 text-center mt-3 font-medium">
+            AI assistant for care guidance • Not a substitute for medical advice
           </p>
         </div>
       </div>
