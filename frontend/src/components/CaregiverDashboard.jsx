@@ -257,7 +257,7 @@ export const CaregiverDashboard = ({
         {/* Progress Section */}
         <div className="px-6 py-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-stone-400">Today's Progress</span>
+            <span className="text-sm font-medium text-stone-400">Today&apos;s Progress</span>
             <span className="text-sm font-bold text-white">{completedCount}/{todayTasks.length}</span>
           </div>
           <div className="h-2 bg-stone-800 rounded-full overflow-hidden">
