@@ -93,7 +93,7 @@ export const ChatPage = ({ onBack, role }) => {
     const conv = conversations.find(c => c.id === activeConversation);
     
     return (
-      <div className="flex flex-col h-screen bg-stone-950">
+      <div className="flex flex-col h-full bg-stone-950">
         {/* Chat Header */}
         <div className="sticky top-0 bg-stone-900 border-b border-stone-800 px-4 py-3 flex items-center gap-3 z-10">
           <button onClick={() => setActiveConversation(null)} className="p-2 hover:bg-stone-800 rounded-full">
@@ -113,7 +113,7 @@ export const ChatPage = ({ onBack, role }) => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-stone-950">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-stone-950 pb-24">
           {mockMessages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[80%] px-4 py-3 rounded-2xl ${
@@ -128,7 +128,7 @@ export const ChatPage = ({ onBack, role }) => {
                   </div>
                 )}
                 <p className="text-sm">{msg.text}</p>
-                <p className={`text-[10px] mt-1 ${msg.sender === 'me' ? 'text-emerald-200' : 'text-stone-500'}`}>
+                <p className={`text-[10px] mt-1 ${msg.sender === 'me' ? 'text-emerald-200' : 'text-stone-400'}`}>
                   {msg.time}
                 </p>
               </div>
@@ -136,20 +136,22 @@ export const ChatPage = ({ onBack, role }) => {
           ))}
         </div>
 
-        {/* Input */}
-        <div className="border-t border-stone-800 p-4 bg-stone-900">
-          <div className="flex gap-2">
+        {/* Input - Fixed at bottom above navigation */}
+        <div className="fixed bottom-16 left-0 right-0 border-t border-stone-800 p-4 bg-stone-900 z-20">
+          <div className="flex gap-2 max-w-screen-lg mx-auto">
             <input
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Type a message..."
-              className="flex-1 px-4 py-3 bg-stone-800 text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-stone-500"
+              className="flex-1 px-4 py-3 bg-stone-800 text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-stone-400"
+              data-testid="chat-input"
             />
             <button
               onClick={handleSend}
               className="px-4 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors"
+              data-testid="chat-send-btn"
             >
               <Send className="w-5 h-5" />
             </button>
