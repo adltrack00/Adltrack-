@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Activity, MessageSquare, Bell, Settings, Bot, Heart, Thermometer, 
-  ChevronRight, User, Clock, CheckCircle, Camera, Frown, Sparkles
+  ChevronRight, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
 import { PatientProfileModal } from './PatientProfileModal';
@@ -22,13 +22,18 @@ export const FamilyDashboard = ({
   onSignOut,
   tasks = [],
   patient,
-  vitalsData
+  vitalsData,
+  onAddRequest
 }) => {
   const [activeTab, setActiveTab] = useState('home');
+  const [activeTaskTab, setActiveTaskTab] = useState('timeline');
   const [showPatientProfile, setShowPatientProfile] = useState(false);
   const [showVitals, setShowVitals] = useState(false);
   const [showCopilot, setShowCopilot] = useState(false);
+  const [showRequestModal, setShowRequestModal] = useState(false);
   const [activePage, setActivePage] = useState(null);
+  const [newRequest, setNewRequest] = useState({ title: '', description: '', priority: 'standard' });
+  const [myRequests, setMyRequests] = useState([]);
 
   // Get latest vitals
   const latestBP = vitalsData?.bloodPressure?.[vitalsData.bloodPressure.length - 1];
@@ -39,6 +44,21 @@ export const FamilyDashboard = ({
   // Filter completed tasks for timeline
   const completedTasks = tasks.filter(t => t.status === TaskStatus.COMPLETED);
   const totalTasks = tasks.filter(t => t.status !== TaskStatus.PROPOSED).length;
+
+  // Handle adding a new request
+  const handleAddRequest = () => {
+    if (newRequest.title.trim()) {
+      const request = {
+        id: Date.now(),
+        ...newRequest,
+        status: 'pending',
+        createdAt: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+      };
+      setMyRequests(prev => [request, ...prev]);
+      setNewRequest({ title: '', description: '', priority: 'standard' });
+      setShowRequestModal(false);
+    }
+  };
 
   // Helper to get task image with AI-generated fallbacks
   const getTaskImage = (task) => {
