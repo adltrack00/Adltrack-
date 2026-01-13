@@ -63,17 +63,11 @@ export const TaskCard = ({
       >
         <div className="flex items-center justify-between gap-3">
           <div className="flex-1 min-w-0">
-            {/* Title & Badges Row */}
+            {/* Title Row */}
             <div className="flex items-center gap-2 mb-1.5">
               <h3 className={`text-base font-bold truncate ${isCompleted ? 'text-stone-500' : 'text-white'}`}>
                 {task.title}
               </h3>
-              {/* Priority Badge - only show for non-completed tasks */}
-              {!isCompleted && (
-                <span className={`flex-shrink-0 inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${config.bg} ${config.text}`}>
-                  {config.icon}
-                </span>
-              )}
             </div>
             
             {/* Time & Photo indicator */}
