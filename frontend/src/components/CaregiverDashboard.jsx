@@ -176,7 +176,7 @@ export const CaregiverDashboard = ({
         {/* Patient Header with Photo - Vitals overlapping */}
         <div className="relative">
           {/* Photo Container */}
-          <div className="relative h-56 overflow-hidden">
+          <div className="relative h-40 overflow-hidden">
             {/* Patient Photo Background */}
             <img 
               src={patient?.photo || 'https://via.placeholder.com/400'} 
@@ -189,18 +189,18 @@ export const CaregiverDashboard = ({
             {/* Patient Info */}
             <button 
               onClick={() => setShowPatientProfile(true)}
-              className="absolute bottom-16 left-0 right-0 px-6 flex items-center justify-between"
+              className="absolute bottom-12 left-0 right-0 px-6 flex items-center justify-between"
             >
               <div>
-                <h2 className="text-2xl font-bold text-white">{patient?.name || 'Patient'}</h2>
+                <h2 className="text-xl font-bold text-white">{patient?.name || 'Patient'}</h2>
                 <p className="text-white/80 text-sm font-medium">{patient?.age} years old</p>
               </div>
-              <ChevronRight className="w-6 h-6 text-white/60" />
+              <ChevronRight className="w-5 h-5 text-white/60" />
             </button>
           </div>
 
           {/* Vitals Row - Overlapping the photo */}
-          <div className="px-6 -mt-10 relative z-10">
+          <div className="px-6 -mt-8 relative z-10">
             <div className="flex gap-3">
               {/* BP Card */}
               <button 
