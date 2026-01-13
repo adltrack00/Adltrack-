@@ -138,16 +138,16 @@ export const TaskCard = ({
 
       {/* Expanded Section */}
       {isExpanded && !isCompleted && !isMissed && !readOnly && (
-        <div className="px-5 pb-4 pt-3 border-t border-stone-100 bg-stone-50/50">
+        <div className="px-5 pb-4 pt-3 border-t border-stone-800 bg-stone-950/50">
           <div className="space-y-3">
             <div>
-              <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">Instructions</p>
-              <p className="text-sm text-stone-600 leading-relaxed">{task.instructions || task.description}</p>
+              <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Instructions</p>
+              <p className="text-sm text-stone-400 leading-relaxed">{task.instructions || task.description}</p>
             </div>
             
             <div>
-              <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">Time Window</p>
-              <p className="text-sm text-stone-600">{task.timeWindow}</p>
+              <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Time Window</p>
+              <p className="text-sm text-stone-400">{task.timeWindow}</p>
             </div>
 
             <button
@@ -155,7 +155,7 @@ export const TaskCard = ({
                 e.stopPropagation();
                 onStartTask && onStartTask(task);
               }}
-              className="w-full py-3.5 bg-stone-900 text-white rounded-xl text-sm font-bold hover:bg-stone-800 transition-colors shadow-sm"
+              className="w-full py-3.5 bg-emerald-500 text-white rounded-xl text-sm font-bold hover:bg-emerald-600 transition-colors"
               data-testid={`start-task-${task.id}`}
             >
               Start Task
