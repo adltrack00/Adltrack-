@@ -173,68 +173,71 @@ export const CaregiverDashboard = ({
     // Online State - Dashboard
     return (
       <div className="flex-1 overflow-y-auto bg-stone-50 pb-24">
-        {/* Patient Header with Photo */}
-        <div className="relative h-48 rounded-b-[32px] overflow-hidden">
-          {/* Patient Photo Background */}
-          <img 
-            src={patient?.photo || 'https://via.placeholder.com/400'} 
-            alt={patient?.name}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-          
-          {/* Patient Info */}
-          <button 
-            onClick={() => setShowPatientProfile(true)}
-            className="absolute bottom-0 left-0 right-0 p-6 flex items-center justify-between"
-          >
-            <div>
-              <h2 className="text-2xl font-bold text-white">{patient?.name || 'Patient'}</h2>
-              <p className="text-white/80 text-sm font-medium">{patient?.age} years old</p>
+        {/* Patient Header with Photo - Vitals overlapping */}
+        <div className="relative">
+          {/* Photo Container */}
+          <div className="relative h-56 overflow-hidden">
+            {/* Patient Photo Background */}
+            <img 
+              src={patient?.photo || 'https://via.placeholder.com/400'} 
+              alt={patient?.name}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            
+            {/* Patient Info */}
+            <button 
+              onClick={() => setShowPatientProfile(true)}
+              className="absolute bottom-16 left-0 right-0 px-6 flex items-center justify-between"
+            >
+              <div>
+                <h2 className="text-2xl font-bold text-white">{patient?.name || 'Patient'}</h2>
+                <p className="text-white/80 text-sm font-medium">{patient?.age} years old</p>
+              </div>
+              <ChevronRight className="w-6 h-6 text-white/60" />
+            </button>
+          </div>
+
+          {/* Vitals Row - Overlapping the photo */}
+          <div className="px-6 -mt-10 relative z-10">
+            <div className="flex gap-3">
+              {/* BP Card */}
+              <button 
+                onClick={() => setShowVitals(true)}
+                className="flex-1 bg-white rounded-2xl p-4 shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-shadow"
+              >
+                <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center mb-2">
+                  <Heart className="w-5 h-5 text-rose-500" />
+                </div>
+                <p className="text-lg font-bold text-stone-900">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
+                <p className="text-xs text-stone-400 font-medium">Blood Pressure</p>
+              </button>
+
+              {/* HR Card */}
+              <button 
+                onClick={() => setShowVitals(true)}
+                className="flex-1 bg-white rounded-2xl p-4 shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-shadow"
+              >
+                <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mb-2">
+                  <Activity className="w-5 h-5 text-orange-500" />
+                </div>
+                <p className="text-lg font-bold text-stone-900">{latestHR ? latestHR.value : '--'}</p>
+                <p className="text-xs text-stone-400 font-medium">Heart Rate</p>
+              </button>
+
+              {/* Temp Card */}
+              <button 
+                onClick={() => setShowVitals(true)}
+                className="flex-1 bg-white rounded-2xl p-4 shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-shadow"
+              >
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-2">
+                  <Thermometer className="w-5 h-5 text-blue-500" />
+                </div>
+                <p className="text-lg font-bold text-stone-900">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
+                <p className="text-xs text-stone-400 font-medium">Temperature</p>
+              </button>
             </div>
-            <ChevronRight className="w-6 h-6 text-white/60" />
-          </button>
-        </div>
-
-        {/* Vitals Row */}
-        <div className="px-6 -mt-4">
-          <div className="flex gap-3">
-            {/* BP Card */}
-            <button 
-              onClick={() => setShowVitals(true)}
-              className="flex-1 bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
-            >
-              <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center mb-2">
-                <Heart className="w-5 h-5 text-rose-500" />
-              </div>
-              <p className="text-lg font-bold text-stone-900">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
-              <p className="text-xs text-stone-400 font-medium">Blood Pressure</p>
-            </button>
-
-            {/* HR Card */}
-            <button 
-              onClick={() => setShowVitals(true)}
-              className="flex-1 bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
-            >
-              <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mb-2">
-                <Activity className="w-5 h-5 text-orange-500" />
-              </div>
-              <p className="text-lg font-bold text-stone-900">{latestHR ? latestHR.value : '--'}</p>
-              <p className="text-xs text-stone-400 font-medium">Heart Rate</p>
-            </button>
-
-            {/* Temp Card */}
-            <button 
-              onClick={() => setShowVitals(true)}
-              className="flex-1 bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
-            >
-              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-2">
-                <Thermometer className="w-5 h-5 text-blue-500" />
-              </div>
-              <p className="text-lg font-bold text-stone-900">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
-              <p className="text-xs text-stone-400 font-medium">Temperature</p>
-            </button>
           </div>
         </div>
 
