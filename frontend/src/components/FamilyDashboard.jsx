@@ -411,14 +411,14 @@ export const FamilyDashboard = ({
       {activeTab === 'notifications' && <UpdatesPage onBack={() => setActiveTab('home')} />}
       {activeTab === 'settings' && renderSettingsContent()}
 
-      {/* Floating Copilot Button */}
+      {/* Floating Copilot Button - Smaller, Light Green */}
       {activeTab === 'home' && (
         <button
           onClick={() => setShowCopilot(true)}
-          className="fixed bottom-28 right-6 w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl shadow-[0_8px_30px_rgba(99,102,241,0.4)] flex items-center justify-center hover:shadow-[0_12px_40px_rgba(99,102,241,0.5)] transition-all hover:scale-105 z-40"
+          className="fixed bottom-24 right-5 w-11 h-11 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.4)] flex items-center justify-center hover:shadow-[0_8px_25px_rgba(16,185,129,0.5)] transition-all hover:scale-105 z-40"
           data-testid="family-copilot-btn"
         >
-          <Bot className="w-6 h-6 text-white" />
+          <Sparkles className="w-5 h-5 text-white" />
         </button>
       )}
 
