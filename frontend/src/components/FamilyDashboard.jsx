@@ -348,9 +348,9 @@ export const FamilyDashboard = ({
 
   // Render Settings Content
   const renderSettingsContent = () => (
-    <div className="flex-1 overflow-y-auto bg-stone-950 p-6 space-y-3 pb-20">
+    <div className={`flex-1 overflow-y-auto ${bg} p-6 space-y-3 pb-20`}>
       {/* Profile Header */}
-      <div className="bg-stone-900 border border-stone-800 rounded-3xl p-5">
+      <div className={`${bgCard} border ${border} rounded-3xl p-5`}>
         <div className="flex items-center gap-4 mb-4">
           <img 
             src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80"
@@ -358,15 +358,15 @@ export const FamilyDashboard = ({
             className="w-16 h-16 rounded-2xl object-cover"
           />
           <div>
-            <h3 className="font-bold text-white">Mary Smith</h3>
-            <p className="text-stone-400 text-sm">Family Guardian</p>
+            <h3 className={`font-bold ${text}`}>Mary Smith</h3>
+            <p className={`${textSecondary} text-sm`}>Family Guardian</p>
           </div>
         </div>
         
         {/* Quick Patient Access */}
         <button
           onClick={() => setShowPatientProfile(true)}
-          className="w-full flex items-center gap-3 p-3 bg-stone-800 rounded-xl"
+          className={`w-full flex items-center gap-3 p-3 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-100'} rounded-xl`}
         >
           <img 
             src={patient?.photo || 'https://via.placeholder.com/40'} 
@@ -374,10 +374,10 @@ export const FamilyDashboard = ({
             className="w-10 h-10 rounded-lg object-cover"
           />
           <div className="flex-1 text-left">
-            <p className="font-medium text-white text-sm">{patient?.name}</p>
-            <p className="text-stone-500 text-xs">View Medical Profile</p>
+            <p className={`font-medium ${text} text-sm`}>{patient?.name}</p>
+            <p className={`${textMuted} text-xs`}>View Medical Profile</p>
           </div>
-          <ChevronRight className="w-4 h-4 text-stone-600" />
+          <ChevronRight className={`w-4 h-4 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
         </button>
       </div>
 
