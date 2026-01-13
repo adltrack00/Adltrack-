@@ -65,17 +65,17 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
             <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
               <Star className="w-6 h-6 text-yellow-500 mx-auto mb-1" />
               <p className="text-xl font-bold text-white">4.9</p>
-              <p className="text-xs text-stone-500">Rating</p>
+              <p className="text-xs text-stone-400">Rating</p>
             </div>
             <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
               <Award className="w-6 h-6 text-blue-500 mx-auto mb-1" />
               <p className="text-xl font-bold text-white">5</p>
-              <p className="text-xs text-stone-500">Years</p>
+              <p className="text-xs text-stone-400">Years</p>
             </div>
             <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
               <CheckCircle className="w-6 h-6 text-emerald-500 mx-auto mb-1" />
               <p className="text-xl font-bold text-white">234</p>
-              <p className="text-xs text-stone-500">Shifts</p>
+              <p className="text-xs text-stone-400">Shifts</p>
             </div>
           </div>
         )}
@@ -84,12 +84,12 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
         <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 space-y-4">
           <h3 className="font-semibold text-white">Contact Information</h3>
           <div>
-            <label className="text-xs text-stone-500 uppercase tracking-wider">Email</label>
-            <p className="text-white">{profile.email}</p>
+            <label className="text-xs text-stone-400 uppercase tracking-wider">Email</label>
+            <p className="text-stone-300">{profile.email}</p>
           </div>
           <div>
-            <label className="text-xs text-stone-500 uppercase tracking-wider">Phone</label>
-            <p className="text-white">{profile.phone}</p>
+            <label className="text-xs text-stone-400 uppercase tracking-wider">Phone</label>
+            <p className="text-stone-300">{profile.phone}</p>
           </div>
         </div>
 
