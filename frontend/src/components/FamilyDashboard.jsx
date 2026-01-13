@@ -469,6 +469,91 @@ export const FamilyDashboard = ({
         role="family"
         patientName={patient?.name}
       />
+
+      {/* Add Request Modal */}
+      {showRequestModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center">
+          <div className="bg-white w-full max-w-md rounded-t-3xl p-6 animate-slide-up">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-stone-900">New Request</h2>
+              <button 
+                onClick={() => setShowRequestModal(false)}
+                className="p-2 hover:bg-stone-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-stone-500" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Title */}
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-2">
+                  What do you need?
+                </label>
+                <input
+                  type="text"
+                  value={newRequest.title}
+                  onChange={(e) => setNewRequest(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="e.g., Extra blanket, Call me back"
+                  className="w-full px-4 py-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                  data-testid="request-title-input"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-2">
+                  Additional details (optional)
+                </label>
+                <textarea
+                  value={newRequest.description}
+                  onChange={(e) => setNewRequest(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Any specific instructions..."
+                  rows={3}
+                  className="w-full px-4 py-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent resize-none"
+                  data-testid="request-description-input"
+                />
+              </div>
+
+              {/* Priority */}
+              <div>
+                <label className="block text-sm font-medium text-stone-700 mb-2">
+                  Priority
+                </label>
+                <div className="flex gap-2">
+                  {['standard', 'high', 'urgent'].map((priority) => (
+                    <button
+                      key={priority}
+                      onClick={() => setNewRequest(prev => ({ ...prev, priority }))}
+                      className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all ${
+                        newRequest.priority === priority
+                          ? priority === 'urgent'
+                            ? 'bg-rose-500 text-white'
+                            : priority === 'high'
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-stone-800 text-white'
+                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                      }`}
+                    >
+                      {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                onClick={handleAddRequest}
+                disabled={!newRequest.title.trim()}
+                className="w-full py-4 bg-rose-500 text-white font-bold rounded-xl hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                data-testid="submit-request-btn"
+              >
+                Send Request
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
