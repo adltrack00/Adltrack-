@@ -177,31 +177,31 @@ export const CaregiverDashboard = ({
         {/* Patient Header with Photo - Vitals overlapping */}
         <div className="relative">
           {/* Photo Container */}
-          <div className="relative h-40 overflow-hidden">
+          <div className="relative h-32 overflow-hidden">
             {/* Patient Photo Background */}
             <img 
               src={patient?.photo || 'https://via.placeholder.com/400'} 
               alt={patient?.name}
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover object-top"
             />
             {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
             
             {/* Patient Info */}
             <button 
               onClick={() => setShowPatientProfile(true)}
-              className="absolute bottom-12 left-0 right-0 px-6 flex items-center justify-between"
+              className="absolute bottom-3 left-0 right-0 px-5 flex items-center justify-between"
             >
               <div>
-                <h2 className="text-xl font-bold text-white">{patient?.name || 'Patient'}</h2>
-                <p className="text-white/80 text-sm font-medium">{patient?.age} years old</p>
+                <h2 className="text-lg font-bold text-white">{patient?.name || 'Patient'}</h2>
+                <p className="text-white/80 text-xs font-medium">{patient?.age} years old</p>
               </div>
               <ChevronRight className="w-5 h-5 text-white/60" />
             </button>
           </div>
 
           {/* Vitals Row - 4 cards like Family Dashboard */}
-          <div className="px-6 -mt-8 relative z-10">
+          <div className="px-5 -mt-6 relative z-10">
             <div className="grid grid-cols-4 gap-2">
               {/* BP Card */}
               <button 
