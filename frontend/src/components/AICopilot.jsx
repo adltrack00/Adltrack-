@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
+import { X, Send, User, Loader2, Sparkles } from 'lucide-react';
 import { sendChatMessage, getGreeting } from '../services/geminiService';
 
 export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = 'the patient' }) => {
@@ -62,15 +62,15 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
         className="bg-white w-full sm:max-w-lg h-[85vh] sm:h-[600px] sm:rounded-3xl rounded-t-3xl flex flex-col overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-stone-100 bg-gradient-to-r from-indigo-500 to-indigo-600">
+        {/* Header - Light Green */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-emerald-100 bg-gradient-to-r from-emerald-400 to-teal-500">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="font-bold text-white">AI Care Assistant</h3>
-              <p className="text-xs text-white/70">Powered by Gemini</p>
+              <h3 className="font-bold text-white">AI Caregiver Assistant</h3>
+              <p className="text-xs text-white/80">Powered by Gemini</p>
             </div>
           </div>
           <button 
@@ -88,13 +88,13 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
               key={idx}
               className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
             >
-              <div className={`w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center ${
-                msg.role === 'user' ? 'bg-stone-200' : 'bg-indigo-100'
+              <div className={`w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center ${
+                msg.role === 'user' ? 'bg-stone-200' : 'bg-emerald-100'
               }`}>
                 {msg.role === 'user' ? (
-                  <User className="w-5 h-5 text-stone-600" />
+                  <User className="w-4 h-4 text-stone-600" />
                 ) : (
-                  <Sparkles className="w-5 h-5 text-indigo-600" />
+                  <Sparkles className="w-4 h-4 text-emerald-600" />
                 )}
               </div>
               <div className={`max-w-[80%] px-4 py-3 rounded-2xl ${
@@ -109,11 +109,11 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
           
           {isLoading && (
             <div className="flex gap-3">
-              <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-indigo-600" />
+              <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-emerald-600" />
               </div>
               <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-md shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-                <Loader2 className="w-5 h-5 text-indigo-500 animate-spin" />
+                <Loader2 className="w-5 h-5 text-emerald-500 animate-spin" />
               </div>
             </div>
           )}
@@ -130,13 +130,13 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Ask me anything..."
-              className="flex-1 px-4 py-3 bg-stone-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+              className="flex-1 px-4 py-3 bg-stone-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
               data-testid="copilot-input"
             />
             <button
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
-              className="px-5 py-3 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 transition-colors disabled:bg-stone-300 disabled:cursor-not-allowed"
+              className="px-5 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors disabled:bg-stone-300 disabled:cursor-not-allowed"
               data-testid="copilot-send"
             >
               <Send className="w-5 h-5" />
