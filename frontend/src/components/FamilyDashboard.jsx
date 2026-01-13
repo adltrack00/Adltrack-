@@ -306,7 +306,7 @@ export const FamilyDashboard = ({
                     {/* Notes & Attribution */}
                     <div className="p-5">
                       {task.completionNote && (
-                        <p className="text-stone-600 text-sm mb-4">
+                        <p className="text-stone-400 text-sm mb-4">
                           &quot;{task.completionNote}&quot;
                         </p>
                       )}
@@ -373,9 +373,9 @@ export const FamilyDashboard = ({
           />
           <div className="flex-1 text-left">
             <p className="font-medium text-white text-sm">{patient?.name}</p>
-            <p className="text-stone-400 text-xs">View Medical Profile</p>
+            <p className="text-stone-500 text-xs">View Medical Profile</p>
           </div>
-          <ChevronRight className="w-4 h-4 text-stone-500" />
+          <ChevronRight className="w-4 h-4 text-stone-600" />
         </button>
       </div>
 
@@ -391,20 +391,20 @@ export const FamilyDashboard = ({
         <button
           key={idx}
           onClick={item.action}
-          className="w-full flex items-center gap-4 p-4 bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
+          className="w-full flex items-center gap-4 p-4 bg-stone-900 border border-stone-800 rounded-2xl hover:bg-stone-800 transition-colors"
         >
-          <div className="w-11 h-11 bg-stone-100 rounded-xl flex items-center justify-center">
-            <item.icon className="w-5 h-5 text-stone-600" />
+          <div className="w-11 h-11 bg-stone-800 rounded-xl flex items-center justify-center">
+            <item.icon className="w-5 h-5 text-stone-400" />
           </div>
-          <span className="font-medium text-stone-900 flex-1 text-left">{item.label}</span>
-          <ChevronRight className="w-5 h-5 text-stone-400" />
+          <span className="font-medium text-white flex-1 text-left">{item.label}</span>
+          <ChevronRight className="w-5 h-5 text-stone-600" />
         </button>
       ))}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col font-['Manrope',sans-serif]">
+    <div className="min-h-screen bg-stone-950 flex flex-col font-['Manrope',sans-serif]">
       {/* Main Content */}
       {activeTab === 'home' && renderHomeContent()}
       {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.FAMILY} />}
@@ -470,22 +470,22 @@ export const FamilyDashboard = ({
 
       {/* Add Request Modal */}
       {showRequestModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center">
-          <div className="bg-white w-full max-w-md rounded-t-3xl p-6 animate-slide-up">
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-end justify-center">
+          <div className="bg-stone-950 border-t border-stone-800 w-full max-w-md rounded-t-3xl p-6 animate-slide-up">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-stone-900">New Request</h2>
+              <h2 className="text-xl font-bold text-white">New Request</h2>
               <button 
                 onClick={() => setShowRequestModal(false)}
-                className="p-2 hover:bg-stone-100 rounded-full transition-colors"
+                className="p-2 hover:bg-stone-800 rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-stone-500" />
+                <X className="w-5 h-5 text-stone-400" />
               </button>
             </div>
 
             <div className="space-y-4">
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="block text-sm font-medium text-stone-300 mb-2">
                   What do you need?
                 </label>
                 <input
@@ -493,14 +493,14 @@ export const FamilyDashboard = ({
                   value={newRequest.title}
                   onChange={(e) => setNewRequest(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="e.g., Extra blanket, Call me back"
-                  className="w-full px-4 py-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-stone-900 border border-stone-800 text-white placeholder-stone-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   data-testid="request-title-input"
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="block text-sm font-medium text-stone-300 mb-2">
                   Additional details (optional)
                 </label>
                 <textarea
@@ -508,14 +508,14 @@ export const FamilyDashboard = ({
                   onChange={(e) => setNewRequest(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Any specific instructions..."
                   rows={3}
-                  className="w-full px-4 py-3 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 bg-stone-900 border border-stone-800 text-white placeholder-stone-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
                   data-testid="request-description-input"
                 />
               </div>
 
               {/* Priority */}
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="block text-sm font-medium text-stone-300 mb-2">
                   Priority
                 </label>
                 <div className="flex gap-2">
@@ -529,8 +529,8 @@ export const FamilyDashboard = ({
                             ? 'bg-rose-500 text-white'
                             : priority === 'high'
                             ? 'bg-orange-500 text-white'
-                            : 'bg-stone-800 text-white'
-                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                            : 'bg-stone-700 text-white'
+                          : 'bg-stone-900 border border-stone-800 text-stone-400 hover:bg-stone-800'
                       }`}
                     >
                       {priority.charAt(0).toUpperCase() + priority.slice(1)}
@@ -543,7 +543,7 @@ export const FamilyDashboard = ({
               <button
                 onClick={handleAddRequest}
                 disabled={!newRequest.title.trim()}
-                className="w-full py-4 bg-rose-500 text-white font-bold rounded-xl hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                className="w-full py-4 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
                 data-testid="submit-request-btn"
               >
                 Send Request
