@@ -268,7 +268,7 @@ export const PATIENT_PROFILE = {
   name: 'David Smith',
   age: 78,
   dateOfBirth: '1946-03-15',
-  photo: 'https://static.prod-images.emergentagent.com/jobs/2b918343-0fe7-4d73-803a-a8a8c813b61f/images/7c7bc024ec1065d47fb0f219e7359a96b1a85d63628823238fca62051d1d2712.png',
+  photo: 'https://images.unsplash.com/photo-1601779805802-d8363cd70ccc?w=400&q=80',
   address: '123 Oak Street, Springfield, IL 62701',
   phone: '(555) 123-4567',
   medicalConditions: [
