@@ -351,13 +351,13 @@ export const CaregiverDashboard = ({
 
   // Render Shift Tab
   const renderShiftContent = () => (
-    <div className="flex-1 overflow-y-auto bg-stone-50 p-6 space-y-4 pb-24">
+    <div className="flex-1 overflow-y-auto bg-stone-950 p-6 space-y-4 pb-24">
       {/* Shift Status Card */}
-      <div className={`rounded-3xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] ${isShiftActive ? 'bg-teal-600' : 'bg-white'}`}>
+      <div className={`rounded-3xl p-6 border ${isShiftActive ? 'bg-emerald-600 border-emerald-500' : 'bg-stone-900 border-stone-800'}`}>
         <div className="flex items-center justify-between mb-5">
-          <h3 className={`font-bold text-lg ${isShiftActive ? 'text-white' : 'text-stone-900'}`}>Current Shift</h3>
+          <h3 className={`font-bold text-lg ${isShiftActive ? 'text-white' : 'text-white'}`}>Current Shift</h3>
           <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-            isShiftActive ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600'
+            isShiftActive ? 'bg-white/20 text-white' : 'bg-stone-800 text-stone-400'
           }`}>
             {isShiftActive ? 'Active' : 'Inactive'}
           </span>
@@ -384,8 +384,8 @@ export const CaregiverDashboard = ({
           onClick={isShiftActive ? handleEndShift : handleStartShift}
           className={`w-full py-4 rounded-2xl font-bold transition-all ${
             isShiftActive 
-              ? 'bg-white text-rose-600 hover:bg-stone-50' 
-              : 'bg-teal-600 text-white hover:bg-teal-700'
+              ? 'bg-white text-rose-600 hover:bg-stone-100' 
+              : 'bg-emerald-500 text-white hover:bg-emerald-600'
           }`}
         >
           {isShiftActive ? 'End Shift' : 'Start Shift'}
@@ -393,8 +393,8 @@ export const CaregiverDashboard = ({
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-3xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-        <h3 className="font-bold text-stone-900 mb-4">Quick Actions</h3>
+      <div className="bg-stone-900 border border-stone-800 rounded-3xl p-5">
+        <h3 className="font-bold text-white mb-4">Quick Actions</h3>
         {[
           { label: 'View Earnings', action: () => setActivePage('earnings'), icon: '💰' },
           { label: 'Shift History', action: () => setActivePage('history'), icon: '📋' },
@@ -402,13 +402,13 @@ export const CaregiverDashboard = ({
           <button
             key={idx}
             onClick={item.action}
-            className="w-full flex items-center justify-between p-4 hover:bg-stone-50 rounded-2xl transition-colors"
+            className="w-full flex items-center justify-between p-4 hover:bg-stone-800 rounded-2xl transition-colors"
           >
             <div className="flex items-center gap-3">
               <span className="text-xl">{item.icon}</span>
-              <span className="font-medium text-stone-900">{item.label}</span>
+              <span className="font-medium text-white">{item.label}</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-stone-400" />
+            <ChevronRight className="w-5 h-5 text-stone-500" />
           </button>
         ))}
       </div>
@@ -417,7 +417,7 @@ export const CaregiverDashboard = ({
 
   // Render Settings Tab
   const renderSettingsContent = () => (
-    <div className="flex-1 overflow-y-auto bg-stone-50 p-6 space-y-3 pb-24">
+    <div className="flex-1 overflow-y-auto bg-stone-950 p-6 space-y-3 pb-24">
       {/* Profile Card */}
       <div className="bg-white rounded-3xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
         <div className="flex items-center gap-4">
