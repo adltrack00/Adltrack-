@@ -32,6 +32,7 @@ export const CaregiverDashboard = ({
   onAddVital,
   onUpdatePatientPhoto
 }) => {
+  const { isDarkMode, bg, bgCard, bgCardHover, border, text, textSecondary, textMuted, bgNav, bgInput } = useTheme();
   const [activeTab, setActiveTab] = useState('home');
   const [activeTaskTab, setActiveTaskTab] = useState('today');
   const [expandedTaskId, setExpandedTaskId] = useState(null);
