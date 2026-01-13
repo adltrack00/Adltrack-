@@ -419,9 +419,9 @@ export const CaregiverDashboard = ({
 
   // Render Settings Tab
   const renderSettingsContent = () => (
-    <div className="flex-1 overflow-y-auto bg-stone-950 p-6 space-y-3 pb-24">
+    <div className={`flex-1 overflow-y-auto ${bg} p-6 space-y-3 pb-24`}>
       {/* Profile Card */}
-      <div className="bg-stone-900 border border-stone-800 rounded-3xl p-5">
+      <div className={`${bgCard} border ${border} rounded-3xl p-5`}>
         <div className="flex items-center gap-4">
           <img 
             src={CAREGIVER_PROFILE.photo}
@@ -429,8 +429,8 @@ export const CaregiverDashboard = ({
             className="w-16 h-16 rounded-2xl object-cover"
           />
           <div className="flex-1">
-            <h3 className="font-bold text-white">Julia Martinez</h3>
-            <p className="text-stone-400 text-sm">Certified Nursing Assistant</p>
+            <h3 className={`font-bold ${text}`}>Julia Martinez</h3>
+            <p className={`${textSecondary} text-sm`}>Certified Nursing Assistant</p>
           </div>
         </div>
       </div>
@@ -446,13 +446,13 @@ export const CaregiverDashboard = ({
         <button
           key={idx}
           onClick={item.action}
-          className="w-full flex items-center gap-4 p-4 bg-stone-900 border border-stone-800 rounded-2xl hover:bg-stone-800 transition-colors"
+          className={`w-full flex items-center gap-4 p-4 ${bgCard} border ${border} rounded-2xl ${bgCardHover} transition-colors`}
         >
-          <div className="w-11 h-11 bg-stone-800 rounded-xl flex items-center justify-center">
-            <item.icon className="w-5 h-5 text-stone-400" />
+          <div className={`w-11 h-11 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-100'} rounded-xl flex items-center justify-center`}>
+            <item.icon className={`w-5 h-5 ${textMuted}`} />
           </div>
-          <span className="font-medium text-white flex-1 text-left">{item.label}</span>
-          <ChevronRight className="w-5 h-5 text-stone-600" />
+          <span className={`font-medium ${text} flex-1 text-left`}>{item.label}</span>
+          <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
         </button>
       ))}
     </div>
