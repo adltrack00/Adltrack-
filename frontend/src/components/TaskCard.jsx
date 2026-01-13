@@ -71,14 +71,14 @@ export const TaskCard = ({
             </div>
             
             {/* Time & Photo indicator */}
-            <div className="flex items-center gap-2 text-stone-500 text-sm">
+            <div className="flex items-center gap-2 text-stone-300 text-sm">
               <span className="flex items-center gap-1.5 font-medium">
                 <Clock className="w-4 h-4" />
                 {isCompleted && task.completedAt ? `${task.completedAt}` : task.scheduledTime}
               </span>
               {/* Only show Photo badge for pending tasks that require photo */}
               {task.requiresPhoto && !hasPhoto && !isCompleted && (
-                <span className="flex items-center gap-1 text-stone-400 bg-stone-800 px-2 py-0.5 rounded-full text-xs font-medium">
+                <span className="flex items-center gap-1 text-stone-300 bg-stone-800 px-2 py-0.5 rounded-full text-xs font-medium">
                   <Camera className="w-3.5 h-3.5" />
                   Photo
                 </span>
@@ -87,7 +87,7 @@ export const TaskCard = ({
             
             {/* Completion Note */}
             {isCompleted && task.completionNote && (
-              <p className="text-sm text-stone-500 mt-1.5 truncate italic">&quot;{task.completionNote}&quot;</p>
+              <p className="text-sm text-stone-400 mt-1.5 truncate italic">&quot;{task.completionNote}&quot;</p>
             )}
           </div>
           
@@ -135,13 +135,13 @@ export const TaskCard = ({
         <div className="px-5 pb-4 pt-3 border-t border-stone-800 bg-stone-950/50">
           <div className="space-y-3">
             <div>
-              <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Instructions</p>
-              <p className="text-sm text-stone-400 leading-relaxed">{task.instructions || task.description}</p>
+              <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">Instructions</p>
+              <p className="text-sm text-stone-300 leading-relaxed">{task.instructions || task.description}</p>
             </div>
             
             <div>
-              <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Time Window</p>
-              <p className="text-sm text-stone-400">{task.timeWindow}</p>
+              <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">Time Window</p>
+              <p className="text-sm text-stone-300">{task.timeWindow}</p>
             </div>
 
             <button
