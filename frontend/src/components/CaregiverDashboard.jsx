@@ -218,36 +218,36 @@ export const CaregiverDashboard = ({
               {/* HR Card */}
               <button 
                 onClick={() => setShowVitals(true)}
-                className="bg-white rounded-2xl p-3 shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-shadow"
+                className="bg-stone-900 border border-stone-800 rounded-2xl p-3 hover:bg-stone-800 transition-colors"
               >
-                <div className="w-9 h-9 bg-orange-50 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                  <Activity className="w-4 h-4 text-orange-500" />
+                <div className="w-9 h-9 bg-orange-500/20 rounded-xl flex items-center justify-center mb-2 mx-auto">
+                  <Activity className="w-4 h-4 text-orange-400" />
                 </div>
-                <p className="text-base font-bold text-stone-900 text-center">{latestHR ? latestHR.value : '--'}</p>
+                <p className="text-base font-bold text-white text-center">{latestHR ? latestHR.value : '--'}</p>
                 <p className="text-[10px] text-stone-400 font-medium mt-0.5 text-center">Heart</p>
               </button>
 
               {/* Temp Card */}
               <button 
                 onClick={() => setShowVitals(true)}
-                className="bg-white rounded-2xl p-3 shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-shadow"
+                className="bg-stone-900 border border-stone-800 rounded-2xl p-3 hover:bg-stone-800 transition-colors"
               >
-                <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                  <Thermometer className="w-4 h-4 text-blue-500" />
+                <div className="w-9 h-9 bg-blue-500/20 rounded-xl flex items-center justify-center mb-2 mx-auto">
+                  <Thermometer className="w-4 h-4 text-blue-400" />
                 </div>
-                <p className="text-base font-bold text-stone-900 text-center">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
+                <p className="text-base font-bold text-white text-center">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
                 <p className="text-[10px] text-stone-400 font-medium mt-0.5 text-center">Temp</p>
               </button>
 
               {/* Pain Card */}
               <button 
                 onClick={() => setShowVitals(true)}
-                className="bg-white rounded-2xl p-3 shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-shadow"
+                className="bg-stone-900 border border-stone-800 rounded-2xl p-3 hover:bg-stone-800 transition-colors"
               >
-                <div className="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                  <Frown className="w-4 h-4 text-purple-500" />
+                <div className="w-9 h-9 bg-purple-500/20 rounded-xl flex items-center justify-center mb-2 mx-auto">
+                  <Frown className="w-4 h-4 text-purple-400" />
                 </div>
-                <p className="text-base font-bold text-stone-900 text-center">{latestPain ? `${latestPain.value}/10` : '--'}</p>
+                <p className="text-base font-bold text-white text-center">{latestPain ? `${latestPain.value}/10` : '--'}</p>
                 <p className="text-[10px] text-stone-400 font-medium mt-0.5 text-center">Pain</p>
               </button>
             </div>
@@ -257,12 +257,12 @@ export const CaregiverDashboard = ({
         {/* Progress Section */}
         <div className="px-6 py-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-stone-500">Today's Progress</span>
-            <span className="text-sm font-bold text-stone-900">{completedCount}/{todayTasks.length}</span>
+            <span className="text-sm font-medium text-stone-400">Today's Progress</span>
+            <span className="text-sm font-bold text-white">{completedCount}/{todayTasks.length}</span>
           </div>
-          <div className="h-2 bg-stone-200 rounded-full overflow-hidden">
+          <div className="h-2 bg-stone-800 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-teal-500 to-teal-600 rounded-full transition-all duration-500"
+              className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500"
               style={{ width: `${(completedCount / todayTasks.length) * 100}%` }}
             />
           </div>
