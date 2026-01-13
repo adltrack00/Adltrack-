@@ -155,12 +155,12 @@ export const FamilyDashboard = ({
       {/* Progress Section - Compact style */}
       <div className="px-6 pb-5">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-stone-500">Today's Progress</span>
-          <span className="text-sm font-bold text-stone-900">{completedTasks.length}/{totalTasks}</span>
+          <span className="text-sm font-medium text-stone-400">Today&apos;s Progress</span>
+          <span className="text-sm font-bold text-white">{completedTasks.length}/{totalTasks}</span>
         </div>
-        <div className="h-2 bg-stone-200 rounded-full overflow-hidden">
+        <div className="h-2 bg-stone-800 rounded-full overflow-hidden">
           <div 
-            className="h-full bg-gradient-to-r from-teal-500 to-teal-600 rounded-full transition-all duration-500"
+            className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500"
             style={{ width: totalTasks > 0 ? `${(completedTasks.length / totalTasks) * 100}%` : '0%' }}
           />
         </div>
@@ -176,8 +176,8 @@ export const FamilyDashboard = ({
           >
             <span className={`text-sm font-semibold transition-colors ${
               activeTaskTab === 'requests'
-                ? 'text-stone-900'
-                : 'text-stone-400 hover:text-stone-600'
+                ? 'text-white'
+                : 'text-stone-500 hover:text-stone-300'
             }`}>
               My Requests
             </span>
@@ -189,15 +189,15 @@ export const FamilyDashboard = ({
           </button>
           
           {/* Line */}
-          <div className="flex-1 h-px bg-stone-200" />
+          <div className="flex-1 h-px bg-stone-700" />
           
           {/* Care Timeline on right */}
           <button
             onClick={() => setActiveTaskTab('timeline')}
             className={`text-sm font-semibold transition-colors ${
               activeTaskTab === 'timeline'
-                ? 'text-stone-900'
-                : 'text-stone-400 hover:text-stone-600'
+                ? 'text-white'
+                : 'text-stone-500 hover:text-stone-300'
             }`}
           >
             Care Timeline
@@ -213,7 +213,7 @@ export const FamilyDashboard = ({
             {/* Add Request Button */}
             <button
               onClick={() => setShowRequestModal(true)}
-              className="w-full p-4 border-2 border-dashed border-stone-200 rounded-2xl flex items-center justify-center gap-2 text-stone-500 hover:border-rose-300 hover:text-rose-500 transition-colors"
+              className="w-full p-4 border-2 border-dashed border-stone-700 rounded-2xl flex items-center justify-center gap-2 text-stone-400 hover:border-emerald-500 hover:text-emerald-400 transition-colors"
               data-testid="add-request-btn"
             >
               <Plus className="w-5 h-5" />
