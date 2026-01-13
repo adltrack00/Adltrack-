@@ -177,21 +177,21 @@ export const CaregiverDashboard = ({
         {/* Patient Header with Photo - Enlarged to show face properly */}
         <div className="relative">
           {/* Photo Container - Enlarged height to accommodate full face */}
-          <div className="relative h-64 overflow-hidden">
-            {/* Patient Photo Background - object-[50%_20%] to focus on face area */}
+          <div className="relative h-72 overflow-hidden">
+            {/* Patient Photo Background - object position to focus on face */}
             <img 
               src={patient?.photo || 'https://via.placeholder.com/400'} 
               alt={patient?.name}
               className="absolute inset-0 w-full h-full object-cover"
-              style={{ objectPosition: '50% 25%' }}
+              style={{ objectPosition: '50% 15%' }}
             />
             {/* Gradient Overlay - stronger gradient for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/60 to-transparent" />
             
             {/* Patient Info - positioned at bottom above vitals */}
             <button 
               onClick={() => setShowPatientProfile(true)}
-              className="absolute bottom-20 left-0 right-0 px-5 flex items-center justify-between"
+              className="absolute bottom-24 left-0 right-0 px-5 flex items-center justify-between"
             >
               <div>
                 <h2 className="text-xl font-bold text-white drop-shadow-lg">{patient?.name || 'Patient'}</h2>
@@ -202,7 +202,7 @@ export const CaregiverDashboard = ({
           </div>
 
           {/* Vitals Row - Overlapping the photo from middle */}
-          <div className="px-5 -mt-14 relative z-10">
+          <div className="px-5 -mt-16 relative z-10">
             <div className="grid grid-cols-4 gap-2">
               {/* BP Card */}
               <button 
