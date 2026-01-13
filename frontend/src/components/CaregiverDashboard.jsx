@@ -173,7 +173,7 @@ export const CaregiverDashboard = ({
 
     // Online State - Dashboard
     return (
-      <div className="flex-1 overflow-y-auto bg-stone-50 pb-20">
+      <div className="flex-1 overflow-y-auto bg-stone-950 pb-20">
         {/* Patient Header with Photo - Vitals overlapping */}
         <div className="relative">
           {/* Photo Container */}
@@ -185,7 +185,7 @@ export const CaregiverDashboard = ({
               className="absolute inset-0 w-full h-full object-cover object-center"
             />
             {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-transparent to-transparent" />
             
             {/* Patient Info - positioned higher */}
             <button 
@@ -206,12 +206,12 @@ export const CaregiverDashboard = ({
               {/* BP Card */}
               <button 
                 onClick={() => setShowVitals(true)}
-                className="bg-white rounded-2xl p-3 shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-shadow"
+                className="bg-stone-900 border border-stone-800 rounded-2xl p-3 hover:bg-stone-800 transition-colors"
               >
-                <div className="w-9 h-9 bg-rose-50 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                  <Heart className="w-4 h-4 text-rose-500" />
+                <div className="w-9 h-9 bg-rose-500/20 rounded-xl flex items-center justify-center mb-2 mx-auto">
+                  <Heart className="w-4 h-4 text-rose-400" />
                 </div>
-                <p className="text-base font-bold text-stone-900 text-center">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
+                <p className="text-base font-bold text-white text-center">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
                 <p className="text-[10px] text-stone-400 font-medium mt-0.5 text-center">BP</p>
               </button>
 
