@@ -49,52 +49,54 @@ export const TaskCard = ({
 
   return (
     <div 
-      className={`relative bg-white rounded-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] overflow-hidden transition-all duration-200 font-['Manrope',sans-serif] ${
+      className={`relative bg-white rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.05)] overflow-hidden transition-all duration-200 font-['Manrope',sans-serif] ${
         isCompleted ? 'opacity-80' : ''
-      } ${isExpanded && !isCompleted ? 'shadow-[0_2px_12px_rgba(0,0,0,0.08)]' : 'hover:shadow-[0_2px_10px_rgba(0,0,0,0.06)]'}`}
+      } ${isExpanded && !isCompleted ? 'shadow-[0_4px_16px_rgba(0,0,0,0.1)]' : 'hover:shadow-[0_4px_14px_rgba(0,0,0,0.08)]'}`}
     >
       {/* Priority Stripe */}
-      <div className={`absolute left-0 top-0 bottom-0 w-1 ${isCompleted ? 'bg-emerald-500' : config.stripe}`} />
+      <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${isCompleted ? 'bg-emerald-500' : config.stripe}`} />
       
       {/* Main Content */}
       <div 
-        className="pl-4 pr-3 py-3 cursor-pointer"
+        className="pl-5 pr-4 py-4 cursor-pointer"
         onClick={() => !readOnly && !isCompleted && onToggleExpand && onToggleExpand(task.id)}
       >
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex-1 min-w-0">
             {/* Title & Badges Row */}
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className={`text-sm font-bold truncate ${isCompleted ? 'text-stone-500' : 'text-stone-900'}`}>
+            <div className="flex items-center gap-2 mb-1.5">
+              <h3 className={`text-base font-bold truncate ${isCompleted ? 'text-stone-500' : 'text-stone-900'}`}>
                 {task.title}
               </h3>
               {/* Priority/Status Badge */}
-              <span className={`flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${isCompleted ? 'bg-emerald-50 text-emerald-600' : `${config.bg} ${config.text}`}`}>
+              <span className={`flex-shrink-0 inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${isCompleted ? 'bg-emerald-50 text-emerald-600' : `${config.bg} ${config.text}`}`}>
                 {isCompleted ? '✓ Done' : config.icon}
               </span>
             </div>
             
             {/* Time & Photo indicator */}
-            <div className="flex items-center gap-2 text-stone-400 text-xs">
-              <span className="flex items-center gap-1 font-medium">
-                <Clock className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-2 text-stone-400 text-sm">
+              <span className="flex items-center gap-1.5 font-medium">
+                <Clock className="w-4 h-4" />
                 {isCompleted && task.completedAt ? `Done ${task.completedAt}` : task.scheduledTime}
               </span>
               {hasPhoto && (
-                <span className="flex items-center gap-0.5 text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
-                  <Image className="w-3 h-3" />
+                <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full text-xs font-medium">
+                  <Image className="w-3.5 h-3.5" />
+                  Photo
                 </span>
               )}
               {task.requiresPhoto && !hasPhoto && (
-                <span className="flex items-center gap-0.5 text-stone-400 bg-stone-100 px-1.5 py-0.5 rounded">
-                  <Camera className="w-3 h-3" />
+                <span className="flex items-center gap-1 text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full text-xs font-medium">
+                  <Camera className="w-3.5 h-3.5" />
+                  Photo
                 </span>
               )}
             </div>
             
             {/* Completion Note */}
             {isCompleted && task.completionNote && (
-              <p className="text-xs text-stone-400 mt-1 truncate italic">"{task.completionNote}"</p>
+              <p className="text-sm text-stone-400 mt-1.5 truncate italic">&quot;{task.completionNote}&quot;</p>
             )}
           </div>
           
