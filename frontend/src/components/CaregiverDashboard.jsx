@@ -172,7 +172,7 @@ export const CaregiverDashboard = ({
 
     // Online State - Dashboard
     return (
-      <div className="flex-1 overflow-y-auto bg-stone-50 pb-24">
+      <div className="flex-1 overflow-y-auto bg-stone-50 pb-20">
         {/* Patient Header with Photo - Vitals overlapping */}
         <div className="relative">
           {/* Photo Container */}

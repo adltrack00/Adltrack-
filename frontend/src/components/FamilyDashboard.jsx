@@ -98,7 +98,7 @@ export const FamilyDashboard = ({
 
   // Render Home Content
   const renderHomeContent = () => (
-    <div className="flex-1 overflow-y-auto bg-stone-50 pb-28">
+    <div className="flex-1 overflow-y-auto bg-stone-50 pb-20">
       {/* Vitals Summary - Grid Layout */}
       <div className="px-6 pt-6 mb-6">
         <div className="grid grid-cols-4 gap-2">
