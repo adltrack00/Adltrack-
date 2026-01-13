@@ -166,31 +166,111 @@ export const FamilyDashboard = ({
         </div>
       </div>
 
-      {/* Active Caregiver */}
-      <div className="px-6 mb-6">
-        <button 
-          onClick={() => setActivePage('caregiver')}
-          className="w-full bg-teal-50 border border-teal-100 rounded-2xl p-4 flex items-center gap-4"
-        >
-          <div className="relative">
-            <img 
-              src={CAREGIVER_PROFILE.photo}
-              alt="Caregiver"
-              className="w-12 h-12 rounded-xl object-cover"
-            />
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full ring-2 ring-teal-50" />
-          </div>
-          <div className="flex-1 text-left">
-            <p className="font-semibold text-teal-900">Julia is currently on shift</p>
-            <p className="text-teal-600 text-sm">Started at 8:00 AM</p>
-          </div>
-          <ChevronRight className="w-5 h-5 text-teal-400" />
-        </button>
+      {/* Task Tabs - Minimal Line Style */}
+      <div className="px-6 mb-4">
+        <div className="flex items-center gap-4">
+          {/* My Requests on left */}
+          <button
+            onClick={() => setActiveTaskTab('requests')}
+            className="relative"
+          >
+            <span className={`text-sm font-semibold transition-colors ${
+              activeTaskTab === 'requests'
+                ? 'text-stone-900'
+                : 'text-stone-400 hover:text-stone-600'
+            }`}>
+              My Requests
+            </span>
+            {myRequests.length > 0 && (
+              <span className="absolute -top-2 -right-3 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {myRequests.length}
+              </span>
+            )}
+          </button>
+          
+          {/* Line */}
+          <div className="flex-1 h-px bg-stone-200" />
+          
+          {/* Care Timeline on right */}
+          <button
+            onClick={() => setActiveTaskTab('timeline')}
+            className={`text-sm font-semibold transition-colors ${
+              activeTaskTab === 'timeline'
+                ? 'text-stone-900'
+                : 'text-stone-400 hover:text-stone-600'
+            }`}
+          >
+            Care Timeline
+          </button>
+        </div>
       </div>
 
-      {/* Care Timeline */}
+      {/* Tab Content */}
       <div className="px-6">
-        <h2 className="text-lg font-bold text-stone-900 mb-4">Care Timeline</h2>
+        {activeTaskTab === 'requests' ? (
+          /* My Requests Tab */
+          <div className="space-y-4">
+            {/* Add Request Button */}
+            <button
+              onClick={() => setShowRequestModal(true)}
+              className="w-full p-4 border-2 border-dashed border-stone-200 rounded-2xl flex items-center justify-center gap-2 text-stone-500 hover:border-rose-300 hover:text-rose-500 transition-colors"
+              data-testid="add-request-btn"
+            >
+              <Plus className="w-5 h-5" />
+              <span className="font-semibold">Add New Request</span>
+            </button>
+
+            {/* Request List */}
+            {myRequests.length > 0 ? (
+              myRequests.map((request) => (
+                <div 
+                  key={request.id}
+                  className="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                        request.priority === 'urgent' 
+                          ? 'bg-rose-100 text-rose-600' 
+                          : request.priority === 'high'
+                          ? 'bg-orange-100 text-orange-600'
+                          : 'bg-stone-100 text-stone-600'
+                      }`}>
+                        {request.priority.toUpperCase()}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                        request.status === 'pending'
+                          ? 'bg-amber-100 text-amber-600'
+                          : request.status === 'accepted'
+                          ? 'bg-teal-100 text-teal-600'
+                          : 'bg-stone-100 text-stone-600'
+                      }`}>
+                        {request.status === 'pending' ? 'Pending' : 'Accepted'}
+                      </span>
+                    </div>
+                    <span className="text-xs text-stone-400">{request.createdAt}</span>
+                  </div>
+                  <h3 className="font-semibold text-stone-900 mb-1">{request.title}</h3>
+                  {request.description && (
+                    <p className="text-sm text-stone-500">{request.description}</p>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="bg-white rounded-3xl p-8 text-center shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-8 h-8 text-stone-400" />
+                </div>
+                <h3 className="font-semibold text-stone-900 mb-1">No requests yet</h3>
+                <p className="text-stone-400 text-sm">
+                  Tap the button above to request tasks for the caregiver
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Care Timeline Tab */
+          <div>
         
         {completedTasks.length > 0 ? (
           <div className="space-y-4">
