@@ -423,7 +423,7 @@ export const FamilyDashboard = ({
       )}
 
       {/* Bottom Navigation - Fixed to bottom */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-stone-100 z-30">
+      <nav className="fixed bottom-0 left-0 right-0 bg-stone-900 border-t border-stone-800 z-30">
         <div className="flex justify-around items-center py-2">
           {[
             { id: 'home', icon: Activity, label: 'Home' },
@@ -436,12 +436,12 @@ export const FamilyDashboard = ({
               onClick={() => setActiveTab(tab.id)}
               className={`flex flex-col items-center py-2 px-5 transition-all ${
                 activeTab === tab.id 
-                  ? 'text-rose-600' 
-                  : 'text-stone-400 hover:text-stone-600'
+                  ? 'text-emerald-400' 
+                  : 'text-stone-500 hover:text-stone-300'
               }`}
             >
               <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
-              <span className={`text-[10px] font-semibold mt-1 ${activeTab === tab.id ? 'text-rose-600' : 'text-stone-400'}`}>{tab.label}</span>
+              <span className={`text-[10px] font-semibold mt-1 ${activeTab === tab.id ? 'text-emerald-400' : 'text-stone-500'}`}>{tab.label}</span>
             </button>
           ))}
         </div>
