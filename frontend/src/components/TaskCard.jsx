@@ -77,14 +77,14 @@ export const TaskCard = ({
             </div>
             
             {/* Time & Photo indicator */}
-            <div className="flex items-center gap-2 text-stone-400 text-sm">
+            <div className="flex items-center gap-2 text-stone-500 text-sm">
               <span className="flex items-center gap-1.5 font-medium">
                 <Clock className="w-4 h-4" />
                 {isCompleted && task.completedAt ? `${task.completedAt}` : task.scheduledTime}
               </span>
               {/* Only show Photo badge for pending tasks that require photo */}
               {task.requiresPhoto && !hasPhoto && !isCompleted && (
-                <span className="flex items-center gap-1 text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full text-xs font-medium">
+                <span className="flex items-center gap-1 text-stone-400 bg-stone-800 px-2 py-0.5 rounded-full text-xs font-medium">
                   <Camera className="w-3.5 h-3.5" />
                   Photo
                 </span>
@@ -93,7 +93,7 @@ export const TaskCard = ({
             
             {/* Completion Note */}
             {isCompleted && task.completionNote && (
-              <p className="text-sm text-stone-400 mt-1.5 truncate italic">&quot;{task.completionNote}&quot;</p>
+              <p className="text-sm text-stone-500 mt-1.5 truncate italic">&quot;{task.completionNote}&quot;</p>
             )}
           </div>
           
@@ -101,26 +101,26 @@ export const TaskCard = ({
           <div className="flex-shrink-0 flex items-center gap-2">
             {/* Mini Photo Thumbnail */}
             {hasPhoto && (
-              <div className="w-12 h-12 rounded-xl overflow-hidden shadow-sm">
+              <div className="w-12 h-12 rounded-xl overflow-hidden border border-stone-700">
                 <img src={task.evidenceUrl} alt="" className="w-full h-full object-cover" />
               </div>
             )}
             
             {/* Status Indicator */}
             {isCompleted ? (
-              <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-emerald-500" />
+              <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-emerald-400" />
               </div>
             ) : isMissed ? (
-              <div className="w-8 h-8 bg-rose-100 rounded-full flex items-center justify-center">
-                <XCircle className="w-5 h-5 text-rose-500" />
+              <div className="w-8 h-8 bg-rose-500/20 rounded-full flex items-center justify-center">
+                <XCircle className="w-5 h-5 text-rose-400" />
               </div>
             ) : (
-              <div className="w-8 h-8 border-2 border-stone-200 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 border-2 border-stone-700 rounded-full flex items-center justify-center">
                 {isExpanded ? (
-                  <ChevronUp className="w-4 h-4 text-stone-400" />
+                  <ChevronUp className="w-4 h-4 text-stone-500" />
                 ) : (
-                  <ChevronDown className="w-4 h-4 text-stone-400" />
+                  <ChevronDown className="w-4 h-4 text-stone-500" />
                 )}
               </div>
             )}
