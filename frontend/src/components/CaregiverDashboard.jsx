@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Home, MessageSquare, Clock, Settings, Bot, User, Heart, Activity, Thermometer,
-  MapPin, Play, ChevronRight, Bell, CheckCircle, Sparkles
+  MapPin, Play, ChevronRight, Bell, CheckCircle, Sparkles, Frown
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
 import { TaskCard } from './TaskCard';
@@ -46,6 +46,7 @@ export const CaregiverDashboard = ({
   const latestBP = vitalsData?.bloodPressure?.[vitalsData.bloodPressure.length - 1];
   const latestHR = vitalsData?.heartRate?.[vitalsData.heartRate.length - 1];
   const latestTemp = vitalsData?.temperature?.[vitalsData.temperature.length - 1];
+  const latestPain = vitalsData?.pain?.[vitalsData.pain.length - 1];
 
   // Filter tasks
   const todayTasks = tasks.filter(t => t.status !== TaskStatus.PROPOSED);
