@@ -182,26 +182,26 @@ export const CaregiverDashboard = ({
             <img 
               src={patient?.photo || 'https://via.placeholder.com/400'} 
               alt={patient?.name}
-              className="absolute inset-0 w-full h-[150%] object-cover object-[center_20%]"
+              className="absolute inset-0 w-full h-[180%] object-cover object-[center_15%]"
             />
             {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
             
-            {/* Patient Info */}
+            {/* Patient Info - positioned higher */}
             <button 
               onClick={() => setShowPatientProfile(true)}
-              className="absolute bottom-3 left-0 right-0 px-5 flex items-center justify-between"
+              className="absolute bottom-8 left-0 right-0 px-5 flex items-center justify-between"
             >
               <div>
-                <h2 className="text-lg font-bold text-white">{patient?.name || 'Patient'}</h2>
-                <p className="text-white/80 text-xs font-medium">{patient?.age} years old</p>
+                <h2 className="text-lg font-bold text-white drop-shadow-md">{patient?.name || 'Patient'}</h2>
+                <p className="text-white/90 text-xs font-medium drop-shadow-md">{patient?.age} years old</p>
               </div>
-              <ChevronRight className="w-5 h-5 text-white/60" />
+              <ChevronRight className="w-5 h-5 text-white/70" />
             </button>
           </div>
 
           {/* Vitals Row - 4 cards like Family Dashboard */}
-          <div className="px-5 -mt-6 relative z-10">
+          <div className="px-5 -mt-4 relative z-10">
             <div className="grid grid-cols-4 gap-2">
               {/* BP Card */}
               <button 
