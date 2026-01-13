@@ -100,26 +100,26 @@ export const CaregiverDashboard = ({
     if (!isShiftActive) {
       // Offline State - Uber-style GO interface
       return (
-        <div className="flex-1 flex flex-col bg-stone-50">
+        <div className="flex-1 flex flex-col bg-stone-950">
           {/* Header with caregiver info */}
           <div className="px-6 pt-6 pb-4">
             <div className="flex items-center gap-4">
               <img 
                 src={CAREGIVER_PROFILE.photo} 
                 alt="You"
-                className="w-14 h-14 rounded-full object-cover ring-2 ring-white shadow-lg"
+                className="w-14 h-14 rounded-full object-cover ring-2 ring-stone-800 shadow-lg"
               />
               <div>
                 <p className="text-stone-500 text-sm font-medium">Good morning,</p>
-                <h1 className="text-xl font-bold text-stone-900 tracking-tight">Julia</h1>
+                <h1 className="text-xl font-bold text-white tracking-tight">Julia</h1>
               </div>
             </div>
           </div>
 
           {/* Patient Card */}
           <div className="px-6 mb-6">
-            <div className="bg-white rounded-3xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-              <p className="text-stone-400 text-sm font-medium mb-3">Ready to care for</p>
+            <div className="bg-stone-900 border border-stone-800 rounded-3xl p-5">
+              <p className="text-stone-500 text-sm font-medium mb-3">Ready to care for</p>
               <div className="flex items-center gap-4">
                 <img 
                   src={patient?.photo || 'https://via.placeholder.com/80'} 
@@ -127,14 +127,14 @@ export const CaregiverDashboard = ({
                   className="w-16 h-16 rounded-2xl object-cover"
                 />
                 <div className="flex-1">
-                  <h2 className="text-lg font-bold text-stone-900">{patient?.name || 'Patient'}</h2>
-                  <p className="text-stone-500 text-sm">{patient?.age} years old</p>
+                  <h2 className="text-lg font-bold text-white">{patient?.name || 'Patient'}</h2>
+                  <p className="text-stone-400 text-sm">{patient?.age} years old</p>
                 </div>
                 <button 
                   onClick={() => setShowPatientProfile(true)}
-                  className="p-3 bg-stone-100 rounded-full hover:bg-stone-200 transition-colors"
+                  className="p-3 bg-stone-800 rounded-full hover:bg-stone-700 transition-colors"
                 >
-                  <ChevronRight className="w-5 h-5 text-stone-600" />
+                  <ChevronRight className="w-5 h-5 text-stone-400" />
                 </button>
               </div>
             </div>
@@ -142,8 +142,8 @@ export const CaregiverDashboard = ({
 
           {/* Start Shift Section */}
           <div className="flex-1 flex flex-col items-center justify-center px-6 pb-32">
-            <p className="text-stone-400 font-medium mb-2">You're offline</p>
-            <h2 className="text-2xl font-bold text-stone-900 mb-8 text-center">
+            <p className="text-stone-500 font-medium mb-2">You&apos;re offline</p>
+            <h2 className="text-2xl font-bold text-white mb-8 text-center">
               Tap to start your shift
             </h2>
             
@@ -163,7 +163,7 @@ export const CaregiverDashboard = ({
               </div>
             </button>
             
-            <p className="text-stone-400 text-sm mt-6">
+            <p className="text-stone-500 text-sm mt-6">
               {todayTasks.length} tasks scheduled for today
             </p>
           </div>
@@ -321,10 +321,10 @@ export const CaregiverDashboard = ({
                 />
               ))
             ) : (
-              <div className="text-center py-12 bg-white rounded-3xl">
+              <div className="text-center py-12 bg-stone-900 border border-stone-800 rounded-3xl">
                 <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
-                <p className="text-stone-900 font-semibold">All done for today!</p>
-                <p className="text-stone-500 text-sm">Great work, Julia</p>
+                <p className="text-white font-semibold">All done for today!</p>
+                <p className="text-stone-400 text-sm">Great work, Julia</p>
               </div>
             )
           ) : (
@@ -338,9 +338,9 @@ export const CaregiverDashboard = ({
                 />
               ))
             ) : (
-              <div className="text-center py-12 bg-white rounded-3xl">
-                <Sparkles className="w-12 h-12 text-stone-300 mx-auto mb-3" />
-                <p className="text-stone-500">No pending requests</p>
+              <div className="text-center py-12 bg-stone-900 border border-stone-800 rounded-3xl">
+                <Sparkles className="w-12 h-12 text-stone-600 mx-auto mb-3" />
+                <p className="text-stone-400">No pending requests</p>
               </div>
             )
           )}
@@ -419,7 +419,7 @@ export const CaregiverDashboard = ({
   const renderSettingsContent = () => (
     <div className="flex-1 overflow-y-auto bg-stone-950 p-6 space-y-3 pb-24">
       {/* Profile Card */}
-      <div className="bg-white rounded-3xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+      <div className="bg-stone-900 border border-stone-800 rounded-3xl p-5">
         <div className="flex items-center gap-4">
           <img 
             src={CAREGIVER_PROFILE.photo}
@@ -427,8 +427,8 @@ export const CaregiverDashboard = ({
             className="w-16 h-16 rounded-2xl object-cover"
           />
           <div className="flex-1">
-            <h3 className="font-bold text-stone-900">Julia Martinez</h3>
-            <p className="text-stone-500 text-sm">Certified Nursing Assistant</p>
+            <h3 className="font-bold text-white">Julia Martinez</h3>
+            <p className="text-stone-400 text-sm">Certified Nursing Assistant</p>
           </div>
         </div>
       </div>
@@ -444,20 +444,20 @@ export const CaregiverDashboard = ({
         <button
           key={idx}
           onClick={item.action}
-          className="w-full flex items-center gap-4 p-4 bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow"
+          className="w-full flex items-center gap-4 p-4 bg-stone-900 border border-stone-800 rounded-2xl hover:bg-stone-800 transition-colors"
         >
-          <div className="w-11 h-11 bg-stone-100 rounded-xl flex items-center justify-center">
-            <item.icon className="w-5 h-5 text-stone-600" />
+          <div className="w-11 h-11 bg-stone-800 rounded-xl flex items-center justify-center">
+            <item.icon className="w-5 h-5 text-stone-400" />
           </div>
-          <span className="font-medium text-stone-900 flex-1 text-left">{item.label}</span>
-          <ChevronRight className="w-5 h-5 text-stone-400" />
+          <span className="font-medium text-white flex-1 text-left">{item.label}</span>
+          <ChevronRight className="w-5 h-5 text-stone-600" />
         </button>
       ))}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col font-['Manrope',sans-serif]">
+    <div className="min-h-screen bg-stone-950 flex flex-col font-['Manrope',sans-serif]">
       {/* Main Content */}
       {activeTab === 'home' && renderHomeContent()}
       {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.CAREGIVER} />}
