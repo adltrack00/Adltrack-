@@ -61,7 +61,9 @@ ADLTrack is a Care Operating System that bridges the gap between caregivers, fam
   - Uber-style "GO" button with pulse animation
   - Task count preview
 - **Online State**:
-  - Patient photo header with gradient overlay
+  - **Enlarged patient photo header (h-72 = 288px)** - Shows patient face prominently
+  - Vitals cards overlapping from middle of photo area
+  - Patient name/age displayed with drop shadow for readability
   - Vitals cards (BP, HR, Temp, Pain) - dark cards with colored icons
   - Progress bar (emerald gradient)
   - Minimal tab control (Requests --- Today's Tasks)
