@@ -393,20 +393,20 @@ export const FamilyDashboard = ({
         <button
           key={idx}
           onClick={item.action}
-          className="w-full flex items-center gap-4 p-4 bg-stone-900 border border-stone-800 rounded-2xl hover:bg-stone-800 transition-colors"
+          className={`w-full flex items-center gap-4 p-4 ${bgCard} border ${border} rounded-2xl ${bgCardHover} transition-colors`}
         >
-          <div className="w-11 h-11 bg-stone-800 rounded-xl flex items-center justify-center">
-            <item.icon className="w-5 h-5 text-stone-400" />
+          <div className={`w-11 h-11 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-100'} rounded-xl flex items-center justify-center`}>
+            <item.icon className={`w-5 h-5 ${textMuted}`} />
           </div>
-          <span className="font-medium text-white flex-1 text-left">{item.label}</span>
-          <ChevronRight className="w-5 h-5 text-stone-600" />
+          <span className={`font-medium ${text} flex-1 text-left`}>{item.label}</span>
+          <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
         </button>
       ))}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-stone-950 flex flex-col font-['Manrope',sans-serif]">
+    <div className={`min-h-screen ${bg} flex flex-col font-['Manrope',sans-serif]`}>
       {/* Main Content */}
       {activeTab === 'home' && renderHomeContent()}
       {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.FAMILY} />}
@@ -425,7 +425,7 @@ export const FamilyDashboard = ({
       )}
 
       {/* Bottom Navigation - Fixed to bottom */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-stone-900 border-t border-stone-800 z-30">
+      <nav className={`fixed bottom-0 left-0 right-0 ${bgNav} border-t ${border} z-30`}>
         <div className="flex justify-around items-center py-2">
           {[
             { id: 'home', icon: Activity, label: 'Home' },
@@ -439,7 +439,7 @@ export const FamilyDashboard = ({
               className={`flex flex-col items-center py-2 px-5 transition-all ${
                 activeTab === tab.id 
                   ? 'text-emerald-400' 
-                  : 'text-stone-500 hover:text-stone-300'
+                  : `${textMuted} hover:${textSecondary}`
               }`}
             >
               <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
