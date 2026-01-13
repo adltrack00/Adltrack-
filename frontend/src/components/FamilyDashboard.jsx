@@ -346,7 +346,7 @@ export const FamilyDashboard = ({
 
   // Render Settings Content
   const renderSettingsContent = () => (
-    <div className="flex-1 overflow-y-auto bg-stone-50 p-6 space-y-3 pb-28">
+    <div className="flex-1 overflow-y-auto bg-stone-50 p-6 space-y-3 pb-20">
       {/* Profile Header */}
       <div className="bg-white rounded-3xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
         <div className="flex items-center gap-4 mb-4">
