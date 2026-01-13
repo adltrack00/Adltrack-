@@ -177,15 +177,15 @@ export const CaregiverDashboard = ({
         {/* Patient Header with Photo - Vitals overlapping */}
         <div className="relative">
           {/* Photo Container */}
-          <div className="relative h-32 overflow-hidden">
+          <div className="relative h-36 overflow-hidden">
             {/* Patient Photo Background */}
             <img 
               src={patient?.photo || 'https://via.placeholder.com/400'} 
               alt={patient?.name}
-              className="absolute inset-0 w-full h-full object-cover object-top"
+              className="absolute inset-0 w-full h-[150%] object-cover object-[center_20%]"
             />
             {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
             
             {/* Patient Info */}
             <button 
