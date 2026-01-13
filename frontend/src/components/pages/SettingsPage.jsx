@@ -69,7 +69,7 @@ export const SettingsPage = ({ onBack }) => {
                 <span className="font-medium text-white">{item.label}</span>
               </div>
               <div className="flex items-center gap-2">
-                {item.value && <span className="text-sm text-stone-500">{item.value}</span>}
+                {item.value && <span className="text-sm text-stone-400">{item.value}</span>}
                 <ChevronRight className="w-5 h-5 text-stone-600" />
               </div>
             </button>
@@ -78,8 +78,8 @@ export const SettingsPage = ({ onBack }) => {
 
         {/* App Info */}
         <div className="text-center pt-8">
-          <p className="text-sm text-stone-500">ADLTrack v1.0.0</p>
-          <p className="text-xs text-stone-600 mt-1">© {new Date().getFullYear()} ADLTrack Inc.</p>
+          <p className="text-sm text-stone-400">ADLTrack v1.0.0</p>
+          <p className="text-xs text-stone-500 mt-1">© {new Date().getFullYear()} ADLTrack Inc.</p>
         </div>
       </div>
     </div>

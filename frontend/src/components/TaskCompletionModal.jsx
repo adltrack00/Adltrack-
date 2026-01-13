@@ -88,13 +88,13 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
         <div className="p-5 space-y-5">
           {/* Instructions */}
           <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4">
-            <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">Instructions</p>
+            <p className="text-xs text-stone-400 font-bold uppercase tracking-wider mb-2">Instructions</p>
             <p className="text-sm text-stone-300 leading-relaxed">{task.instructions || task.description}</p>
           </div>
 
           {/* Photo Upload */}
           <div>
-            <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">
               {task.requiresPhoto ? 'Photo Evidence (Required)' : 'Add Photo (Optional)'}
             </label>
             
@@ -122,7 +122,7 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
                     <Camera className="w-7 h-7 text-stone-500" />
                   </div>
                   <p className="text-sm text-stone-300 font-semibold">Tap to add photo</p>
-                  <p className="text-xs text-stone-500 mt-1">Take a photo or select from gallery</p>
+                  <p className="text-xs text-stone-400 mt-1">Take a photo or select from gallery</p>
                 </div>
                 <input
                   type="file"
@@ -136,7 +136,7 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
 
           {/* Notes */}
           <div>
-            <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">
               Notes
             </label>
             <textarea
