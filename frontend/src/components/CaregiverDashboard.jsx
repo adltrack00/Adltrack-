@@ -212,7 +212,7 @@ export const CaregiverDashboard = ({
                   <Heart className="w-4 h-4 text-rose-400" />
                 </div>
                 <p className="text-base font-bold text-white text-center">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
-                <p className="text-[10px] text-stone-400 font-medium mt-0.5 text-center">BP</p>
+                <p className="text-[10px] text-stone-300 font-medium mt-0.5 text-center">BP</p>
               </button>
 
               {/* HR Card */}
@@ -224,7 +224,7 @@ export const CaregiverDashboard = ({
                   <Activity className="w-4 h-4 text-orange-400" />
                 </div>
                 <p className="text-base font-bold text-white text-center">{latestHR ? latestHR.value : '--'}</p>
-                <p className="text-[10px] text-stone-400 font-medium mt-0.5 text-center">Heart</p>
+                <p className="text-[10px] text-stone-300 font-medium mt-0.5 text-center">Heart</p>
               </button>
 
               {/* Temp Card */}
@@ -236,7 +236,7 @@ export const CaregiverDashboard = ({
                   <Thermometer className="w-4 h-4 text-blue-400" />
                 </div>
                 <p className="text-base font-bold text-white text-center">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
-                <p className="text-[10px] text-stone-400 font-medium mt-0.5 text-center">Temp</p>
+                <p className="text-[10px] text-stone-300 font-medium mt-0.5 text-center">Temp</p>
               </button>
 
               {/* Pain Card */}
@@ -248,7 +248,7 @@ export const CaregiverDashboard = ({
                   <Frown className="w-4 h-4 text-purple-400" />
                 </div>
                 <p className="text-base font-bold text-white text-center">{latestPain ? `${latestPain.value}/10` : '--'}</p>
-                <p className="text-[10px] text-stone-400 font-medium mt-0.5 text-center">Pain</p>
+                <p className="text-[10px] text-stone-300 font-medium mt-0.5 text-center">Pain</p>
               </button>
             </div>
           </div>
@@ -257,7 +257,7 @@ export const CaregiverDashboard = ({
         {/* Progress Section */}
         <div className="px-6 py-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-stone-400">Today&apos;s Progress</span>
+            <span className="text-sm font-medium text-stone-300">Today&apos;s Progress</span>
             <span className="text-sm font-bold text-white">{completedCount}/{todayTasks.length}</span>
           </div>
           <div className="h-2 bg-stone-800 rounded-full overflow-hidden">
