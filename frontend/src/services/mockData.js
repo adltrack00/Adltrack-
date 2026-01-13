@@ -268,7 +268,7 @@ export const PATIENT_PROFILE = {
   name: 'David Smith',
   age: 78,
   dateOfBirth: '1946-03-15',
-  photo: 'https://images.unsplash.com/photo-1601779805802-d8363cd70ccc?w=400&q=80',
+  photo: 'https://images.unsplash.com/photo-1664101606938-e664f5852fac?w=800&q=80',
   address: '123 Oak Street, Springfield, IL 62701',
   phone: '(555) 123-4567',
   medicalConditions: [
