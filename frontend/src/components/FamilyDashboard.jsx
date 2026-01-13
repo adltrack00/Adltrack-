@@ -225,44 +225,44 @@ export const FamilyDashboard = ({
               myRequests.map((request) => (
                 <div 
                   key={request.id}
-                  className="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
+                  className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                         request.priority === 'urgent' 
-                          ? 'bg-rose-100 text-rose-600' 
+                          ? 'bg-rose-500/20 text-rose-400' 
                           : request.priority === 'high'
-                          ? 'bg-orange-100 text-orange-600'
-                          : 'bg-stone-100 text-stone-600'
+                          ? 'bg-orange-500/20 text-orange-400'
+                          : 'bg-stone-800 text-stone-400'
                       }`}>
                         {request.priority.toUpperCase()}
                       </span>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                         request.status === 'pending'
-                          ? 'bg-amber-100 text-amber-600'
+                          ? 'bg-amber-500/20 text-amber-400'
                           : request.status === 'accepted'
-                          ? 'bg-teal-100 text-teal-600'
-                          : 'bg-stone-100 text-stone-600'
+                          ? 'bg-teal-500/20 text-teal-400'
+                          : 'bg-stone-800 text-stone-400'
                       }`}>
                         {request.status === 'pending' ? 'Pending' : 'Accepted'}
                       </span>
                     </div>
-                    <span className="text-xs text-stone-400">{request.createdAt}</span>
+                    <span className="text-xs text-stone-500">{request.createdAt}</span>
                   </div>
-                  <h3 className="font-semibold text-stone-900 mb-1">{request.title}</h3>
+                  <h3 className="font-semibold text-white mb-1">{request.title}</h3>
                   {request.description && (
-                    <p className="text-sm text-stone-500">{request.description}</p>
+                    <p className="text-sm text-stone-400">{request.description}</p>
                   )}
                 </div>
               ))
             ) : (
-              <div className="bg-white rounded-3xl p-8 text-center shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-                <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="w-8 h-8 text-stone-400" />
+              <div className="bg-stone-900 border border-stone-800 rounded-3xl p-8 text-center">
+                <div className="w-16 h-16 bg-stone-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-8 h-8 text-stone-500" />
                 </div>
-                <h3 className="font-semibold text-stone-900 mb-1">No requests yet</h3>
-                <p className="text-stone-400 text-sm">
+                <h3 className="font-semibold text-white mb-1">No requests yet</h3>
+                <p className="text-stone-500 text-sm">
                   Tap the button above to request tasks for the caregiver
                 </p>
               </div>
@@ -276,7 +276,7 @@ export const FamilyDashboard = ({
                 {completedTasks.map((task) => (
                   <div 
                     key={task.id} 
-                    className="bg-white rounded-3xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
+                    className="bg-stone-900 border border-stone-800 rounded-3xl overflow-hidden"
                   >
                     {/* Task Image */}
                     <div className="relative aspect-[16/9]">
