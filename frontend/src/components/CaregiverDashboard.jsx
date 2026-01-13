@@ -261,33 +261,41 @@ export const CaregiverDashboard = ({
           </div>
         </div>
 
-        {/* Task Tabs - Segmented Control */}
+        {/* Task Tabs - Minimal Line Style */}
         <div className="px-6 mb-4">
-          <div className="bg-stone-200/60 p-1.5 rounded-2xl flex">
-            <button
-              onClick={() => setActiveTaskTab('today')}
-              className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all ${
-                activeTaskTab === 'today'
-                  ? 'bg-white text-stone-900 shadow-sm'
-                  : 'text-stone-500 hover:text-stone-700'
-              }`}
-            >
-              Today's Tasks
-            </button>
+          <div className="flex items-center gap-4">
+            {/* Requests on left */}
             <button
               onClick={() => setActiveTaskTab('requests')}
-              className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all relative ${
-                activeTaskTab === 'requests'
-                  ? 'bg-white text-stone-900 shadow-sm'
-                  : 'text-stone-500 hover:text-stone-700'
-              }`}
+              className="relative"
             >
-              Requests
+              <span className={`text-sm font-semibold transition-colors ${
+                activeTaskTab === 'requests'
+                  ? 'text-stone-900'
+                  : 'text-stone-400 hover:text-stone-600'
+              }`}>
+                Requests
+              </span>
               {pendingRequests.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-2 -right-3 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                   {pendingRequests.length}
                 </span>
               )}
+            </button>
+            
+            {/* Line */}
+            <div className="flex-1 h-px bg-stone-200" />
+            
+            {/* Today's Tasks on right */}
+            <button
+              onClick={() => setActiveTaskTab('today')}
+              className={`text-sm font-semibold transition-colors ${
+                activeTaskTab === 'today'
+                  ? 'text-stone-900'
+                  : 'text-stone-400 hover:text-stone-600'
+              }`}
+            >
+              Today's Tasks
             </button>
           </div>
         </div>
