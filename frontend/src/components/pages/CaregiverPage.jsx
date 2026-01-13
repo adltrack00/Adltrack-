@@ -52,17 +52,17 @@ export const CaregiverPage = ({ onBack }) => {
           <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
             <Star className="w-6 h-6 text-yellow-500 mx-auto mb-1" />
             <p className="text-xl font-bold text-white">{caregiver.rating}</p>
-            <p className="text-xs text-stone-500">Rating</p>
+            <p className="text-xs text-stone-400">Rating</p>
           </div>
           <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
             <Award className="w-6 h-6 text-blue-500 mx-auto mb-1" />
             <p className="text-xl font-bold text-white">{caregiver.yearsExperience}</p>
-            <p className="text-xs text-stone-500">Years Exp.</p>
+            <p className="text-xs text-stone-400">Years Exp.</p>
           </div>
           <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
             <CheckCircle className="w-6 h-6 text-emerald-500 mx-auto mb-1" />
             <p className="text-xl font-bold text-white">{caregiver.shiftsCompleted}</p>
-            <p className="text-xs text-stone-500">Shifts</p>
+            <p className="text-xs text-stone-400">Shifts</p>
           </div>
         </div>
 
@@ -84,7 +84,7 @@ export const CaregiverPage = ({ onBack }) => {
         {/* About */}
         <div className="bg-stone-900 border border-stone-800 rounded-xl p-4">
           <h3 className="font-semibold text-white mb-2">About</h3>
-          <p className="text-sm text-stone-400">{caregiver.bio}</p>
+          <p className="text-sm text-stone-300">{caregiver.bio}</p>
         </div>
 
         {/* Certifications */}

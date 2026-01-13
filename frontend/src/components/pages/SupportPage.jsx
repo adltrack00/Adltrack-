@@ -29,7 +29,7 @@ export const SupportPage = ({ onBack }) => {
       <div className="p-4 space-y-6">
         {/* Contact Options */}
         <div>
-          <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-3">Contact Us</h2>
+          <h2 className="text-sm font-semibold text-stone-400 uppercase tracking-wider mb-3">Contact Us</h2>
           <div className="space-y-3">
             {supportOptions.map((option, idx) => (
               <button
@@ -42,7 +42,7 @@ export const SupportPage = ({ onBack }) => {
                   </div>
                   <div className="text-left">
                     <p className="font-medium text-white">{option.label}</p>
-                    <p className="text-xs text-stone-500">{option.desc}</p>
+                    <p className="text-xs text-stone-400">{option.desc}</p>
                   </div>
                 </div>
                 <span className="text-sm font-medium text-emerald-400">{option.action}</span>
@@ -53,7 +53,7 @@ export const SupportPage = ({ onBack }) => {
 
         {/* FAQs */}
         <div>
-          <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-3">Frequently Asked Questions</h2>
+          <h2 className="text-sm font-semibold text-stone-400 uppercase tracking-wider mb-3">Frequently Asked Questions</h2>
           <div className="bg-stone-900 border border-stone-800 rounded-xl overflow-hidden">
             {faqItems.map((faq, idx) => (
               <button
@@ -69,7 +69,7 @@ export const SupportPage = ({ onBack }) => {
 
         {/* Resources */}
         <div>
-          <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-3">Resources</h2>
+          <h2 className="text-sm font-semibold text-stone-400 uppercase tracking-wider mb-3">Resources</h2>
           <div className="space-y-3">
             <button className="w-full flex items-center justify-between p-4 bg-stone-900 border border-stone-800 rounded-xl hover:bg-stone-800 transition-colors">
               <div className="flex items-center gap-3">

@@ -75,7 +75,7 @@ export const HistoryPage = ({ onBack, role }) => {
               )}
             </div>
             
-            <div className="flex items-center gap-4 text-sm text-stone-400">
+            <div className="flex items-center gap-4 text-sm text-stone-300">
               <div className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
                 {shift.hours}
@@ -92,7 +92,7 @@ export const HistoryPage = ({ onBack, role }) => {
 
         {filteredShifts.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-stone-500">No shifts found</p>
+            <p className="text-stone-400">No shifts found</p>
           </div>
         )}
       </div>

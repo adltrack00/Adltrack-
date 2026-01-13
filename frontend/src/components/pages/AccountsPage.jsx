@@ -41,14 +41,14 @@ export const AccountsPage = ({ onBack, role }) => {
             <div className="bg-stone-900 border border-stone-800 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="w-4 h-4 text-stone-500" />
-                <span className="text-xs text-stone-500">This Week</span>
+                <span className="text-xs text-stone-400">This Week</span>
               </div>
               <p className="text-xl font-bold text-white">$485.00</p>
             </div>
             <div className="bg-stone-900 border border-stone-800 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="w-4 h-4 text-emerald-500" />
-                <span className="text-xs text-stone-500">This Month</span>
+                <span className="text-xs text-stone-400">This Month</span>
               </div>
               <p className="text-xl font-bold text-white">$1,892.50</p>
             </div>
@@ -65,7 +65,7 @@ export const AccountsPage = ({ onBack, role }) => {
               </div>
               <div className="text-left">
                 <p className="font-medium text-white">•••• 4242</p>
-                <p className="text-xs text-stone-500">Visa ending in 4242</p>
+                <p className="text-xs text-stone-400">Visa ending in 4242</p>
               </div>
             </div>
             <ChevronRight className="w-5 h-5 text-stone-600" />
@@ -90,7 +90,7 @@ export const AccountsPage = ({ onBack, role }) => {
                   </div>
                   <div>
                     <p className="font-medium text-white">{tx.desc}</p>
-                    <p className="text-xs text-stone-500">{tx.status}</p>
+                    <p className="text-xs text-stone-400">{tx.status}</p>
                   </div>
                 </div>
                 <span className={`font-semibold ${isCaregiver ? 'text-emerald-400' : 'text-white'}`}>
