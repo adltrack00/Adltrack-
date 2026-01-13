@@ -68,25 +68,22 @@ export const TaskCard = ({
               <h3 className={`text-base font-bold truncate ${isCompleted ? 'text-stone-500' : 'text-stone-900'}`}>
                 {task.title}
               </h3>
-              {/* Priority/Status Badge */}
-              <span className={`flex-shrink-0 inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${isCompleted ? 'bg-emerald-50 text-emerald-600' : `${config.bg} ${config.text}`}`}>
-                {isCompleted ? '✓ Done' : config.icon}
-              </span>
+              {/* Priority Badge - only show for non-completed tasks */}
+              {!isCompleted && (
+                <span className={`flex-shrink-0 inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${config.bg} ${config.text}`}>
+                  {config.icon}
+                </span>
+              )}
             </div>
             
             {/* Time & Photo indicator */}
             <div className="flex items-center gap-2 text-stone-400 text-sm">
               <span className="flex items-center gap-1.5 font-medium">
                 <Clock className="w-4 h-4" />
-                {isCompleted && task.completedAt ? `Done ${task.completedAt}` : task.scheduledTime}
+                {isCompleted && task.completedAt ? `${task.completedAt}` : task.scheduledTime}
               </span>
-              {hasPhoto && (
-                <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full text-xs font-medium">
-                  <Image className="w-3.5 h-3.5" />
-                  Photo
-                </span>
-              )}
-              {task.requiresPhoto && !hasPhoto && (
+              {/* Only show Photo badge for pending tasks that require photo */}
+              {task.requiresPhoto && !hasPhoto && !isCompleted && (
                 <span className="flex items-center gap-1 text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full text-xs font-medium">
                   <Camera className="w-3.5 h-3.5" />
                   Photo
