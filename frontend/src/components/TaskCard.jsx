@@ -49,9 +49,9 @@ export const TaskCard = ({
 
   return (
     <div 
-      className={`relative bg-white rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.05)] overflow-hidden transition-all duration-200 font-['Manrope',sans-serif] ${
-        isCompleted ? 'opacity-80' : ''
-      } ${isExpanded && !isCompleted ? 'shadow-[0_4px_16px_rgba(0,0,0,0.1)]' : 'hover:shadow-[0_4px_14px_rgba(0,0,0,0.08)]'}`}
+      className={`relative bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden transition-all duration-200 font-['Manrope',sans-serif] ${
+        isCompleted ? 'opacity-75' : ''
+      } ${isExpanded && !isCompleted ? 'border-stone-700' : 'hover:border-stone-700'}`}
     >
       {/* Priority Stripe */}
       <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${isCompleted ? 'bg-emerald-500' : config.stripe}`} />
@@ -65,7 +65,7 @@ export const TaskCard = ({
           <div className="flex-1 min-w-0">
             {/* Title & Badges Row */}
             <div className="flex items-center gap-2 mb-1.5">
-              <h3 className={`text-base font-bold truncate ${isCompleted ? 'text-stone-500' : 'text-stone-900'}`}>
+              <h3 className={`text-base font-bold truncate ${isCompleted ? 'text-stone-500' : 'text-white'}`}>
                 {task.title}
               </h3>
               {/* Priority Badge - only show for non-completed tasks */}
