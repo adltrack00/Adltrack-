@@ -271,72 +271,73 @@ export const FamilyDashboard = ({
         ) : (
           /* Care Timeline Tab */
           <div>
-        
-        {completedTasks.length > 0 ? (
-          <div className="space-y-4">
-            {completedTasks.map((task) => (
-              <div 
-                key={task.id} 
-                className="bg-white rounded-3xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
-              >
-                {/* Task Image */}
-                <div className="relative aspect-[16/9]">
-                  <img 
-                    src={getTaskImage(task)} 
-                    alt={task.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  
-                  {/* Verified Badge */}
-                  <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-emerald-600 text-xs font-semibold rounded-full">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    {task.evidenceUrl ? 'Verified' : 'Completed'}
-                  </div>
+            {completedTasks.length > 0 ? (
+              <div className="space-y-4">
+                {completedTasks.map((task) => (
+                  <div 
+                    key={task.id} 
+                    className="bg-white rounded-3xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.04)]"
+                  >
+                    {/* Task Image */}
+                    <div className="relative aspect-[16/9]">
+                      <img 
+                        src={getTaskImage(task)} 
+                        alt={task.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                      
+                      {/* Verified Badge */}
+                      <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-emerald-600 text-xs font-semibold rounded-full">
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        {task.evidenceUrl ? 'Verified' : 'Completed'}
+                      </div>
 
-                  {/* Task Info Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-5">
-                    <h3 className="text-white font-bold text-lg">{task.title}</h3>
-                    <p className="text-white/80 text-sm flex items-center gap-1 mt-1">
-                      <Clock className="w-4 h-4" />
-                      Completed at {task.completedAt}
-                    </p>
-                  </div>
-                </div>
+                      {/* Task Info Overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 p-5">
+                        <h3 className="text-white font-bold text-lg">{task.title}</h3>
+                        <p className="text-white/80 text-sm flex items-center gap-1 mt-1">
+                          <Clock className="w-4 h-4" />
+                          Completed at {task.completedAt}
+                        </p>
+                      </div>
+                    </div>
 
-                {/* Notes & Attribution */}
-                <div className="p-5">
-                  {task.completionNote && (
-                    <p className="text-stone-600 text-sm mb-4">
-                      "{task.completionNote}"
-                    </p>
-                  )}
-                  
-                  {/* Caregiver Attribution */}
-                  <div className="flex items-center gap-3">
-                    <img 
-                      src={CAREGIVER_PROFILE.photo}
-                      alt="Caregiver"
-                      className="w-10 h-10 rounded-xl object-cover"
-                    />
-                    <div className="flex-1">
-                      <p className="font-semibold text-stone-900 text-sm">Julia Martinez</p>
-                      <p className="text-stone-400 text-xs">Caregiver</p>
+                    {/* Notes & Attribution */}
+                    <div className="p-5">
+                      {task.completionNote && (
+                        <p className="text-stone-600 text-sm mb-4">
+                          &quot;{task.completionNote}&quot;
+                        </p>
+                      )}
+                      
+                      {/* Caregiver Attribution */}
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={CAREGIVER_PROFILE.photo}
+                          alt="Caregiver"
+                          className="w-10 h-10 rounded-xl object-cover"
+                        />
+                        <div className="flex-1">
+                          <p className="font-semibold text-stone-900 text-sm">Julia Martinez</p>
+                          <p className="text-stone-400 text-xs">Caregiver</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="bg-white rounded-3xl p-8 text-center shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-            <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Camera className="w-8 h-8 text-stone-400" />
-            </div>
-            <h3 className="font-semibold text-stone-900 mb-1">No updates yet</h3>
-            <p className="text-stone-400 text-sm">
-              Photos and notes will appear here as tasks are completed
-            </p>
+            ) : (
+              <div className="bg-white rounded-3xl p-8 text-center shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Camera className="w-8 h-8 text-stone-400" />
+                </div>
+                <h3 className="font-semibold text-stone-900 mb-1">No updates yet</h3>
+                <p className="text-stone-400 text-sm">
+                  Photos and notes will appear here as tasks are completed
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>
