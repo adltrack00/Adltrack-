@@ -7,6 +7,7 @@ import { CaregiverDashboard } from "./components/CaregiverDashboard";
 import { EnterpriseDashboard } from "./components/EnterpriseDashboard";
 import { FAQPage } from "./components/FAQPage";
 import { SignInPage } from "./components/SignInPage";
+import { ThemeProvider } from "./context/ThemeContext";
 import { INITIAL_TASKS, PROPOSED_TASKS, INITIAL_VITALS, PATIENT_PROFILE } from "./services/mockData";
 
 function App() {
@@ -144,9 +145,11 @@ function App() {
   };
 
   return (
-    <div className="App">
-      {renderView()}
-    </div>
+    <ThemeProvider>
+      <div className="App">
+        {renderView()}
+      </div>
+    </ThemeProvider>
   );
 }
 
