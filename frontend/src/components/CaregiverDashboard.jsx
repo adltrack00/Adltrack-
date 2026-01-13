@@ -182,8 +182,7 @@ export const CaregiverDashboard = ({
             <img 
               src={patient?.photo || 'https://via.placeholder.com/400'} 
               alt={patient?.name}
-              className="absolute inset-0 w-full object-cover object-top"
-              style={{ height: '200%', top: '0' }}
+              className="absolute inset-0 w-full h-full object-cover object-center"
             />
             {/* Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
