@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, User, Loader2, Sparkles } from 'lucide-react';
+import { X, Send, Bot, User, Loader2 } from 'lucide-react';
 import { sendChatMessage, getGreeting } from '../services/geminiService';
 
 export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = 'the patient' }) => {
@@ -66,7 +66,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
         <div className="flex items-center justify-between px-5 py-4 border-b border-emerald-100 bg-gradient-to-r from-emerald-400 to-teal-500">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
+              <Bot className="w-5 h-5 text-white" />
             </div>
             <div>
               <h3 className="font-bold text-white">AI Caregiver Assistant</h3>
@@ -94,7 +94,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
                 {msg.role === 'user' ? (
                   <User className="w-4 h-4 text-stone-600" />
                 ) : (
-                  <Sparkles className="w-4 h-4 text-emerald-600" />
+                  <Bot className="w-4 h-4 text-emerald-600" />
                 )}
               </div>
               <div className={`max-w-[80%] px-4 py-3 rounded-2xl ${
@@ -110,7 +110,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
           {isLoading && (
             <div className="flex gap-3">
               <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-emerald-600" />
+                <Bot className="w-4 h-4 text-emerald-600" />
               </div>
               <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-md shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
                 <Loader2 className="w-5 h-5 text-emerald-500 animate-spin" />
