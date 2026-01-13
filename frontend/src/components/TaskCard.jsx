@@ -104,26 +104,26 @@ export const TaskCard = ({
           <div className="flex-shrink-0 flex items-center gap-2">
             {/* Mini Photo Thumbnail */}
             {hasPhoto && (
-              <div className="w-10 h-10 rounded-lg overflow-hidden">
+              <div className="w-12 h-12 rounded-xl overflow-hidden shadow-sm">
                 <img src={task.evidenceUrl} alt="" className="w-full h-full object-cover" />
               </div>
             )}
             
             {/* Status Indicator */}
             {isCompleted ? (
-              <div className="w-7 h-7 bg-emerald-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-4 h-4 text-emerald-500" />
+              <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-emerald-500" />
               </div>
             ) : isMissed ? (
-              <div className="w-7 h-7 bg-rose-100 rounded-full flex items-center justify-center">
-                <XCircle className="w-4 h-4 text-rose-500" />
+              <div className="w-8 h-8 bg-rose-100 rounded-full flex items-center justify-center">
+                <XCircle className="w-5 h-5 text-rose-500" />
               </div>
             ) : (
-              <div className="w-7 h-7 border-2 border-stone-200 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 border-2 border-stone-200 rounded-full flex items-center justify-center">
                 {isExpanded ? (
-                  <ChevronUp className="w-3.5 h-3.5 text-stone-400" />
+                  <ChevronUp className="w-4 h-4 text-stone-400" />
                 ) : (
-                  <ChevronDown className="w-3.5 h-3.5 text-stone-400" />
+                  <ChevronDown className="w-4 h-4 text-stone-400" />
                 )}
               </div>
             )}
@@ -132,8 +132,8 @@ export const TaskCard = ({
 
         {/* Missed Info */}
         {isMissed && task.missedReason && (
-          <p className="text-xs text-rose-600 font-medium flex items-center gap-1 mt-2">
-            <AlertCircle className="w-3.5 h-3.5" />
+          <p className="text-sm text-rose-600 font-medium flex items-center gap-1.5 mt-2">
+            <AlertCircle className="w-4 h-4" />
             {task.missedReason}
           </p>
         )}
@@ -141,16 +141,16 @@ export const TaskCard = ({
 
       {/* Expanded Section */}
       {isExpanded && !isCompleted && !isMissed && !readOnly && (
-        <div className="px-4 pb-3 pt-2 border-t border-stone-100 bg-stone-50/50">
+        <div className="px-5 pb-4 pt-3 border-t border-stone-100 bg-stone-50/50">
           <div className="space-y-3">
             <div>
-              <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Instructions</p>
-              <p className="text-xs text-stone-600 leading-relaxed">{task.instructions || task.description}</p>
+              <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">Instructions</p>
+              <p className="text-sm text-stone-600 leading-relaxed">{task.instructions || task.description}</p>
             </div>
             
             <div>
-              <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider mb-1">Time Window</p>
-              <p className="text-xs text-stone-600">{task.timeWindow}</p>
+              <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">Time Window</p>
+              <p className="text-sm text-stone-600">{task.timeWindow}</p>
             </div>
 
             <button
