@@ -17,6 +17,7 @@ import { HistoryPage } from './pages/HistoryPage';
 import { SupportPage } from './pages/SupportPage';
 import { ChatPage } from './pages/ChatPage';
 import { CAREGIVER_PROFILE } from '../services/mockData';
+import { useTheme } from '../context/ThemeContext';
 
 export const CaregiverDashboard = ({ 
   onBack, 
