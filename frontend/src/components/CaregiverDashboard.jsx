@@ -173,36 +173,27 @@ export const CaregiverDashboard = ({
     // Online State - Dashboard
     return (
       <div className="flex-1 overflow-y-auto bg-stone-50 pb-24">
-        {/* Active Shift Header */}
-        <div className="bg-gradient-to-br from-teal-600 to-teal-700 px-6 pt-6 pb-8 rounded-b-[32px]">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-white/80 text-sm font-medium">Shift active since {shiftStartTime}</span>
-            </div>
-            <button 
-              onClick={handleEndShift}
-              className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm font-medium hover:bg-white/20 transition-colors"
-            >
-              End Shift
-            </button>
-          </div>
+        {/* Patient Header with Photo */}
+        <div className="relative h-48 rounded-b-[32px] overflow-hidden">
+          {/* Patient Photo Background */}
+          <img 
+            src={patient?.photo || 'https://via.placeholder.com/400'} 
+            alt={patient?.name}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
           
           {/* Patient Info */}
           <button 
             onClick={() => setShowPatientProfile(true)}
-            className="flex items-center gap-4 w-full"
+            className="absolute bottom-0 left-0 right-0 p-6 flex items-center justify-between"
           >
-            <img 
-              src={patient?.photo || 'https://via.placeholder.com/60'} 
-              alt={patient?.name}
-              className="w-16 h-16 rounded-2xl object-cover ring-2 ring-white/30"
-            />
-            <div className="flex-1 text-left">
-              <p className="text-white/70 text-sm font-medium">Caring for</p>
-              <h2 className="text-xl font-bold text-white">{patient?.name || 'Patient'}</h2>
+            <div>
+              <h2 className="text-2xl font-bold text-white">{patient?.name || 'Patient'}</h2>
+              <p className="text-white/80 text-sm font-medium">{patient?.age} years old</p>
             </div>
-            <ChevronRight className="w-5 h-5 text-white/60" />
+            <ChevronRight className="w-6 h-6 text-white/60" />
           </button>
         </div>
 
