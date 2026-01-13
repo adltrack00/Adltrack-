@@ -422,9 +422,9 @@ export const FamilyDashboard = ({
         </button>
       )}
 
-      {/* Bottom Navigation - Floating with blur */}
-      <nav className="fixed bottom-0 left-0 right-0 px-6 pb-6 pt-2 z-30">
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] px-2 py-2 flex justify-around items-center">
+      {/* Bottom Navigation - Fixed to bottom */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-stone-100 z-30">
+        <div className="flex justify-around items-center py-2">
           {[
             { id: 'home', icon: Activity, label: 'Home' },
             { id: 'chat', icon: MessageSquare, label: 'Chat' },
@@ -434,16 +434,14 @@ export const FamilyDashboard = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center py-2 px-5 rounded-xl transition-all ${
+              className={`flex flex-col items-center py-2 px-5 transition-all ${
                 activeTab === tab.id 
                   ? 'text-rose-600' 
                   : 'text-stone-400 hover:text-stone-600'
               }`}
             >
               <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
-              {activeTab === tab.id && (
-                <span className="text-[10px] font-bold mt-1">{tab.label}</span>
-              )}
+              <span className={`text-[10px] font-semibold mt-1 ${activeTab === tab.id ? 'text-rose-600' : 'text-stone-400'}`}>{tab.label}</span>
             </button>
           ))}
         </div>
