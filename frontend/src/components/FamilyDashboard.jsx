@@ -16,6 +16,7 @@ import { ChatPage } from './pages/ChatPage';
 import { UpdatesPage } from './pages/UpdatesPage';
 import { CaregiverPage } from './pages/CaregiverPage';
 import { CARE_IMAGES, CAREGIVER_PROFILE } from '../services/mockData';
+import { useTheme } from '../context/ThemeContext';
 
 export const FamilyDashboard = ({ 
   onBack, 
@@ -25,6 +26,7 @@ export const FamilyDashboard = ({
   vitalsData,
   onAddRequest
 }) => {
+  const { isDarkMode, bg, bgCard, bgCardHover, border, text, textSecondary, textMuted, bgNav, bgInput } = useTheme();
   const [activeTab, setActiveTab] = useState('home');
   const [activeTaskTab, setActiveTaskTab] = useState('timeline');
   const [showPatientProfile, setShowPatientProfile] = useState(false);
