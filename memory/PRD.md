@@ -11,19 +11,28 @@ ADLTrack is a Care Operating System that bridges the gap between caregivers, fam
 
 ---
 
-## Design System (Airbnb-Inspired) - December 2024
+## Design System - Dark Theme Implementation (January 2025)
 
 ### Design Philosophy
 - **Human, welcoming, and story-driven**
-- **Calm, minimal, and intentionally simple**
+- **Dark mode for reduced eye strain and modern aesthetics**
 - **Trust-first design that feels personal, not corporate**
 - **Every element thoughtfully placed and emotionally reassuring**
 
-### Visual System
+### Visual System (Dark Theme)
 - **Typography**: Manrope font family (friendly, modern sans-serif)
-- **Color Palette**: Stone/neutral tones (stone-50 to stone-900)
-- **Accent Colors**: Rose (caregiver actions), Teal (active states), Indigo (AI features), Emerald (success)
-- **Shadows**: Soft box-shadows (0_2px_12px_rgba(0,0,0,0.04))
+- **Primary Background**: stone-950 (#0c0a09)
+- **Card Background**: stone-900 (#1c1917) with stone-800 borders
+- **Text Colors**: 
+  - Primary: white
+  - Secondary: stone-400
+  - Muted: stone-500
+- **Accent Colors**: 
+  - Emerald (success, active states)
+  - Rose (caregiver actions, alerts)
+  - Blue (informational)
+  - Purple (pain vitals)
+  - Orange (heart rate)
 - **Corners**: Generous rounding (rounded-2xl, rounded-3xl)
 - **Spacing**: 20px (p-5), 24px (p-6) standard padding
 
@@ -44,40 +53,50 @@ ADLTrack is a Care Operating System that bridges the gap between caregivers, fam
 - Contact form
 - Mobile-responsive
 
-### ✅ Caregiver Dashboard (Redesigned)
+### ✅ Caregiver Dashboard (Dark Theme - January 2025)
 - **Offline State**: 
+  - Dark background (stone-950)
   - Greeting with caregiver profile photo
-  - Patient preview card with AI-generated image
+  - Patient preview card with dark styling
   - Uber-style "GO" button with pulse animation
   - Task count preview
 - **Online State**:
-  - Teal gradient header with shift status
-  - Patient profile with photo
-  - Vitals cards (BP, HR, Temp) with icons
-  - Progress bar (tasks completed/total)
-  - Segmented tab control (Today's Tasks / Requests)
-  - Task cards with priority colors and emoji icons
-  - AI Copilot floating button (indigo gradient)
-- **Bottom Navigation**: Home, Chat, Shift, Menu (floating with blur)
+  - Patient photo header with gradient overlay
+  - Vitals cards (BP, HR, Temp, Pain) - dark cards with colored icons
+  - Progress bar (emerald gradient)
+  - Minimal tab control (Requests --- Today's Tasks)
+  - Task cards with dark styling
+  - AI Copilot floating button (emerald gradient)
+- **Bottom Navigation**: Dark background with emerald active state
+- **Sub-Pages**: All dark themed (Profile, Settings, Support, History, Earnings)
 
-### ✅ Family Dashboard (Redesigned)
-- **Hero Header**: Rose gradient with reassuring message
-- **Patient Card**: Profile with AI-generated photo
-- **Vitals Row**: Horizontal scroll with 4 vitals (BP, HR, Temp, Pain)
-- **Care Progress Card**: Visual task completion status
-- **Active Caregiver Card**: Real-time shift info with caregiver photo
-- **Care Timeline**: Feed of completed tasks with evidence photos
-- **AI Copilot**: Floating button for questions
-- **Bottom Navigation**: Activity, Chat, Alerts, Menu
+### ✅ Family Dashboard (Dark Theme - January 2025)
+- **Home**: 
+  - Vitals row with dark cards and colored icons
+  - Care Progress bar (emerald gradient)
+  - Timeline/Requests tabs
+  - Empty state cards with dark styling
+- **Menu**: 
+  - Profile header with dark background
+  - Menu items with dark cards
+- **Add Request Modal**: Dark themed with emerald submit button
+- **Sub-Pages**: All dark themed (Profile, Caregiver, Settings, Support, History, Billing)
 
-### ✅ Supporting Components
-- **TaskCard**: Priority badges with emojis, expandable details
-- **TaskRequestCard**: Family request cards with accept/decline
-- **TaskCompletionModal**: Photo upload, notes, status selection
-- **VitalsModal**: Charts, history, add readings (caregiver)
-- **PatientProfileModal**: Medical ID, allergies, contacts, share for EMS
-- **AICopilot**: Gemini-powered chat with role-specific personas
-- **SignInPage**: Role selection cards
+### ✅ Supporting Components (All Dark Themed - January 2025)
+- **TaskCard**: Dark cards with proper text contrast
+- **TaskRequestCard**: Dark styling with priority badges
+- **TaskCompletionModal**: Dark background, dark form inputs
+- **VitalsModal**: Dark charts, dark history list, emerald buttons
+- **PatientProfileModal**: Dark background with colored accent sections
+- **AICopilot**: Emerald gradient button, dark chat interface
+- **ChatPage**: Dark message bubbles, dark input field
+- **SettingsPage**: Dark toggles with emerald accent
+- **ProfilePage**: Dark cards, emerald accent buttons
+- **AccountsPage**: Dark transaction list
+- **HistoryPage**: Dark shift cards
+- **SupportPage**: Dark FAQ list and contact options
+- **CaregiverPage**: Dark profile card
+- **UpdatesPage**: Dark notifications list
 
 ---
 
@@ -85,10 +104,10 @@ ADLTrack is a Care Operating System that bridges the gap between caregivers, fam
 
 ### Frontend Stack
 - React 19 with JavaScript/JSX
-- Tailwind CSS with custom design tokens
+- Tailwind CSS with dark theme tokens
 - Manrope font (Google Fonts)
 - Lucide React icons
-- Recharts for vitals charts
+- Recharts for vitals charts (dark styled)
 - Framer Motion for animations
 
 ### Backend Stack
@@ -96,24 +115,14 @@ ADLTrack is a Care Operating System that bridges the gap between caregivers, fam
 - MongoDB (Motor async driver)
 - emergentintegrations for Gemini LLM
 
-### AI-Generated Image URLs
-```javascript
-PATIENT_PROFILE.photo = "emergentagent.com/.../7c7bc024ec1065d47fb0f219e7359a96b1a85d63628823238fca62051d1d2712.png"
-CAREGIVER_PROFILE.photo = "emergentagent.com/.../0d5b21a613a79f2e524a35cfa17574e562820a771203c2d63f5294db092f5e94.png"
-CARE_IMAGES.medication = "emergentagent.com/.../453bd1aab795a8d4c312f29d43640ac6652d636e5e19337acdc001016a4e77c3.png"
-CARE_IMAGES.meal = "emergentagent.com/.../cafa07225118a63f61111220ac6230125b17389a84d7450834c273696c27b3b7.png"
-CARE_IMAGES.walk = "emergentagent.com/.../c527b65ae92f45fb0d1b3073f2d9982be28fd338adaa3f25d6f48e6f9a64e813.png"
-CARE_IMAGES.vitals = "emergentagent.com/.../1e85b317545e5b7c120268579cc779fadaef5109861b649162128123f74bb2a1.png"
-```
-
 ---
 
-## Testing Status (Iteration 4)
-- **Frontend**: 100% pass rate
-- **Landing Page**: Unchanged ✅
-- **Caregiver Dashboard**: All flows working ✅
-- **Family Dashboard**: All flows working ✅
-- **Design Verification**: All Airbnb patterns applied ✅
+## Testing Status (January 2025)
+- **Dark Theme**: 100% implemented across all components ✅
+- **Caregiver Dashboard**: All pages/modals dark themed ✅
+- **Family Dashboard**: All pages/modals dark themed ✅
+- **Vitals Modal**: Dark charts and forms ✅
+- **All Sub-Pages**: Settings, Profile, History, Support, etc. ✅
 
 ---
 
@@ -132,7 +141,7 @@ CARE_IMAGES.vitals = "emergentagent.com/.../1e85b317545e5b7c120268579cc779fadaef
 - [ ] Incident report submission
 
 ### P2 - Medium Priority
-- [ ] Enterprise Dashboard with Airbnb styling
+- [ ] Enterprise Dashboard with dark theme
 - [ ] Shift history analytics
 - [ ] Care plan template management
 - [ ] Multi-patient support
@@ -142,6 +151,7 @@ CARE_IMAGES.vitals = "emergentagent.com/.../1e85b317545e5b7c120268579cc779fadaef
 - [ ] Caregiver reputation/rating system
 - [ ] Offline-first functionality
 - [ ] Export data for compliance audits
+- [ ] Fix 34 minor lint errors in LandingPage.jsx, FAQPage.jsx
 
 ---
 
