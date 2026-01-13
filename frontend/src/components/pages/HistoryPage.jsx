@@ -19,19 +19,19 @@ export const HistoryPage = ({ onBack, role }) => {
     : shifts.filter(s => s.status === filter);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-stone-950">
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-zinc-100 px-4 py-4 flex items-center gap-3 z-10">
-        <button onClick={onBack} className="p-2 hover:bg-zinc-100 rounded-full">
-          <ArrowLeft className="w-5 h-5 text-zinc-700" />
+      <div className="sticky top-0 bg-stone-900 border-b border-stone-800 px-4 py-4 flex items-center gap-3 z-10">
+        <button onClick={onBack} className="p-2 hover:bg-stone-800 rounded-full">
+          <ArrowLeft className="w-5 h-5 text-stone-300" />
         </button>
-        <h1 className="text-lg font-semibold text-zinc-900">
+        <h1 className="text-lg font-semibold text-white">
           {isCaregiver ? 'Shift History' : 'Care History'}
         </h1>
       </div>
 
       {/* Filter Tabs */}
-      <div className="px-4 py-3 border-b border-zinc-100">
+      <div className="px-4 py-3 border-b border-stone-800">
         <div className="flex gap-2 overflow-x-auto no-scrollbar">
           {['all', 'completed', 'cancelled'].map((f) => (
             <button
@@ -39,8 +39,8 @@ export const HistoryPage = ({ onBack, role }) => {
               onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                 filter === f
-                  ? 'bg-zinc-900 text-white'
-                  : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-stone-900 text-stone-400 hover:bg-stone-800'
               }`}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -55,34 +55,34 @@ export const HistoryPage = ({ onBack, role }) => {
             key={idx}
             className={`p-4 rounded-xl border ${
               shift.status === 'completed' 
-                ? 'bg-green-50 border-green-200' 
-                : 'bg-zinc-50 border-zinc-200'
+                ? 'bg-emerald-500/10 border-emerald-500/30' 
+                : 'bg-stone-900 border-stone-800'
             }`}
           >
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-zinc-500" />
-                <span className="font-semibold text-zinc-900">{shift.date}</span>
+                <Calendar className="w-4 h-4 text-stone-500" />
+                <span className="font-semibold text-white">{shift.date}</span>
               </div>
               {shift.status === 'completed' ? (
-                <span className="flex items-center gap-1 text-xs font-medium text-green-700 bg-green-100 px-2 py-1 rounded-full">
+                <span className="flex items-center gap-1 text-xs font-medium text-emerald-400 bg-emerald-500/20 px-2 py-1 rounded-full">
                   <CheckCircle className="w-3 h-3" /> Completed
                 </span>
               ) : (
-                <span className="flex items-center gap-1 text-xs font-medium text-zinc-500 bg-zinc-200 px-2 py-1 rounded-full">
+                <span className="flex items-center gap-1 text-xs font-medium text-stone-400 bg-stone-800 px-2 py-1 rounded-full">
                   <XCircle className="w-3 h-3" /> Cancelled
                 </span>
               )}
             </div>
             
-            <div className="flex items-center gap-4 text-sm text-zinc-600">
+            <div className="flex items-center gap-4 text-sm text-stone-400">
               <div className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
                 {shift.hours}
               </div>
               {shift.status === 'completed' && (
                 <div className="flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <CheckCircle className="w-4 h-4 text-emerald-500" />
                   {shift.completed}/{shift.tasks} tasks
                 </div>
               )}
@@ -92,7 +92,7 @@ export const HistoryPage = ({ onBack, role }) => {
 
         {filteredShifts.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-zinc-500">No shifts found</p>
+            <p className="text-stone-500">No shifts found</p>
           </div>
         )}
       </div>

@@ -27,13 +27,13 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-stone-950">
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b border-zinc-100 px-4 py-4 flex items-center gap-3 z-10">
-        <button onClick={onBack} className="p-2 hover:bg-zinc-100 rounded-full">
-          <ArrowLeft className="w-5 h-5 text-zinc-700" />
+      <div className="sticky top-0 bg-stone-900 border-b border-stone-800 px-4 py-4 flex items-center gap-3 z-10">
+        <button onClick={onBack} className="p-2 hover:bg-stone-800 rounded-full">
+          <ArrowLeft className="w-5 h-5 text-stone-300" />
         </button>
-        <h1 className="text-lg font-semibold text-zinc-900">Profile</h1>
+        <h1 className="text-lg font-semibold text-white">Profile</h1>
       </div>
 
       <div className="p-4 space-y-6">
@@ -43,9 +43,9 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
             <img 
               src={profile.photo} 
               alt={profile.name}
-              className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-lg"
+              className="w-28 h-28 rounded-full object-cover border-4 border-stone-800 shadow-lg"
             />
-            <label className="absolute bottom-0 right-0 p-2 bg-zinc-900 rounded-full cursor-pointer hover:bg-zinc-800 transition-colors">
+            <label className="absolute bottom-0 right-0 p-2 bg-emerald-500 rounded-full cursor-pointer hover:bg-emerald-600 transition-colors">
               <Camera className="w-4 h-4 text-white" />
               <input
                 type="file"
@@ -55,51 +55,51 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
               />
             </label>
           </div>
-          <h2 className="text-xl font-bold text-zinc-900 mt-4">{profile.name}</h2>
-          <p className="text-zinc-500">{profile.role}</p>
+          <h2 className="text-xl font-bold text-white mt-4">{profile.name}</h2>
+          <p className="text-stone-400">{profile.role}</p>
         </div>
 
         {/* Stats (Caregiver Only) */}
         {isCaregiver && (
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-zinc-50 rounded-xl p-4 text-center">
+            <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
               <Star className="w-6 h-6 text-yellow-500 mx-auto mb-1" />
-              <p className="text-xl font-bold text-zinc-900">4.9</p>
-              <p className="text-xs text-zinc-500">Rating</p>
+              <p className="text-xl font-bold text-white">4.9</p>
+              <p className="text-xs text-stone-500">Rating</p>
             </div>
-            <div className="bg-zinc-50 rounded-xl p-4 text-center">
+            <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
               <Award className="w-6 h-6 text-blue-500 mx-auto mb-1" />
-              <p className="text-xl font-bold text-zinc-900">5</p>
-              <p className="text-xs text-zinc-500">Years</p>
+              <p className="text-xl font-bold text-white">5</p>
+              <p className="text-xs text-stone-500">Years</p>
             </div>
-            <div className="bg-zinc-50 rounded-xl p-4 text-center">
-              <CheckCircle className="w-6 h-6 text-green-500 mx-auto mb-1" />
-              <p className="text-xl font-bold text-zinc-900">234</p>
-              <p className="text-xs text-zinc-500">Shifts</p>
+            <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
+              <CheckCircle className="w-6 h-6 text-emerald-500 mx-auto mb-1" />
+              <p className="text-xl font-bold text-white">234</p>
+              <p className="text-xs text-stone-500">Shifts</p>
             </div>
           </div>
         )}
 
         {/* Contact Info */}
-        <div className="bg-zinc-50 rounded-xl p-4 space-y-4">
-          <h3 className="font-semibold text-zinc-900">Contact Information</h3>
+        <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 space-y-4">
+          <h3 className="font-semibold text-white">Contact Information</h3>
           <div>
-            <label className="text-xs text-zinc-500 uppercase tracking-wider">Email</label>
-            <p className="text-zinc-900">{profile.email}</p>
+            <label className="text-xs text-stone-500 uppercase tracking-wider">Email</label>
+            <p className="text-white">{profile.email}</p>
           </div>
           <div>
-            <label className="text-xs text-zinc-500 uppercase tracking-wider">Phone</label>
-            <p className="text-zinc-900">{profile.phone}</p>
+            <label className="text-xs text-stone-500 uppercase tracking-wider">Phone</label>
+            <p className="text-white">{profile.phone}</p>
           </div>
         </div>
 
         {/* Certifications (Caregiver Only) */}
         {isCaregiver && (
-          <div className="bg-zinc-50 rounded-xl p-4">
-            <h3 className="font-semibold text-zinc-900 mb-3">Certifications</h3>
+          <div className="bg-stone-900 border border-stone-800 rounded-xl p-4">
+            <h3 className="font-semibold text-white mb-3">Certifications</h3>
             <div className="flex flex-wrap gap-2">
               {['CNA', 'CPR/First Aid', 'Dementia Care'].map((cert, idx) => (
-                <span key={idx} className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                <span key={idx} className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-sm font-medium">
                   ✓ {cert}
                 </span>
               ))}
@@ -110,7 +110,7 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
         {/* Sign Out Button */}
         <button
           onClick={onSignOut}
-          className="w-full py-4 border-2 border-red-200 text-red-600 rounded-xl font-semibold hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+          className="w-full py-4 border-2 border-rose-500/30 text-rose-400 rounded-xl font-semibold hover:bg-rose-500/10 transition-colors flex items-center justify-center gap-2"
           data-testid="sign-out-btn"
         >
           <LogOut className="w-5 h-5" />
