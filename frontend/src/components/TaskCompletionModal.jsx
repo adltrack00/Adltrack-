@@ -40,31 +40,31 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center font-['Manrope',sans-serif]" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center font-['Manrope',sans-serif]" onClick={onClose}>
       <div 
-        className="bg-white w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl max-h-[90vh] overflow-y-auto"
+        className="bg-stone-950 w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl max-h-[90vh] overflow-y-auto border border-stone-800"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-stone-100 px-5 py-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-stone-900">{task.title}</h2>
+        <div className="sticky top-0 bg-stone-900 border-b border-stone-800 px-5 py-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-white">{task.title}</h2>
           <button 
             onClick={onClose}
-            className="p-2 hover:bg-stone-100 rounded-xl transition-colors"
+            className="p-2 hover:bg-stone-800 rounded-xl transition-colors"
           >
-            <X className="w-5 h-5 text-stone-500" />
+            <X className="w-5 h-5 text-stone-400" />
           </button>
         </div>
 
         {/* Mode Toggle */}
         <div className="px-5 pt-5">
-          <div className="bg-stone-100 p-1.5 rounded-2xl flex">
+          <div className="bg-stone-900 p-1.5 rounded-2xl flex border border-stone-800">
             <button
               onClick={() => setMode('complete')}
               className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
                 mode === 'complete' 
                   ? 'bg-emerald-500 text-white shadow-sm' 
-                  : 'text-stone-500 hover:text-stone-700'
+                  : 'text-stone-500 hover:text-stone-300'
               }`}
             >
               <CheckCircle className="w-5 h-5" />
@@ -75,11 +75,11 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
               className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
                 mode === 'cantComplete' 
                   ? 'bg-rose-500 text-white shadow-sm' 
-                  : 'text-stone-500 hover:text-stone-700'
+                  : 'text-stone-500 hover:text-stone-300'
               }`}
             >
               <XCircle className="w-5 h-5" />
-              Can't Complete
+              Can&apos;t Complete
             </button>
           </div>
         </div>
@@ -87,14 +87,14 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
         {/* Content */}
         <div className="p-5 space-y-5">
           {/* Instructions */}
-          <div className="bg-stone-50 rounded-2xl p-4">
-            <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">Instructions</p>
-            <p className="text-sm text-stone-700 leading-relaxed">{task.instructions || task.description}</p>
+          <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4">
+            <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">Instructions</p>
+            <p className="text-sm text-stone-300 leading-relaxed">{task.instructions || task.description}</p>
           </div>
 
           {/* Photo Upload */}
           <div>
-            <label className="block text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
               {task.requiresPhoto ? 'Photo Evidence (Required)' : 'Add Photo (Optional)'}
             </label>
             
@@ -117,12 +117,12 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
               </div>
             ) : (
               <label className="block cursor-pointer">
-                <div className="border-2 border-dashed border-stone-200 rounded-2xl p-8 text-center hover:border-stone-300 transition-colors bg-stone-50/50">
-                  <div className="w-14 h-14 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                    <Camera className="w-7 h-7 text-stone-400" />
+                <div className="border-2 border-dashed border-stone-700 rounded-2xl p-8 text-center hover:border-stone-600 transition-colors bg-stone-900/50">
+                  <div className="w-14 h-14 bg-stone-800 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                    <Camera className="w-7 h-7 text-stone-500" />
                   </div>
-                  <p className="text-sm text-stone-600 font-semibold">Tap to add photo</p>
-                  <p className="text-xs text-stone-400 mt-1">Take a photo or select from gallery</p>
+                  <p className="text-sm text-stone-300 font-semibold">Tap to add photo</p>
+                  <p className="text-xs text-stone-500 mt-1">Take a photo or select from gallery</p>
                 </div>
                 <input
                   type="file"
@@ -136,21 +136,21 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
 
           {/* Notes */}
           <div>
-            <label className="block text-xs font-bold text-stone-400 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">
               Notes
             </label>
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Add any notes about this task..."
-              className="w-full p-4 bg-stone-50 border-0 rounded-2xl resize-none h-24 text-sm focus:outline-none focus:ring-2 focus:ring-stone-900 font-medium"
+              className="w-full p-4 bg-stone-900 border border-stone-800 rounded-2xl resize-none h-24 text-sm text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
             />
           </div>
 
           {/* Reason Selection (for Can't Complete) */}
           {mode === 'cantComplete' && (
             <div>
-              <label className="flex items-center gap-2 text-xs font-bold text-rose-500 uppercase tracking-wider mb-3">
+              <label className="flex items-center gap-2 text-xs font-bold text-rose-400 uppercase tracking-wider mb-3">
                 <AlertTriangle className="w-4 h-4" />
                 Reason for Not Completing
               </label>
@@ -161,8 +161,8 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
                     onClick={() => setSelectedReason(reason)}
                     className={`w-full p-4 rounded-xl text-left text-sm font-semibold transition-all ${
                       selectedReason === reason
-                        ? 'bg-rose-50 border-2 border-rose-500 text-rose-700'
-                        : 'bg-stone-50 border-2 border-transparent text-stone-700 hover:bg-stone-100'
+                        ? 'bg-rose-500/20 border-2 border-rose-500 text-rose-400'
+                        : 'bg-stone-900 border-2 border-stone-800 text-stone-300 hover:bg-stone-800'
                     }`}
                   >
                     {reason}
@@ -174,14 +174,14 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
         </div>
 
         {/* Submit Button */}
-        <div className="sticky bottom-0 bg-white border-t border-stone-100 p-5">
+        <div className="sticky bottom-0 bg-stone-950 border-t border-stone-800 p-5">
           <button
             onClick={handleComplete}
             disabled={mode === 'cantComplete' && !selectedReason}
-            className={`w-full py-4 rounded-2xl font-bold transition-all shadow-[0_4px_14px_rgba(0,0,0,0.1)] ${
+            className={`w-full py-4 rounded-2xl font-bold transition-all shadow-[0_4px_14px_rgba(0,0,0,0.3)] ${
               mode === 'complete'
                 ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                : 'bg-rose-500 text-white hover:bg-rose-600 disabled:bg-stone-300 disabled:cursor-not-allowed disabled:shadow-none'
+                : 'bg-rose-500 text-white hover:bg-rose-600 disabled:bg-stone-700 disabled:cursor-not-allowed disabled:shadow-none'
             }`}
             data-testid="submit-task-completion"
           >
