@@ -120,7 +120,7 @@ export const VitalsModal = ({
               <ActiveIcon className="w-7 h-7" style={{ color: activeTabData?.color }} />
             </div>
             <p className="text-4xl font-bold text-white">{getLatestValue(activeTab)}</p>
-            <p className="text-sm text-stone-400 font-medium mt-1">Current Reading</p>
+            <p className="text-sm text-stone-300 font-medium mt-1">Current Reading</p>
           </div>
         </div>
 
@@ -170,7 +170,7 @@ export const VitalsModal = ({
               )}
             </ResponsiveContainer>
           </div>
-          <p className="text-xs text-stone-500 text-center mt-2 font-medium">Weekly trend</p>
+          <p className="text-xs text-stone-400 text-center mt-2 font-medium">Weekly trend</p>
         </div>
 
         {/* Add Vital Form (Caregiver Only) */}
@@ -261,11 +261,11 @@ export const VitalsModal = ({
 
         {/* History */}
         <div className="px-5 pb-6">
-          <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">Recent History</p>
+          <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-3">Recent History</p>
           <div className="bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden">
             {getChartData().slice(-5).reverse().map((entry, idx) => (
               <div key={idx} className="flex items-center justify-between py-3 px-4 border-b border-stone-800 last:border-0">
-                <span className="text-sm text-stone-400 font-medium">{entry.date} at {entry.time}</span>
+                <span className="text-sm text-stone-300 font-medium">{entry.date} at {entry.time}</span>
                 <span className="text-sm font-bold text-white">
                   {activeTab === 'bp' ? `${entry.systolic}/${entry.diastolic}` : entry.value}
                   {activeTab === 'temp' && '°F'}
