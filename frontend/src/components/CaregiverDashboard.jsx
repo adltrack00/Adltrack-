@@ -102,26 +102,26 @@ export const CaregiverDashboard = ({
     if (!isShiftActive) {
       // Offline State - Uber-style GO interface
       return (
-        <div className="flex-1 flex flex-col bg-stone-950">
+        <div className={`flex-1 flex flex-col ${bg}`}>
           {/* Header with caregiver info */}
           <div className="px-6 pt-6 pb-4">
             <div className="flex items-center gap-4">
               <img 
                 src={CAREGIVER_PROFILE.photo} 
                 alt="You"
-                className="w-14 h-14 rounded-full object-cover ring-2 ring-stone-800 shadow-lg"
+                className={`w-14 h-14 rounded-full object-cover ring-2 ${isDarkMode ? 'ring-stone-800' : 'ring-stone-200'} shadow-lg`}
               />
               <div>
-                <p className="text-stone-500 text-sm font-medium">Good morning,</p>
-                <h1 className="text-xl font-bold text-white tracking-tight">Julia</h1>
+                <p className={`${textMuted} text-sm font-medium`}>Good morning,</p>
+                <h1 className={`text-xl font-bold ${text} tracking-tight`}>Julia</h1>
               </div>
             </div>
           </div>
 
           {/* Patient Card */}
           <div className="px-6 mb-6">
-            <div className="bg-stone-900 border border-stone-800 rounded-3xl p-5">
-              <p className="text-stone-500 text-sm font-medium mb-3">Ready to care for</p>
+            <div className={`${bgCard} border ${border} rounded-3xl p-5`}>
+              <p className={`${textMuted} text-sm font-medium mb-3`}>Ready to care for</p>
               <div className="flex items-center gap-4">
                 <img 
                   src={patient?.photo || 'https://via.placeholder.com/80'} 
@@ -129,14 +129,14 @@ export const CaregiverDashboard = ({
                   className="w-16 h-16 rounded-2xl object-cover"
                 />
                 <div className="flex-1">
-                  <h2 className="text-lg font-bold text-white">{patient?.name || 'Patient'}</h2>
-                  <p className="text-stone-400 text-sm">{patient?.age} years old</p>
+                  <h2 className={`text-lg font-bold ${text}`}>{patient?.name || 'Patient'}</h2>
+                  <p className={`${textSecondary} text-sm`}>{patient?.age} years old</p>
                 </div>
                 <button 
                   onClick={() => setShowPatientProfile(true)}
-                  className="p-3 bg-stone-800 rounded-full hover:bg-stone-700 transition-colors"
+                  className={`p-3 ${isDarkMode ? 'bg-stone-800 hover:bg-stone-700' : 'bg-stone-100 hover:bg-stone-200'} rounded-full transition-colors`}
                 >
-                  <ChevronRight className="w-5 h-5 text-stone-400" />
+                  <ChevronRight className={`w-5 h-5 ${textMuted}`} />
                 </button>
               </div>
             </div>
@@ -144,8 +144,8 @@ export const CaregiverDashboard = ({
 
           {/* Start Shift Section */}
           <div className="flex-1 flex flex-col items-center justify-center px-6 pb-32">
-            <p className="text-stone-500 font-medium mb-2">You&apos;re offline</p>
-            <h2 className="text-2xl font-bold text-white mb-8 text-center">
+            <p className={`${textMuted} font-medium mb-2`}>You&apos;re offline</p>
+            <h2 className={`text-2xl font-bold ${text} mb-8 text-center`}>
               Tap to start your shift
             </h2>
             
@@ -165,7 +165,7 @@ export const CaregiverDashboard = ({
               </div>
             </button>
             
-            <p className="text-stone-500 text-sm mt-6">
+            <p className={`${textMuted} text-sm mt-6`}>
               {todayTasks.length} tasks scheduled for today
             </p>
           </div>
@@ -175,7 +175,7 @@ export const CaregiverDashboard = ({
 
     // Online State - Dashboard
     return (
-      <div className="flex-1 overflow-y-auto bg-stone-950 pb-20">
+      <div className={`flex-1 overflow-y-auto ${bg} pb-20`}>
         {/* Patient Header with Photo - Vitals overlapping from middle */}
         <div className="relative">
           {/* Photo Container */}
