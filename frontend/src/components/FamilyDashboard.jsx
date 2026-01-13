@@ -443,7 +443,7 @@ export const FamilyDashboard = ({
               }`}
             >
               <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
-              <span className={`text-[10px] font-semibold mt-1 ${activeTab === tab.id ? 'text-emerald-400' : 'text-stone-500'}`}>{tab.label}</span>
+              <span className={`text-[10px] font-semibold mt-1 ${activeTab === tab.id ? 'text-emerald-400' : textMuted}`}>{tab.label}</span>
             </button>
           ))}
         </div>
