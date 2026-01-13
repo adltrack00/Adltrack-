@@ -158,7 +158,7 @@ export const TaskCard = ({
                 e.stopPropagation();
                 onStartTask && onStartTask(task);
               }}
-              className="w-full py-3 bg-stone-900 text-white rounded-xl text-sm font-bold hover:bg-stone-800 transition-colors"
+              className="w-full py-3.5 bg-stone-900 text-white rounded-xl text-sm font-bold hover:bg-stone-800 transition-colors shadow-sm"
               data-testid={`start-task-${task.id}`}
             >
               Start Task
