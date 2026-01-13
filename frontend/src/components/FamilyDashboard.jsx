@@ -132,24 +132,17 @@ export const FamilyDashboard = ({
         </div>
       </div>
 
-      {/* Progress Card */}
-      <div className="px-6 mb-6">
-        <div className="bg-white rounded-3xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-stone-400 text-sm font-medium">Today's Care Progress</p>
-              <p className="text-2xl font-bold text-stone-900">{completedTasks.length} of {totalTasks} tasks</p>
-            </div>
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-500 flex items-center justify-center">
-              <CheckCircle className="w-8 h-8 text-white" />
-            </div>
-          </div>
-          <div className="h-2 bg-stone-100 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500"
-              style={{ width: totalTasks > 0 ? `${(completedTasks.length / totalTasks) * 100}%` : '0%' }}
-            />
-          </div>
+      {/* Progress Section - Compact style */}
+      <div className="px-6 pb-5">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-stone-500">Today's Progress</span>
+          <span className="text-sm font-bold text-stone-900">{completedTasks.length}/{totalTasks}</span>
+        </div>
+        <div className="h-2 bg-stone-200 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-gradient-to-r from-teal-500 to-teal-600 rounded-full transition-all duration-500"
+            style={{ width: totalTasks > 0 ? `${(completedTasks.length / totalTasks) * 100}%` : '0%' }}
+          />
         </div>
       </div>
 
