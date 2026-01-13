@@ -178,11 +178,11 @@ export const CaregiverDashboard = ({
         <div className="relative">
           {/* Photo Container - Enlarged height to accommodate full face */}
           <div className="relative h-72 overflow-hidden">
-            {/* Patient Photo Background - object-position top to show face */}
+            {/* Patient Photo Background - center position to show face */}
             <img 
               src={patient?.photo || 'https://via.placeholder.com/400'} 
               alt={patient?.name}
-              className="absolute inset-0 w-full h-full object-cover object-top"
+              className="absolute inset-0 w-full h-full object-cover object-center"
             />
             {/* Gradient Overlay - stronger gradient for text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/60 to-transparent" />
