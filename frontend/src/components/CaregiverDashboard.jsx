@@ -278,8 +278,8 @@ export const CaregiverDashboard = ({
             >
               <span className={`text-sm font-semibold transition-colors ${
                 activeTaskTab === 'requests'
-                  ? 'text-stone-900'
-                  : 'text-stone-400 hover:text-stone-600'
+                  ? 'text-white'
+                  : 'text-stone-500 hover:text-stone-300'
               }`}>
                 Requests
               </span>
@@ -291,18 +291,18 @@ export const CaregiverDashboard = ({
             </button>
             
             {/* Line */}
-            <div className="flex-1 h-px bg-stone-200" />
+            <div className="flex-1 h-px bg-stone-700" />
             
             {/* Today's Tasks on right */}
             <button
               onClick={() => setActiveTaskTab('today')}
               className={`text-sm font-semibold transition-colors ${
                 activeTaskTab === 'today'
-                  ? 'text-stone-900'
-                  : 'text-stone-400 hover:text-stone-600'
+                  ? 'text-white'
+                  : 'text-stone-500 hover:text-stone-300'
               }`}
             >
-              Today's Tasks
+              Today&apos;s Tasks
             </button>
           </div>
         </div>
