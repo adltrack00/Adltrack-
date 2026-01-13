@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Bell, Moon, Globe, Shield, HelpCircle, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Bell, Moon, Sun, Globe, Shield, HelpCircle, ChevronRight } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
 export const SettingsPage = ({ onBack }) => {
   const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
+  const { isDarkMode, toggleTheme, bg, bgCard, border, text, textSecondary, textMuted, bgCardHover } = useTheme();
 
   const settingItems = [
     { icon: Shield, label: 'Privacy & Security', action: 'Navigate' },
@@ -12,22 +13,22 @@ export const SettingsPage = ({ onBack }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-stone-950">
+    <div className={`min-h-screen ${bg}`}>
       {/* Header */}
-      <div className="sticky top-0 bg-stone-900 border-b border-stone-800 px-4 py-4 flex items-center gap-3 z-10">
-        <button onClick={onBack} className="p-2 hover:bg-stone-800 rounded-full">
-          <ArrowLeft className="w-5 h-5 text-stone-300" />
+      <div className={`sticky top-0 ${bgCard} border-b ${border} px-4 py-4 flex items-center gap-3 z-10`}>
+        <button onClick={onBack} className={`p-2 ${bgCardHover} rounded-full`}>
+          <ArrowLeft className={`w-5 h-5 ${textSecondary}`} />
         </button>
-        <h1 className="text-lg font-semibold text-white">Settings</h1>
+        <h1 className={`text-lg font-semibold ${text}`}>Settings</h1>
       </div>
 
       <div className="p-4 space-y-4">
         {/* Toggle Settings */}
-        <div className="bg-stone-900 border border-stone-800 rounded-xl overflow-hidden">
-          <div className="flex items-center justify-between p-4 border-b border-stone-800">
+        <div className={`${bgCard} border ${border} rounded-xl overflow-hidden`}>
+          <div className={`flex items-center justify-between p-4 border-b ${border}`}>
             <div className="flex items-center gap-3">
-              <Bell className="w-5 h-5 text-stone-400" />
-              <span className="font-medium text-white">Push Notifications</span>
+              <Bell className={`w-5 h-5 ${textMuted}`} />
+              <span className={`font-medium ${text}`}>Push Notifications</span>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
@@ -36,41 +37,46 @@ export const SettingsPage = ({ onBack }) => {
                 onChange={(e) => setNotifications(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-stone-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+              <div className={`w-11 h-6 ${isDarkMode ? 'bg-stone-700' : 'bg-stone-300'} peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500`}></div>
             </label>
           </div>
           
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
-              <Moon className="w-5 h-5 text-stone-400" />
-              <span className="font-medium text-white">Dark Mode</span>
+              {isDarkMode ? (
+                <Moon className={`w-5 h-5 ${textMuted}`} />
+              ) : (
+                <Sun className={`w-5 h-5 ${textMuted}`} />
+              )}
+              <span className={`font-medium ${text}`}>Dark Mode</span>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
-                checked={darkMode}
-                onChange={(e) => setDarkMode(e.target.checked)}
+                checked={isDarkMode}
+                onChange={toggleTheme}
                 className="sr-only peer"
+                data-testid="dark-mode-toggle"
               />
-              <div className="w-11 h-6 bg-stone-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+              <div className={`w-11 h-6 ${isDarkMode ? 'bg-stone-700' : 'bg-stone-300'} peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500`}></div>
             </label>
           </div>
         </div>
 
         {/* Navigation Settings */}
-        <div className="bg-stone-900 border border-stone-800 rounded-xl overflow-hidden">
+        <div className={`${bgCard} border ${border} rounded-xl overflow-hidden`}>
           {settingItems.map((item, idx) => (
             <button
               key={idx}
-              className="w-full flex items-center justify-between p-4 border-b border-stone-800 last:border-0 hover:bg-stone-800 transition-colors"
+              className={`w-full flex items-center justify-between p-4 border-b ${border} last:border-0 ${bgCardHover} transition-colors`}
             >
               <div className="flex items-center gap-3">
-                <item.icon className="w-5 h-5 text-stone-400" />
-                <span className="font-medium text-white">{item.label}</span>
+                <item.icon className={`w-5 h-5 ${textMuted}`} />
+                <span className={`font-medium ${text}`}>{item.label}</span>
               </div>
               <div className="flex items-center gap-2">
-                {item.value && <span className="text-sm text-stone-400">{item.value}</span>}
-                <ChevronRight className="w-5 h-5 text-stone-600" />
+                {item.value && <span className={`text-sm ${textMuted}`}>{item.value}</span>}
+                <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
               </div>
             </button>
           ))}
@@ -78,8 +84,8 @@ export const SettingsPage = ({ onBack }) => {
 
         {/* App Info */}
         <div className="text-center pt-8">
-          <p className="text-sm text-stone-400">ADLTrack v1.0.0</p>
-          <p className="text-xs text-stone-500 mt-1">© {new Date().getFullYear()} ADLTrack Inc.</p>
+          <p className={`text-sm ${textMuted}`}>ADLTrack v1.0.0</p>
+          <p className={`text-xs ${isDarkMode ? 'text-stone-500' : 'text-stone-400'} mt-1`}>© {new Date().getFullYear()} ADLTrack Inc.</p>
         </div>
       </div>
     </div>
