@@ -45,14 +45,14 @@ export const TaskCard = ({
           <div className="flex-1 min-w-0">
             {/* Title Row */}
             <div className="flex items-center gap-2 mb-1.5">
-              <h3 className={`text-base font-bold truncate ${isCompleted ? textMuted : text}`}>
+              <h3 className={`text-base font-bold truncate ${isCompleted ? `${textMuted} line-through` : text}`}>
                 {task.title}
               </h3>
             </div>
             
             {/* Time & Photo indicator */}
-            <div className={`flex items-center gap-2 ${textSecondary} text-sm`}>
-              <span className="flex items-center gap-1.5 font-medium">
+            <div className={`flex items-center gap-2 ${isCompleted ? textMuted : textSecondary} text-sm`}>
+              <span className={`flex items-center gap-1.5 font-medium ${isCompleted ? 'line-through' : ''}`}>
                 <Clock className="w-4 h-4" />
                 {isCompleted && task.completedAt ? `${task.completedAt}` : task.scheduledTime}
               </span>
