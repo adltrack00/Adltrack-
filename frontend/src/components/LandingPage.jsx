@@ -425,14 +425,22 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
         {isMobileMenuOpen && (
           <div className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 p-6 flex flex-col gap-4 shadow-xl lg:hidden">
             <a href="#how-it-works" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-[#111B21]">How it Works</a>
-            <button onClick={() => { setIsMobileMenuOpen(false); onNavigateToFAQ(); }} className="text-lg font-medium text-[#111B21]">FAQ</button>
+            <button onClick={() => { setIsMobileMenuOpen(false); onNavigateToFAQ(); }} className="text-lg font-medium text-[#111B21] text-left">FAQ</button>
             <div className="h-px bg-gray-100 my-2"></div>
-            <p className="text-xs font-bold text-slate-400 uppercase">Log In</p>
-            <button onClick={() => onSelectRole(UserRole.FAMILY)} className="text-left text-lg font-medium text-purple-600">Family Portal</button>
-            <button onClick={() => onSelectRole(UserRole.CAREGIVER)} className="text-left text-lg font-medium text-green-600">Caregiver App</button>
-            <button onClick={() => onSelectRole(UserRole.ENTERPRISE)} className="text-left text-lg font-medium text-blue-600">Agency Dashboard</button>
-            <div className="h-px bg-gray-100 my-2"></div>
-            <Button className="w-full bg-[#25D366] rounded-full py-6 text-lg font-bold" onClick={() => onSelectRole(UserRole.FAMILY)}>Get Started Free</Button>
+            <button 
+              onClick={() => { setIsMobileMenuOpen(false); onNavigateToAuth('signin'); }} 
+              className="text-left text-lg font-medium text-[#25D366]"
+              data-testid="mobile-login-btn"
+            >
+              Log In
+            </button>
+            <Button 
+              className="w-full bg-[#25D366] rounded-full py-6 text-lg font-bold" 
+              onClick={() => { setIsMobileMenuOpen(false); onNavigateToAuth('signup'); }}
+              data-testid="mobile-signup-btn"
+            >
+              Get Started Free
+            </Button>
           </div>
         )}
       </header>
