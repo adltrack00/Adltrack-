@@ -173,7 +173,7 @@ const FamilyChatMock = () => (
   </div>
 )
 
-export const LandingPage = ({ onSelectRole, onNavigateToFAQ }) => {
+export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -396,58 +396,24 @@ export const LandingPage = ({ onSelectRole, onNavigateToFAQ }) => {
             <a href="#demo" className="text-sm font-semibold text-[#111B21] hover:text-[#25D366] transition-colors">Features</a>
             <button onClick={onNavigateToFAQ} className="text-sm font-semibold text-[#111B21] hover:text-[#25D366] transition-colors">FAQ</button>
             
-            {/* Login Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="text-sm font-semibold text-[#111B21] hover:text-[#25D366] hover:bg-transparent px-2">
-                  Log In <ChevronDown className="ml-1 w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 rounded-xl border border-slate-100 shadow-xl bg-white p-2">
-                <DropdownMenuItem onClick={() => onSelectRole(UserRole.FAMILY)} className="cursor-pointer rounded-lg hover:bg-slate-50 p-2">
-                  <Users className="mr-2 h-4 w-4 text-purple-600" />
-                  <span>Family Portal</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onSelectRole(UserRole.CAREGIVER)} className="cursor-pointer rounded-lg hover:bg-slate-50 p-2">
-                  <Heart className="mr-2 h-4 w-4 text-green-600" />
-                  <span>Caregiver App</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onSelectRole(UserRole.ENTERPRISE)} className="cursor-pointer rounded-lg hover:bg-slate-50 p-2">
-                  <Briefcase className="mr-2 h-4 w-4 text-blue-600" />
-                  <span>Agency Dashboard</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Login Button */}
+            <Button 
+              variant="ghost" 
+              className="text-sm font-semibold text-[#111B21] hover:text-[#25D366] hover:bg-transparent px-4"
+              onClick={() => onNavigateToAuth('signin')}
+              data-testid="nav-login-btn"
+            >
+              Log In
+            </Button>
 
-            {/* Get Started Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-full px-6 font-bold shadow-[0_4px_10px_rgba(37,211,102,0.3)] transition-all flex items-center">
-                  Get Started <ChevronDown className="ml-2 w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-64 rounded-xl border border-slate-100 shadow-xl bg-white p-2">
-                <div className="px-2 py-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Select your role</div>
-                <DropdownMenuItem onClick={() => onSelectRole(UserRole.FAMILY)} className="cursor-pointer rounded-lg hover:bg-slate-50 p-3">
-                  <div>
-                    <div className="font-bold text-[#1F1F1F] flex items-center"><Users className="w-3 h-3 mr-1.5 text-purple-600" /> I'm a Family Member</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Monitor care for a loved one</div>
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onSelectRole(UserRole.CAREGIVER)} className="cursor-pointer rounded-lg hover:bg-slate-50 p-3">
-                  <div>
-                    <div className="font-bold text-[#1F1F1F] flex items-center"><Heart className="w-3 h-3 mr-1.5 text-green-600" /> I'm a Caregiver</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Manage tasks & shifts</div>
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onSelectRole(UserRole.ENTERPRISE)} className="cursor-pointer rounded-lg hover:bg-slate-50 p-3">
-                  <div>
-                    <div className="font-bold text-[#1F1F1F] flex items-center"><Briefcase className="w-3 h-3 mr-1.5 text-blue-600" /> I'm an Agency</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Manage staff & compliance</div>
-                  </div>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Get Started Button */}
+            <Button 
+              className="bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-full px-6 font-bold shadow-[0_4px_10px_rgba(37,211,102,0.3)] transition-all"
+              onClick={() => onNavigateToAuth('signup')}
+              data-testid="nav-signup-btn"
+            >
+              Get Started
+            </Button>
           </nav>
 
           <button className="lg:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
