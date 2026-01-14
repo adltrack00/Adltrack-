@@ -280,8 +280,8 @@ export const CaregiverDashboard = ({
             >
               <span className={`text-sm font-semibold transition-colors ${
                 activeTaskTab === 'requests'
-                  ? 'text-white'
-                  : 'text-stone-500 hover:text-stone-300'
+                  ? text
+                  : `${textMuted} hover:${textSecondary}`
               }`}>
                 Requests
               </span>
@@ -293,15 +293,15 @@ export const CaregiverDashboard = ({
             </button>
             
             {/* Line */}
-            <div className="flex-1 h-px bg-stone-700" />
+            <div className={`flex-1 h-px ${isDarkMode ? 'bg-stone-700' : 'bg-stone-300'}`} />
             
             {/* Today's Tasks on right */}
             <button
               onClick={() => setActiveTaskTab('today')}
               className={`text-sm font-semibold transition-colors ${
                 activeTaskTab === 'today'
-                  ? 'text-white'
-                  : 'text-stone-500 hover:text-stone-300'
+                  ? text
+                  : `${textMuted} hover:${textSecondary}`
               }`}
             >
               Today&apos;s Tasks
@@ -323,10 +323,10 @@ export const CaregiverDashboard = ({
                 />
               ))
             ) : (
-              <div className="text-center py-12 bg-stone-900 border border-stone-800 rounded-3xl">
+              <div className={`text-center py-12 ${bgCard} border ${border} rounded-3xl`}>
                 <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
-                <p className="text-white font-semibold">All done for today!</p>
-                <p className="text-stone-400 text-sm">Great work, Julia</p>
+                <p className={`${text} font-semibold`}>All done for today!</p>
+                <p className={`${textSecondary} text-sm`}>Great work, Julia</p>
               </div>
             )
           ) : (
@@ -340,9 +340,9 @@ export const CaregiverDashboard = ({
                 />
               ))
             ) : (
-              <div className="text-center py-12 bg-stone-900 border border-stone-800 rounded-3xl">
-                <Sparkles className="w-12 h-12 text-stone-600 mx-auto mb-3" />
-                <p className="text-stone-400">No pending requests</p>
+              <div className={`text-center py-12 ${bgCard} border ${border} rounded-3xl`}>
+                <Sparkles className={`w-12 h-12 ${textMuted} mx-auto mb-3`} />
+                <p className={textMuted}>No pending requests</p>
               </div>
             )
           )}
