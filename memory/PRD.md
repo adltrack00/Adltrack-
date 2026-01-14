@@ -50,13 +50,18 @@ ADLTrack is a Care Operating System that bridges the gap between caregivers, fam
 
 ### January 14, 2025
 - **NEW: Full Authentication System**
-  - **Simplified Auth Page**: White background, black text, green ADLTrack logo (always)
-  - **Direct Flow**: Landing → Auth Page → Google OAuth → Dashboard (removed intermediate role selection page)
+  - **Auth Pages**: White background, black text, green ADLTrack logo (always stays emerald)
+  - **Flow**: Landing → Role Selection → Auth Page (with email/password form) → Google OAuth → Dashboard
   - **Logo Navigation**: Clicking ADLTrack logo returns to landing page (no back arrow)
-  - Role selection combined with Google sign-in - click a role to immediately trigger Google OAuth
-  - Backend auth endpoints: /api/auth/session, /api/auth/me, /api/auth/logout, /api/auth/update-role
+  - Backend auth endpoints: /api/auth/session, /api/auth/me, /api/auth/logout, /api/auth/switch-role
   - AuthContext for state management
   - AuthCallback component for OAuth redirect handling
+- **NEW: Shared Data Model & Role Switching**
+  - Same email can access Caregiver, Family, and Agency dashboards
+  - Data uploaded in one role is visible across all roles (for testing)
+  - RoleSwitcher component added to all dashboards (in Menu/Settings)
+  - Backend endpoints: /api/tasks, /api/activities, /api/vitals, /api/messages, /api/upload/image
+  - All data shared across roles - perfect for user testing and feedback
 - **Bug Fix**: Strikethrough on completed tasks now applies only to task title, not time (TaskCard.jsx)
 - **Enhancement**: Caregiver dashboard now skips "Start Shift" screen and goes directly to main dashboard
 
