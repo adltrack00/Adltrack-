@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Activity, MessageSquare, Bell, Settings, Bot, Heart, Thermometer, 
-  ChevronRight, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X
+  ChevronRight, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X, ZoomIn
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
 import { PatientProfileModal } from './PatientProfileModal';
@@ -36,6 +36,7 @@ export const FamilyDashboard = ({
   const [activePage, setActivePage] = useState(null);
   const [newRequest, setNewRequest] = useState({ title: '', description: '', priority: 'standard' });
   const [myRequests, setMyRequests] = useState([]);
+  const [selectedTask, setSelectedTask] = useState(null); // For image detail modal
 
   // Get latest vitals
   const latestBP = vitalsData?.bloodPressure?.[vitalsData.bloodPressure.length - 1];
