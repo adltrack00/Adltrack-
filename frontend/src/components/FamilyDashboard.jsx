@@ -178,8 +178,8 @@ export const FamilyDashboard = ({
           >
             <span className={`text-sm font-semibold transition-colors ${
               activeTaskTab === 'requests'
-                ? 'text-white'
-                : 'text-stone-500 hover:text-stone-300'
+                ? text
+                : `${textMuted} hover:${textSecondary}`
             }`}>
               My Requests
             </span>
@@ -191,15 +191,15 @@ export const FamilyDashboard = ({
           </button>
           
           {/* Line */}
-          <div className="flex-1 h-px bg-stone-700" />
+          <div className={`flex-1 h-px ${isDarkMode ? 'bg-stone-700' : 'bg-stone-300'}`} />
           
           {/* Care Timeline on right */}
           <button
             onClick={() => setActiveTaskTab('timeline')}
             className={`text-sm font-semibold transition-colors ${
               activeTaskTab === 'timeline'
-                ? 'text-white'
-                : 'text-stone-500 hover:text-stone-300'
+                ? text
+                : `${textMuted} hover:${textSecondary}`
             }`}
           >
             Care Timeline
@@ -215,7 +215,7 @@ export const FamilyDashboard = ({
             {/* Add Request Button */}
             <button
               onClick={() => setShowRequestModal(true)}
-              className="w-full p-4 border-2 border-dashed border-stone-700 rounded-2xl flex items-center justify-center gap-2 text-stone-400 hover:border-emerald-500 hover:text-emerald-400 transition-colors"
+              className={`w-full p-4 border-2 border-dashed ${isDarkMode ? 'border-stone-700 text-stone-400 hover:border-emerald-500' : 'border-stone-300 text-stone-500 hover:border-emerald-500'} rounded-2xl flex items-center justify-center gap-2 hover:text-emerald-400 transition-colors`}
               data-testid="add-request-btn"
             >
               <Plus className="w-5 h-5" />
@@ -227,7 +227,7 @@ export const FamilyDashboard = ({
               myRequests.map((request) => (
                 <div 
                   key={request.id}
-                  className="bg-stone-900 border border-stone-800 rounded-2xl p-4"
+                  className={`${bgCard} border ${border} rounded-2xl p-4`}
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -236,7 +236,7 @@ export const FamilyDashboard = ({
                           ? 'bg-rose-500/20 text-rose-400' 
                           : request.priority === 'high'
                           ? 'bg-orange-500/20 text-orange-400'
-                          : 'bg-stone-800 text-stone-400'
+                          : isDarkMode ? 'bg-stone-800 text-stone-400' : 'bg-stone-200 text-stone-600'
                       }`}>
                         {request.priority.toUpperCase()}
                       </span>
@@ -245,26 +245,26 @@ export const FamilyDashboard = ({
                           ? 'bg-amber-500/20 text-amber-400'
                           : request.status === 'accepted'
                           ? 'bg-teal-500/20 text-teal-400'
-                          : 'bg-stone-800 text-stone-400'
+                          : isDarkMode ? 'bg-stone-800 text-stone-400' : 'bg-stone-200 text-stone-600'
                       }`}>
                         {request.status === 'pending' ? 'Pending' : 'Accepted'}
                       </span>
                     </div>
-                    <span className="text-xs text-stone-500">{request.createdAt}</span>
+                    <span className={`text-xs ${textMuted}`}>{request.createdAt}</span>
                   </div>
-                  <h3 className="font-semibold text-white mb-1">{request.title}</h3>
+                  <h3 className={`font-semibold ${text} mb-1`}>{request.title}</h3>
                   {request.description && (
-                    <p className="text-sm text-stone-400">{request.description}</p>
+                    <p className={`text-sm ${textSecondary}`}>{request.description}</p>
                   )}
                 </div>
               ))
             ) : (
-              <div className="bg-stone-900 border border-stone-800 rounded-3xl p-8 text-center">
-                <div className="w-16 h-16 bg-stone-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="w-8 h-8 text-stone-500" />
+              <div className={`${bgCard} border ${border} rounded-3xl p-8 text-center`}>
+                <div className={`w-16 h-16 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-100'} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+                  <Sparkles className={`w-8 h-8 ${textMuted}`} />
                 </div>
-                <h3 className="font-semibold text-white mb-1">No requests yet</h3>
-                <p className="text-stone-500 text-sm">
+                <h3 className={`font-semibold ${text} mb-1`}>No requests yet</h3>
+                <p className={`${textMuted} text-sm`}>
                   Tap the button above to request tasks for the caregiver
                 </p>
               </div>
