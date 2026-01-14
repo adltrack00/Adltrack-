@@ -15,14 +15,14 @@ import { INITIAL_TASKS, PROPOSED_TASKS, INITIAL_VITALS, PATIENT_PROFILE } from "
 
 // Inner App component that uses auth context
 function AppContent() {
-  const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, logout, checkAuth } = useAuth();
   
   // Navigation state
   const [currentPage, setCurrentPage] = useState('landing');
   const [authMode, setAuthMode] = useState('signin'); // 'signin' or 'signup'
   const [selectedRole, setSelectedRole] = useState(null);
   
-  // State for tasks
+  // State for tasks (will be replaced with API data)
   const [tasks, setTasks] = useState(INITIAL_TASKS);
   const [proposedTasks, setProposedTasks] = useState(PROPOSED_TASKS);
   
@@ -34,6 +34,13 @@ function AppContent() {
 
   // Check URL for auth callback - detect synchronously before first render decision
   const hasSessionIdInHash = window.location.hash?.includes('session_id=');
+
+  // Handle role switch (same user, different view)
+  const handleRoleSwitch = (newRole) => {
+    setSelectedRole(newRole);
+    // Refresh auth to get updated role
+    checkAuth();
+  };
 
   // Handle navigation from landing page login/signup buttons
   const handleNavigateToAuth = (mode = 'signin') => {
