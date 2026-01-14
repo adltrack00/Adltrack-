@@ -603,18 +603,13 @@ export const FamilyDashboard = ({
               </button>
             </div>
 
-            {/* Full Image */}
+            {/* Full Image - Clean without overlay badges */}
             <div className="relative">
               <img 
                 src={getTaskImage(selectedTask)} 
                 alt={selectedTask.title}
                 className="w-full max-h-[50vh] object-contain bg-black"
               />
-              {/* Verified Badge */}
-              <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-full">
-                <CheckCircle className="w-3.5 h-3.5" />
-                {selectedTask.evidenceUrl ? 'Photo Verified' : 'Completed'}
-              </div>
             </div>
 
             {/* Task Details & Notes */}
