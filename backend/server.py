@@ -403,7 +403,8 @@ async def create_task(task: TaskCreate, request: Request, session_token: Optiona
     }
     
     await db.tasks.insert_one(task_doc)
-    del task_doc["_id"] if "_id" in task_doc else None
+    if "_id" in task_doc:
+        del task_doc["_id"]
     
     # Also create an activity for the timeline
     await create_activity_internal(
