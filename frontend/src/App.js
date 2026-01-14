@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "@/App.css";
 import { UserRole, TaskStatus } from "./types";
 import { LandingPage } from "./components/LandingPage";
@@ -6,7 +6,6 @@ import { FamilyDashboard } from "./components/FamilyDashboard";
 import { CaregiverDashboard } from "./components/CaregiverDashboard";
 import { EnterpriseDashboard } from "./components/EnterpriseDashboard";
 import { FAQPage } from "./components/FAQPage";
-import { RoleSelectionPage } from "./components/RoleSelectionPage";
 import { AuthPage } from "./components/AuthPage";
 import { AuthCallback } from "./components/AuthCallback";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -38,37 +37,13 @@ function AppContent() {
   // Handle navigation from landing page login/signup buttons
   const handleNavigateToAuth = (mode = 'signin') => {
     setAuthMode(mode);
-    setCurrentPage('role-selection');
-  };
-
-  // Handle role selection from role selection page
-  const handleRoleSelect = (role, switchMode = false) => {
-    if (switchMode !== false) {
-      // User clicked switch mode link
-      setAuthMode(switchMode ? 'signup' : 'signin');
-      return;
-    }
-    setSelectedRole(role);
     setCurrentPage('auth');
   };
 
-  // Handle auth mode switch (signin <-> signup)
-  const handleSwitchAuthMode = () => {
-    setAuthMode(prev => prev === 'signin' ? 'signup' : 'signin');
-  };
-
-  // Handle back navigation
-  const handleBack = () => {
-    if (currentPage === 'auth') {
-      setCurrentPage('role-selection');
-      setSelectedRole(null);
-    } else if (currentPage === 'role-selection') {
-      setCurrentPage('landing');
-    } else if (currentPage === 'faq') {
-      setCurrentPage('landing');
-    } else if (currentPage === 'dashboard') {
-      // From dashboard, go to landing (after sign out)
-      setCurrentPage('landing');
+  // Handle back from auth page (or switch mode)
+  const handleAuthBack = (newMode) => {
+    if (newMode === 'signin' || newMode === 'signup') {
+      setAuthMode(newMode);
     } else {
       setCurrentPage('landing');
     }
@@ -78,13 +53,13 @@ function AppContent() {
   const handleAuthComplete = (userData, error) => {
     if (error) {
       console.error('Auth error:', error);
-      setCurrentPage('role-selection');
+      setCurrentPage('auth');
       return;
     }
     
     if (userData) {
       // Determine which dashboard to show based on user role
-      setSelectedRole(userData.role || selectedRole || UserRole.FAMILY);
+      setSelectedRole(userData.role || UserRole.FAMILY);
       setCurrentPage('dashboard');
     }
   };
@@ -93,6 +68,11 @@ function AppContent() {
   const handleSignOut = async () => {
     await logout();
     setSelectedRole(null);
+    setCurrentPage('landing');
+  };
+
+  // Handle back from dashboard
+  const handleBack = () => {
     setCurrentPage('landing');
   };
 
@@ -151,10 +131,10 @@ function AppContent() {
   // Show loading while checking auth
   if (isLoading && currentPage !== 'landing' && currentPage !== 'faq') {
     return (
-      <div className="min-h-screen bg-stone-950 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-stone-400 font-medium">Loading...</p>
+          <p className="text-stone-600 font-medium">Loading...</p>
         </div>
       </div>
     );
@@ -172,25 +152,12 @@ function AppContent() {
       return <FAQPage onBack={handleBack} />;
     }
 
-    // Role selection page (after clicking login/signup from landing)
-    if (currentPage === 'role-selection') {
-      return (
-        <RoleSelectionPage 
-          mode={authMode}
-          onSelectRole={handleRoleSelect}
-          onBack={handleBack}
-        />
-      );
-    }
-
-    // Auth page (sign in / sign up with selected role)
+    // Auth page (sign in / sign up with role selection + Google)
     if (currentPage === 'auth') {
       return (
         <AuthPage
           mode={authMode}
-          selectedRole={selectedRole}
-          onBack={handleBack}
-          onSwitchMode={handleSwitchAuthMode}
+          onBack={handleAuthBack}
         />
       );
     }
