@@ -29,7 +29,9 @@ ADLTrack is a Care Operating System that bridges the gap between caregivers, fam
   - Muted: stone-500
 - **Accent Colors**: 
   - Emerald (success, active states)
-  - Rose (caregiver actions, alerts)
+  - Rose (Family member actions, alerts)
+  - Teal (Caregiver actions)
+  - Indigo (Agency actions)
   - Blue (informational)
   - Purple (pain vitals)
   - Orange (heart rate)
@@ -47,13 +49,42 @@ ADLTrack is a Care Operating System that bridges the gap between caregivers, fam
 ## Changelog
 
 ### January 14, 2025
+- **NEW: Full Authentication System**
+  - Landing page with "Log In" and "Get Started" buttons (no dropdowns)
+  - Role Selection Page with 3 role options (Caregiver/teal, Family/rose, Agency/indigo)
+  - Sign In/Sign Up pages with Google OAuth (Emergent-managed) and Apple (disabled)
+  - Email/password form with role-specific theming
+  - Backend auth endpoints: /api/auth/session, /api/auth/me, /api/auth/logout, /api/auth/update-role
+  - AuthContext for state management
+  - AuthCallback component for OAuth redirect handling
 - **Bug Fix**: Strikethrough on completed tasks now applies only to task title, not time (TaskCard.jsx)
+- **Enhancement**: Caregiver dashboard now skips "Start Shift" screen and goes directly to main dashboard
 
 ---
 
 ## Implemented Features
 
-### ✅ Landing Page (UNCHANGED)
+### ✅ Authentication System (NEW - January 2025)
+- **Landing Page**: "Log In" and "Get Started" buttons navigate to role selection
+- **Role Selection Page**: 
+  - 3 role cards with hover effects
+  - Role-specific colors (Caregiver=teal, Family=rose, Agency=indigo)
+  - Switch between sign in/sign up modes
+- **Auth Page (Sign In/Sign Up)**:
+  - Role badge and description at top
+  - "Continue/Sign up with Google" - functional OAuth via auth.emergentagent.com
+  - "Continue/Sign up with Apple" - disabled with tooltip
+  - Email/Password form (Name field only on signup)
+  - "Forgot password?" link (signin only)
+  - Terms agreement (signup only)
+- **Backend Auth**:
+  - POST /api/auth/session - exchange Emergent session_id for app session
+  - GET /api/auth/me - get current authenticated user
+  - POST /api/auth/update-role - update user role
+  - POST /api/auth/logout - clear session
+  - Session stored in MongoDB with 7-day expiry
+
+### ✅ Landing Page
 - Hero section with "Simple. Secure." messaging
 - Phone mockups showing app interface
 - Timeline and feature sections
