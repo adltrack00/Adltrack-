@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "@/App.css";
 import { UserRole, TaskStatus } from "./types";
 import { LandingPage } from "./components/LandingPage";
@@ -6,13 +6,21 @@ import { FamilyDashboard } from "./components/FamilyDashboard";
 import { CaregiverDashboard } from "./components/CaregiverDashboard";
 import { EnterpriseDashboard } from "./components/EnterpriseDashboard";
 import { FAQPage } from "./components/FAQPage";
-import { SignInPage } from "./components/SignInPage";
+import { RoleSelectionPage } from "./components/RoleSelectionPage";
+import { AuthPage } from "./components/AuthPage";
+import { AuthCallback } from "./components/AuthCallback";
 import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import { INITIAL_TASKS, PROPOSED_TASKS, INITIAL_VITALS, PATIENT_PROFILE } from "./services/mockData";
 
-function App() {
-  const [currentRole, setCurrentRole] = useState(null);
-  const [currentPage, setCurrentPage] = useState('landing'); // 'landing', 'faq', 'signin'
+// Inner App component that uses auth context
+function AppContent() {
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
+  
+  // Navigation state
+  const [currentPage, setCurrentPage] = useState('landing');
+  const [authMode, setAuthMode] = useState('signin'); // 'signin' or 'signup'
+  const [selectedRole, setSelectedRole] = useState(null);
   
   // State for tasks
   const [tasks, setTasks] = useState(INITIAL_TASKS);
@@ -24,28 +32,77 @@ function App() {
   // State for patient
   const [patient, setPatient] = useState(PATIENT_PROFILE);
 
-  const handleSelectRole = (role) => {
-    setCurrentRole(role);
-    setCurrentPage('dashboard');
+  // Check URL for auth callback on mount
+  useEffect(() => {
+    if (window.location.hash?.includes('session_id=')) {
+      setCurrentPage('auth-callback');
+    }
+  }, []);
+
+  // Handle navigation from landing page login/signup buttons
+  const handleNavigateToAuth = (mode = 'signin') => {
+    setAuthMode(mode);
+    setCurrentPage('role-selection');
   };
 
+  // Handle role selection from role selection page
+  const handleRoleSelect = (role, switchMode = false) => {
+    if (switchMode !== false) {
+      // User clicked switch mode link
+      setAuthMode(switchMode ? 'signup' : 'signin');
+      return;
+    }
+    setSelectedRole(role);
+    setCurrentPage('auth');
+  };
+
+  // Handle auth mode switch (signin <-> signup)
+  const handleSwitchAuthMode = () => {
+    setAuthMode(prev => prev === 'signin' ? 'signup' : 'signin');
+  };
+
+  // Handle back navigation
   const handleBack = () => {
-    setCurrentRole(null);
+    if (currentPage === 'auth') {
+      setCurrentPage('role-selection');
+      setSelectedRole(null);
+    } else if (currentPage === 'role-selection') {
+      setCurrentPage('landing');
+    } else if (currentPage === 'faq') {
+      setCurrentPage('landing');
+    } else if (currentPage === 'dashboard') {
+      // From dashboard, go to landing (after sign out)
+      setCurrentPage('landing');
+    } else {
+      setCurrentPage('landing');
+    }
+  };
+
+  // Handle auth callback completion
+  const handleAuthComplete = (userData, error) => {
+    if (error) {
+      console.error('Auth error:', error);
+      setCurrentPage('role-selection');
+      return;
+    }
+    
+    if (userData) {
+      // Determine which dashboard to show based on user role
+      setSelectedRole(userData.role || selectedRole || UserRole.FAMILY);
+      setCurrentPage('dashboard');
+    }
+  };
+
+  // Handle sign out
+  const handleSignOut = async () => {
+    await logout();
+    setSelectedRole(null);
     setCurrentPage('landing');
   };
 
-  const handleSignOut = () => {
-    setCurrentRole(null);
-    setCurrentPage('signin');
-  };
-
+  // Handle FAQ navigation
   const handleNavigateToFAQ = () => {
     setCurrentPage('faq');
-    setCurrentRole(null);
-  };
-
-  const handleNavigateToSignIn = () => {
-    setCurrentPage('signin');
   };
 
   // Task handlers
@@ -56,7 +113,6 @@ function App() {
   };
 
   const handleAcceptTask = (task) => {
-    // Move from proposed to active tasks
     const acceptedTask = {
       ...task,
       status: TaskStatus.PENDING,
@@ -68,7 +124,6 @@ function App() {
 
   const handleDeclineTask = (taskId, reason) => {
     setProposedTasks(prev => prev.filter(t => t.id !== taskId));
-    // In a real app, you'd send the decline reason to the backend
     console.log(`Task ${taskId} declined with reason: ${reason}`);
   };
 
@@ -97,58 +152,114 @@ function App() {
     }));
   };
 
-  // Render the appropriate view based on current role/page
+  // Show loading while checking auth
+  if (isLoading && currentPage !== 'landing' && currentPage !== 'faq') {
+    return (
+      <div className="min-h-screen bg-stone-950 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-stone-400 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Render the appropriate view
   const renderView = () => {
-    // If FAQ page is requested
+    // Handle auth callback (session_id in URL)
+    if (currentPage === 'auth-callback') {
+      return <AuthCallback onAuthComplete={handleAuthComplete} />;
+    }
+
+    // FAQ page
     if (currentPage === 'faq') {
       return <FAQPage onBack={handleBack} />;
     }
-    
-    // If sign-in page is requested
-    if (currentPage === 'signin') {
-      return <SignInPage onSelectRole={handleSelectRole} />;
+
+    // Role selection page (after clicking login/signup from landing)
+    if (currentPage === 'role-selection') {
+      return (
+        <RoleSelectionPage 
+          mode={authMode}
+          onSelectRole={handleRoleSelect}
+          onBack={handleBack}
+        />
+      );
     }
-    
-    // Dashboard views
-    switch (currentRole) {
-      case UserRole.FAMILY:
-        return (
-          <FamilyDashboard 
-            onBack={handleBack}
-            onSignOut={handleSignOut}
-            tasks={tasks}
-            patient={patient}
-            vitalsData={vitalsData}
-          />
-        );
-      case UserRole.CAREGIVER:
-        return (
-          <CaregiverDashboard 
-            onBack={handleBack}
-            onSignOut={handleSignOut}
-            tasks={tasks}
-            proposedTasks={proposedTasks}
-            patient={patient}
-            vitalsData={vitalsData}
-            onUpdateTask={handleUpdateTask}
-            onAcceptTask={handleAcceptTask}
-            onDeclineTask={handleDeclineTask}
-            onAddVital={handleAddVital}
-            onUpdatePatientPhoto={handleUpdatePatientPhoto}
-          />
-        );
-      case UserRole.ENTERPRISE:
-        return <EnterpriseDashboard onBack={handleBack} />;
-      default:
-        return <LandingPage onSelectRole={handleSelectRole} onNavigateToFAQ={handleNavigateToFAQ} />;
+
+    // Auth page (sign in / sign up with selected role)
+    if (currentPage === 'auth') {
+      return (
+        <AuthPage
+          mode={authMode}
+          selectedRole={selectedRole}
+          onBack={handleBack}
+          onSwitchMode={handleSwitchAuthMode}
+        />
+      );
     }
+
+    // Dashboard views (authenticated)
+    if (currentPage === 'dashboard' && selectedRole) {
+      const role = user?.role || selectedRole;
+      
+      switch (role) {
+        case UserRole.FAMILY:
+          return (
+            <FamilyDashboard 
+              onBack={handleBack}
+              onSignOut={handleSignOut}
+              tasks={tasks}
+              patient={patient}
+              vitalsData={vitalsData}
+            />
+          );
+        case UserRole.CAREGIVER:
+          return (
+            <CaregiverDashboard 
+              onBack={handleBack}
+              onSignOut={handleSignOut}
+              tasks={tasks}
+              proposedTasks={proposedTasks}
+              patient={patient}
+              vitalsData={vitalsData}
+              onUpdateTask={handleUpdateTask}
+              onAcceptTask={handleAcceptTask}
+              onDeclineTask={handleDeclineTask}
+              onAddVital={handleAddVital}
+              onUpdatePatientPhoto={handleUpdatePatientPhoto}
+              skipStartShift={true}
+            />
+          );
+        case UserRole.ENTERPRISE:
+          return <EnterpriseDashboard onBack={handleBack} onSignOut={handleSignOut} />;
+        default:
+          break;
+      }
+    }
+
+    // Default: Landing page
+    return (
+      <LandingPage 
+        onNavigateToAuth={handleNavigateToAuth}
+        onNavigateToFAQ={handleNavigateToFAQ}
+      />
+    );
   };
 
   return (
+    <div className="App">
+      {renderView()}
+    </div>
+  );
+}
+
+function App() {
+  return (
     <ThemeProvider>
-      <div className="App">
-        {renderView()}
-      </div>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </ThemeProvider>
   );
 }
