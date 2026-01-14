@@ -292,12 +292,6 @@ export const FamilyDashboard = ({
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                      
-                      {/* Verified Badge */}
-                      <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-emerald-600 text-xs font-semibold rounded-full">
-                        <CheckCircle className="w-3.5 h-3.5" />
-                        {task.evidenceUrl ? 'Verified' : 'Completed'}
-                      </div>
 
                       {/* Task Info Overlay */}
                       <div className="absolute bottom-0 left-0 right-0 p-5">
