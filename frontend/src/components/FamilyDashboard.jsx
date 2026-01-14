@@ -15,12 +15,15 @@ import { SupportPage } from './pages/SupportPage';
 import { ChatPage } from './pages/ChatPage';
 import { UpdatesPage } from './pages/UpdatesPage';
 import { CaregiverPage } from './pages/CaregiverPage';
+import { RoleSwitcher } from './RoleSwitcher';
 import { CARE_IMAGES, CAREGIVER_PROFILE } from '../services/mockData';
 import { useTheme } from '../context/ThemeContext';
 
 export const FamilyDashboard = ({ 
   onBack, 
   onSignOut,
+  onRoleSwitch,
+  currentRole,
   tasks = [],
   patient,
   vitalsData,
