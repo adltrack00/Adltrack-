@@ -8,38 +8,34 @@ import { EnterpriseDashboard } from "./components/EnterpriseDashboard";
 import { FAQPage } from "./components/FAQPage";
 import { RoleSelectionPage } from "./components/RoleSelectionPage";
 import { AuthPage } from "./components/AuthPage";
-import { AuthCallback } from "./components/AuthCallback";
 import { ThemeProvider } from "./context/ThemeContext";
-import { AuthProvider, useAuth } from "./context/AuthContext";
 import { INITIAL_TASKS, PROPOSED_TASKS, INITIAL_VITALS, PATIENT_PROFILE } from "./services/mockData";
 
-// Inner App component that uses auth context
-function AppContent() {
-  const { user, isAuthenticated, isLoading, logout, checkAuth } = useAuth();
+function App() {
+  // Mock user state (no real auth)
+  const [mockUser, setMockUser] = useState(null);
   
   // Navigation state
   const [currentPage, setCurrentPage] = useState('landing');
   const [authMode, setAuthMode] = useState('signin'); // 'signin' or 'signup'
   const [selectedRole, setSelectedRole] = useState(null);
   
-  // State for tasks (will be replaced with API data)
+  // State for tasks (shared across all roles)
   const [tasks, setTasks] = useState(INITIAL_TASKS);
   const [proposedTasks, setProposedTasks] = useState(PROPOSED_TASKS);
   
-  // State for vitals
+  // State for vitals (shared across all roles)
   const [vitalsData, setVitalsData] = useState(INITIAL_VITALS);
   
   // State for patient
   const [patient, setPatient] = useState(PATIENT_PROFILE);
 
-  // Check URL for auth callback - detect synchronously before first render decision
-  const hasSessionIdInHash = window.location.hash?.includes('session_id=');
-
   // Handle role switch (same user, different view)
   const handleRoleSwitch = (newRole) => {
     setSelectedRole(newRole);
-    // Refresh auth to get updated role
-    checkAuth();
+    if (mockUser) {
+      setMockUser({ ...mockUser, role: newRole });
+    }
   };
 
   // Handle navigation from landing page login/signup buttons
@@ -80,23 +76,16 @@ function AppContent() {
     }
   };
 
-  // Handle auth callback completion
-  const handleAuthComplete = (userData, error) => {
-    if (error) {
-      console.error('Auth error:', error);
-      setCurrentPage('role-selection');
-      return;
-    }
-    
-    if (userData) {
-      setSelectedRole(userData.role || selectedRole || UserRole.FAMILY);
-      setCurrentPage('dashboard');
-    }
+  // Handle mock auth success (just navigate to dashboard)
+  const handleAuthSuccess = (userData) => {
+    setMockUser(userData);
+    setSelectedRole(userData.role);
+    setCurrentPage('dashboard');
   };
 
   // Handle sign out
-  const handleSignOut = async () => {
-    await logout();
+  const handleSignOut = () => {
+    setMockUser(null);
     setSelectedRole(null);
     setCurrentPage('landing');
   };
@@ -153,25 +142,8 @@ function AppContent() {
     }));
   };
 
-  // Show loading while checking auth
-  if (isLoading && currentPage !== 'landing' && currentPage !== 'faq') {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-stone-600 font-medium">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   // Render the appropriate view
   const renderView = () => {
-    // Handle auth callback (session_id in URL) - check synchronously
-    if (hasSessionIdInHash) {
-      return <AuthCallback onAuthComplete={handleAuthComplete} />;
-    }
-
     // FAQ page
     if (currentPage === 'faq') {
       return <FAQPage onBack={handleBack} />;
@@ -196,13 +168,14 @@ function AppContent() {
           selectedRole={selectedRole}
           onBack={handleBack}
           onSwitchMode={handleSwitchAuthMode}
+          onAuthSuccess={handleAuthSuccess}
         />
       );
     }
 
-    // Dashboard views (authenticated)
+    // Dashboard views
     if (currentPage === 'dashboard' && selectedRole) {
-      const role = user?.role || selectedRole;
+      const role = mockUser?.role || selectedRole;
       
       switch (role) {
         case UserRole.FAMILY:
@@ -260,18 +233,10 @@ function AppContent() {
   };
 
   return (
-    <div className="App">
-      {renderView()}
-    </div>
-  );
-}
-
-function App() {
-  return (
     <ThemeProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
+      <div className="App">
+        {renderView()}
+      </div>
     </ThemeProvider>
   );
 }
