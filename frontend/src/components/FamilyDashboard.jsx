@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Activity, MessageSquare, Bell, Settings, Bot, Heart, Thermometer, 
-  ChevronRight, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X, ZoomIn
+  ChevronRight, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
 import { PatientProfileModal } from './PatientProfileModal';
