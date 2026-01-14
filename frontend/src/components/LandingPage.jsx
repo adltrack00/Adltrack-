@@ -946,10 +946,8 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
             <div>
               <h4 className="font-bold mb-6 text-xs uppercase tracking-widest text-[#8696A0]">Access Portals</h4>
               <ul className="space-y-4 text-slate-300 text-sm">
-                <li><button onClick={() => onSelectRole(UserRole.FAMILY)} className="hover:text-[#25D366] transition-colors text-left">Family Login</button></li>
-                <li><button onClick={() => onSelectRole(UserRole.CAREGIVER)} className="hover:text-[#25D366] transition-colors text-left">Caregiver Login</button></li>
-                <li><button onClick={() => onSelectRole(UserRole.ENTERPRISE)} className="hover:text-[#25D366] transition-colors text-left">Agency Dashboard</button></li>
-                <li><button onClick={() => onSelectRole(UserRole.FAMILY)} className="hover:text-[#25D366] transition-colors text-left font-bold text-[#25D366]">Create Account</button></li>
+                <li><button onClick={() => onNavigateToAuth('signin')} className="hover:text-[#25D366] transition-colors text-left">Log In</button></li>
+                <li><button onClick={() => onNavigateToAuth('signup')} className="hover:text-[#25D366] transition-colors text-left font-bold text-[#25D366]">Create Account</button></li>
               </ul>
             </div>
 
