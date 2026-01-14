@@ -44,6 +44,13 @@ ADLTrack is a Care Operating System that bridges the gap between caregivers, fam
 
 ---
 
+## Changelog
+
+### January 14, 2025
+- **Bug Fix**: Strikethrough on completed tasks now applies only to task title, not time (TaskCard.jsx)
+
+---
+
 ## Implemented Features
 
 ### ✅ Landing Page (UNCHANGED)
