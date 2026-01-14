@@ -6,6 +6,7 @@ import { FamilyDashboard } from "./components/FamilyDashboard";
 import { CaregiverDashboard } from "./components/CaregiverDashboard";
 import { EnterpriseDashboard } from "./components/EnterpriseDashboard";
 import { FAQPage } from "./components/FAQPage";
+import { RoleSelectionPage } from "./components/RoleSelectionPage";
 import { AuthPage } from "./components/AuthPage";
 import { AuthCallback } from "./components/AuthCallback";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -37,13 +38,36 @@ function AppContent() {
   // Handle navigation from landing page login/signup buttons
   const handleNavigateToAuth = (mode = 'signin') => {
     setAuthMode(mode);
+    setCurrentPage('role-selection');
+  };
+
+  // Handle role selection from role selection page
+  const handleRoleSelect = (role, switchMode = false) => {
+    if (switchMode !== false) {
+      // User clicked switch mode link
+      setAuthMode(switchMode ? 'signup' : 'signin');
+      return;
+    }
+    setSelectedRole(role);
     setCurrentPage('auth');
   };
 
-  // Handle back from auth page (or switch mode)
-  const handleAuthBack = (newMode) => {
-    if (newMode === 'signin' || newMode === 'signup') {
-      setAuthMode(newMode);
+  // Handle auth mode switch (signin <-> signup)
+  const handleSwitchAuthMode = () => {
+    setAuthMode(prev => prev === 'signin' ? 'signup' : 'signin');
+  };
+
+  // Handle back navigation
+  const handleBack = () => {
+    if (currentPage === 'auth') {
+      setCurrentPage('role-selection');
+      setSelectedRole(null);
+    } else if (currentPage === 'role-selection') {
+      setCurrentPage('landing');
+    } else if (currentPage === 'faq') {
+      setCurrentPage('landing');
+    } else if (currentPage === 'dashboard') {
+      setCurrentPage('landing');
     } else {
       setCurrentPage('landing');
     }
@@ -53,13 +77,12 @@ function AppContent() {
   const handleAuthComplete = (userData, error) => {
     if (error) {
       console.error('Auth error:', error);
-      setCurrentPage('auth');
+      setCurrentPage('role-selection');
       return;
     }
     
     if (userData) {
-      // Determine which dashboard to show based on user role
-      setSelectedRole(userData.role || UserRole.FAMILY);
+      setSelectedRole(userData.role || selectedRole || UserRole.FAMILY);
       setCurrentPage('dashboard');
     }
   };
@@ -68,11 +91,6 @@ function AppContent() {
   const handleSignOut = async () => {
     await logout();
     setSelectedRole(null);
-    setCurrentPage('landing');
-  };
-
-  // Handle back from dashboard
-  const handleBack = () => {
     setCurrentPage('landing');
   };
 
@@ -152,12 +170,25 @@ function AppContent() {
       return <FAQPage onBack={handleBack} />;
     }
 
-    // Auth page (sign in / sign up with role selection + Google)
+    // Role selection page (after clicking login/signup from landing)
+    if (currentPage === 'role-selection') {
+      return (
+        <RoleSelectionPage 
+          mode={authMode}
+          onSelectRole={handleRoleSelect}
+          onBack={handleBack}
+        />
+      );
+    }
+
+    // Auth page (sign in / sign up with selected role)
     if (currentPage === 'auth') {
       return (
         <AuthPage
           mode={authMode}
-          onBack={handleAuthBack}
+          selectedRole={selectedRole}
+          onBack={handleBack}
+          onSwitchMode={handleSwitchAuthMode}
         />
       );
     }
