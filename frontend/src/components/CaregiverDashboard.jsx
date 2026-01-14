@@ -16,12 +16,15 @@ import { AccountsPage } from './pages/AccountsPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { SupportPage } from './pages/SupportPage';
 import { ChatPage } from './pages/ChatPage';
+import { RoleSwitcher } from './RoleSwitcher';
 import { CAREGIVER_PROFILE } from '../services/mockData';
 import { useTheme } from '../context/ThemeContext';
 
 export const CaregiverDashboard = ({ 
   onBack, 
   onSignOut,
+  onRoleSwitch,
+  currentRole,
   tasks = [],
   proposedTasks = [],
   patient,
