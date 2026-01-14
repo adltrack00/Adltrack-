@@ -56,7 +56,9 @@ const suggestionChips = [
   { text: "Compliance check", icon: Shield },
 ]
 
-export const EnterpriseDashboard = ({ onBack }) => {
+import { RoleSwitcher } from './RoleSwitcher';
+
+export const EnterpriseDashboard = ({ onBack, onSignOut, onRoleSwitch, currentRole }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeView, setActiveView] = useState('overview')
   const [searchQuery, setSearchQuery] = useState('')
