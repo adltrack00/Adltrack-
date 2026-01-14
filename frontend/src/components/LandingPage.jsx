@@ -4,19 +4,12 @@ import {
   CircleCheck, MessageCircle, Shield, Activity, Heart, Clock, Camera, 
   Menu, X, PhoneMissed, FileX, Thermometer, Users, Briefcase, 
   CircleHelp, MapPin, Building2, Twitter, Linkedin, Facebook, Instagram, 
-  Globe, Download, Smartphone, ChevronDown, Mail, Wifi, Battery, Signal, 
+  Globe, Download, Smartphone, Mail, Wifi, Battery, Signal, 
   Settings, Send, MoreVertical, Phone 
 } from "lucide-react"
 import { Button } from "./ui/button"
 import { Timeline } from "./ui/timeline"
-import { UserRole } from "../types"
 import ThumbnailButton from "./ui/thumbnail-button-video-player"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
 
 // --- MOCK APP WIDGETS (Floating UI Elements) ---
 
