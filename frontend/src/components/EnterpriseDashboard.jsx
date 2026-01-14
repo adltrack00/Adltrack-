@@ -190,10 +190,17 @@ export const EnterpriseDashboard = ({ onBack, onSignOut, onRoleSwitch, currentRo
                   </button>
                 ))}
               </nav>
-              <div className="p-4 border-t border-gray-100">
+              <div className="p-4 border-t border-gray-100 space-y-3">
+                {/* Role Switcher */}
+                {onRoleSwitch && (
+                  <div>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">Test Other Views</p>
+                    <RoleSwitcher currentRole={currentRole} onRoleSwitch={onRoleSwitch} />
+                  </div>
+                )}
                 <button onClick={onBack} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">
                   <ArrowLeft className="w-5 h-5" />
-                  Back to Home
+                  Sign Out
                 </button>
               </div>
             </motion.aside>
