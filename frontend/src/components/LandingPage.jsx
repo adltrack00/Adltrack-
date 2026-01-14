@@ -377,8 +377,8 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
         <div className="container mx-auto px-6 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="w-10 h-10 rounded-full bg-[#25D366] flex items-center justify-center shadow-sm">
-              <Activity className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg">
+              <Activity className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight text-[#111B21]">ADLTrack</span>
           </div>
