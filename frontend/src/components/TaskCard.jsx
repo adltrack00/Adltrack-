@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Camera, ChevronDown, ChevronUp, CheckCircle, XCircle, AlertCircle, Image } from 'lucide-react';
+import { Clock, Camera, ChevronDown, ChevronUp, XCircle, AlertCircle } from 'lucide-react';
 import { TaskStatus, Priority } from '../types';
 import { useTheme } from '../context/ThemeContext';
 
