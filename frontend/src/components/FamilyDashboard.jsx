@@ -473,21 +473,21 @@ export const FamilyDashboard = ({
       {/* Add Request Modal */}
       {showRequestModal && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-end justify-center">
-          <div className="bg-stone-950 border-t border-stone-800 w-full max-w-md rounded-t-3xl p-6 animate-slide-up">
+          <div className={`${isDarkMode ? 'bg-stone-950 border-t border-stone-800' : 'bg-white border-t border-stone-200'} w-full max-w-md rounded-t-3xl p-6 animate-slide-up`}>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-white">New Request</h2>
+              <h2 className={`text-xl font-bold ${text}`}>New Request</h2>
               <button 
                 onClick={() => setShowRequestModal(false)}
-                className="p-2 hover:bg-stone-800 rounded-full transition-colors"
+                className={`p-2 ${isDarkMode ? 'hover:bg-stone-800' : 'hover:bg-stone-100'} rounded-full transition-colors`}
               >
-                <X className="w-5 h-5 text-stone-400" />
+                <X className={`w-5 h-5 ${textMuted}`} />
               </button>
             </div>
 
             <div className="space-y-4">
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-stone-300 mb-2">
+                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
                   What do you need?
                 </label>
                 <input
@@ -495,14 +495,14 @@ export const FamilyDashboard = ({
                   value={newRequest.title}
                   onChange={(e) => setNewRequest(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="e.g., Extra blanket, Call me back"
-                  className="w-full px-4 py-3 bg-stone-900 border border-stone-800 text-white placeholder-stone-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className={`w-full px-4 py-3 ${isDarkMode ? 'bg-stone-900 border-stone-800 text-white placeholder-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder-stone-400'} border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent`}
                   data-testid="request-title-input"
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-stone-300 mb-2">
+                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
                   Additional details (optional)
                 </label>
                 <textarea
@@ -510,14 +510,14 @@ export const FamilyDashboard = ({
                   onChange={(e) => setNewRequest(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Any specific instructions..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-stone-900 border border-stone-800 text-white placeholder-stone-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                  className={`w-full px-4 py-3 ${isDarkMode ? 'bg-stone-900 border-stone-800 text-white placeholder-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder-stone-400'} border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none`}
                   data-testid="request-description-input"
                 />
               </div>
 
               {/* Priority */}
               <div>
-                <label className="block text-sm font-medium text-stone-300 mb-2">
+                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
                   Priority
                 </label>
                 <div className="flex gap-2">
@@ -531,8 +531,10 @@ export const FamilyDashboard = ({
                             ? 'bg-rose-500 text-white'
                             : priority === 'high'
                             ? 'bg-orange-500 text-white'
-                            : 'bg-stone-700 text-white'
-                          : 'bg-stone-900 border border-stone-800 text-stone-400 hover:bg-stone-800'
+                            : isDarkMode ? 'bg-stone-700 text-white' : 'bg-stone-600 text-white'
+                          : isDarkMode 
+                            ? 'bg-stone-900 border border-stone-800 text-stone-400 hover:bg-stone-800'
+                            : 'bg-stone-100 border border-stone-200 text-stone-600 hover:bg-stone-200'
                       }`}
                     >
                       {priority.charAt(0).toUpperCase() + priority.slice(1)}
