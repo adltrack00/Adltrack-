@@ -459,6 +459,14 @@ export const CaregiverDashboard = ({
           <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
         </button>
       ))}
+
+      {/* Role Switcher - For Testing */}
+      {onRoleSwitch && (
+        <div className="mt-4">
+          <p className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-2 px-1`}>Test Other Views</p>
+          <RoleSwitcher currentRole={currentRole} onRoleSwitch={onRoleSwitch} />
+        </div>
+      )}
     </div>
   );
 
