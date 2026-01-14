@@ -52,7 +52,7 @@ export const TaskCard = ({
             
             {/* Time & Photo indicator */}
             <div className={`flex items-center gap-2 ${isCompleted ? textMuted : textSecondary} text-sm`}>
-              <span className={`flex items-center gap-1.5 font-medium ${isCompleted ? 'line-through' : ''}`}>
+              <span className="flex items-center gap-1.5 font-medium">
                 <Clock className="w-4 h-4" />
                 {isCompleted && task.completedAt ? `${task.completedAt}` : task.scheduledTime}
               </span>
