@@ -210,6 +210,8 @@ function AppContent() {
             <FamilyDashboard 
               onBack={handleBack}
               onSignOut={handleSignOut}
+              onRoleSwitch={handleRoleSwitch}
+              currentRole={role}
               tasks={tasks}
               patient={patient}
               vitalsData={vitalsData}
@@ -220,6 +222,8 @@ function AppContent() {
             <CaregiverDashboard 
               onBack={handleBack}
               onSignOut={handleSignOut}
+              onRoleSwitch={handleRoleSwitch}
+              currentRole={role}
               tasks={tasks}
               proposedTasks={proposedTasks}
               patient={patient}
@@ -233,7 +237,14 @@ function AppContent() {
             />
           );
         case UserRole.ENTERPRISE:
-          return <EnterpriseDashboard onBack={handleBack} onSignOut={handleSignOut} />;
+          return (
+            <EnterpriseDashboard 
+              onBack={handleBack} 
+              onSignOut={handleSignOut}
+              onRoleSwitch={handleRoleSwitch}
+              currentRole={role}
+            />
+          );
         default:
           break;
       }
