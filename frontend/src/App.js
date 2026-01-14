@@ -32,12 +32,8 @@ function AppContent() {
   // State for patient
   const [patient, setPatient] = useState(PATIENT_PROFILE);
 
-  // Check URL for auth callback on mount
-  useEffect(() => {
-    if (window.location.hash?.includes('session_id=')) {
-      setCurrentPage('auth-callback');
-    }
-  }, []);
+  // Check URL for auth callback - detect synchronously before first render decision
+  const hasSessionIdInHash = window.location.hash?.includes('session_id=');
 
   // Handle navigation from landing page login/signup buttons
   const handleNavigateToAuth = (mode = 'signin') => {
