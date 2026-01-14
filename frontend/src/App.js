@@ -162,8 +162,8 @@ function AppContent() {
 
   // Render the appropriate view
   const renderView = () => {
-    // Handle auth callback (session_id in URL)
-    if (currentPage === 'auth-callback') {
+    // Handle auth callback (session_id in URL) - check synchronously
+    if (hasSessionIdInHash) {
       return <AuthCallback onAuthComplete={handleAuthComplete} />;
     }
 
