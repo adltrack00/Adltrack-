@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { Activity, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
 
-export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode }) => {
-  const { initiateGoogleLogin } = useAuth();
+export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, onAuthSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,16 +38,26 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode }
 
   const config = roleConfig[selectedRole] || roleConfig[UserRole.FAMILY];
 
-  const handleGoogleAuth = () => {
+  // Mock authentication - just simulate loading and go to dashboard
+  const handleMockAuth = (authMethod = 'google') => {
     setIsLoading(true);
-    initiateGoogleLogin(selectedRole, isSignUp);
+    
+    // Simulate a brief loading state for realism
+    setTimeout(() => {
+      setIsLoading(false);
+      // Call the success handler to navigate to dashboard
+      onAuthSuccess({
+        user_id: 'mock_user_' + Date.now(),
+        email: email || 'user@example.com',
+        name: name || 'Test User',
+        role: selectedRole
+      });
+    }, 800);
   };
 
   const handleEmailSubmit = (e) => {
     e.preventDefault();
-    // For now, redirect to Google OAuth as primary auth method
-    // In production, this would handle email/password auth
-    handleGoogleAuth();
+    handleMockAuth('email');
   };
 
   return (
@@ -91,9 +99,9 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode }
 
           {/* Social Auth Buttons */}
           <div className="space-y-3">
-            {/* Google Sign In */}
+            {/* Google Sign In - Mock */}
             <button
-              onClick={handleGoogleAuth}
+              onClick={() => handleMockAuth('google')}
               disabled={isLoading}
               className="w-full p-4 bg-white border-2 border-stone-200 rounded-2xl hover:border-stone-400 hover:bg-stone-50 transition-all flex items-center justify-center gap-3 font-bold text-stone-900 disabled:opacity-50"
               data-testid="google-auth-btn"
@@ -111,20 +119,21 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode }
               {isSignUp ? 'Sign up with Google' : 'Continue with Google'}
             </button>
 
-            {/* Apple Sign In - Disabled with tooltip */}
+            {/* Apple Sign In - Mock */}
             <button
-              disabled
-              className="w-full p-4 bg-white border-2 border-stone-200 rounded-2xl opacity-50 cursor-not-allowed flex items-center justify-center gap-3 font-bold text-stone-900 relative group"
+              onClick={() => handleMockAuth('apple')}
+              disabled={isLoading}
+              className="w-full p-4 bg-white border-2 border-stone-200 rounded-2xl hover:border-stone-400 hover:bg-stone-50 transition-all flex items-center justify-center gap-3 font-bold text-stone-900 disabled:opacity-50"
               data-testid="apple-auth-btn"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-              </svg>
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-stone-400 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                </svg>
+              )}
               {isSignUp ? 'Sign up with Apple' : 'Continue with Apple'}
-              {/* Tooltip */}
-              <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-stone-900 text-white text-xs py-2 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                Coming soon - Apple Developer account required
-              </div>
             </button>
           </div>
 
@@ -212,8 +221,14 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode }
               className={`w-full p-4 bg-gradient-to-r ${config.buttonGradient} text-white rounded-2xl font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50`}
               data-testid="auth-submit-btn"
             >
-              {isSignUp ? 'Create Account' : 'Sign In'}
-              <ArrowRight className="w-5 h-5" />
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  {isSignUp ? 'Create Account' : 'Sign In'}
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
             </button>
           </form>
 
