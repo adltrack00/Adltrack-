@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
 import { Heart, Users, Briefcase, ChevronDown, Check, RefreshCw } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
 
 export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }) => {
-  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isSwitching, setIsSwitching] = useState(false);
-
-  const API_URL = process.env.REACT_APP_BACKEND_URL;
 
   const roles = [
     {
@@ -42,30 +38,20 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
 
   const currentRoleConfig = roles.find(r => r.role === currentRole) || roles[0];
 
-  const handleRoleSwitch = async (newRole) => {
+  const handleRoleSwitch = (newRole) => {
     if (newRole === currentRole) {
       setIsOpen(false);
       return;
     }
 
     setIsSwitching(true);
-    try {
-      const response = await fetch(`${API_URL}/api/auth/switch-role`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ role: newRole })
-      });
-
-      if (response.ok) {
-        onRoleSwitch(newRole);
-      }
-    } catch (error) {
-      console.error('Failed to switch role:', error);
-    } finally {
+    
+    // Brief animation then switch
+    setTimeout(() => {
+      onRoleSwitch(newRole);
       setIsSwitching(false);
       setIsOpen(false);
-    }
+    }, 300);
   };
 
   if (variant === 'compact') {
@@ -114,16 +100,11 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
                   </button>
                 ))}
               </div>
-              {user && (
-                <div className="border-t border-stone-100 p-3 bg-stone-50">
-                  <p className="text-xs text-stone-500">
-                    Signed in as <span className="font-medium text-stone-700">{user.email}</span>
-                  </p>
-                  <p className="text-xs text-stone-400 mt-1">
-                    All roles share the same data for testing
-                  </p>
-                </div>
-              )}
+              <div className="border-t border-stone-100 p-3 bg-stone-50">
+                <p className="text-xs text-stone-400 text-center">
+                  All data is shared across views for testing
+                </p>
+              </div>
             </div>
           </>
         )}
@@ -184,7 +165,7 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
             </div>
             <div className="border-t border-stone-100 p-3 bg-stone-50">
               <p className="text-xs text-stone-500 text-center">
-                Same email • Same data • Different views
+                Same data • Different views • Perfect for testing
               </p>
             </div>
           </div>
