@@ -4,7 +4,7 @@ import {
   CircleCheck, MessageCircle, Shield, Activity, Heart, Clock, Camera, 
   Menu, X, PhoneMissed, FileX, Thermometer, Users, Briefcase, 
   CircleHelp, MapPin, Building2, Twitter, Linkedin, Facebook, Instagram, 
-  Globe, Download, Smartphone, Mail, Wifi, Battery, Signal, 
+  Globe, Download, Smartphone, ChevronDown, Mail, Wifi, Battery, Signal, 
   Settings, Send, MoreVertical, Phone 
 } from "lucide-react"
 import { Button } from "./ui/button"
