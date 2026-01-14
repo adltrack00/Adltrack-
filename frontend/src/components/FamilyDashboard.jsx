@@ -278,7 +278,7 @@ export const FamilyDashboard = ({
                 {completedTasks.map((task) => (
                   <div 
                     key={task.id} 
-                    className="bg-stone-900 border border-stone-800 rounded-3xl overflow-hidden"
+                    className={`${bgCard} border ${border} rounded-3xl overflow-hidden`}
                   >
                     {/* Task Image */}
                     <div className="relative aspect-[16/9]">
@@ -308,7 +308,7 @@ export const FamilyDashboard = ({
                     {/* Notes & Attribution */}
                     <div className="p-5">
                       {task.completionNote && (
-                        <p className="text-stone-400 text-sm mb-4">
+                        <p className={`${textSecondary} text-sm mb-4`}>
                           &quot;{task.completionNote}&quot;
                         </p>
                       )}
@@ -321,8 +321,8 @@ export const FamilyDashboard = ({
                           className="w-10 h-10 rounded-xl object-cover"
                         />
                         <div className="flex-1">
-                          <p className="font-semibold text-white text-sm">Julia Martinez</p>
-                          <p className="text-stone-400 text-xs">Caregiver</p>
+                          <p className={`font-semibold ${text} text-sm`}>Julia Martinez</p>
+                          <p className={`${textMuted} text-xs`}>Caregiver</p>
                         </div>
                       </div>
                     </div>
@@ -330,12 +330,12 @@ export const FamilyDashboard = ({
                 ))}
               </div>
             ) : (
-              <div className="bg-stone-900 border border-stone-800 rounded-3xl p-8 text-center">
-                <div className="w-16 h-16 bg-stone-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Camera className="w-8 h-8 text-stone-500" />
+              <div className={`${bgCard} border ${border} rounded-3xl p-8 text-center`}>
+                <div className={`w-16 h-16 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-100'} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+                  <Camera className={`w-8 h-8 ${textMuted}`} />
                 </div>
-                <h3 className="font-semibold text-white mb-1">No updates yet</h3>
-                <p className="text-stone-500 text-sm">
+                <h3 className={`font-semibold ${text} mb-1`}>No updates yet</h3>
+                <p className={`${textMuted} text-sm`}>
                   Photos and notes will appear here as tasks are completed
                 </p>
               </div>
