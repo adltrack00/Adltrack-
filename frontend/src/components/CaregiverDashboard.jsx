@@ -30,7 +30,8 @@ export const CaregiverDashboard = ({
   onAcceptTask,
   onDeclineTask,
   onAddVital,
-  onUpdatePatientPhoto
+  onUpdatePatientPhoto,
+  skipStartShift = false
 }) => {
   const { isDarkMode, bg, bgCard, bgCardHover, border, text, textSecondary, textMuted, bgNav, bgInput } = useTheme();
   const [activeTab, setActiveTab] = useState('home');
@@ -40,8 +41,8 @@ export const CaregiverDashboard = ({
   const [showPatientProfile, setShowPatientProfile] = useState(false);
   const [showVitals, setShowVitals] = useState(false);
   const [showCopilot, setShowCopilot] = useState(false);
-  const [isShiftActive, setIsShiftActive] = useState(false);
-  const [shiftStartTime, setShiftStartTime] = useState(null);
+  const [isShiftActive, setIsShiftActive] = useState(skipStartShift); // Auto-start if skipStartShift
+  const [shiftStartTime, setShiftStartTime] = useState(skipStartShift ? new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : null);
   const [activePage, setActivePage] = useState(null);
 
   // Get latest vitals
