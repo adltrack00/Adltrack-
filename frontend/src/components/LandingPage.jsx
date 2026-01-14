@@ -458,7 +458,7 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
                 With ADLTrack, you get fast, simple, secure messaging and real-time health updates for your loved ones, available on phones all over the world.
               </p>
               <Button 
-                onClick={() => onSelectRole(UserRole.FAMILY)} 
+                onClick={() => onNavigateToAuth('signup')} 
                 className="bg-[#25D366] text-white rounded-full h-14 px-8 text-lg font-bold hover:bg-[#20bd5a] shadow-[0_8px_20px_rgba(37,211,102,0.25)] transition-all hover:scale-105"
                 data-testid="hero-start-trial-btn"
               >
