@@ -919,7 +919,7 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
             {/* Brand Column */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-                <div className="w-8 h-8 bg-[#25D366] rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg">
                   <Activity className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-bold tracking-tight">ADLTrack</span>
