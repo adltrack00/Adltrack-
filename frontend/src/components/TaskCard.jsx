@@ -71,7 +71,7 @@ export const TaskCard = ({
             )}
           </div>
           
-          {/* Right side - Photo thumbnail or Status */}
+          {/* Right side - Photo thumbnail only (no checkmark for completed) */}
           <div className="flex-shrink-0 flex items-center gap-2">
             {/* Mini Photo Thumbnail */}
             {hasPhoto && (
@@ -80,16 +80,12 @@ export const TaskCard = ({
               </div>
             )}
             
-            {/* Status Indicator */}
-            {isCompleted ? (
-              <div className="w-8 h-8 bg-emerald-500/20 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-              </div>
-            ) : isMissed ? (
+            {/* Status Indicator - Only show for non-completed tasks */}
+            {isMissed ? (
               <div className="w-8 h-8 bg-rose-500/20 rounded-full flex items-center justify-center">
                 <XCircle className="w-5 h-5 text-rose-400" />
               </div>
-            ) : (
+            ) : !isCompleted && (
               <div className={`w-8 h-8 border-2 ${isDarkMode ? 'border-stone-700' : 'border-stone-300'} rounded-full flex items-center justify-center`}>
                 {isExpanded ? (
                   <ChevronUp className={`w-4 h-4 ${textMuted}`} />
