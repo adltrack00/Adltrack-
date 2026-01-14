@@ -575,6 +575,90 @@ export const FamilyDashboard = ({
           </div>
         </div>
       )}
+
+      {/* Image Detail Modal */}
+      {selectedTask && (
+        <div 
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedTask(null)}
+        >
+          <div 
+            className={`${isDarkMode ? 'bg-stone-950' : 'bg-white'} rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className={`flex items-center justify-between p-4 border-b ${border}`}>
+              <div>
+                <h2 className={`text-lg font-bold ${text}`}>{selectedTask.title}</h2>
+                <p className={`text-sm ${textMuted} flex items-center gap-1 mt-0.5`}>
+                  <Clock className="w-4 h-4" />
+                  Completed at {selectedTask.completedAt}
+                </p>
+              </div>
+              <button 
+                onClick={() => setSelectedTask(null)}
+                className={`p-2 ${isDarkMode ? 'hover:bg-stone-800' : 'hover:bg-stone-100'} rounded-full transition-colors`}
+              >
+                <X className={`w-5 h-5 ${textMuted}`} />
+              </button>
+            </div>
+
+            {/* Full Image */}
+            <div className="relative">
+              <img 
+                src={getTaskImage(selectedTask)} 
+                alt={selectedTask.title}
+                className="w-full max-h-[50vh] object-contain bg-black"
+              />
+              {/* Verified Badge */}
+              <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 text-white text-xs font-semibold rounded-full">
+                <CheckCircle className="w-3.5 h-3.5" />
+                {selectedTask.evidenceUrl ? 'Photo Verified' : 'Completed'}
+              </div>
+            </div>
+
+            {/* Task Details & Notes */}
+            <div className="p-5 space-y-4">
+              {/* Caregiver Note */}
+              {selectedTask.completionNote && (
+                <div className={`${isDarkMode ? 'bg-stone-900' : 'bg-stone-50'} rounded-2xl p-4`}>
+                  <p className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-2`}>Caregiver Note</p>
+                  <p className={`${text} text-sm leading-relaxed`}>
+                    &quot;{selectedTask.completionNote}&quot;
+                  </p>
+                </div>
+              )}
+
+              {/* Task Description */}
+              {selectedTask.description && (
+                <div>
+                  <p className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-2`}>Task Description</p>
+                  <p className={`${textSecondary} text-sm`}>{selectedTask.description}</p>
+                </div>
+              )}
+
+              {/* Caregiver Attribution */}
+              <div className={`flex items-center gap-3 pt-3 border-t ${border}`}>
+                <img 
+                  src={CAREGIVER_PROFILE.photo}
+                  alt="Caregiver"
+                  className="w-12 h-12 rounded-xl object-cover"
+                />
+                <div className="flex-1">
+                  <p className={`font-semibold ${text}`}>Julia Martinez</p>
+                  <p className={`${textMuted} text-sm`}>Certified Nursing Assistant</p>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-center gap-1 text-emerald-500 text-sm font-semibold">
+                    <CheckCircle className="w-4 h-4" />
+                    Verified
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
