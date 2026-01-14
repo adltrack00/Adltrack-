@@ -281,14 +281,24 @@ export const FamilyDashboard = ({
                     key={task.id} 
                     className={`${bgCard} border ${border} rounded-3xl overflow-hidden`}
                   >
-                    {/* Task Image */}
-                    <div className="relative aspect-[16/9]">
+                    {/* Task Image - Clickable */}
+                    <div 
+                      className="relative aspect-[16/9] cursor-pointer group"
+                      onClick={() => setSelectedTask(task)}
+                    >
                       <img 
                         src={getTaskImage(task)} 
                         alt={task.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                      
+                      {/* Zoom indicator on hover */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-12 h-12 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center">
+                          <ZoomIn className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
                       
                       {/* Verified Badge */}
                       <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-emerald-600 text-xs font-semibold rounded-full">
@@ -325,6 +335,14 @@ export const FamilyDashboard = ({
                           <p className={`font-semibold ${text} text-sm`}>Julia Martinez</p>
                           <p className={`${textMuted} text-xs`}>Caregiver</p>
                         </div>
+                        {/* Tap to view full image hint */}
+                        <button 
+                          onClick={() => setSelectedTask(task)}
+                          className={`px-3 py-1.5 ${isDarkMode ? 'bg-stone-800 hover:bg-stone-700' : 'bg-stone-100 hover:bg-stone-200'} rounded-lg text-xs font-medium ${textSecondary} transition-colors flex items-center gap-1`}
+                        >
+                          <ZoomIn className="w-3.5 h-3.5" />
+                          View Full
+                        </button>
                       </div>
                     </div>
                   </div>
