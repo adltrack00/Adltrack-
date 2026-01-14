@@ -50,10 +50,10 @@ ADLTrack is a Care Operating System that bridges the gap between caregivers, fam
 
 ### January 14, 2025
 - **NEW: Full Authentication System**
-  - Landing page with "Log In" and "Get Started" buttons (no dropdowns)
-  - Role Selection Page with 3 role options (Caregiver/teal, Family/rose, Agency/indigo)
-  - Sign In/Sign Up pages with Google OAuth (Emergent-managed) and Apple (disabled)
-  - Email/password form with role-specific theming
+  - **Simplified Auth Page**: White background, black text, green ADLTrack logo (always)
+  - **Direct Flow**: Landing → Auth Page → Google OAuth → Dashboard (removed intermediate role selection page)
+  - **Logo Navigation**: Clicking ADLTrack logo returns to landing page (no back arrow)
+  - Role selection combined with Google sign-in - click a role to immediately trigger Google OAuth
   - Backend auth endpoints: /api/auth/session, /api/auth/me, /api/auth/logout, /api/auth/update-role
   - AuthContext for state management
   - AuthCallback component for OAuth redirect handling
