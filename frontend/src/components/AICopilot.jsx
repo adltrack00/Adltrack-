@@ -10,6 +10,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const containerRef = useRef(null);
   const sessionId = useRef(`session-${Date.now()}`);
 
   // Initialize with greeting
@@ -31,11 +32,19 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Focus input when opened
+  // Prevent body scroll when modal is open and handle mobile viewport
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 100);
+      document.body.style.overflow = 'hidden';
+      // Prevent iOS bounce
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
     }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
   }, [isOpen]);
 
   const handleSend = async () => {
@@ -78,72 +87,84 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
 
   return (
     <div 
-      className="fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center font-['Manrope',sans-serif]" 
+      className="fixed inset-0 bg-black/70 z-[100] font-['Manrope',sans-serif]" 
       onClick={onClose}
     >
-      {/* Fixed height container - stable size that won't resize */}
+      {/* Full screen container for mobile - fixed position from top */}
       <div 
-        className={`${isDarkMode ? 'bg-stone-950 border-stone-800' : 'bg-white border-stone-200'} border w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl h-[70vh] sm:h-[500px] flex flex-col overflow-hidden shadow-2xl`}
+        ref={containerRef}
+        className={`
+          ${isDarkMode ? 'bg-stone-950' : 'bg-white'} 
+          fixed left-0 right-0 bottom-0
+          sm:left-1/2 sm:-translate-x-1/2 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2
+          sm:max-w-md sm:rounded-3xl sm:border ${isDarkMode ? 'sm:border-stone-800' : 'sm:border-stone-200'}
+          rounded-t-3xl
+          shadow-2xl
+          flex flex-col
+        `}
+        style={{
+          height: '450px', /* Fixed pixel height - won't change with keyboard */
+          maxHeight: '80vh'
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header - Fixed height */}
-        <div className={`flex-shrink-0 ${isDarkMode ? 'bg-stone-900 border-stone-800' : 'bg-stone-50 border-stone-200'} border-b px-5 py-4 flex items-center justify-between`}>
+        {/* Header */}
+        <div className={`flex-none ${isDarkMode ? 'bg-stone-900 border-stone-800' : 'bg-stone-50 border-stone-200'} border-b px-4 py-3 flex items-center justify-between rounded-t-3xl`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#25D366]/20 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-[#25D366]/20 flex items-center justify-center">
               <Bot className="w-5 h-5 text-[#25D366]" />
             </div>
             <div>
-              <h2 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-stone-900'}`}>
+              <h2 className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-stone-900'}`}>
                 {role === 'caregiver' ? 'Care Assistant' : 'Family Assistant'}
               </h2>
-              <p className={`text-xs ${isDarkMode ? 'text-stone-400' : 'text-stone-500'} font-medium`}>Powered by AI</p>
+              <p className={`text-[11px] ${isDarkMode ? 'text-stone-400' : 'text-stone-500'} font-medium`}>Powered by AI</p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className={`p-2 ${isDarkMode ? 'hover:bg-stone-800' : 'hover:bg-stone-100'} rounded-xl transition-colors`}
+            className={`p-2 ${isDarkMode ? 'hover:bg-stone-800 active:bg-stone-700' : 'hover:bg-stone-100 active:bg-stone-200'} rounded-xl transition-colors`}
             data-testid="copilot-close"
           >
             <X className={`w-5 h-5 ${isDarkMode ? 'text-stone-400' : 'text-stone-500'}`} />
           </button>
         </div>
 
-        {/* Messages Area - Flex-1 takes remaining space, scrolls internally */}
+        {/* Messages Area - fixed height with internal scroll */}
         <div 
-          className={`flex-1 overflow-y-auto p-4 space-y-4 ${isDarkMode ? 'bg-stone-950' : 'bg-stone-50'}`}
-          style={{ minHeight: 0 }} /* Critical for flex child overflow */
+          className={`flex-1 overflow-y-auto overscroll-contain p-4 space-y-3 ${isDarkMode ? 'bg-stone-950' : 'bg-stone-50'}`}
         >
           {messages.map((msg, idx) => (
             <div 
               key={idx}
-              className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+              className={`flex gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
             >
-              <div className={`w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center ${
+              <div className={`w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center ${
                 msg.role === 'user' ? userIconBg : assistantIconBg
               }`}>
                 {msg.role === 'user' ? (
-                  <User className={`w-4 h-4 ${isDarkMode ? 'text-stone-300' : 'text-stone-600'}`} />
+                  <User className={`w-3.5 h-3.5 ${isDarkMode ? 'text-stone-300' : 'text-stone-600'}`} />
                 ) : (
-                  <Bot className="w-4 h-4 text-[#25D366]" />
+                  <Bot className="w-3.5 h-3.5 text-[#25D366]" />
                 )}
               </div>
-              <div className={`max-w-[80%] px-4 py-3 rounded-2xl shadow-sm ${
+              <div className={`max-w-[85%] px-3 py-2.5 rounded-2xl shadow-sm ${
                 msg.role === 'user' 
-                  ? `${userMsgBg} rounded-tr-md` 
-                  : `${assistantMsgBg} rounded-tl-md`
+                  ? `${userMsgBg} rounded-tr-sm` 
+                  : `${assistantMsgBg} rounded-tl-sm`
               }`}>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
               </div>
             </div>
           ))}
           
           {isLoading && (
-            <div className="flex gap-3">
-              <div className={`w-8 h-8 rounded-xl ${assistantIconBg} flex items-center justify-center`}>
-                <Bot className="w-4 h-4 text-[#25D366]" />
+            <div className="flex gap-2">
+              <div className={`w-7 h-7 rounded-lg ${assistantIconBg} flex items-center justify-center`}>
+                <Bot className="w-3.5 h-3.5 text-[#25D366]" />
               </div>
-              <div className={`${assistantMsgBg} px-4 py-3 rounded-2xl rounded-tl-md shadow-sm`}>
-                <Loader2 className="w-5 h-5 text-[#25D366] animate-spin" />
+              <div className={`${assistantMsgBg} px-3 py-2.5 rounded-2xl rounded-tl-sm shadow-sm`}>
+                <Loader2 className="w-4 h-4 text-[#25D366] animate-spin" />
               </div>
             </div>
           )}
@@ -151,30 +172,30 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area - Fixed height at bottom */}
-        <div className={`flex-shrink-0 border-t ${isDarkMode ? 'border-stone-800 bg-stone-900' : 'border-stone-200 bg-white'} p-4`}>
-          <div className="flex gap-3">
+        {/* Input Area - fixed at bottom */}
+        <div className={`flex-none border-t ${isDarkMode ? 'border-stone-800 bg-stone-900' : 'border-stone-200 bg-white'} p-3`}>
+          <div className="flex gap-2">
             <input
               ref={inputRef}
               type="text"
               value={input}
               onChange={handleInputChange}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-              placeholder="Ask me anything about care..."
-              className={`flex-1 px-4 py-3 ${isDarkMode ? 'bg-stone-800 border-stone-700 text-white placeholder:text-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder:text-stone-400'} border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#25D366] font-medium`}
+              placeholder="Ask about care..."
+              className={`flex-1 px-3 py-2.5 ${isDarkMode ? 'bg-stone-800 border-stone-700 text-white placeholder:text-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder:text-stone-400'} border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#25D366] font-medium`}
               data-testid="copilot-input"
             />
             <button
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
-              className="px-5 py-3 bg-[#25D366] text-white rounded-xl hover:bg-[#20bd5a] transition-colors disabled:bg-stone-400 disabled:cursor-not-allowed flex-shrink-0"
+              className="w-11 h-11 bg-[#25D366] text-white rounded-xl hover:bg-[#20bd5a] active:bg-[#1ca34d] transition-colors disabled:bg-stone-400 disabled:cursor-not-allowed flex-none flex items-center justify-center"
               data-testid="copilot-send"
             >
               <Send className="w-5 h-5" />
             </button>
           </div>
-          <p className={`text-[10px] ${isDarkMode ? 'text-stone-500' : 'text-stone-400'} text-center mt-2 font-medium`}>
-            AI care guidance • Not a substitute for medical advice
+          <p className={`text-[9px] ${isDarkMode ? 'text-stone-500' : 'text-stone-400'} text-center mt-2 font-medium`}>
+            AI care guidance • Not medical advice
           </p>
         </div>
       </div>
