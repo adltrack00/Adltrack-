@@ -556,7 +556,7 @@ export const FamilyDashboard = ({
               <button
                 onClick={handleAddRequest}
                 disabled={!newRequest.title.trim()}
-                className="w-full py-4 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                className="w-full py-4 bg-[#25D366] text-white font-bold rounded-xl hover:bg-[#20bd5a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
                 data-testid="submit-request-btn"
               >
                 Send Request
