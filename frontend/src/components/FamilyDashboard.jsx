@@ -447,7 +447,7 @@ export const FamilyDashboard = ({
               onClick={() => setActiveTab(tab.id)}
               className={`flex flex-col items-center py-2 px-5 transition-all ${
                 activeTab === tab.id 
-                  ? 'text-emerald-400' 
+                  ? 'text-[#25D366]' 
                   : `${textMuted} hover:${textSecondary}`
               }`}
             >
