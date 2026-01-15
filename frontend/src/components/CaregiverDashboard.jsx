@@ -391,7 +391,7 @@ export const CaregiverDashboard = ({
           className={`w-full py-4 rounded-2xl font-bold transition-all ${
             isShiftActive 
               ? 'bg-white text-rose-600 hover:bg-stone-100' 
-              : 'bg-emerald-500 text-white hover:bg-emerald-600'
+              : 'bg-[#25D366] text-white hover:bg-[#20bd5a]'
           }`}
         >
           {isShiftActive ? 'End Shift' : 'Start Shift'}
