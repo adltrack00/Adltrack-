@@ -255,10 +255,10 @@ export const FAQPage = ({ onBack }) => {
       <footer className="py-8 px-4 border-t border-slate-100">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-[#25D366] flex items-center justify-center">
-              <Activity className="w-3 h-3 text-white" />
+            <div className="w-7 h-7 rounded-xl bg-[#25D366] flex items-center justify-center">
+              <Activity className="w-4 h-4 text-white" />
             </div>
-            <span className="text-sm font-semibold text-slate-700">ADLTrack</span>
+            <span className="text-sm font-bold tracking-tight text-[#25D366]">ADLTrack</span>
           </div>
           <p className="text-sm text-slate-500">© {new Date().getFullYear()} ADLTrack Inc. All rights reserved.</p>
         </div>
