@@ -146,7 +146,7 @@ export const FAQPage = ({ onBack }) => {
                 <div className="w-8 h-8 rounded-xl bg-[#25D366] flex items-center justify-center">
                   <Activity className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-lg font-bold tracking-tight text-[#25D366]">adltrack</span>
+                <span className="text-lg font-bold tracking-tight text-[#25D366]">Adltrack</span>
               </div>
             </div>
           </div>
@@ -258,9 +258,9 @@ export const FAQPage = ({ onBack }) => {
             <div className="w-6 h-6 rounded-lg bg-[#25D366] flex items-center justify-center">
               <Activity className="w-3 h-3 text-white" />
             </div>
-            <span className="text-sm font-bold tracking-tight text-[#25D366]">adltrack</span>
+            <span className="text-sm font-bold tracking-tight text-[#25D366]">Adltrack</span>
           </div>
-          <p className="text-sm text-slate-500">© {new Date().getFullYear()} adltrack Inc. All rights reserved.</p>
+          <p className="text-sm text-slate-500">© {new Date().getFullYear()} Adltrack Inc. All rights reserved.</p>
         </div>
       </footer>
     </div>

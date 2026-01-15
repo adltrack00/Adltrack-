@@ -380,7 +380,7 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
             <div className="w-8 h-8 rounded-xl bg-[#25D366] flex items-center justify-center">
               <Activity className="w-4 h-4 text-white" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-[#25D366]">adltrack</span>
+            <span className="text-lg font-bold tracking-tight text-[#25D366]">Adltrack</span>
           </div>
 
           {/* Desktop Nav */}
@@ -922,7 +922,7 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
                 <div className="w-8 h-8 rounded-xl bg-[#25D366] flex items-center justify-center">
                   <Activity className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-lg font-bold tracking-tight text-[#25D366]">adltrack</span>
+                <span className="text-lg font-bold tracking-tight text-[#25D366]">Adltrack</span>
               </div>
               <p className="text-slate-400 text-sm leading-relaxed">
                 The Care Operating System. Bridging the trust gap with evidence-based monitoring for families and agencies worldwide.
@@ -983,7 +983,7 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
               <Globe className="w-4 h-4 text-slate-500" />
               <span className="text-slate-500 text-sm">English (US)</span>
             </div>
-            <p className="text-slate-500 text-sm">© {new Date().getFullYear()} adltrack Inc.</p>
+            <p className="text-slate-500 text-sm">© {new Date().getFullYear()} Adltrack Inc.</p>
             <div className="flex gap-8 text-sm text-slate-400">
               <a href="#" className="hover:text-white transition-colors">Privacy</a>
               <a href="#" className="hover:text-white transition-colors">Terms</a>

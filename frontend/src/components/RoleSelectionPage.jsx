@@ -50,7 +50,7 @@ export const RoleSelectionPage = ({ onSelectRole, onBack, mode = 'signin' }) => 
           <div className="w-8 h-8 rounded-xl bg-[#25D366] flex items-center justify-center">
             <Activity className="w-4 h-4 text-white" />
           </div>
-          <span className="text-lg font-bold tracking-tight text-[#25D366]">adltrack</span>
+          <span className="text-lg font-bold tracking-tight text-[#25D366]">Adltrack</span>
         </button>
       </header>
 
@@ -107,7 +107,7 @@ export const RoleSelectionPage = ({ onSelectRole, onBack, mode = 'signin' }) => 
       {/* Footer */}
       <footer className="p-6 text-center border-t border-stone-200">
         <p className="text-sm text-stone-500 font-medium">
-          © {new Date().getFullYear()} adltrack. Secure care coordination.
+          © {new Date().getFullYear()} Adltrack. Secure care coordination.
         </p>
       </footer>
     </div>
