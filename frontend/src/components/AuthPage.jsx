@@ -66,13 +66,13 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
       <header className="p-6 flex items-center justify-between border-b border-stone-200">
         <button 
           onClick={onBack}
-          className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           data-testid="auth-logo-btn"
         >
-          <div className="w-9 h-9 rounded-xl bg-[#25D366] flex items-center justify-center">
-            <Activity className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 rounded-xl bg-[#25D366] flex items-center justify-center">
+            <Activity className="w-4 h-4 text-white" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-[#25D366]">ADLTrack</span>
+          <span className="text-lg font-bold tracking-tight text-[#25D366]">adltrack</span>
         </button>
       </header>
 
