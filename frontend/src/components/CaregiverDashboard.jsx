@@ -359,7 +359,7 @@ export const CaregiverDashboard = ({
   const renderShiftContent = () => (
     <div className="flex-1 overflow-y-auto bg-stone-950 p-6 space-y-4 pb-24">
       {/* Shift Status Card */}
-      <div className={`rounded-3xl p-6 border ${isShiftActive ? 'bg-emerald-600 border-emerald-500' : 'bg-stone-900 border-stone-800'}`}>
+      <div className={`rounded-3xl p-6 border ${isShiftActive ? 'bg-[#25D366] border-[#20bd5a]' : 'bg-stone-900 border-stone-800'}`}>
         <div className="flex items-center justify-between mb-5">
           <h3 className={`font-bold text-lg ${isShiftActive ? 'text-white' : 'text-white'}`}>Current Shift</h3>
           <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
