@@ -350,41 +350,44 @@ export const FamilyDashboard = ({
   // Render Settings Content
   const renderSettingsContent = () => (
     <div className={`flex-1 overflow-y-auto ${bg} p-6 space-y-3 pb-20`}>
-      {/* Profile Header */}
-      <div className={`${bgCard} border ${border} rounded-3xl p-5`}>
-        <div className="flex items-center gap-4 mb-4">
+      {/* Profile Header - Clickable to open profile */}
+      <button 
+        onClick={() => setActivePage('profile')}
+        className={`w-full ${bgCard} border ${border} rounded-3xl p-5 ${bgCardHover} transition-colors text-left`}
+      >
+        <div className="flex items-center gap-4">
           <img 
             src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80"
             alt="Profile"
             className="w-16 h-16 rounded-2xl object-cover"
           />
-          <div>
+          <div className="flex-1">
             <h3 className={`font-bold ${text}`}>Mary Smith</h3>
             <p className={`${textSecondary} text-sm`}>Family Guardian</p>
           </div>
+          <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
         </div>
-        
-        {/* Quick Patient Access */}
-        <button
-          onClick={() => setShowPatientProfile(true)}
-          className={`w-full flex items-center gap-3 p-3 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-100'} rounded-xl`}
-        >
-          <img 
-            src={patient?.photo || 'https://via.placeholder.com/40'} 
-            alt={patient?.name}
-            className="w-10 h-10 rounded-lg object-cover"
-          />
-          <div className="flex-1 text-left">
-            <p className={`font-medium ${text} text-sm`}>{patient?.name}</p>
-            <p className={`${textMuted} text-xs`}>View Medical Profile</p>
-          </div>
-          <ChevronRight className={`w-4 h-4 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
-        </button>
-      </div>
+      </button>
+      
+      {/* Quick Patient Access */}
+      <button
+        onClick={() => setShowPatientProfile(true)}
+        className={`w-full flex items-center gap-3 p-4 ${bgCard} border ${border} rounded-2xl ${bgCardHover} transition-colors`}
+      >
+        <img 
+          src={patient?.photo || 'https://via.placeholder.com/40'} 
+          alt={patient?.name}
+          className="w-11 h-11 rounded-xl object-cover"
+        />
+        <div className="flex-1 text-left">
+          <p className={`font-medium ${text}`}>{patient?.name}</p>
+          <p className={`${textMuted} text-sm`}>View Medical Profile</p>
+        </div>
+        <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
+      </button>
 
       {/* Menu Items */}
       {[
-        { label: 'My Profile', icon: User, action: () => setActivePage('profile') },
         { label: 'Current Caregiver', icon: Heart, action: () => setActivePage('caregiver') },
         { label: 'Billing', icon: Activity, action: () => setActivePage('billing') },
         { label: 'Care History', icon: Clock, action: () => setActivePage('history') },
@@ -403,14 +406,6 @@ export const FamilyDashboard = ({
           <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
         </button>
       ))}
-
-      {/* Role Switcher - For Testing */}
-      {onRoleSwitch && (
-        <div className="mt-4">
-          <p className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-2 px-1`}>Test Other Views</p>
-          <RoleSwitcher currentRole={currentRole} onRoleSwitch={onRoleSwitch} />
-        </div>
-      )}
     </div>
   );
 
