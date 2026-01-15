@@ -257,7 +257,7 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
       {/* Footer */}
       <footer className="p-6 text-center border-t border-stone-200">
         <p className="text-sm text-stone-500 font-medium">
-          © {new Date().getFullYear()} ADLTrack. Secure care coordination.
+          © {new Date().getFullYear()} adltrack. Secure care coordination.
         </p>
       </footer>
     </div>
