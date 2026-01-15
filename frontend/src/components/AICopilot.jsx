@@ -4,7 +4,7 @@ import { sendChatMessage, getGreeting } from '../services/geminiService';
 import { useTheme } from '../context/ThemeContext';
 
 export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = 'the patient' }) => {
-  const { isDarkMode, bg, bgCard, border, text, textSecondary, textMuted, bgInput } = useTheme();
+  const { isDarkMode } = useTheme();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -70,50 +70,45 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
 
   if (!isOpen) return null;
 
-  // Theme-aware colors
-  const modalBg = isDarkMode ? 'bg-stone-900' : 'bg-white';
-  const messagesBg = isDarkMode ? 'bg-stone-950' : 'bg-stone-50';
-  const inputBg = isDarkMode ? 'bg-stone-800 text-white placeholder:text-stone-500' : 'bg-stone-100 text-stone-900 placeholder:text-stone-400';
-  const inputBorder = isDarkMode ? 'border-stone-700' : 'border-stone-200';
-  const footerBg = isDarkMode ? 'bg-stone-900 border-stone-800' : 'bg-white border-stone-100';
+  // Theme-aware colors - matching VitalsModal style
   const userMsgBg = isDarkMode ? 'bg-emerald-600 text-white' : 'bg-stone-900 text-white';
-  const assistantMsgBg = isDarkMode ? 'bg-stone-800 text-stone-100' : 'bg-white text-stone-800';
+  const assistantMsgBg = isDarkMode ? 'bg-stone-800 text-stone-100' : 'bg-white text-stone-800 border border-stone-200';
   const userIconBg = isDarkMode ? 'bg-stone-700' : 'bg-stone-200';
   const assistantIconBg = isDarkMode ? 'bg-emerald-500/20' : 'bg-emerald-100';
 
   return (
     <div 
-      className="fixed inset-0 bg-black/60 z-[100] flex items-end sm:items-center justify-center font-['Manrope',sans-serif]" 
+      className="fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center font-['Manrope',sans-serif]" 
       onClick={onClose}
     >
       <div 
-        className={`${modalBg} w-full sm:max-w-lg h-[85vh] sm:h-[600px] sm:rounded-3xl rounded-t-3xl flex flex-col overflow-hidden shadow-2xl`}
+        className={`${isDarkMode ? 'bg-stone-950 border-stone-800' : 'bg-white border-stone-200'} border w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl max-h-[85vh] flex flex-col overflow-hidden`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header - Brand Green */}
-        <div className="flex items-center justify-between px-5 py-4 bg-[#25D366]">
+        {/* Header - Sticky like VitalsModal */}
+        <div className={`sticky top-0 ${isDarkMode ? 'bg-stone-900 border-stone-800' : 'bg-stone-50 border-stone-200'} border-b px-5 py-4 flex items-center justify-between`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <Bot className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-[#25D366]/20 flex items-center justify-center">
+              <Bot className="w-5 h-5 text-[#25D366]" />
             </div>
             <div>
-              <h3 className="font-bold text-white">
+              <h2 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-stone-900'}`}>
                 {role === 'caregiver' ? 'Care Assistant' : 'Family Assistant'}
-              </h3>
-              <p className="text-xs text-white/80">Powered by AI</p>
+              </h2>
+              <p className={`text-xs ${isDarkMode ? 'text-stone-400' : 'text-stone-500'} font-medium`}>Powered by AI</p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+            className={`p-2 ${isDarkMode ? 'hover:bg-stone-800' : 'hover:bg-stone-100'} rounded-xl transition-colors`}
             data-testid="copilot-close"
           >
-            <X className="w-5 h-5 text-white" />
+            <X className={`w-5 h-5 ${isDarkMode ? 'text-stone-400' : 'text-stone-500'}`} />
           </button>
         </div>
 
-        {/* Messages Area */}
-        <div className={`flex-1 overflow-y-auto p-5 space-y-4 ${messagesBg}`}>
+        {/* Messages Area - Scrollable */}
+        <div className={`flex-1 overflow-y-auto p-5 space-y-4 ${isDarkMode ? 'bg-stone-950' : 'bg-stone-50'}`}>
           {messages.map((msg, idx) => (
             <div 
               key={idx}
@@ -152,8 +147,8 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area */}
-        <div className={`border-t ${inputBorder} p-4 ${footerBg}`}>
+        {/* Input Area - Sticky Footer */}
+        <div className={`border-t ${isDarkMode ? 'border-stone-800 bg-stone-900' : 'border-stone-200 bg-white'} p-4`}>
           <div className="flex gap-3">
             <input
               ref={inputRef}
@@ -162,7 +157,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
               onChange={handleInputChange}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
               placeholder="Type your message..."
-              className={`flex-1 px-4 py-3 ${inputBg} border ${inputBorder} rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium`}
+              className={`flex-1 px-4 py-3 ${isDarkMode ? 'bg-stone-800 border-stone-700 text-white placeholder:text-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder:text-stone-400'} border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium`}
               data-testid="copilot-input"
             />
             <button
