@@ -482,7 +482,7 @@ export const CaregiverDashboard = ({
       {activeTab === 'home' && isShiftActive && (
         <button
           onClick={() => setShowCopilot(true)}
-          className="fixed bottom-24 right-5 w-11 h-11 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl shadow-[0_4px_20px_rgba(16,185,129,0.4)] flex items-center justify-center hover:shadow-[0_8px_25px_rgba(16,185,129,0.5)] transition-all hover:scale-105 z-40"
+          className="fixed bottom-24 right-5 w-11 h-11 bg-[#25D366] rounded-xl shadow-[0_4px_20px_rgba(37,211,102,0.4)] flex items-center justify-center hover:shadow-[0_8px_25px_rgba(37,211,102,0.5)] transition-all hover:scale-105 z-40"
           data-testid="copilot-btn"
         >
           <Bot className="w-5 h-5 text-white" />
