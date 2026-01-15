@@ -142,11 +142,11 @@ export const FAQPage = ({ onBack }) => {
               >
                 <ArrowLeft className="w-5 h-5 text-slate-600" />
               </button>
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#25D366] flex items-center justify-center">
-                  <Activity className="w-5 h-5 text-white" />
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-[#25D366] flex items-center justify-center">
+                  <Activity className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-xl font-bold tracking-tight text-[#25D366]">ADLTrack</span>
+                <span className="text-lg font-bold tracking-tight text-[#25D366]">adltrack</span>
               </div>
             </div>
           </div>
@@ -255,12 +255,12 @@ export const FAQPage = ({ onBack }) => {
       <footer className="py-8 px-4 border-t border-slate-100">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-xl bg-[#25D366] flex items-center justify-center">
-              <Activity className="w-4 h-4 text-white" />
+            <div className="w-6 h-6 rounded-lg bg-[#25D366] flex items-center justify-center">
+              <Activity className="w-3 h-3 text-white" />
             </div>
-            <span className="text-sm font-bold tracking-tight text-[#25D366]">ADLTrack</span>
+            <span className="text-sm font-bold tracking-tight text-[#25D366]">adltrack</span>
           </div>
-          <p className="text-sm text-slate-500">© {new Date().getFullYear()} ADLTrack Inc. All rights reserved.</p>
+          <p className="text-sm text-slate-500">© {new Date().getFullYear()} adltrack Inc. All rights reserved.</p>
         </div>
       </footer>
     </div>
