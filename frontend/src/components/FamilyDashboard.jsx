@@ -634,7 +634,7 @@ export const FamilyDashboard = ({
                   <p className={`${textMuted} text-sm`}>Certified Nursing Assistant</p>
                 </div>
                 <div className="text-right">
-                  <div className="flex items-center gap-1 text-emerald-500 text-sm font-semibold">
+                  <div className="flex items-center gap-1 text-[#25D366] text-sm font-semibold">
                     <CheckCircle className="w-4 h-4" />
                     Verified
                   </div>
