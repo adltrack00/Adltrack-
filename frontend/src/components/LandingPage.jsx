@@ -918,11 +918,11 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             {/* Brand Column */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg">
+              <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+                <div className="w-9 h-9 rounded-xl bg-[#25D366] flex items-center justify-center">
                   <Activity className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold tracking-tight">ADLTrack</span>
+                <span className="text-xl font-bold tracking-tight text-[#25D366]">ADLTrack</span>
               </div>
               <p className="text-slate-400 text-sm leading-relaxed">
                 The Care Operating System. Bridging the trust gap with evidence-based monitoring for families and agencies worldwide.
