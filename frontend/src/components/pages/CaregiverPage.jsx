@@ -41,9 +41,9 @@ export const CaregiverPage = ({ onBack }) => {
           <p className="text-stone-400">{caregiver.role}</p>
           
           {/* Shift Status */}
-          <div className="mt-3 flex items-center gap-2 px-4 py-2 bg-emerald-500/20 rounded-full">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            <span className="text-sm font-medium text-emerald-400">Currently on shift</span>
+          <div className="mt-3 flex items-center gap-2 px-4 py-2 bg-[#25D366]/20 rounded-full">
+            <div className="w-2 h-2 bg-[#25D366] rounded-full animate-pulse" />
+            <span className="text-sm font-medium text-[#25D366]">Currently on shift</span>
           </div>
         </div>
 
@@ -60,7 +60,7 @@ export const CaregiverPage = ({ onBack }) => {
             <p className="text-xs text-stone-400">Years Exp.</p>
           </div>
           <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
-            <CheckCircle className="w-6 h-6 text-emerald-500 mx-auto mb-1" />
+            <CheckCircle className="w-6 h-6 text-[#25D366] mx-auto mb-1" />
             <p className="text-xl font-bold text-white">{caregiver.shiftsCompleted}</p>
             <p className="text-xs text-stone-400">Shifts</p>
           </div>
@@ -70,7 +70,7 @@ export const CaregiverPage = ({ onBack }) => {
         <div className="flex gap-3">
           <a 
             href={`tel:${caregiver.phone}`}
-            className="flex-1 py-3 bg-emerald-500 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-emerald-600 transition-colors"
+            className="flex-1 py-3 bg-[#25D366] text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-[#20bd5a] transition-colors"
           >
             <Phone className="w-5 h-5" />
             Call
@@ -95,7 +95,7 @@ export const CaregiverPage = ({ onBack }) => {
           </h3>
           <div className="flex flex-wrap gap-2">
             {caregiver.certifications.map((cert, idx) => (
-              <span key={idx} className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-sm font-medium flex items-center gap-1">
+              <span key={idx} className="px-3 py-1 bg-[#25D366]/20 text-[#25D366] rounded-full text-sm font-medium flex items-center gap-1">
                 <CheckCircle className="w-3 h-3" />
                 {cert}
               </span>

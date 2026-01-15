@@ -45,7 +45,7 @@ export const SupportPage = ({ onBack }) => {
                     <p className="text-xs text-stone-400">{option.desc}</p>
                   </div>
                 </div>
-                <span className="text-sm font-medium text-emerald-400">{option.action}</span>
+                <span className="text-sm font-medium text-[#25D366]">{option.action}</span>
               </button>
             ))}
           </div>

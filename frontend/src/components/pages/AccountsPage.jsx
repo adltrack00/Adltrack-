@@ -19,7 +19,7 @@ export const AccountsPage = ({ onBack, role }) => {
 
       <div className="p-4 space-y-6">
         {/* Balance Card */}
-        <div className={`${isCaregiver ? 'bg-emerald-600' : 'bg-stone-900 border border-stone-800'} rounded-2xl p-6 text-white`}>
+        <div className={`${isCaregiver ? 'bg-[#20bd5a]' : 'bg-stone-900 border border-stone-800'} rounded-2xl p-6 text-white`}>
           <p className="text-sm opacity-80 mb-1">
             {isCaregiver ? 'Available Balance' : 'Current Balance'}
           </p>
@@ -27,7 +27,7 @@ export const AccountsPage = ({ onBack, role }) => {
             {isCaregiver ? '$1,247.50' : '$0.00'}
           </p>
           {isCaregiver ? (
-            <button className="w-full py-3 bg-white text-emerald-600 rounded-xl font-semibold hover:bg-stone-100 transition-colors">
+            <button className="w-full py-3 bg-white text-[#20bd5a] rounded-xl font-semibold hover:bg-stone-100 transition-colors">
               Withdraw Funds
             </button>
           ) : (
@@ -47,7 +47,7 @@ export const AccountsPage = ({ onBack, role }) => {
             </div>
             <div className="bg-stone-900 border border-stone-800 rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-4 h-4 text-emerald-500" />
+                <TrendingUp className="w-4 h-4 text-[#25D366]" />
                 <span className="text-xs text-stone-400">This Month</span>
               </div>
               <p className="text-xl font-bold text-white">$1,892.50</p>
@@ -84,16 +84,16 @@ export const AccountsPage = ({ onBack, role }) => {
               <div key={idx} className="flex items-center justify-between p-4 bg-stone-900 border border-stone-800 rounded-xl">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    isCaregiver ? 'bg-emerald-500/20' : 'bg-stone-800'
+                    isCaregiver ? 'bg-[#25D366]/20' : 'bg-stone-800'
                   }`}>
-                    <DollarSign className={`w-5 h-5 ${isCaregiver ? 'text-emerald-400' : 'text-stone-400'}`} />
+                    <DollarSign className={`w-5 h-5 ${isCaregiver ? 'text-[#25D366]' : 'text-stone-400'}`} />
                   </div>
                   <div>
                     <p className="font-medium text-white">{tx.desc}</p>
                     <p className="text-xs text-stone-400">{tx.status}</p>
                   </div>
                 </div>
-                <span className={`font-semibold ${isCaregiver ? 'text-emerald-400' : 'text-white'}`}>
+                <span className={`font-semibold ${isCaregiver ? 'text-[#25D366]' : 'text-white'}`}>
                   {tx.amount}
                 </span>
               </div>

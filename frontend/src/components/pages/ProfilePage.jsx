@@ -45,7 +45,7 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
               alt={profile.name}
               className="w-28 h-28 rounded-full object-cover border-4 border-stone-800 shadow-lg"
             />
-            <label className="absolute bottom-0 right-0 p-2 bg-emerald-500 rounded-full cursor-pointer hover:bg-emerald-600 transition-colors">
+            <label className="absolute bottom-0 right-0 p-2 bg-[#25D366] rounded-full cursor-pointer hover:bg-[#20bd5a] transition-colors">
               <Camera className="w-4 h-4 text-white" />
               <input
                 type="file"
@@ -73,7 +73,7 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
               <p className="text-xs text-stone-400">Years</p>
             </div>
             <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
-              <CheckCircle className="w-6 h-6 text-emerald-500 mx-auto mb-1" />
+              <CheckCircle className="w-6 h-6 text-[#25D366] mx-auto mb-1" />
               <p className="text-xl font-bold text-white">234</p>
               <p className="text-xs text-stone-400">Shifts</p>
             </div>
@@ -99,7 +99,7 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
             <h3 className="font-semibold text-white mb-3">Certifications</h3>
             <div className="flex flex-wrap gap-2">
               {['CNA', 'CPR/First Aid', 'Dementia Care'].map((cert, idx) => (
-                <span key={idx} className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-sm font-medium">
+                <span key={idx} className="px-3 py-1 bg-[#25D366]/20 text-[#25D366] rounded-full text-sm font-medium">
                   ✓ {cert}
                 </span>
               ))}

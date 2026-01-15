@@ -39,7 +39,7 @@ export const HistoryPage = ({ onBack, role }) => {
               onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                 filter === f
-                  ? 'bg-emerald-500 text-white'
+                  ? 'bg-[#25D366] text-white'
                   : 'bg-stone-900 text-stone-400 hover:bg-stone-800'
               }`}
             >
@@ -55,7 +55,7 @@ export const HistoryPage = ({ onBack, role }) => {
             key={idx}
             className={`p-4 rounded-xl border ${
               shift.status === 'completed' 
-                ? 'bg-emerald-500/10 border-emerald-500/30' 
+                ? 'bg-[#25D366]/10 border-[#25D366]/30' 
                 : 'bg-stone-900 border-stone-800'
             }`}
           >
@@ -65,7 +65,7 @@ export const HistoryPage = ({ onBack, role }) => {
                 <span className="font-semibold text-white">{shift.date}</span>
               </div>
               {shift.status === 'completed' ? (
-                <span className="flex items-center gap-1 text-xs font-medium text-emerald-400 bg-emerald-500/20 px-2 py-1 rounded-full">
+                <span className="flex items-center gap-1 text-xs font-medium text-[#25D366] bg-[#25D366]/20 px-2 py-1 rounded-full">
                   <CheckCircle className="w-3 h-3" /> Completed
                 </span>
               ) : (
@@ -82,7 +82,7 @@ export const HistoryPage = ({ onBack, role }) => {
               </div>
               {shift.status === 'completed' && (
                 <div className="flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4 text-emerald-500" />
+                  <CheckCircle className="w-4 h-4 text-[#25D366]" />
                   {shift.completed}/{shift.tasks} tasks
                 </div>
               )}
