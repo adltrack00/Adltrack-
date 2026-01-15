@@ -372,7 +372,24 @@ async def get_tasks(request: Request, session_token: Optional[str] = Cookie(defa
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
-    tasks = await db.tasks.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    tasks = await db.tasks.find({}, {
+        "_id": 0,
+        "task_id": 1,
+        "title": 1,
+        "description": 1,
+        "instructions": 1,
+        "scheduled_time": 1,
+        "time_window": 1,
+        "priority": 1,
+        "status": 1,
+        "requires_photo": 1,
+        "completion_note": 1,
+        "evidence_url": 1,
+        "completed_at": 1,
+        "created_by": 1,
+        "created_by_name": 1,
+        "created_at": 1
+    }).sort("created_at", -1).to_list(100)
     return {"tasks": tasks}
 
 @api_router.post("/tasks")
