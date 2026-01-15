@@ -143,7 +143,7 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Add any notes about this task..."
-              className="w-full p-4 bg-stone-900 border border-stone-800 rounded-2xl resize-none h-24 text-sm text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium"
+              className="w-full p-4 bg-stone-900 border border-stone-800 rounded-2xl resize-none h-24 text-sm text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-[#25D366] font-medium"
             />
           </div>
 
