@@ -62,18 +62,17 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
 
   return (
     <div className="min-h-screen bg-white font-['Manrope',sans-serif] flex flex-col">
-      {/* Header - Logo ALWAYS green, clickable to go back to landing */}
+      {/* Header - Logo with green text, clickable to go back to landing */}
       <header className="p-6 flex items-center justify-between border-b border-stone-200">
         <button 
           onClick={onBack}
-          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
           data-testid="auth-logo-btn"
         >
-          {/* Logo always stays emerald/green */}
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg">
+          <div className="w-9 h-9 rounded-xl bg-[#25D366] flex items-center justify-center">
             <Activity className="w-5 h-5 text-white" />
           </div>
-          <span className="text-lg font-bold tracking-tight text-stone-900">ADLTrack</span>
+          <span className="text-xl font-bold tracking-tight text-[#25D366]">ADLTrack</span>
         </button>
       </header>
 
