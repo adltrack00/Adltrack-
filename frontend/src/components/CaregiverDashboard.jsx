@@ -424,8 +424,11 @@ export const CaregiverDashboard = ({
   // Render Settings Tab
   const renderSettingsContent = () => (
     <div className={`flex-1 overflow-y-auto ${bg} p-6 space-y-3 pb-24`}>
-      {/* Profile Card */}
-      <div className={`${bgCard} border ${border} rounded-3xl p-5`}>
+      {/* Profile Card - Clickable to open profile */}
+      <button 
+        onClick={() => setActivePage('profile')}
+        className={`w-full ${bgCard} border ${border} rounded-3xl p-5 ${bgCardHover} transition-colors text-left`}
+      >
         <div className="flex items-center gap-4">
           <img 
             src={CAREGIVER_PROFILE.photo}
@@ -436,12 +439,12 @@ export const CaregiverDashboard = ({
             <h3 className={`font-bold ${text}`}>Julia Martinez</h3>
             <p className={`${textSecondary} text-sm`}>Certified Nursing Assistant</p>
           </div>
+          <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
         </div>
-      </div>
+      </button>
 
       {/* Menu Items */}
       {[
-        { label: 'Profile', icon: User, action: () => setActivePage('profile') },
         { label: 'Earnings', icon: Activity, action: () => setActivePage('earnings') },
         { label: 'Shift History', icon: Clock, action: () => setActivePage('history') },
         { label: 'Settings', icon: Settings, action: () => setActivePage('settings') },
@@ -459,14 +462,6 @@ export const CaregiverDashboard = ({
           <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
         </button>
       ))}
-
-      {/* Role Switcher - For Testing */}
-      {onRoleSwitch && (
-        <div className="mt-4">
-          <p className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-2 px-1`}>Test Other Views</p>
-          <RoleSwitcher currentRole={currentRole} onRoleSwitch={onRoleSwitch} />
-        </div>
-      )}
     </div>
   );
 
