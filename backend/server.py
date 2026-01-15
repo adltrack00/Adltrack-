@@ -551,7 +551,18 @@ async def get_vitals(request: Request, session_token: Optional[str] = Cookie(def
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
-    vitals = await db.vitals.find({}, {"_id": 0}).sort("recorded_at", -1).to_list(100)
+    vitals = await db.vitals.find({}, {
+        "_id": 0,
+        "vital_id": 1,
+        "vital_type": 1,
+        "value": 1,
+        "systolic": 1,
+        "diastolic": 1,
+        "recorded_at": 1,
+        "recorded_by": 1,
+        "recorded_by_name": 1,
+        "notes": 1
+    }).sort("recorded_at", -1).to_list(100)
     
     # Group by type
     grouped = {
