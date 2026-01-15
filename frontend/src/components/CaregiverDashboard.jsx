@@ -328,7 +328,7 @@ export const CaregiverDashboard = ({
               ))
             ) : (
               <div className={`text-center py-12 ${bgCard} border ${border} rounded-3xl`}>
-                <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
+                <CheckCircle className="w-12 h-12 text-[#25D366] mx-auto mb-3" />
                 <p className={`${text} font-semibold`}>All done for today!</p>
                 <p className={`${textSecondary} text-sm`}>Great work, Julia</p>
               </div>
