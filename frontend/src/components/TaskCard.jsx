@@ -22,7 +22,7 @@ export const TaskCard = ({
     [Priority.HIGH]: 'bg-orange-500',
     [Priority.STANDARD]: 'bg-blue-500',
     [Priority.LOW]: 'bg-stone-400',
-    [Priority.QUALITY_OF_LIFE]: 'bg-emerald-500'
+    [Priority.QUALITY_OF_LIFE]: 'bg-[#25D366]'
   };
 
   const stripe = isCompleted ? 'bg-emerald-500' : (priorityStripe[task.priority] || priorityStripe[Priority.STANDARD]);
