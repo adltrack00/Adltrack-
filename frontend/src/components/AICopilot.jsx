@@ -90,8 +90,8 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
         className={`${modalBg} w-full sm:max-w-lg h-[85vh] sm:h-[600px] sm:rounded-3xl rounded-t-3xl flex flex-col overflow-hidden shadow-2xl`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header - Green Gradient */}
-        <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-emerald-500 to-teal-600">
+        {/* Header - Brand Green */}
+        <div className="flex items-center justify-between px-5 py-4 bg-[#25D366]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
               <Bot className="w-5 h-5 text-white" />
