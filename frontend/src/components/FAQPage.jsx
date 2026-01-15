@@ -142,11 +142,11 @@ export const FAQPage = ({ onBack }) => {
               >
                 <ArrowLeft className="w-5 h-5 text-slate-600" />
               </button>
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#25D366] flex items-center justify-center">
-                  <Activity className="w-4 h-4 text-white" />
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-[#25D366] flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-bold text-slate-900">ADLTrack</span>
+                <span className="text-xl font-bold tracking-tight text-[#25D366]">ADLTrack</span>
               </div>
             </div>
           </div>
