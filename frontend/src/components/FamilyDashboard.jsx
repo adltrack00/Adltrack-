@@ -219,7 +219,7 @@ export const FamilyDashboard = ({
             {/* Add Request Button */}
             <button
               onClick={() => setShowRequestModal(true)}
-              className={`w-full p-4 border-2 border-dashed ${isDarkMode ? 'border-stone-700 text-stone-400 hover:border-emerald-500' : 'border-stone-300 text-stone-500 hover:border-emerald-500'} rounded-2xl flex items-center justify-center gap-2 hover:text-emerald-400 transition-colors`}
+              className={`w-full p-4 border-2 border-dashed ${isDarkMode ? 'border-stone-700 text-stone-400 hover:border-[#25D366]' : 'border-stone-300 text-stone-500 hover:border-[#25D366]'} rounded-2xl flex items-center justify-center gap-2 hover:text-[#25D366] transition-colors`}
               data-testid="add-request-btn"
             >
               <Plus className="w-5 h-5" />
