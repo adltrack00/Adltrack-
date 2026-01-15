@@ -70,23 +70,24 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
 
   if (!isOpen) return null;
 
-  // Theme-aware colors - matching VitalsModal style
-  const userMsgBg = isDarkMode ? 'bg-emerald-600 text-white' : 'bg-stone-900 text-white';
+  // Theme-aware colors
+  const userMsgBg = isDarkMode ? 'bg-[#25D366] text-white' : 'bg-stone-900 text-white';
   const assistantMsgBg = isDarkMode ? 'bg-stone-800 text-stone-100' : 'bg-white text-stone-800 border border-stone-200';
   const userIconBg = isDarkMode ? 'bg-stone-700' : 'bg-stone-200';
-  const assistantIconBg = isDarkMode ? 'bg-emerald-500/20' : 'bg-emerald-100';
+  const assistantIconBg = isDarkMode ? 'bg-[#25D366]/20' : 'bg-emerald-100';
 
   return (
     <div 
       className="fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center font-['Manrope',sans-serif]" 
       onClick={onClose}
     >
+      {/* Fixed height container - stable size that won't resize */}
       <div 
-        className={`${isDarkMode ? 'bg-stone-950 border-stone-800' : 'bg-white border-stone-200'} border w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl max-h-[85vh] flex flex-col overflow-hidden`}
+        className={`${isDarkMode ? 'bg-stone-950 border-stone-800' : 'bg-white border-stone-200'} border w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl h-[70vh] sm:h-[500px] flex flex-col overflow-hidden shadow-2xl`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header - Sticky like VitalsModal */}
-        <div className={`sticky top-0 ${isDarkMode ? 'bg-stone-900 border-stone-800' : 'bg-stone-50 border-stone-200'} border-b px-5 py-4 flex items-center justify-between`}>
+        {/* Header - Fixed height */}
+        <div className={`flex-shrink-0 ${isDarkMode ? 'bg-stone-900 border-stone-800' : 'bg-stone-50 border-stone-200'} border-b px-5 py-4 flex items-center justify-between`}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#25D366]/20 flex items-center justify-center">
               <Bot className="w-5 h-5 text-[#25D366]" />
@@ -107,8 +108,11 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
           </button>
         </div>
 
-        {/* Messages Area - Scrollable */}
-        <div className={`flex-1 overflow-y-auto p-5 space-y-4 ${isDarkMode ? 'bg-stone-950' : 'bg-stone-50'}`}>
+        {/* Messages Area - Flex-1 takes remaining space, scrolls internally */}
+        <div 
+          className={`flex-1 overflow-y-auto p-4 space-y-4 ${isDarkMode ? 'bg-stone-950' : 'bg-stone-50'}`}
+          style={{ minHeight: 0 }} /* Critical for flex child overflow */
+        >
           {messages.map((msg, idx) => (
             <div 
               key={idx}
@@ -120,7 +124,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
                 {msg.role === 'user' ? (
                   <User className={`w-4 h-4 ${isDarkMode ? 'text-stone-300' : 'text-stone-600'}`} />
                 ) : (
-                  <Bot className="w-4 h-4 text-emerald-500" />
+                  <Bot className="w-4 h-4 text-[#25D366]" />
                 )}
               </div>
               <div className={`max-w-[80%] px-4 py-3 rounded-2xl shadow-sm ${
@@ -136,10 +140,10 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
           {isLoading && (
             <div className="flex gap-3">
               <div className={`w-8 h-8 rounded-xl ${assistantIconBg} flex items-center justify-center`}>
-                <Bot className="w-4 h-4 text-emerald-500" />
+                <Bot className="w-4 h-4 text-[#25D366]" />
               </div>
               <div className={`${assistantMsgBg} px-4 py-3 rounded-2xl rounded-tl-md shadow-sm`}>
-                <Loader2 className="w-5 h-5 text-emerald-500 animate-spin" />
+                <Loader2 className="w-5 h-5 text-[#25D366] animate-spin" />
               </div>
             </div>
           )}
@@ -147,8 +151,8 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area - Sticky Footer */}
-        <div className={`border-t ${isDarkMode ? 'border-stone-800 bg-stone-900' : 'border-stone-200 bg-white'} p-4`}>
+        {/* Input Area - Fixed height at bottom */}
+        <div className={`flex-shrink-0 border-t ${isDarkMode ? 'border-stone-800 bg-stone-900' : 'border-stone-200 bg-white'} p-4`}>
           <div className="flex gap-3">
             <input
               ref={inputRef}
@@ -156,21 +160,21 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
               value={input}
               onChange={handleInputChange}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-              placeholder="Type your message..."
-              className={`flex-1 px-4 py-3 ${isDarkMode ? 'bg-stone-800 border-stone-700 text-white placeholder:text-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder:text-stone-400'} border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium`}
+              placeholder="Ask me anything about care..."
+              className={`flex-1 px-4 py-3 ${isDarkMode ? 'bg-stone-800 border-stone-700 text-white placeholder:text-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder:text-stone-400'} border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#25D366] font-medium`}
               data-testid="copilot-input"
             />
             <button
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
-              className="px-5 py-3 bg-[#25D366] text-white rounded-xl hover:bg-[#20bd5a] transition-colors disabled:bg-stone-400 disabled:cursor-not-allowed"
+              className="px-5 py-3 bg-[#25D366] text-white rounded-xl hover:bg-[#20bd5a] transition-colors disabled:bg-stone-400 disabled:cursor-not-allowed flex-shrink-0"
               data-testid="copilot-send"
             >
               <Send className="w-5 h-5" />
             </button>
           </div>
-          <p className={`text-[10px] ${isDarkMode ? 'text-stone-500' : 'text-stone-400'} text-center mt-3 font-medium`}>
-            AI assistant for care guidance • Not a substitute for medical advice
+          <p className={`text-[10px] ${isDarkMode ? 'text-stone-500' : 'text-stone-400'} text-center mt-2 font-medium`}>
+            AI care guidance • Not a substitute for medical advice
           </p>
         </div>
       </div>
