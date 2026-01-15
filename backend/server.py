@@ -509,7 +509,18 @@ async def get_activities(request: Request, session_token: Optional[str] = Cookie
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
     
-    activities = await db.activities.find({}, {"_id": 0}).sort("created_at", -1).to_list(limit)
+    activities = await db.activities.find({}, {
+        "_id": 0,
+        "activity_id": 1,
+        "activity_type": 1,
+        "title": 1,
+        "description": 1,
+        "image_url": 1,
+        "metadata": 1,
+        "created_by": 1,
+        "created_by_name": 1,
+        "created_at": 1
+    }).sort("created_at", -1).to_list(limit)
     return {"activities": activities}
 
 @api_router.post("/activities")
