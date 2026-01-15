@@ -519,7 +519,7 @@ export const FamilyDashboard = ({
                   onChange={(e) => setNewRequest(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Any specific instructions..."
                   rows={3}
-                  className={`w-full px-4 py-3 ${isDarkMode ? 'bg-stone-900 border-stone-800 text-white placeholder-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder-stone-400'} border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none`}
+                  className={`w-full px-4 py-3 ${isDarkMode ? 'bg-stone-900 border-stone-800 text-white placeholder-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder-stone-400'} border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:border-transparent resize-none`}
                   data-testid="request-description-input"
                 />
               </div>
