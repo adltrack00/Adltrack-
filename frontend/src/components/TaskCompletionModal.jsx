@@ -180,7 +180,7 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
             disabled={mode === 'cantComplete' && !selectedReason}
             className={`w-full py-4 rounded-2xl font-bold transition-all shadow-[0_4px_14px_rgba(0,0,0,0.3)] ${
               mode === 'complete'
-                ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                ? 'bg-[#25D366] text-white hover:bg-[#20bd5a]'
                 : 'bg-rose-500 text-white hover:bg-rose-600 disabled:bg-stone-700 disabled:cursor-not-allowed disabled:shadow-none'
             }`}
             data-testid="submit-task-completion"
