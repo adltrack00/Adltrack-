@@ -63,7 +63,7 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
               onClick={() => setMode('complete')}
               className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
                 mode === 'complete' 
-                  ? 'bg-emerald-500 text-white shadow-sm' 
+                  ? 'bg-[#25D366] text-white shadow-sm' 
                   : 'text-stone-500 hover:text-stone-300'
               }`}
             >
