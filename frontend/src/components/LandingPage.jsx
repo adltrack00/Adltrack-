@@ -983,7 +983,7 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
               <Globe className="w-4 h-4 text-slate-500" />
               <span className="text-slate-500 text-sm">English (US)</span>
             </div>
-            <p className="text-slate-500 text-sm">© {new Date().getFullYear()} ADLTrack Inc.</p>
+            <p className="text-slate-500 text-sm">© {new Date().getFullYear()} adltrack Inc.</p>
             <div className="flex gap-8 text-sm text-slate-400">
               <a href="#" className="hover:text-white transition-colors">Privacy</a>
               <a href="#" className="hover:text-white transition-colors">Terms</a>
