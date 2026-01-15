@@ -510,7 +510,7 @@ export const CaregiverDashboard = ({
               <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
               <span className={`text-[10px] font-semibold mt-1 ${activeTab === tab.id ? 'text-[#25D366]' : textMuted}`}>{tab.label}</span>
               {tab.badge && (
-                <div className={`absolute top-1 right-3 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ${isDarkMode ? 'ring-stone-900' : 'ring-white'}`} />
+                <div className={`absolute top-1 right-3 w-2.5 h-2.5 bg-[#25D366] rounded-full ring-2 ${isDarkMode ? 'ring-stone-900' : 'ring-white'}`} />
               )}
             </button>
           ))}
