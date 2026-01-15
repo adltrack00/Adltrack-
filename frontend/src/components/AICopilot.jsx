@@ -168,7 +168,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
             <button
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
-              className="px-5 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors disabled:bg-stone-400 disabled:cursor-not-allowed"
+              className="px-5 py-3 bg-[#25D366] text-white rounded-xl hover:bg-[#20bd5a] transition-colors disabled:bg-stone-400 disabled:cursor-not-allowed"
               data-testid="copilot-send"
             >
               <Send className="w-5 h-5" />
