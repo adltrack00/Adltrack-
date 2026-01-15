@@ -268,7 +268,7 @@ export const CaregiverDashboard = ({
           </div>
           <div className={`h-2 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-200'} rounded-full overflow-hidden`}>
             <div 
-              className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500"
+              className="h-full bg-[#25D366] rounded-full transition-all duration-500"
               style={{ width: `${(completedCount / todayTasks.length) * 100}%` }}
             />
           </div>
