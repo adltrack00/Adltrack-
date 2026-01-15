@@ -375,12 +375,12 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
       {/* --- HEADER --- */}
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-xl border-b border-gray-100 py-3 shadow-sm' : 'bg-transparent py-5'}`}>
         <div className="container mx-auto px-6 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg">
+          {/* Logo - Airbnb-inspired clean style */}
+          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <div className="w-9 h-9 rounded-xl bg-[#25D366] flex items-center justify-center">
               <Activity className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-[#111B21]">ADLTrack</span>
+            <span className="text-xl font-bold tracking-tight text-[#25D366]">ADLTrack</span>
           </div>
 
           {/* Desktop Nav */}
