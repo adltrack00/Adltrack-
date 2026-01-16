@@ -817,6 +817,12 @@ def get_fallback_response(message: str, role: str) -> str:
 # Include the router
 app.include_router(api_router)
 
+# Root-level health check endpoint for Kubernetes liveness/readiness probes
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Kubernetes deployment"""
+    return {"status": "healthy", "service": "adltrack-api"}
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
