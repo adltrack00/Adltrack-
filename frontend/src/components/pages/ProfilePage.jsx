@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Camera, Star, Award, Clock, CheckCircle, LogOut } from 'lucide-react';
+import { ArrowLeft, Camera, Star, Award, Clock, CheckCircle } from 'lucide-react';
 import { UserRole } from '../../types';
 
 export const ProfilePage = ({ onBack, role, onSignOut }) => {
