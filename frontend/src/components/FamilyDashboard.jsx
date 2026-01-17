@@ -41,13 +41,42 @@ export const FamilyDashboard = ({
   const [myRequests, setMyRequests] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null); // For image detail modal
 
+  // Historical date viewing
+  const [viewingDate, setViewingDate] = useState(null);
+  const [historicalTasks, setHistoricalTasks] = useState([]);
+
+  const today = new Date(2026, 0, 17); // Jan 17, 2026
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                      'July', 'August', 'September', 'October', 'November', 'December'];
+
+  const formatDateHeader = (date) => {
+    if (!date) return '';
+    const isToday = date.toDateString() === today.toDateString();
+    if (isToday) return 'Today';
+    return `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+  };
+
+  // Handle date selection from patient profile calendar
+  const handleSelectHistoricalDate = (date, tasksForDate) => {
+    setViewingDate(date);
+    setHistoricalTasks(tasksForDate);
+    setActiveTab('home');
+  };
+
+  // Return to today's view
+  const handleReturnToToday = () => {
+    setViewingDate(null);
+    setHistoricalTasks([]);
+  };
+
   // Get latest vitals
   const latestBP = vitalsData?.bloodPressure?.[vitalsData.bloodPressure.length - 1];
   const latestHR = vitalsData?.heartRate?.[vitalsData.heartRate.length - 1];
   const latestTemp = vitalsData?.temperature?.[vitalsData.temperature.length - 1];
   const latestPain = vitalsData?.pain?.[vitalsData.pain.length - 1];
 
-  // Filter completed tasks for timeline
+  // Filter completed tasks for timeline - use historical if viewing past date
+  const displayTasks = viewingDate ? historicalTasks : tasks.filter(t => t.status === TaskStatus.COMPLETED);
   const completedTasks = tasks.filter(t => t.status === TaskStatus.COMPLETED);
   const totalTasks = tasks.filter(t => t.status !== TaskStatus.PROPOSED).length;
 
