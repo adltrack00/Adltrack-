@@ -526,6 +526,8 @@ export const CaregiverDashboard = ({
         onClose={() => setShowPatientProfile(false)}
         patient={patient}
         onUpdatePhoto={onUpdatePatientPhoto}
+        tasks={tasks}
+        role="caregiver"
       />
 
       <VitalsModal
