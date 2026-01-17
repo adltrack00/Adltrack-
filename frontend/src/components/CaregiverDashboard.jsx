@@ -47,6 +47,34 @@ export const CaregiverDashboard = ({
   const [isShiftActive, setIsShiftActive] = useState(skipStartShift); // Auto-start if skipStartShift
   const [shiftStartTime, setShiftStartTime] = useState(skipStartShift ? new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : null);
   const [activePage, setActivePage] = useState(null);
+  
+  // Historical date viewing
+  const [viewingDate, setViewingDate] = useState(null);
+  const [historicalTasks, setHistoricalTasks] = useState([]);
+
+  const today = new Date(2026, 0, 17); // Jan 17, 2026
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                      'July', 'August', 'September', 'October', 'November', 'December'];
+
+  const formatDateHeader = (date) => {
+    if (!date) return '';
+    const isToday = date.toDateString() === today.toDateString();
+    if (isToday) return 'Today';
+    return `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+  };
+
+  // Handle date selection from patient profile calendar
+  const handleSelectHistoricalDate = (date, tasksForDate) => {
+    setViewingDate(date);
+    setHistoricalTasks(tasksForDate);
+    setActiveTab('home');
+  };
+
+  // Return to today's view
+  const handleReturnToToday = () => {
+    setViewingDate(null);
+    setHistoricalTasks([]);
+  };
 
   // Get latest vitals
   const latestBP = vitalsData?.bloodPressure?.[vitalsData.bloodPressure.length - 1];
@@ -54,10 +82,13 @@ export const CaregiverDashboard = ({
   const latestTemp = vitalsData?.temperature?.[vitalsData.temperature.length - 1];
   const latestPain = vitalsData?.pain?.[vitalsData.pain.length - 1];
 
-  // Filter tasks
+  // Filter tasks - use historical tasks if viewing past date
+  const displayTasks = viewingDate ? historicalTasks : tasks.filter(t => t.status !== TaskStatus.PROPOSED);
   const todayTasks = tasks.filter(t => t.status !== TaskStatus.PROPOSED);
   const pendingRequests = proposedTasks.filter(t => t.status === TaskStatus.PROPOSED);
-  const completedCount = todayTasks.filter(t => t.status === TaskStatus.COMPLETED).length;
+  const completedCount = viewingDate 
+    ? historicalTasks.filter(t => t.status === TaskStatus.COMPLETED).length
+    : todayTasks.filter(t => t.status === TaskStatus.COMPLETED).length;
 
   const handleStartShift = () => {
     setIsShiftActive(true);
