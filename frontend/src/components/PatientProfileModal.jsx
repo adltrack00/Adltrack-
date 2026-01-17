@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { X, Phone, MapPin, AlertTriangle, Heart, Pill, Camera, User, Share2, Shield, Activity, Calendar, ChevronLeft, ChevronRight, Clock, CheckCircle, Image } from 'lucide-react';
+import { X, Phone, MapPin, AlertTriangle, Heart, Pill, Camera, User, Share2, Shield, Activity, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { TaskStatus } from '../types';
-import { CARE_IMAGES, CAREGIVER_PROFILE } from '../services/mockData';
+import { CARE_IMAGES } from '../services/mockData';
 
 export const PatientProfileModal = ({ 
   isOpen, 
@@ -9,13 +9,12 @@ export const PatientProfileModal = ({
   patient,
   onUpdatePhoto,
   tasks = [],
-  role = 'caregiver' // 'caregiver' or 'family'
+  role = 'caregiver',
+  onSelectDate // New callback to pass selected date back to dashboard
 }) => {
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 17)); // Jan 17, 2026
-  const [selectedTask, setSelectedTask] = useState(null);
 
   const today = new Date(2026, 0, 17); // Jan 17, 2026
 
@@ -65,14 +64,9 @@ export const PatientProfileModal = ({
     return taskHistory;
   }, [tasks, today]);
 
-  // Get tasks for a specific date
-  const getTasksForDate = (date) => {
-    return historicalTasks[date.toDateString()] || [];
-  };
-
   // Check if a date has tasks
   const hasTasksOnDate = (date) => {
-    return getTasksForDate(date).length > 0;
+    return (historicalTasks[date.toDateString()] || []).length > 0;
   };
 
   // Generate calendar days
@@ -135,17 +129,13 @@ export const PatientProfileModal = ({
     });
   };
 
+  // Handle date selection - close modals and pass date to dashboard
   const handleDateSelect = (date) => {
-    setSelectedDate(date);
-  };
-
-  const getTaskImage = (task) => {
-    if (task.evidenceUrl) return task.evidenceUrl;
-    const title = task.title.toLowerCase();
-    if (title.includes('medication') || title.includes('med')) return CARE_IMAGES.medication;
-    if (title.includes('breakfast') || title.includes('lunch') || title.includes('dinner') || title.includes('meal') || title.includes('food')) return CARE_IMAGES.meal;
-    if (title.includes('walk') || title.includes('exercise') || title.includes('therapy')) return CARE_IMAGES.walk;
-    return CARE_IMAGES.vitals;
+    if (onSelectDate) {
+      onSelectDate(date, historicalTasks[date.toDateString()] || []);
+    }
+    setShowCalendar(false);
+    onClose();
   };
 
   if (!isOpen || !patient) return null;
@@ -164,141 +154,6 @@ export const PatientProfileModal = ({
   const handleShare = () => {
     alert('Medical ID shared with emergency services');
     setShowShareOptions(false);
-  };
-
-  // Render Task Detail View - Different based on role
-  const renderTaskDetail = () => {
-    if (!selectedTask) return null;
-
-    const taskImage = getTaskImage(selectedTask);
-
-    if (role === 'family') {
-      // Family View - Airbnb style with large image
-      return (
-        <div className="fixed inset-0 bg-black/90 z-[70] flex items-center justify-center p-4" onClick={() => setSelectedTask(null)}>
-          <div 
-            className="bg-stone-950 rounded-3xl max-w-lg w-full max-h-[85vh] overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Image */}
-            {taskImage && (
-              <div className="relative aspect-[16/10]">
-                <img 
-                  src={taskImage}
-                  alt={selectedTask.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                <button 
-                  onClick={() => setSelectedTask(null)}
-                  className="absolute top-4 right-4 p-2 bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-colors"
-                >
-                  <X className="w-5 h-5 text-white" />
-                </button>
-                <div className="absolute bottom-4 left-4 right-4">
-                  <h3 className="text-xl font-bold text-white">{selectedTask.title}</h3>
-                  <p className="text-white/80 text-sm flex items-center gap-1 mt-1">
-                    <Clock className="w-4 h-4" />
-                    Completed at {selectedTask.completedAt}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Content */}
-            <div className="p-5 space-y-4">
-              {/* Completion Note */}
-              {selectedTask.completionNote && (
-                <div className="bg-stone-900 rounded-2xl p-4">
-                  <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">Caregiver Note</p>
-                  <p className="text-stone-200 text-sm leading-relaxed">"{selectedTask.completionNote}"</p>
-                </div>
-              )}
-
-              {/* Caregiver Info */}
-              <div className="flex items-center gap-3 pt-3 border-t border-stone-800">
-                <img 
-                  src={CAREGIVER_PROFILE.photo}
-                  alt="Caregiver"
-                  className="w-12 h-12 rounded-xl object-cover"
-                />
-                <div className="flex-1">
-                  <p className="font-semibold text-white">Julia Martinez</p>
-                  <p className="text-stone-500 text-sm">Certified Nursing Assistant</p>
-                </div>
-                <div className="flex items-center gap-1 text-[#25D366] text-sm font-semibold">
-                  <CheckCircle className="w-4 h-4" />
-                  Verified
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    } else {
-      // Caregiver View - Compact card style
-      return (
-        <div className="fixed inset-0 bg-black/90 z-[70] flex items-center justify-center p-4" onClick={() => setSelectedTask(null)}>
-          <div 
-            className="bg-stone-950 border border-stone-800 rounded-3xl max-w-md w-full overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-stone-800">
-              <div>
-                <h3 className="text-lg font-bold text-white">{selectedTask.title}</h3>
-                <p className="text-stone-400 text-sm">Completed at {selectedTask.completedAt}</p>
-              </div>
-              <button 
-                onClick={() => setSelectedTask(null)}
-                className="p-2 hover:bg-stone-800 rounded-xl transition-colors"
-              >
-                <X className="w-5 h-5 text-stone-400" />
-              </button>
-            </div>
-
-            {/* Image */}
-            {taskImage && (
-              <div className="relative aspect-video">
-                <img 
-                  src={taskImage}
-                  alt={selectedTask.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-3 right-3 px-2 py-1 bg-[#25D366] rounded-lg text-white text-xs font-bold flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" />
-                  Completed
-                </div>
-              </div>
-            )}
-
-            {/* Details */}
-            <div className="p-4 space-y-3">
-              {selectedTask.completionNote && (
-                <div>
-                  <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-1">Your Note</p>
-                  <p className="text-stone-300 text-sm bg-stone-900 rounded-xl p-3">"{selectedTask.completionNote}"</p>
-                </div>
-              )}
-
-              {/* Task info */}
-              <div className="grid grid-cols-2 gap-3 pt-2">
-                <div className="bg-stone-900 rounded-xl p-3 text-center">
-                  <Clock className="w-5 h-5 text-blue-400 mx-auto mb-1" />
-                  <p className="text-xs text-stone-500">Time</p>
-                  <p className="text-sm font-bold text-white">{selectedTask.completedAt}</p>
-                </div>
-                <div className="bg-stone-900 rounded-xl p-3 text-center">
-                  <Image className="w-5 h-5 text-purple-400 mx-auto mb-1" />
-                  <p className="text-xs text-stone-500">Evidence</p>
-                  <p className="text-sm font-bold text-white">{taskImage ? 'Photo' : 'None'}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
   };
 
   return (
@@ -354,7 +209,7 @@ export const PatientProfileModal = ({
 
         {/* Content */}
         <div className="p-5 space-y-4">
-          {/* Calendar Date Tab - NEW */}
+          {/* Calendar Date Tab */}
           <button
             onClick={() => setShowCalendar(true)}
             className="w-full bg-[#25D366]/10 border border-[#25D366]/30 rounded-2xl p-4 flex items-center gap-3 hover:bg-[#25D366]/20 transition-colors"
@@ -533,10 +388,10 @@ export const PatientProfileModal = ({
         {showCalendar && (
           <div 
             className="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4" 
-            onClick={() => { setShowCalendar(false); setSelectedDate(null); }}
+            onClick={() => setShowCalendar(false)}
           >
             <div 
-              className="bg-stone-950 border border-stone-800 rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden"
+              className="bg-stone-950 border border-stone-800 rounded-3xl w-full max-w-md overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Calendar Header */}
@@ -544,12 +399,14 @@ export const PatientProfileModal = ({
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-white">Care History</h3>
                   <button 
-                    onClick={() => { setShowCalendar(false); setSelectedDate(null); }}
+                    onClick={() => setShowCalendar(false)}
                     className="p-2 hover:bg-stone-800 rounded-xl transition-colors"
                   >
                     <X className="w-5 h-5 text-stone-400" />
                   </button>
                 </div>
+                
+                <p className="text-sm text-stone-400 mb-4">Select a date to view all care activities</p>
 
                 {/* Month Navigation */}
                 <div className="flex items-center justify-between">
@@ -586,7 +443,6 @@ export const PatientProfileModal = ({
                 <div className="grid grid-cols-7 gap-1">
                   {getDaysInMonth(currentMonth).map((dayInfo, idx) => {
                     const isToday = dayInfo.date.toDateString() === today.toDateString();
-                    const isSelected = selectedDate && dayInfo.date.toDateString() === selectedDate.toDateString();
                     const hasTasks = hasTasksOnDate(dayInfo.date);
                     const isPast = dayInfo.date <= today;
 
@@ -599,14 +455,13 @@ export const PatientProfileModal = ({
                           relative aspect-square flex flex-col items-center justify-center rounded-xl text-sm font-medium transition-all
                           ${!dayInfo.isCurrentMonth ? 'text-stone-700 cursor-not-allowed' : ''}
                           ${dayInfo.isCurrentMonth && !isPast ? 'text-stone-600 cursor-not-allowed' : ''}
-                          ${dayInfo.isCurrentMonth && isPast ? 'text-stone-300 hover:bg-stone-800 cursor-pointer' : ''}
+                          ${dayInfo.isCurrentMonth && isPast && !isToday ? 'text-stone-300 hover:bg-stone-800 cursor-pointer' : ''}
                           ${isToday ? 'bg-[#25D366] text-white hover:bg-[#20bd5a]' : ''}
-                          ${isSelected && !isToday ? 'bg-stone-700 text-white' : ''}
                         `}
                       >
                         {dayInfo.day}
                         {hasTasks && dayInfo.isCurrentMonth && (
-                          <div className={`absolute bottom-1 w-1.5 h-1.5 rounded-full ${isToday || isSelected ? 'bg-white' : 'bg-[#25D366]'}`} />
+                          <div className={`absolute bottom-1 w-1.5 h-1.5 rounded-full ${isToday ? 'bg-white' : 'bg-[#25D366]'}`} />
                         )}
                       </button>
                     );
@@ -614,65 +469,15 @@ export const PatientProfileModal = ({
                 </div>
               </div>
 
-              {/* Selected Date Tasks */}
-              {selectedDate && (
-                <div className="border-t border-stone-800 p-4 max-h-[40vh] overflow-y-auto">
-                  <h4 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-3">
-                    {formatDate(selectedDate)}
-                  </h4>
-                  
-                  {getTasksForDate(selectedDate).length > 0 ? (
-                    <div className="space-y-2">
-                      {getTasksForDate(selectedDate).map((task) => (
-                        <button
-                          key={task.id}
-                          onClick={() => setSelectedTask(task)}
-                          className="w-full bg-stone-900 border border-stone-800 rounded-2xl p-3 flex items-center gap-3 hover:bg-stone-800 transition-colors text-left"
-                          data-testid={`task-${task.id}`}
-                        >
-                          {/* Task thumbnail */}
-                          <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-stone-800">
-                            {getTaskImage(task) ? (
-                              <img 
-                                src={getTaskImage(task)} 
-                                alt={task.title}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <CheckCircle className="w-5 h-5 text-[#25D366]" />
-                              </div>
-                            )}
-                          </div>
-                          
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-white text-sm truncate">{task.title}</p>
-                            <p className="text-stone-400 text-xs flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {task.completedAt}
-                            </p>
-                          </div>
-                          
-                          <div className="flex items-center gap-1 text-[#25D366] text-xs font-semibold">
-                            <CheckCircle className="w-3.5 h-3.5" />
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <Calendar className="w-10 h-10 text-stone-700 mx-auto mb-2" />
-                      <p className="text-stone-500 text-sm">No tasks recorded</p>
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* Hint */}
+              <div className="px-4 pb-4">
+                <p className="text-xs text-stone-500 text-center">
+                  Tap a date to view that day&apos;s care timeline
+                </p>
+              </div>
             </div>
           </div>
         )}
-
-        {/* Task Detail Modal */}
-        {selectedTask && renderTaskDetail()}
       </div>
     </div>
   );
