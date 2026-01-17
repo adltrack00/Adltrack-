@@ -523,6 +523,7 @@ export const FamilyDashboard = ({
         patient={patient}
         tasks={tasks}
         role="family"
+        onSelectDate={handleSelectHistoricalDate}
       />
 
       <VitalsModal
