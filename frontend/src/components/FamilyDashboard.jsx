@@ -453,7 +453,6 @@ export const FamilyDashboard = ({
       {[
         { label: 'Current Caregiver', icon: Heart, action: () => setActivePage('caregiver') },
         { label: 'Billing', icon: Activity, action: () => setActivePage('billing') },
-        { label: 'Care History', icon: Clock, action: () => setActivePage('history') },
         { label: 'Settings', icon: Settings, action: () => setActivePage('settings') },
         { label: 'Support', icon: Bell, action: () => setActivePage('support') },
       ].map((item, idx) => (
