@@ -106,16 +106,6 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
             </div>
           </div>
         )}
-
-        {/* Sign Out Button */}
-        <button
-          onClick={onSignOut}
-          className="w-full py-4 border-2 border-rose-500/30 text-rose-400 rounded-xl font-semibold hover:bg-rose-500/10 transition-colors flex items-center justify-center gap-2"
-          data-testid="sign-out-btn"
-        >
-          <LogOut className="w-5 h-5" />
-          Sign Out
-        </button>
       </div>
     </div>
   );
