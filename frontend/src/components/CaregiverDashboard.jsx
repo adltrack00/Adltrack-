@@ -587,6 +587,7 @@ export const CaregiverDashboard = ({
         onUpdatePhoto={onUpdatePatientPhoto}
         tasks={tasks}
         role="caregiver"
+        onSelectDate={handleSelectHistoricalDate}
       />
 
       <VitalsModal
