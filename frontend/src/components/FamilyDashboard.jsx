@@ -469,6 +469,18 @@ export const FamilyDashboard = ({
           <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
         </button>
       ))}
+
+      {/* Sign Out Button */}
+      <button
+        onClick={onSignOut}
+        className="w-full flex items-center gap-4 p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl hover:bg-rose-500/20 transition-colors mt-4"
+        data-testid="menu-sign-out-btn"
+      >
+        <div className="w-11 h-11 bg-rose-500/20 rounded-xl flex items-center justify-center">
+          <User className="w-5 h-5 text-rose-400" />
+        </div>
+        <span className="font-medium text-rose-400 flex-1 text-left">Sign Out</span>
+      </button>
     </div>
   );
 
