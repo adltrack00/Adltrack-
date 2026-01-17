@@ -458,6 +458,8 @@ export const FamilyDashboard = ({
         isOpen={showPatientProfile}
         onClose={() => setShowPatientProfile(false)}
         patient={patient}
+        tasks={tasks}
+        role="family"
       />
 
       <VitalsModal
