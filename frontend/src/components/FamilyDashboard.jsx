@@ -335,9 +335,9 @@ export const FamilyDashboard = ({
         ) : (
           /* Care Timeline Tab */
           <div>
-            {completedTasks.length > 0 ? (
+            {displayTasks.length > 0 ? (
               <div className="space-y-4">
-                {completedTasks.map((task) => (
+                {displayTasks.map((task) => (
                   <div 
                     key={task.id} 
                     className={`${bgCard} border ${border} rounded-3xl overflow-hidden`}
@@ -393,9 +393,14 @@ export const FamilyDashboard = ({
                 <div className={`w-16 h-16 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-100'} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
                   <Camera className={`w-8 h-8 ${textMuted}`} />
                 </div>
-                <h3 className={`font-semibold ${text} mb-1`}>No updates yet</h3>
+                <h3 className={`font-semibold ${text} mb-1`}>
+                  {viewingDate ? 'No tasks recorded' : 'No updates yet'}
+                </h3>
                 <p className={`${textMuted} text-sm`}>
-                  Photos and notes will appear here as tasks are completed
+                  {viewingDate 
+                    ? 'No care activities were recorded on this date'
+                    : 'Photos and notes will appear here as tasks are completed'
+                  }
                 </p>
               </div>
             )}
