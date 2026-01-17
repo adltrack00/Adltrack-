@@ -189,14 +189,39 @@ export const FamilyDashboard = ({
 
       {/* Progress Section - Compact style */}
       <div className="px-6 pb-5">
+        {/* Historical Date Banner */}
+        {viewingDate && (
+          <div className="mb-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center">
+                <Clock className="w-5 h-5 text-amber-400" />
+              </div>
+              <div>
+                <p className="text-xs text-amber-400 font-bold uppercase tracking-wider">Viewing History</p>
+                <p className={`text-base font-bold ${text}`}>{formatDateHeader(viewingDate)}</p>
+              </div>
+            </div>
+            <button 
+              onClick={handleReturnToToday}
+              className="px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-bold hover:bg-amber-600 transition-colors"
+            >
+              Back to Today
+            </button>
+          </div>
+        )}
+
         <div className="flex items-center justify-between mb-2">
-          <span className={`text-sm font-medium ${textSecondary}`}>Today&apos;s Progress</span>
-          <span className={`text-sm font-bold ${text}`}>{completedTasks.length}/{totalTasks}</span>
+          <span className={`text-sm font-medium ${textSecondary}`}>
+            {viewingDate ? `${formatDateHeader(viewingDate)}'s Progress` : "Today's Progress"}
+          </span>
+          <span className={`text-sm font-bold ${text}`}>
+            {viewingDate ? displayTasks.length : completedTasks.length}/{viewingDate ? displayTasks.length : totalTasks}
+          </span>
         </div>
         <div className={`h-2 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-200'} rounded-full overflow-hidden`}>
           <div 
             className="h-full bg-[#25D366] rounded-full transition-all duration-500"
-            style={{ width: totalTasks > 0 ? `${(completedTasks.length / totalTasks) * 100}%` : '0%' }}
+            style={{ width: viewingDate ? '100%' : (totalTasks > 0 ? `${(completedTasks.length / totalTasks) * 100}%` : '0%') }}
           />
         </div>
       </div>
@@ -204,38 +229,42 @@ export const FamilyDashboard = ({
       {/* Task Tabs - Minimal Line Style */}
       <div className="px-6 mb-4">
         <div className="flex items-center gap-4">
-          {/* My Requests on left */}
-          <button
-            onClick={() => setActiveTaskTab('requests')}
-            className="relative"
-          >
-            <span className={`text-sm font-semibold transition-colors ${
-              activeTaskTab === 'requests'
-                ? text
-                : `${textMuted} hover:${textSecondary}`
-            }`}>
-              My Requests
-            </span>
-            {myRequests.length > 0 && (
-              <span className="absolute -top-2 -right-3 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                {myRequests.length}
-              </span>
-            )}
-          </button>
-          
-          {/* Line */}
-          <div className={`flex-1 h-px ${isDarkMode ? 'bg-stone-700' : 'bg-stone-300'}`} />
+          {/* My Requests on left - only show if viewing today */}
+          {!viewingDate && (
+            <>
+              <button
+                onClick={() => setActiveTaskTab('requests')}
+                className="relative"
+              >
+                <span className={`text-sm font-semibold transition-colors ${
+                  activeTaskTab === 'requests'
+                    ? text
+                    : `${textMuted} hover:${textSecondary}`
+                }`}>
+                  My Requests
+                </span>
+                {myRequests.length > 0 && (
+                  <span className="absolute -top-2 -right-3 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {myRequests.length}
+                  </span>
+                )}
+              </button>
+              
+              {/* Line */}
+              <div className={`flex-1 h-px ${isDarkMode ? 'bg-stone-700' : 'bg-stone-300'}`} />
+            </>
+          )}
           
           {/* Care Timeline on right */}
           <button
             onClick={() => setActiveTaskTab('timeline')}
             className={`text-sm font-semibold transition-colors ${
-              activeTaskTab === 'timeline'
+              activeTaskTab === 'timeline' || viewingDate
                 ? text
                 : `${textMuted} hover:${textSecondary}`
             }`}
           >
-            Care Timeline
+            {viewingDate ? 'Care Timeline' : 'Care Timeline'}
           </button>
         </div>
       </div>
