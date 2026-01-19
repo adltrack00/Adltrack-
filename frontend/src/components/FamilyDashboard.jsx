@@ -495,27 +495,27 @@ export const FamilyDashboard = ({
 
       {/* Floating Action Buttons - Incident View + Copilot */}
       {activeTab === 'home' && (
-        <div className="fixed bottom-24 right-5 flex flex-col gap-3 z-40">
+        <div className="fixed bottom-24 right-5 flex flex-col gap-2 z-40">
           {/* Incident Reports Button */}
           <button
             onClick={() => setShowIncidentView(true)}
-            className="w-12 h-12 bg-rose-500 rounded-xl shadow-[0_4px_20px_rgba(244,63,94,0.4)] flex items-center justify-center hover:shadow-[0_8px_25px_rgba(244,63,94,0.5)] transition-all hover:scale-105 relative"
+            className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 relative"
             data-testid="incident-view-btn"
           >
-            <AlertTriangle className="w-5 h-5 text-white" />
+            <AlertTriangle className="w-4 h-4 text-rose-500" />
             {/* Notification badge */}
-            <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center">
-              <span className="text-rose-500 text-xs font-bold">3</span>
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-[10px] font-bold">3</span>
             </div>
           </button>
           
           {/* Copilot Button */}
           <button
             onClick={() => setShowCopilot(true)}
-            className="w-12 h-12 bg-[#25D366] rounded-xl shadow-[0_4px_20px_rgba(37,211,102,0.4)] flex items-center justify-center hover:shadow-[0_8px_25px_rgba(37,211,102,0.5)] transition-all hover:scale-105"
+            className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105"
             data-testid="family-copilot-btn"
           >
-            <Bot className="w-5 h-5 text-white" />
+            <Bot className="w-4 h-4 text-stone-900" />
           </button>
         </div>
       )}
