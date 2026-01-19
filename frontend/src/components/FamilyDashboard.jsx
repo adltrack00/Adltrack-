@@ -493,15 +493,31 @@ export const FamilyDashboard = ({
       {activeTab === 'notifications' && <UpdatesPage onBack={() => setActiveTab('home')} />}
       {activeTab === 'settings' && renderSettingsContent()}
 
-      {/* Floating Copilot Button - Smaller, Light Green */}
+      {/* Floating Action Buttons - Incident View + Copilot */}
       {activeTab === 'home' && (
-        <button
-          onClick={() => setShowCopilot(true)}
-          className="fixed bottom-24 right-5 w-11 h-11 bg-[#25D366] rounded-xl shadow-[0_4px_20px_rgba(37,211,102,0.4)] flex items-center justify-center hover:shadow-[0_8px_25px_rgba(37,211,102,0.5)] transition-all hover:scale-105 z-40"
-          data-testid="family-copilot-btn"
-        >
-          <Bot className="w-5 h-5 text-white" />
-        </button>
+        <div className="fixed bottom-24 right-5 flex flex-col gap-3 z-40">
+          {/* Incident Reports Button */}
+          <button
+            onClick={() => setShowIncidentView(true)}
+            className="w-12 h-12 bg-rose-500 rounded-xl shadow-[0_4px_20px_rgba(244,63,94,0.4)] flex items-center justify-center hover:shadow-[0_8px_25px_rgba(244,63,94,0.5)] transition-all hover:scale-105 relative"
+            data-testid="incident-view-btn"
+          >
+            <AlertTriangle className="w-5 h-5 text-white" />
+            {/* Notification badge */}
+            <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center">
+              <span className="text-rose-500 text-xs font-bold">3</span>
+            </div>
+          </button>
+          
+          {/* Copilot Button */}
+          <button
+            onClick={() => setShowCopilot(true)}
+            className="w-12 h-12 bg-[#25D366] rounded-xl shadow-[0_4px_20px_rgba(37,211,102,0.4)] flex items-center justify-center hover:shadow-[0_8px_25px_rgba(37,211,102,0.5)] transition-all hover:scale-105"
+            data-testid="family-copilot-btn"
+          >
+            <Bot className="w-5 h-5 text-white" />
+          </button>
+        </div>
       )}
 
       {/* Bottom Navigation - Fixed to bottom */}
