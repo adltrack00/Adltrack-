@@ -133,11 +133,12 @@ export const IncidentReportModal = ({
   return (
     <div className="fixed inset-0 bg-black/80 z-[100] flex items-end sm:items-center justify-center font-['Manrope',sans-serif]">
       <div 
-        className="bg-stone-950 border border-stone-800 w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl max-h-[90vh] flex flex-col overflow-hidden"
+        className="bg-stone-950 border border-stone-800 w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl flex flex-col overflow-hidden"
+        style={{ maxHeight: 'calc(100vh - 60px)', height: 'auto' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex-none bg-stone-900 border-b border-stone-800 px-5 py-4">
+        <div className="flex-shrink-0 bg-stone-900 border-b border-stone-800 px-5 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-rose-500/20 rounded-xl flex items-center justify-center">
