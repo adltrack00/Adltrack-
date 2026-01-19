@@ -499,7 +499,7 @@ export const FamilyDashboard = ({
           {/* Incident Reports Button */}
           <button
             onClick={() => setShowIncidentView(true)}
-            className={`w-10 h-10 rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 relative ${
+            className={`w-9 h-9 rounded-xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 relative ${
               isDarkMode ? 'bg-stone-800' : 'bg-white'
             }`}
             data-testid="incident-view-btn"
@@ -514,7 +514,7 @@ export const FamilyDashboard = ({
           {/* Copilot Button */}
           <button
             onClick={() => setShowCopilot(true)}
-            className={`w-10 h-10 rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 ${
+            className={`w-9 h-9 rounded-xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 ${
               isDarkMode ? 'bg-stone-800' : 'bg-white'
             }`}
             data-testid="family-copilot-btn"
