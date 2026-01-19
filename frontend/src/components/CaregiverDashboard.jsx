@@ -45,6 +45,7 @@ export const CaregiverDashboard = ({
   const [showPatientProfile, setShowPatientProfile] = useState(false);
   const [showVitals, setShowVitals] = useState(false);
   const [showCopilot, setShowCopilot] = useState(false);
+  const [showIncidentReport, setShowIncidentReport] = useState(false);
   const [isShiftActive, setIsShiftActive] = useState(skipStartShift); // Auto-start if skipStartShift
   const [shiftStartTime, setShiftStartTime] = useState(skipStartShift ? new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : null);
   const [activePage, setActivePage] = useState(null);
