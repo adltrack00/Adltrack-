@@ -548,23 +548,23 @@ export const CaregiverDashboard = ({
 
       {/* Floating Action Buttons - Incident Report + Copilot */}
       {activeTab === 'home' && isShiftActive && (
-        <div className="fixed bottom-24 right-5 flex flex-col gap-3 z-40">
+        <div className="fixed bottom-24 right-5 flex flex-col gap-2 z-40">
           {/* Incident Report Button */}
           <button
             onClick={() => setShowIncidentReport(true)}
-            className="w-12 h-12 bg-rose-500 rounded-xl shadow-[0_4px_20px_rgba(244,63,94,0.4)] flex items-center justify-center hover:shadow-[0_8px_25px_rgba(244,63,94,0.5)] transition-all hover:scale-105"
+            className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105"
             data-testid="incident-report-btn"
           >
-            <AlertTriangle className="w-5 h-5 text-white" />
+            <AlertTriangle className="w-4 h-4 text-rose-500" />
           </button>
           
           {/* Copilot Button */}
           <button
             onClick={() => setShowCopilot(true)}
-            className="w-12 h-12 bg-[#25D366] rounded-xl shadow-[0_4px_20px_rgba(37,211,102,0.4)] flex items-center justify-center hover:shadow-[0_8px_25px_rgba(37,211,102,0.5)] transition-all hover:scale-105"
+            className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105"
             data-testid="copilot-btn"
           >
-            <Bot className="w-5 h-5 text-white" />
+            <Bot className="w-4 h-4 text-stone-900" />
           </button>
         </div>
       )}
