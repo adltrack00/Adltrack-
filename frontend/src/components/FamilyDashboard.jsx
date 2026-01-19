@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { 
   Activity, MessageSquare, Bell, Settings, Bot, Heart, Thermometer, 
-  ChevronRight, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X
+  ChevronRight, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X, AlertTriangle, Home
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
 import { PatientProfileModal } from './PatientProfileModal';
 import { VitalsModal } from './VitalsModal';
 import { AICopilot } from './AICopilot';
+import { IncidentViewModal } from './IncidentViewModal';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AccountsPage } from './pages/AccountsPage';
