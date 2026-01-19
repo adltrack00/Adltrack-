@@ -546,15 +546,27 @@ export const CaregiverDashboard = ({
       {activeTab === 'shift' && renderShiftContent()}
       {activeTab === 'settings' && renderSettingsContent()}
 
-      {/* Floating Copilot Button - Smaller, Light Green */}
+      {/* Floating Action Buttons - Incident Report + Copilot */}
       {activeTab === 'home' && isShiftActive && (
-        <button
-          onClick={() => setShowCopilot(true)}
-          className="fixed bottom-24 right-5 w-11 h-11 bg-[#25D366] rounded-xl shadow-[0_4px_20px_rgba(37,211,102,0.4)] flex items-center justify-center hover:shadow-[0_8px_25px_rgba(37,211,102,0.5)] transition-all hover:scale-105 z-40"
-          data-testid="copilot-btn"
-        >
-          <Bot className="w-5 h-5 text-white" />
-        </button>
+        <div className="fixed bottom-24 right-5 flex flex-col gap-3 z-40">
+          {/* Incident Report Button */}
+          <button
+            onClick={() => setShowIncidentReport(true)}
+            className="w-12 h-12 bg-rose-500 rounded-xl shadow-[0_4px_20px_rgba(244,63,94,0.4)] flex items-center justify-center hover:shadow-[0_8px_25px_rgba(244,63,94,0.5)] transition-all hover:scale-105"
+            data-testid="incident-report-btn"
+          >
+            <AlertTriangle className="w-5 h-5 text-white" />
+          </button>
+          
+          {/* Copilot Button */}
+          <button
+            onClick={() => setShowCopilot(true)}
+            className="w-12 h-12 bg-[#25D366] rounded-xl shadow-[0_4px_20px_rgba(37,211,102,0.4)] flex items-center justify-center hover:shadow-[0_8px_25px_rgba(37,211,102,0.5)] transition-all hover:scale-105"
+            data-testid="copilot-btn"
+          >
+            <Bot className="w-5 h-5 text-white" />
+          </button>
+        </div>
       )}
 
       {/* Bottom Navigation - Fixed to bottom */}
