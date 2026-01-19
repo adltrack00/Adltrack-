@@ -734,6 +734,11 @@ export const FamilyDashboard = ({
           </div>
         </div>
       )}
+
+      <IncidentViewModal
+        isOpen={showIncidentView}
+        onClose={() => setShowIncidentView(false)}
+      />
     </div>
   );
 };
