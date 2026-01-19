@@ -109,19 +109,19 @@ export const IncidentReportModal = ({
   if (submitted) {
     return (
       <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 font-['Manrope',sans-serif]">
-        <div className="bg-stone-950 border border-stone-800 rounded-3xl w-full max-w-md p-8 text-center">
-          <div className="w-20 h-20 bg-[#25D366]/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-[#25D366]" />
+        <div className="bg-stone-950 border border-stone-800 rounded-3xl w-full max-w-sm p-6 text-center">
+          <div className="w-16 h-16 bg-[#25D366]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="w-8 h-8 text-[#25D366]" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Report Submitted</h2>
-          <p className="text-stone-400 mb-6">
+          <h2 className="text-xl font-bold text-white mb-2">Report Submitted</h2>
+          <p className="text-stone-400 text-sm mb-5">
             {notifyFamily 
-              ? "The incident has been documented and the family has been notified."
-              : "The incident has been documented successfully."}
+              ? "Incident documented and family notified."
+              : "Incident documented successfully."}
           </p>
           <button
             onClick={handleClose}
-            className="w-full py-4 bg-[#25D366] text-white rounded-2xl font-bold hover:bg-[#20bd5a] transition-colors"
+            className="w-full py-3 bg-[#25D366] text-white rounded-xl font-bold hover:bg-[#20bd5a] transition-colors"
           >
             Done
           </button>
@@ -131,22 +131,26 @@ export const IncidentReportModal = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-[100] flex items-end sm:items-center justify-center font-['Manrope',sans-serif]">
+    <div 
+      className="fixed inset-0 bg-black/80 z-[100] font-['Manrope',sans-serif]"
+      onClick={handleClose}
+    >
+      {/* Modal Container - Fixed position from bottom */}
       <div 
-        className="bg-stone-950 border border-stone-800 w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl flex flex-col overflow-hidden"
-        style={{ maxHeight: 'calc(100vh - 60px)', height: 'auto' }}
+        className="fixed bottom-0 left-0 right-0 sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-md sm:rounded-3xl bg-stone-950 border-t sm:border border-stone-800 rounded-t-3xl flex flex-col"
+        style={{ height: '75vh', maxHeight: '600px' }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex-shrink-0 bg-stone-900 border-b border-stone-800 px-5 py-4">
+        {/* Header - Fixed */}
+        <div className="flex-shrink-0 bg-stone-900 border-b border-stone-800 px-4 py-3 rounded-t-3xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-rose-500/20 rounded-xl flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-rose-400" />
+              <div className="w-9 h-9 bg-rose-500/20 rounded-xl flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 text-rose-400" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-white">Incident Report</h2>
-                <p className="text-xs text-stone-400">Step {step} of 4</p>
+                <h2 className="text-base font-bold text-white">Incident Report</h2>
+                <p className="text-[11px] text-stone-400">Step {step} of 4</p>
               </div>
             </div>
             <button onClick={handleClose} className="p-2 hover:bg-stone-800 rounded-xl transition-colors">
@@ -155,7 +159,7 @@ export const IncidentReportModal = ({
           </div>
           
           {/* Progress Bar */}
-          <div className="flex gap-1 mt-4">
+          <div className="flex gap-1 mt-3">
             {[1, 2, 3, 4].map((s) => (
               <div 
                 key={s}
@@ -167,37 +171,37 @@ export const IncidentReportModal = ({
           </div>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-5">
+        {/* Content - Scrollable */}
+        <div className="flex-1 overflow-y-auto p-4 min-h-0">
           {/* Step 1: Incident Type */}
           {step === 1 && (
-            <div className="space-y-3">
-              <h3 className="text-white font-semibold mb-4">What type of incident occurred?</h3>
+            <div className="space-y-2">
+              <h3 className="text-white font-semibold text-sm mb-3">What type of incident occurred?</h3>
               {INCIDENT_TYPES.map((type) => (
                 <button
                   key={type.id}
                   onClick={() => setIncidentType(type.id)}
-                  className={`w-full p-4 rounded-2xl border transition-all text-left flex items-center gap-4 ${
+                  className={`w-full p-3 rounded-xl border transition-all text-left flex items-center gap-3 ${
                     incidentType === type.id
-                      ? `bg-${type.color}-500/20 border-${type.color}-500/50`
+                      ? 'bg-rose-500/20 border-rose-500/50'
                       : 'bg-stone-900 border-stone-800 hover:border-stone-700'
                   }`}
                 >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                    incidentType === type.id ? `bg-${type.color}-500/30` : 'bg-stone-800'
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                    incidentType === type.id ? 'bg-rose-500/30' : 'bg-stone-800'
                   }`}>
-                    <type.icon className={`w-6 h-6 ${
-                      incidentType === type.id ? `text-${type.color}-400` : 'text-stone-400'
+                    <type.icon className={`w-5 h-5 ${
+                      incidentType === type.id ? 'text-rose-400' : 'text-stone-400'
                     }`} />
                   </div>
-                  <div className="flex-1">
-                    <p className={`font-semibold ${incidentType === type.id ? 'text-white' : 'text-stone-300'}`}>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold text-sm ${incidentType === type.id ? 'text-white' : 'text-stone-300'}`}>
                       {type.label}
                     </p>
-                    <p className="text-xs text-stone-500">{type.description}</p>
+                    <p className="text-[11px] text-stone-500 truncate">{type.description}</p>
                   </div>
                   {incidentType === type.id && (
-                    <CheckCircle className="w-5 h-5 text-[#25D366]" />
+                    <CheckCircle className="w-4 h-4 text-[#25D366] flex-shrink-0" />
                   )}
                 </button>
               ))}
@@ -206,16 +210,16 @@ export const IncidentReportModal = ({
 
           {/* Step 2: Severity & Details */}
           {step === 2 && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Severity */}
               <div>
-                <h3 className="text-white font-semibold mb-3">Severity Level</h3>
-                <div className="grid grid-cols-2 gap-2">
+                <h3 className="text-white font-semibold text-sm mb-2">Severity Level</h3>
+                <div className="grid grid-cols-4 gap-2">
                   {SEVERITY_LEVELS.map((level) => (
                     <button
                       key={level.id}
                       onClick={() => setSeverity(level.id)}
-                      className={`p-3 rounded-xl border text-center transition-all ${
+                      className={`p-2 rounded-xl border text-center transition-all ${
                         severity === level.id
                           ? level.id === 'low' ? 'bg-emerald-500/20 border-emerald-500/50' :
                             level.id === 'medium' ? 'bg-amber-500/20 border-amber-500/50' :
@@ -224,7 +228,7 @@ export const IncidentReportModal = ({
                           : 'bg-stone-900 border-stone-800'
                       }`}
                     >
-                      <p className={`font-semibold text-sm ${
+                      <p className={`font-semibold text-xs ${
                         severity === level.id ? 'text-white' : 'text-stone-400'
                       }`}>{level.label}</p>
                     </button>
@@ -234,23 +238,23 @@ export const IncidentReportModal = ({
 
               {/* Description */}
               <div>
-                <h3 className="text-white font-semibold mb-3">What happened?</h3>
+                <h3 className="text-white font-semibold text-sm mb-2">What happened?</h3>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe the incident in detail..."
-                  className="w-full h-32 bg-stone-900 border border-stone-800 rounded-2xl p-4 text-white placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none text-sm"
+                  placeholder="Describe the incident..."
+                  className="w-full h-24 bg-stone-900 border border-stone-800 rounded-xl p-3 text-white placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none text-sm"
                 />
               </div>
 
               {/* Actions Taken */}
               <div>
-                <h3 className="text-white font-semibold mb-3">Actions Taken</h3>
+                <h3 className="text-white font-semibold text-sm mb-2">Actions Taken</h3>
                 <textarea
                   value={actionsTaken}
                   onChange={(e) => setActionsTaken(e.target.value)}
-                  placeholder="What steps did you take to address this?"
-                  className="w-full h-24 bg-stone-900 border border-stone-800 rounded-2xl p-4 text-white placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none text-sm"
+                  placeholder="What steps did you take?"
+                  className="w-full h-20 bg-stone-900 border border-stone-800 rounded-xl p-3 text-white placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none text-sm"
                 />
               </div>
             </div>
@@ -259,17 +263,17 @@ export const IncidentReportModal = ({
           {/* Step 3: Photos */}
           {step === 3 && (
             <div className="space-y-4">
-              <h3 className="text-white font-semibold">Add Photos (Optional)</h3>
-              <p className="text-sm text-stone-400">Document the incident with photos for the care record.</p>
+              <h3 className="text-white font-semibold text-sm">Add Photos (Optional)</h3>
+              <p className="text-xs text-stone-400">Document the incident with photos.</p>
               
               {/* Photo Upload Button */}
               <label className="block">
-                <div className="w-full p-8 border-2 border-dashed border-stone-700 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-rose-500/50 hover:bg-rose-500/5 transition-colors">
-                  <div className="w-14 h-14 bg-stone-800 rounded-2xl flex items-center justify-center mb-3">
-                    <Camera className="w-7 h-7 text-stone-400" />
+                <div className="w-full p-6 border-2 border-dashed border-stone-700 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-rose-500/50 hover:bg-rose-500/5 transition-colors">
+                  <div className="w-12 h-12 bg-stone-800 rounded-xl flex items-center justify-center mb-2">
+                    <Camera className="w-6 h-6 text-stone-400" />
                   </div>
-                  <p className="text-stone-300 font-medium">Tap to add photos</p>
-                  <p className="text-xs text-stone-500 mt-1">JPG, PNG up to 10MB each</p>
+                  <p className="text-stone-300 font-medium text-sm">Tap to add photos</p>
+                  <p className="text-[11px] text-stone-500 mt-1">JPG, PNG up to 10MB</p>
                 </div>
                 <input
                   type="file"
@@ -288,9 +292,9 @@ export const IncidentReportModal = ({
                       <img src={photo.url} alt="Evidence" className="w-full h-full object-cover" />
                       <button
                         onClick={() => removePhoto(photo.id)}
-                        className="absolute top-2 right-2 w-7 h-7 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute top-1 right-1 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        <Trash2 className="w-4 h-4 text-white" />
+                        <Trash2 className="w-3 h-3 text-white" />
                       </button>
                     </div>
                   ))}
@@ -301,23 +305,23 @@ export const IncidentReportModal = ({
 
           {/* Step 4: Review */}
           {step === 4 && (
-            <div className="space-y-4">
-              <h3 className="text-white font-semibold mb-4">Review & Submit</h3>
+            <div className="space-y-3">
+              <h3 className="text-white font-semibold text-sm mb-3">Review & Submit</h3>
               
               {/* Summary Card */}
-              <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 space-y-4">
+              <div className="bg-stone-900 border border-stone-800 rounded-xl p-3 space-y-3">
                 {/* Type & Severity */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     {selectedType && (
                       <>
-                        <selectedType.icon className="w-5 h-5 text-rose-400" />
-                        <span className="text-white font-medium">{selectedType.label}</span>
+                        <selectedType.icon className="w-4 h-4 text-rose-400" />
+                        <span className="text-white font-medium text-sm">{selectedType.label}</span>
                       </>
                     )}
                   </div>
                   {selectedSeverity && (
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                       severity === 'low' ? 'bg-emerald-500/20 text-emerald-400' :
                       severity === 'medium' ? 'bg-amber-500/20 text-amber-400' :
                       severity === 'high' ? 'bg-orange-500/20 text-orange-400' :
@@ -331,35 +335,27 @@ export const IncidentReportModal = ({
                 {/* Description */}
                 {description && (
                   <div>
-                    <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">Description</p>
-                    <p className="text-stone-300 text-sm">{description}</p>
-                  </div>
-                )}
-
-                {/* Actions */}
-                {actionsTaken && (
-                  <div>
-                    <p className="text-xs text-stone-500 uppercase tracking-wider mb-1">Actions Taken</p>
-                    <p className="text-stone-300 text-sm">{actionsTaken}</p>
+                    <p className="text-[10px] text-stone-500 uppercase tracking-wider mb-1">Description</p>
+                    <p className="text-stone-300 text-xs line-clamp-2">{description}</p>
                   </div>
                 )}
 
                 {/* Photos */}
                 {photos.length > 0 && (
                   <div>
-                    <p className="text-xs text-stone-500 uppercase tracking-wider mb-2">Photos ({photos.length})</p>
-                    <div className="flex gap-2">
+                    <p className="text-[10px] text-stone-500 uppercase tracking-wider mb-1">Photos ({photos.length})</p>
+                    <div className="flex gap-1">
                       {photos.slice(0, 4).map((photo) => (
                         <img 
                           key={photo.id}
                           src={photo.url} 
                           alt="Evidence"
-                          className="w-16 h-16 rounded-xl object-cover"
+                          className="w-10 h-10 rounded-lg object-cover"
                         />
                       ))}
                       {photos.length > 4 && (
-                        <div className="w-16 h-16 rounded-xl bg-stone-800 flex items-center justify-center">
-                          <span className="text-stone-400 font-bold">+{photos.length - 4}</span>
+                        <div className="w-10 h-10 rounded-lg bg-stone-800 flex items-center justify-center">
+                          <span className="text-stone-400 text-xs font-bold">+{photos.length - 4}</span>
                         </div>
                       )}
                     </div>
@@ -368,42 +364,42 @@ export const IncidentReportModal = ({
               </div>
 
               {/* Options */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <button
                   onClick={() => setNotifyFamily(!notifyFamily)}
-                  className={`w-full p-4 rounded-2xl border flex items-center justify-between transition-colors ${
+                  className={`w-full p-3 rounded-xl border flex items-center justify-between transition-colors ${
                     notifyFamily 
                       ? 'bg-[#25D366]/10 border-[#25D366]/30' 
                       : 'bg-stone-900 border-stone-800'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <Shield className={`w-5 h-5 ${notifyFamily ? 'text-[#25D366]' : 'text-stone-500'}`} />
-                    <span className={notifyFamily ? 'text-white' : 'text-stone-400'}>Notify Family</span>
+                  <div className="flex items-center gap-2">
+                    <Shield className={`w-4 h-4 ${notifyFamily ? 'text-[#25D366]' : 'text-stone-500'}`} />
+                    <span className={`text-sm ${notifyFamily ? 'text-white' : 'text-stone-400'}`}>Notify Family</span>
                   </div>
-                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center ${
+                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
                     notifyFamily ? 'bg-[#25D366] border-[#25D366]' : 'border-stone-600'
                   }`}>
-                    {notifyFamily && <CheckCircle className="w-3 h-3 text-white" />}
+                    {notifyFamily && <CheckCircle className="w-2.5 h-2.5 text-white" />}
                   </div>
                 </button>
 
                 <button
                   onClick={() => setFollowUpRequired(!followUpRequired)}
-                  className={`w-full p-4 rounded-2xl border flex items-center justify-between transition-colors ${
+                  className={`w-full p-3 rounded-xl border flex items-center justify-between transition-colors ${
                     followUpRequired 
                       ? 'bg-amber-500/10 border-amber-500/30' 
                       : 'bg-stone-900 border-stone-800'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <Clock className={`w-5 h-5 ${followUpRequired ? 'text-amber-400' : 'text-stone-500'}`} />
-                    <span className={followUpRequired ? 'text-white' : 'text-stone-400'}>Follow-up Required</span>
+                  <div className="flex items-center gap-2">
+                    <Clock className={`w-4 h-4 ${followUpRequired ? 'text-amber-400' : 'text-stone-500'}`} />
+                    <span className={`text-sm ${followUpRequired ? 'text-white' : 'text-stone-400'}`}>Follow-up Required</span>
                   </div>
-                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center ${
+                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
                     followUpRequired ? 'bg-amber-500 border-amber-500' : 'border-stone-600'
                   }`}>
-                    {followUpRequired && <CheckCircle className="w-3 h-3 text-white" />}
+                    {followUpRequired && <CheckCircle className="w-2.5 h-2.5 text-white" />}
                   </div>
                 </button>
               </div>
@@ -411,12 +407,12 @@ export const IncidentReportModal = ({
           )}
         </div>
 
-        {/* Footer */}
-        <div className="flex-none border-t border-stone-800 p-4 flex gap-3">
+        {/* Footer - Fixed */}
+        <div className="flex-shrink-0 border-t border-stone-800 p-4 flex gap-3 bg-stone-950">
           {step > 1 && (
             <button
               onClick={() => setStep(step - 1)}
-              className="flex-1 py-3.5 bg-stone-800 text-white rounded-xl font-semibold hover:bg-stone-700 transition-colors"
+              className="flex-1 py-3 bg-stone-800 text-white rounded-xl font-semibold hover:bg-stone-700 transition-colors text-sm"
             >
               Back
             </button>
@@ -425,8 +421,8 @@ export const IncidentReportModal = ({
           {step < 4 ? (
             <button
               onClick={() => setStep(step + 1)}
-              disabled={step === 1 && !incidentType || step === 2 && (!severity || !description)}
-              className="flex-1 py-3.5 bg-rose-500 text-white rounded-xl font-semibold hover:bg-rose-600 transition-colors disabled:bg-stone-700 disabled:cursor-not-allowed"
+              disabled={(step === 1 && !incidentType) || (step === 2 && (!severity || !description))}
+              className="flex-1 py-3 bg-rose-500 text-white rounded-xl font-semibold hover:bg-rose-600 transition-colors disabled:bg-stone-700 disabled:cursor-not-allowed text-sm"
             >
               Continue
             </button>
@@ -434,11 +430,11 @@ export const IncidentReportModal = ({
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="flex-1 py-3.5 bg-rose-500 text-white rounded-xl font-semibold hover:bg-rose-600 transition-colors disabled:bg-stone-700 flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-rose-500 text-white rounded-xl font-semibold hover:bg-rose-600 transition-colors disabled:bg-stone-700 flex items-center justify-center gap-2 text-sm"
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Submitting...
                 </>
               ) : (
