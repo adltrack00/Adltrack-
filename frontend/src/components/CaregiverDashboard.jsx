@@ -552,7 +552,9 @@ export const CaregiverDashboard = ({
           {/* Incident Report Button */}
           <button
             onClick={() => setShowIncidentReport(true)}
-            className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105"
+            className={`w-10 h-10 rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 ${
+              isDarkMode ? 'bg-stone-800' : 'bg-white'
+            }`}
             data-testid="incident-report-btn"
           >
             <AlertTriangle className="w-4 h-4 text-rose-500" />
@@ -561,10 +563,12 @@ export const CaregiverDashboard = ({
           {/* Copilot Button */}
           <button
             onClick={() => setShowCopilot(true)}
-            className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105"
+            className={`w-10 h-10 rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 ${
+              isDarkMode ? 'bg-stone-800' : 'bg-white'
+            }`}
             data-testid="copilot-btn"
           >
-            <Bot className="w-4 h-4 text-stone-900" />
+            <Bot className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-stone-900'}`} />
           </button>
         </div>
       )}
