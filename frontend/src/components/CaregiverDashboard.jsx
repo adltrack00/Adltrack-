@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Home, MessageSquare, Clock, Settings, Bot, User, Heart, Activity, Thermometer,
-  MapPin, Play, ChevronRight, Bell, CheckCircle, Sparkles, Frown
+  MapPin, Play, ChevronRight, Bell, CheckCircle, Sparkles, Frown, AlertTriangle
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
 import { TaskCard } from './TaskCard';
@@ -10,6 +10,7 @@ import { TaskCompletionModal } from './TaskCompletionModal';
 import { PatientProfileModal } from './PatientProfileModal';
 import { VitalsModal } from './VitalsModal';
 import { AICopilot } from './AICopilot';
+import { IncidentReportModal } from './IncidentReportModal';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AccountsPage } from './pages/AccountsPage';
