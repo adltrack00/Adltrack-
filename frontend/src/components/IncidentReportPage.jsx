@@ -487,13 +487,13 @@ export const IncidentReportPage = ({ patientName = 'Patient', incidents = [], on
           <FileText className={`w-5 h-5 ${textMuted}`} />
           <h2 className={`font-semibold ${text}`}>Past Reports</h2>
           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${isDarkMode ? 'bg-stone-800 text-stone-400' : 'bg-stone-200 text-stone-600'}`}>
-            {pastIncidents.length}
+            {incidents.length}
           </span>
         </div>
 
-        {pastIncidents.length > 0 ? (
+        {incidents.length > 0 ? (
           <div className="space-y-3">
-            {pastIncidents.map((incident) => {
+            {incidents.map((incident) => {
               const type = INCIDENT_TYPES.find(t => t.id === incident.type);
               const severityLevel = SEVERITY_LEVELS.find(s => s.id === incident.severity);
               const isExpanded = expandedIncident === incident.id;
@@ -551,13 +551,29 @@ export const IncidentReportPage = ({ patientName = 'Patient', incidents = [], on
                           <p className={`${textSecondary} text-sm`}>{incident.actionsTaken}</p>
                         </div>
                       )}
+                      {/* Photos */}
+                      {incident.photos && incident.photos.length > 0 && (
+                        <div>
+                          <p className={`text-xs ${textMuted} uppercase tracking-wider mb-2`}>Photos ({incident.photos.length})</p>
+                          <div className="grid grid-cols-3 gap-2">
+                            {incident.photos.map((photo) => (
+                              <img 
+                                key={photo.id}
+                                src={photo.url} 
+                                alt="Evidence"
+                                className="w-full aspect-square rounded-xl object-cover"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       <div className="flex items-center gap-2 pt-2">
                         <div className={`px-3 py-1 rounded-full text-xs font-medium ${
                           incident.status === 'resolved' 
                             ? 'bg-[#25D366]/20 text-[#25D366]' 
                             : 'bg-amber-500/20 text-amber-400'
                         }`}>
-                          {incident.status === 'resolved' ? 'Resolved' : 'Open'}
+                          {incident.status === 'resolved' ? 'Resolved' : 'New'}
                         </div>
                       </div>
                     </div>
