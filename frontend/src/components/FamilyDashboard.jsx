@@ -487,28 +487,14 @@ export const FamilyDashboard = ({
     <div className={`min-h-screen ${bg} flex flex-col font-['Manrope',sans-serif]`}>
       {/* Main Content */}
       {activeTab === 'home' && renderHomeContent()}
+      {activeTab === 'incident' && <IncidentViewPage patientName={patient?.name} />}
       {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.FAMILY} />}
       {activeTab === 'notifications' && <UpdatesPage onBack={() => setActiveTab('home')} />}
       {activeTab === 'settings' && renderSettingsContent()}
 
-      {/* Floating Action Buttons - Incident View + Copilot */}
+      {/* Floating Action Button - Copilot Only */}
       {activeTab === 'home' && (
-        <div className="fixed bottom-24 right-5 flex flex-col gap-2 z-40">
-          {/* Incident Reports Button */}
-          <button
-            onClick={() => setShowIncidentView(true)}
-            className={`w-9 h-9 rounded-xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 relative ${
-              isDarkMode ? 'bg-stone-800' : 'bg-white'
-            }`}
-            data-testid="incident-view-btn"
-          >
-            <AlertTriangle className="w-4 h-4 text-rose-500" />
-            {/* Notification badge */}
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-[10px] font-bold">3</span>
-            </div>
-          </button>
-          
+        <div className="fixed bottom-24 right-5 z-40">
           {/* Copilot Button */}
           <button
             onClick={() => setShowCopilot(true)}
@@ -526,22 +512,33 @@ export const FamilyDashboard = ({
       <nav className={`fixed bottom-0 left-0 right-0 ${bgNav} border-t ${border} z-30`}>
         <div className="flex justify-around items-center py-2">
           {[
-            { id: 'home', icon: Activity, label: 'Home' },
-            { id: 'chat', icon: MessageSquare, label: 'Chat' },
+            { id: 'home', icon: Home, label: 'Home' },
+            { id: 'incident', icon: AlertTriangle, label: 'Incident', isIncident: true, badge: 3 },
+            { id: 'chat', icon: MessageSquare, label: 'Message' },
             { id: 'notifications', icon: Bell, label: 'Alerts' },
             { id: 'settings', icon: Settings, label: 'Menu' },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center py-2 px-5 transition-all ${
+              className={`flex flex-col items-center py-2 px-3 transition-all relative ${
                 activeTab === tab.id 
-                  ? 'text-[#25D366]' 
+                  ? tab.isIncident ? 'text-rose-500' : 'text-[#25D366]'
                   : `${textMuted} hover:${textSecondary}`
               }`}
+              data-testid={`nav-${tab.id}`}
             >
               <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
-              <span className={`text-[10px] font-semibold mt-1 ${activeTab === tab.id ? 'text-[#25D366]' : textMuted}`}>{tab.label}</span>
+              <span className={`text-[10px] font-semibold mt-1 ${
+                activeTab === tab.id 
+                  ? tab.isIncident ? 'text-rose-500' : 'text-[#25D366]'
+                  : textMuted
+              }`}>{tab.label}</span>
+              {tab.badge && (
+                <div className={`absolute top-0 right-1 w-4 h-4 bg-rose-500 rounded-full flex items-center justify-center ring-2 ${isDarkMode ? 'ring-stone-900' : 'ring-white'}`}>
+                  <span className="text-white text-[10px] font-bold">{tab.badge}</span>
+                </div>
+              )}
             </button>
           ))}
         </div>
