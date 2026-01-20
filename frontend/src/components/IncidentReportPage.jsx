@@ -24,29 +24,7 @@ const SEVERITY_LEVELS = [
   { id: 'critical', label: 'Critical', color: 'rose', description: 'Emergency, immediate action required' },
 ];
 
-// Mock past incidents
-const PAST_INCIDENTS = [
-  {
-    id: 1,
-    type: 'fall',
-    severity: 'medium',
-    description: 'Patient experienced a near-fall while transitioning from bed to wheelchair',
-    actionsTaken: 'Assisted patient safely back to bed, checked for injuries, monitored vitals',
-    createdAt: 'Jan 16, 2026 • 2:30 PM',
-    status: 'resolved'
-  },
-  {
-    id: 2,
-    type: 'medication',
-    severity: 'low',
-    description: 'Morning medication was taken 30 minutes late due to breakfast timing',
-    actionsTaken: 'Adjusted schedule, noted for future reference',
-    createdAt: 'Jan 15, 2026 • 9:15 AM',
-    status: 'resolved'
-  }
-];
-
-export const IncidentReportPage = ({ patientName = 'Patient' }) => {
+export const IncidentReportPage = ({ patientName = 'Patient', incidents = [], onAddIncident }) => {
   const { isDarkMode, bg, bgCard, bgCardHover, border, text, textSecondary, textMuted } = useTheme();
   const [activeView, setActiveView] = useState('history'); // 'history' or 'new'
   const [step, setStep] = useState(1);
@@ -59,7 +37,6 @@ export const IncidentReportPage = ({ patientName = 'Patient' }) => {
   const [followUpRequired, setFollowUpRequired] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [pastIncidents, setPastIncidents] = useState(PAST_INCIDENTS);
   const [expandedIncident, setExpandedIncident] = useState(null);
 
   const handlePhotoUpload = (e) => {
