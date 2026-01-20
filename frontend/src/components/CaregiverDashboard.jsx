@@ -630,16 +630,6 @@ export const CaregiverDashboard = ({
         role="caregiver"
         patientName={patient?.name}
       />
-
-      <IncidentReportModal
-        isOpen={showIncidentReport}
-        onClose={() => setShowIncidentReport(false)}
-        patientName={patient?.name}
-        onSubmit={(incident) => {
-          console.log('Incident submitted:', incident);
-          // In production, this would send to API
-        }}
-      />
     </div>
   );
 };
