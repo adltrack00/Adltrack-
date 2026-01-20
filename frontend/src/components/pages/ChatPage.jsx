@@ -179,7 +179,8 @@ export const ChatPage = ({ onBack, role }) => {
           <input
             type="text"
             placeholder="Search conversations..."
-            className="w-full pl-10 pr-4 py-3 bg-stone-900 border border-stone-800 text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-stone-500"
+            className="w-full pl-10 pr-4 py-3 bg-stone-900 border border-stone-800 text-white rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-stone-500"
+            style={{ fontSize: '16px' }} /* Prevents iOS zoom */
           />
         </div>
       </div>
