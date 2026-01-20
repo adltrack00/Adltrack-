@@ -59,18 +59,21 @@ export const IncidentReportPage = ({ patientName = 'Patient', incidents = [], on
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     const newIncident = {
-      id: Date.now(),
       type: incidentType,
       severity,
       description,
       actionsTaken,
-      createdAt: new Date().toLocaleString('en-US', { 
-        month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'
-      }),
-      status: 'new'
+      photos: photos.map(p => ({ id: p.id, url: p.url, name: p.name })),
+      notifyFamily,
+      followUpRequired,
+      patientName
     };
     
-    setPastIncidents(prev => [newIncident, ...prev]);
+    // Call the parent handler to add incident to shared state
+    if (onAddIncident) {
+      onAddIncident(newIncident);
+    }
+    
     setIsSubmitting(false);
     setSubmitted(true);
   };
