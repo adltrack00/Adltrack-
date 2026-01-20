@@ -9,7 +9,7 @@ import { FAQPage } from "./components/FAQPage";
 import { RoleSelectionPage } from "./components/RoleSelectionPage";
 import { AuthPage } from "./components/AuthPage";
 import { ThemeProvider } from "./context/ThemeContext";
-import { INITIAL_TASKS, PROPOSED_TASKS, INITIAL_VITALS, PATIENT_PROFILE } from "./services/mockData";
+import { INITIAL_TASKS, PROPOSED_TASKS, INITIAL_VITALS, PATIENT_PROFILE, CAREGIVER_PROFILE } from "./services/mockData";
 
 function App() {
   // Mock user state (no real auth)
@@ -29,6 +29,9 @@ function App() {
   
   // State for patient
   const [patient, setPatient] = useState(PATIENT_PROFILE);
+
+  // State for incidents (shared across all roles)
+  const [incidents, setIncidents] = useState([]);
 
   // Handle role switch (same user, different view)
   const handleRoleSwitch = (newRole) => {
