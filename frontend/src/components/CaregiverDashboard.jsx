@@ -566,7 +566,7 @@ export const CaregiverDashboard = ({
         <div className="flex justify-around items-center py-2">
           {[
             { id: 'home', icon: Home, label: 'Home' },
-            { id: 'incident', icon: AlertTriangle, label: 'Incident', accent: true },
+            { id: 'incident', icon: AlertTriangle, label: 'Incident', isIncident: true },
             { id: 'chat', icon: MessageSquare, label: 'Message' },
             { id: 'shift', icon: Clock, label: 'Shifts', badge: isShiftActive },
             { id: 'settings', icon: Settings, label: 'Menu' },
@@ -576,18 +576,16 @@ export const CaregiverDashboard = ({
               onClick={() => setActiveTab(tab.id)}
               className={`flex flex-col items-center py-2 px-4 transition-all relative ${
                 activeTab === tab.id 
-                  ? tab.accent ? 'text-rose-500' : 'text-[#25D366]'
+                  ? tab.isIncident ? 'text-rose-500' : 'text-[#25D366]'
                   : `${textMuted} hover:${textSecondary}`
               }`}
               data-testid={`nav-${tab.id}`}
             >
-              <div className={`relative ${tab.accent && activeTab === tab.id ? 'p-1.5 -mt-1 rounded-xl bg-rose-500/10' : ''}`}>
-                <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''} ${tab.accent && activeTab !== tab.id ? 'text-rose-400/60' : ''}`} />
-              </div>
+              <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
               <span className={`text-[10px] font-semibold mt-1 ${
                 activeTab === tab.id 
-                  ? tab.accent ? 'text-rose-500' : 'text-[#25D366]'
-                  : tab.accent ? 'text-rose-400/60' : textMuted
+                  ? tab.isIncident ? 'text-rose-500' : 'text-[#25D366]'
+                  : textMuted
               }`}>{tab.label}</span>
               {tab.badge && (
                 <div className={`absolute top-1 right-2 w-2.5 h-2.5 bg-[#25D366] rounded-full ring-2 ${isDarkMode ? 'ring-stone-900' : 'ring-white'}`} />
