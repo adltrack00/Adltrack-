@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Send, Search, Users, User, Image } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ArrowLeft, Send, Search, Users, User, Image, Check, CheckCheck } from 'lucide-react';
 import { UserRole } from '../../types';
 
 export const ChatPage = ({ onBack, role }) => {
   const [activeConversation, setActiveConversation] = useState(null);
   const [message, setMessage] = useState('');
+  const [conversationMessages, setConversationMessages] = useState({});
+  const messagesEndRef = useRef(null);
   
   const isCaregiver = role === UserRole.CAREGIVER;
 
@@ -76,27 +78,123 @@ export const ChatPage = ({ onBack, role }) => {
     },
   ];
 
-  const mockMessages = [
-    { id: 1, sender: 'other', text: 'Hi! How is everything going with Dad today?', time: '9:30 AM' },
-    { id: 2, sender: 'me', text: 'Great! He had a wonderful breakfast and we just finished his morning walk.', time: '9:32 AM' },
-    { id: 3, sender: 'other', text: 'That\'s wonderful to hear! Did he take his medication?', time: '9:33 AM' },
-    { id: 4, sender: 'me', text: 'Yes, all medications given on time. I\'ve uploaded the photo evidence.', time: '9:35 AM', hasImage: true },
-    { id: 5, sender: 'other', text: 'Thank you for the update!', time: '9:36 AM' },
-  ];
+  // Initial mock messages for each conversation
+  const getInitialMessages = (convId) => {
+    const baseMessages = [
+      { id: 1, sender: 'other', text: 'Hi! How is everything going with Dad today?', time: '9:30 AM', status: 'read' },
+      { id: 2, sender: 'me', text: 'Great! He had a wonderful breakfast and we just finished his morning walk.', time: '9:32 AM', status: 'read' },
+      { id: 3, sender: 'other', text: 'That\'s wonderful to hear! Did he take his medication?', time: '9:33 AM', status: 'read' },
+      { id: 4, sender: 'me', text: 'Yes, all medications given on time. I\'ve uploaded the photo evidence.', time: '9:35 AM', hasImage: true, status: 'read' },
+      { id: 5, sender: 'other', text: 'Thank you for the update!', time: '9:36 AM', status: 'read' },
+    ];
+    return baseMessages;
+  };
+
+  // Initialize messages for conversation if not exists
+  useEffect(() => {
+    if (activeConversation && !conversationMessages[activeConversation]) {
+      setConversationMessages(prev => ({
+        ...prev,
+        [activeConversation]: getInitialMessages(activeConversation)
+      }));
+    }
+  }, [activeConversation]);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [conversationMessages, activeConversation]);
+
+  const getCurrentTime = () => {
+    return new Date().toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
+  };
 
   const handleSend = () => {
-    if (!message.trim()) return;
+    if (!message.trim() || !activeConversation) return;
+    
+    const newMessage = {
+      id: Date.now(),
+      sender: 'me',
+      text: message.trim(),
+      time: getCurrentTime(),
+      status: 'sending'
+    };
+
+    // Add message immediately with 'sending' status
+    setConversationMessages(prev => ({
+      ...prev,
+      [activeConversation]: [...(prev[activeConversation] || []), newMessage]
+    }));
+    
     setMessage('');
+
+    // Simulate sending -> sent -> delivered -> read
+    setTimeout(() => {
+      setConversationMessages(prev => ({
+        ...prev,
+        [activeConversation]: prev[activeConversation].map(msg => 
+          msg.id === newMessage.id ? { ...msg, status: 'sent' } : msg
+        )
+      }));
+    }, 500);
+
+    setTimeout(() => {
+      setConversationMessages(prev => ({
+        ...prev,
+        [activeConversation]: prev[activeConversation].map(msg => 
+          msg.id === newMessage.id ? { ...msg, status: 'delivered' } : msg
+        )
+      }));
+    }, 1200);
+
+    setTimeout(() => {
+      setConversationMessages(prev => ({
+        ...prev,
+        [activeConversation]: prev[activeConversation].map(msg => 
+          msg.id === newMessage.id ? { ...msg, status: 'read' } : msg
+        )
+      }));
+    }, 2500);
+  };
+
+  // Message status indicator component
+  const MessageStatus = ({ status }) => {
+    if (status === 'sending') {
+      return (
+        <div className="flex items-center gap-1 ml-1">
+          <div className="w-3 h-3 border border-emerald-200/50 border-t-emerald-200 rounded-full animate-spin" />
+        </div>
+      );
+    }
+    if (status === 'sent') {
+      return <Check className="w-4 h-4 text-emerald-200/70 ml-1" />;
+    }
+    if (status === 'delivered') {
+      return <CheckCheck className="w-4 h-4 text-emerald-200/70 ml-1" />;
+    }
+    if (status === 'read') {
+      return <CheckCheck className="w-4 h-4 text-emerald-200 ml-1" />;
+    }
+    return null;
   };
 
   if (activeConversation) {
     const conv = conversations.find(c => c.id === activeConversation);
+    const messages = conversationMessages[activeConversation] || [];
     
     return (
       <div className="flex flex-col h-full bg-stone-950">
         {/* Chat Header */}
         <div className="sticky top-0 bg-stone-900 border-b border-stone-800 px-4 py-3 flex items-center gap-3 z-10">
-          <button onClick={() => setActiveConversation(null)} className="p-2 hover:bg-stone-800 rounded-full">
+          <button 
+            onClick={() => setActiveConversation(null)} 
+            className="p-2 hover:bg-stone-800 rounded-full"
+            data-testid="chat-back-btn"
+          >
             <ArrowLeft className="w-5 h-5 text-stone-300" />
           </button>
           {conv?.isGroup ? (
@@ -114,7 +212,7 @@ export const ChatPage = ({ onBack, role }) => {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-stone-950 pb-24">
-          {mockMessages.map((msg) => (
+          {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[80%] px-4 py-3 rounded-2xl ${
                 msg.sender === 'me'
@@ -122,18 +220,20 @@ export const ChatPage = ({ onBack, role }) => {
                   : 'bg-stone-800 text-white rounded-bl-md'
               }`}>
                 {msg.hasImage && (
-                  <div className="mb-2 bg-stone-700 rounded-lg p-3 flex items-center gap-2">
-                    <Image className="w-5 h-5 text-stone-400" />
-                    <span className="text-sm text-stone-300">Photo attached</span>
+                  <div className="mb-2 bg-stone-700/50 rounded-lg p-3 flex items-center gap-2">
+                    <Image className="w-5 h-5 text-stone-300" />
+                    <span className="text-sm text-stone-200">Photo attached</span>
                   </div>
                 )}
                 <p className="text-sm">{msg.text}</p>
-                <p className={`text-[10px] mt-1 ${msg.sender === 'me' ? 'text-emerald-200' : 'text-stone-400'}`}>
-                  {msg.time}
-                </p>
+                <div className={`flex items-center justify-end mt-1 ${msg.sender === 'me' ? 'text-emerald-200' : 'text-stone-400'}`}>
+                  <span className="text-[10px]">{msg.time}</span>
+                  {msg.sender === 'me' && <MessageStatus status={msg.status} />}
+                </div>
               </div>
             </div>
           ))}
+          <div ref={messagesEndRef} />
         </div>
 
         {/* Input - Fixed at bottom above navigation */}
@@ -146,12 +246,13 @@ export const ChatPage = ({ onBack, role }) => {
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Type a message..."
               className="flex-1 px-4 py-3 bg-stone-800 text-white rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-stone-400"
-              style={{ fontSize: '16px' }} /* Prevents iOS zoom */
+              style={{ fontSize: '16px' }}
               data-testid="chat-input"
             />
             <button
               onClick={handleSend}
-              className="px-5 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors"
+              disabled={!message.trim()}
+              className="px-5 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors disabled:bg-stone-700 disabled:cursor-not-allowed"
               data-testid="chat-send-btn"
             >
               <Send className="w-5 h-5" />
@@ -180,7 +281,7 @@ export const ChatPage = ({ onBack, role }) => {
             type="text"
             placeholder="Search conversations..."
             className="w-full pl-10 pr-4 py-3 bg-stone-900 border border-stone-800 text-white rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-stone-500"
-            style={{ fontSize: '16px' }} /* Prevents iOS zoom */
+            style={{ fontSize: '16px' }}
           />
         </div>
       </div>
@@ -192,6 +293,7 @@ export const ChatPage = ({ onBack, role }) => {
             key={conv.id}
             onClick={() => setActiveConversation(conv.id)}
             className="w-full flex items-center gap-3 p-3 hover:bg-stone-900 rounded-xl transition-colors border border-transparent hover:border-stone-800"
+            data-testid={`conversation-${conv.id}`}
           >
             {conv.isGroup ? (
               <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
