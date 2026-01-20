@@ -78,20 +78,20 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md space-y-8">
+        <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl space-y-8">
           {/* Role Badge */}
           <div className="flex justify-center">
-            <div className={`px-4 py-2 rounded-full ${config.badgeBg} ${config.badgeText} text-sm font-bold`}>
+            <div className={`px-4 py-2 rounded-full ${config.badgeBg} ${config.badgeText} text-sm lg:text-base font-bold`}>
               {config.title} Account
             </div>
           </div>
 
           {/* Welcome Text */}
           <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold text-stone-900 tracking-tight">
+            <h1 className="text-3xl lg:text-4xl font-bold text-stone-900 tracking-tight">
               {isSignUp ? 'Create your account' : 'Welcome back'}
             </h1>
-            <p className="text-stone-600 font-medium">
+            <p className="text-stone-600 font-medium lg:text-lg">
               {config.description}
             </p>
           </div>
@@ -102,7 +102,7 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
             <button
               onClick={() => handleMockAuth('google')}
               disabled={isLoading}
-              className="w-full p-4 bg-white border-2 border-stone-200 rounded-2xl hover:border-stone-400 hover:bg-stone-50 transition-all flex items-center justify-center gap-3 font-bold text-stone-900 disabled:opacity-50"
+              className="w-full p-4 lg:p-5 bg-white border-2 border-stone-200 rounded-2xl hover:border-stone-400 hover:bg-stone-50 transition-all flex items-center justify-center gap-3 font-bold text-stone-900 lg:text-lg disabled:opacity-50"
               data-testid="google-auth-btn"
             >
               {isLoading ? (
