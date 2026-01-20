@@ -82,10 +82,13 @@ Build a comprehensive caregiving dashboard application with:
 - ✅ Task completion with photo evidence
 - ✅ **Incident Reporting as Bottom Navigation Tab** (Jan 20, 2026)
   - Moved from floating action button to dedicated nav tab
-  - New IncidentReportPage component with history view
-  - Multi-step incident creation form
-  - Past incidents display with expandable details
-  - Rose/pink accent color for incident tab
+  - Implemented on BOTH Caregiver and Family dashboards
+  - New IncidentReportPage component for Caregivers (create + history)
+  - New IncidentViewPage component for Family (view reports from caregiver)
+  - Tab styling: Plain when inactive, RED/ROSE when active (other tabs turn green)
+  - Family dashboard shows notification badge with incident count
+  - Multi-step incident creation form for caregivers
+  - Detailed incident view with caregiver attribution for family
 
 ### Backend Endpoints
 - `POST /api/copilot/chat` - AI copilot (working)
