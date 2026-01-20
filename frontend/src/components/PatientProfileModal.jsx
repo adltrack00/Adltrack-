@@ -16,7 +16,8 @@ export const PatientProfileModal = ({
   const [showCalendar, setShowCalendar] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 17)); // Jan 17, 2026
 
-  const today = new Date(2026, 0, 17); // Jan 17, 2026
+  // Memoize today to prevent recreating on every render
+  const today = useMemo(() => new Date(2026, 0, 17), []); // Jan 17, 2026
 
   // Generate mock historical tasks for different dates
   const historicalTasks = useMemo(() => {
@@ -50,9 +51,9 @@ export const PatientProfileModal = ({
       ]},
     ];
 
-    pastDates.forEach(({ date, tasks }) => {
+    pastDates.forEach(({ date, tasks: dateTasks }) => {
       const key = date.toDateString();
-      taskHistory[key] = tasks;
+      taskHistory[key] = dateTasks;
     });
 
     // Add today's completed tasks
