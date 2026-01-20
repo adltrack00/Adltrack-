@@ -540,24 +540,14 @@ export const CaregiverDashboard = ({
     <div className={`min-h-screen ${bg} flex flex-col font-['Manrope',sans-serif]`}>
       {/* Main Content */}
       {activeTab === 'home' && renderHomeContent()}
+      {activeTab === 'incident' && <IncidentReportPage patientName={patient?.name} />}
       {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.CAREGIVER} />}
       {activeTab === 'shift' && renderShiftContent()}
       {activeTab === 'settings' && renderSettingsContent()}
 
-      {/* Floating Action Buttons - Incident Report + Copilot */}
+      {/* Floating Action Button - Copilot Only */}
       {activeTab === 'home' && isShiftActive && (
-        <div className="fixed bottom-24 right-5 flex flex-col gap-2 z-40">
-          {/* Incident Report Button */}
-          <button
-            onClick={() => setShowIncidentReport(true)}
-            className={`w-9 h-9 rounded-xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 ${
-              isDarkMode ? 'bg-stone-800' : 'bg-white'
-            }`}
-            data-testid="incident-report-btn"
-          >
-            <AlertTriangle className="w-4 h-4 text-rose-500" />
-          </button>
-          
+        <div className="fixed bottom-24 right-5 z-40">
           {/* Copilot Button */}
           <button
             onClick={() => setShowCopilot(true)}
@@ -576,23 +566,31 @@ export const CaregiverDashboard = ({
         <div className="flex justify-around items-center py-2">
           {[
             { id: 'home', icon: Home, label: 'Home' },
-            { id: 'chat', icon: MessageSquare, label: 'Chat' },
-            { id: 'shift', icon: Clock, label: 'Shift', badge: isShiftActive },
+            { id: 'incident', icon: AlertTriangle, label: 'Incident', accent: true },
+            { id: 'chat', icon: MessageSquare, label: 'Message' },
+            { id: 'shift', icon: Clock, label: 'Shifts', badge: isShiftActive },
             { id: 'settings', icon: Settings, label: 'Menu' },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center py-2 px-5 transition-all relative ${
+              className={`flex flex-col items-center py-2 px-4 transition-all relative ${
                 activeTab === tab.id 
-                  ? 'text-[#25D366]' 
+                  ? tab.accent ? 'text-rose-500' : 'text-[#25D366]'
                   : `${textMuted} hover:${textSecondary}`
               }`}
+              data-testid={`nav-${tab.id}`}
             >
-              <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
-              <span className={`text-[10px] font-semibold mt-1 ${activeTab === tab.id ? 'text-[#25D366]' : textMuted}`}>{tab.label}</span>
+              <div className={`relative ${tab.accent && activeTab === tab.id ? 'p-1.5 -mt-1 rounded-xl bg-rose-500/10' : ''}`}>
+                <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''} ${tab.accent && activeTab !== tab.id ? 'text-rose-400/60' : ''}`} />
+              </div>
+              <span className={`text-[10px] font-semibold mt-1 ${
+                activeTab === tab.id 
+                  ? tab.accent ? 'text-rose-500' : 'text-[#25D366]'
+                  : tab.accent ? 'text-rose-400/60' : textMuted
+              }`}>{tab.label}</span>
               {tab.badge && (
-                <div className={`absolute top-1 right-3 w-2.5 h-2.5 bg-[#25D366] rounded-full ring-2 ${isDarkMode ? 'ring-stone-900' : 'ring-white'}`} />
+                <div className={`absolute top-1 right-2 w-2.5 h-2.5 bg-[#25D366] rounded-full ring-2 ${isDarkMode ? 'ring-stone-900' : 'ring-white'}`} />
               )}
             </button>
           ))}
