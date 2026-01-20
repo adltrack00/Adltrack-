@@ -177,29 +177,33 @@ export const VitalsModal = ({
         {isCaregiver && (
           <div className="px-5 pb-4">
             {showAddForm ? (
-              <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 space-y-3">
+              <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 space-y-3 overflow-hidden">
                 <p className="text-sm font-bold text-stone-300">Log New Reading</p>
                 
                 {activeTab === 'bp' && (
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      placeholder="Systolic"
-                      value={newVital.systolic}
-                      onChange={(e) => setNewVital({...newVital, systolic: e.target.value})}
-                      className="flex-1 px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-base font-medium text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      style={{ fontSize: '16px' }}
-                      data-testid="vital-systolic"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Diastolic"
-                      value={newVital.diastolic}
-                      onChange={(e) => setNewVital({...newVital, diastolic: e.target.value})}
-                      className="flex-1 px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-base font-medium text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                      style={{ fontSize: '16px' }}
-                      data-testid="vital-diastolic"
-                    />
+                  <div className="flex gap-3 w-full">
+                    <div className="flex-1 min-w-0">
+                      <input
+                        type="number"
+                        placeholder="Systolic"
+                        value={newVital.systolic}
+                        onChange={(e) => setNewVital({...newVital, systolic: e.target.value})}
+                        className="w-full px-3 py-3 bg-stone-800 border border-stone-700 rounded-xl text-base font-medium text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        style={{ fontSize: '16px' }}
+                        data-testid="vital-systolic"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <input
+                        type="number"
+                        placeholder="Diastolic"
+                        value={newVital.diastolic}
+                        onChange={(e) => setNewVital({...newVital, diastolic: e.target.value})}
+                        className="w-full px-3 py-3 bg-stone-800 border border-stone-700 rounded-xl text-base font-medium text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        style={{ fontSize: '16px' }}
+                        data-testid="vital-diastolic"
+                      />
+                    </div>
                   </div>
                 )}
                 
@@ -242,7 +246,7 @@ export const VitalsModal = ({
                   />
                 )}
 
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <button
                     onClick={() => setShowAddForm(false)}
                     className="flex-1 py-3 border-2 border-stone-700 rounded-xl text-sm font-bold text-stone-400 hover:bg-stone-800 transition-colors"
