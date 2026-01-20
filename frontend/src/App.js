@@ -206,6 +206,7 @@ function App() {
               tasks={tasks}
               patient={patient}
               vitalsData={vitalsData}
+              incidents={incidents}
             />
           );
         case UserRole.CAREGIVER:
@@ -224,6 +225,8 @@ function App() {
               onDeclineTask={handleDeclineTask}
               onAddVital={handleAddVital}
               onUpdatePatientPhoto={handleUpdatePatientPhoto}
+              incidents={incidents}
+              onAddIncident={handleAddIncident}
               skipStartShift={true}
             />
           );
