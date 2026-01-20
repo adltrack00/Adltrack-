@@ -231,7 +231,8 @@ export const IncidentReportPage = ({ patientName = 'Patient', incidents = [], on
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe the incident in detail..."
-                  className={`w-full h-28 ${isDarkMode ? 'bg-stone-900 border-stone-800 text-white placeholder:text-stone-500' : 'bg-stone-50 border-stone-200 text-stone-900 placeholder:text-stone-400'} border rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none`}
+                  className={`w-full h-28 ${isDarkMode ? 'bg-stone-900 border-stone-800 text-white placeholder:text-stone-500' : 'bg-stone-50 border-stone-200 text-stone-900 placeholder:text-stone-400'} border rounded-2xl p-4 text-base focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none`}
+                  style={{ fontSize: '16px' }}
                   data-testid="incident-description"
                 />
               </div>
@@ -243,7 +244,8 @@ export const IncidentReportPage = ({ patientName = 'Patient', incidents = [], on
                   value={actionsTaken}
                   onChange={(e) => setActionsTaken(e.target.value)}
                   placeholder="What steps did you take to address this?"
-                  className={`w-full h-24 ${isDarkMode ? 'bg-stone-900 border-stone-800 text-white placeholder:text-stone-500' : 'bg-stone-50 border-stone-200 text-stone-900 placeholder:text-stone-400'} border rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none`}
+                  className={`w-full h-24 ${isDarkMode ? 'bg-stone-900 border-stone-800 text-white placeholder:text-stone-500' : 'bg-stone-50 border-stone-200 text-stone-900 placeholder:text-stone-400'} border rounded-2xl p-4 text-base focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none`}
+                  style={{ fontSize: '16px' }}
                   data-testid="incident-actions"
                 />
               </div>
