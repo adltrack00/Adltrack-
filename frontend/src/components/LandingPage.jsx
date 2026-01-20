@@ -900,9 +900,9 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
             <div className="w-full md:w-auto bg-white p-6 rounded-2xl shadow-lg max-w-sm">
               <h3 className="text-[#1F1F1F] font-bold text-xl mb-4">Get in Touch</h3>
               <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                <input placeholder="Your Name" className="w-full bg-[#F0F4F9] border-none rounded-lg px-4 py-3 text-[#1F1F1F] text-sm focus:ring-2 focus:ring-[#25D366] outline-none" data-testid="contact-name-input" />
-                <input placeholder="Email Address" className="w-full bg-[#F0F4F9] border-none rounded-lg px-4 py-3 text-[#1F1F1F] text-sm focus:ring-2 focus:ring-[#25D366] outline-none" data-testid="contact-email-input" />
-                <textarea placeholder="How can we help?" className="w-full bg-[#F0F4F9] border-none rounded-lg px-4 py-3 text-[#1F1F1F] text-sm focus:ring-2 focus:ring-[#25D366] outline-none h-24 resize-none" data-testid="contact-message-input"></textarea>
+                <input placeholder="Your Name" className="w-full bg-[#F0F4F9] border-none rounded-lg px-4 py-3 text-[#1F1F1F] text-base focus:ring-2 focus:ring-[#25D366] outline-none" style={{ fontSize: '16px' }} data-testid="contact-name-input" />
+                <input placeholder="Email Address" className="w-full bg-[#F0F4F9] border-none rounded-lg px-4 py-3 text-[#1F1F1F] text-base focus:ring-2 focus:ring-[#25D366] outline-none" style={{ fontSize: '16px' }} data-testid="contact-email-input" />
+                <textarea placeholder="How can we help?" className="w-full bg-[#F0F4F9] border-none rounded-lg px-4 py-3 text-[#1F1F1F] text-base focus:ring-2 focus:ring-[#25D366] outline-none h-24 resize-none" style={{ fontSize: '16px' }} data-testid="contact-message-input"></textarea>
                 <Button className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold rounded-lg py-6" data-testid="contact-submit-btn">
                   Send Message
                 </Button>
