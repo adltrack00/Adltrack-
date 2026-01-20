@@ -1,209 +1,130 @@
-# ADLTrack - Care Operating System
-## Product Requirements Document
+# ADLTrack - Product Requirements Document
 
-### Overview
-ADLTrack is a Care Operating System that bridges the gap between caregivers, families, and care agencies with evidence-based care verification.
+## Overview
+ADLTrack is a caregiving coordination platform that connects caregivers, families, and agencies. It provides a beautiful, human-centered interface for managing care tasks, tracking vitals, documenting incidents, and communicating between all parties involved in patient care.
 
-### Core Value Proposition
-- **For Caregivers**: Clarity, protection, and professional capital
-- **For Families**: Trust without surveillance ("Peace of Mind")
-- **For Institutions**: Auditability, compliance, and structured data
+## Original Problem Statement
+Build a comprehensive caregiving dashboard application with:
+- Separate views for Caregivers, Family Members, and Agencies
+- Real-time task management and care documentation
+- AI-powered copilot for assistance
+- Incident reporting system
+- Vitals tracking and care history
 
----
+## Target Users
+1. **Caregivers**: Professional caregivers who need to manage shifts, complete tasks, document care activities
+2. **Family Members**: Family guardians who want visibility into their loved one's care
+3. **Agencies**: Healthcare agencies managing multiple caregivers and patients
 
-## Design System - Dark Theme Implementation (January 2025)
+## Core Features
 
-### Design Philosophy
-- **Human, welcoming, and story-driven**
-- **Dark mode for reduced eye strain and modern aesthetics**
-- **Trust-first design that feels personal, not corporate**
-- **Every element thoughtfully placed and emotionally reassuring**
+### Authentication (MOCK)
+- Mock sign-in/sign-up flow that simulates real authentication
+- Role selection (Caregiver, Family, Agency)
+- Direct navigation to dashboards without real authentication
 
-### Visual System (Dark Theme)
-- **Typography**: Manrope font family (friendly, modern sans-serif)
-- **Primary Background**: stone-950 (#0c0a09)
-- **Card Background**: stone-900 (#1c1917) with stone-800 borders
-- **Text Colors**: 
-  - Primary: white
-  - Secondary: stone-400
-  - Muted: stone-500
-- **Accent Colors**: 
-  - Emerald (success, active states)
-  - Rose (Family member actions, alerts)
-  - Teal (Caregiver actions)
-  - Indigo (Agency actions)
-  - Blue (informational)
-  - Purple (pain vitals)
-  - Orange (heart rate)
-- **Corners**: Generous rounding (rounded-2xl, rounded-3xl)
-- **Spacing**: 20px (p-5), 24px (p-6) standard padding
+### Caregiver Dashboard
+- Start/End shift functionality
+- Patient overview with vitals display (BP, Heart Rate, Temp, Pain)
+- Task management (Today's tasks, Requests from family)
+- Task completion with photo evidence and notes
+- **Incident Reporting** - Now as a dedicated tab in bottom navigation
+- AI Copilot for care guidance
+- Profile and settings management
 
-### AI-Generated Imagery
-- **Patient (David Smith)**: Warm elderly gentleman portrait
-- **Caregiver (Julia Martinez)**: Professional, approachable CNA portrait
-- **Care Moments**: Medication, meals, walks, vitals imagery
-- **Source**: AI-generated via Emergent imaging system
+### Family Dashboard
+- Care timeline with photos and notes from caregiver
+- Vitals monitoring
+- Request system for asking caregiver to do tasks
+- Incident viewing (see reports from caregiver)
+- Patient profile access
 
----
+### Agency Dashboard (Enterprise)
+- Multi-patient overview
+- Staff management
+- Compliance tracking
 
-## Changelog
+### Bottom Navigation Structure
+**Caregiver**: Home | Incident | Message | Shifts | Menu
+**Family**: Home | Message | Alerts | Menu
 
-### January 14, 2025
-- **NEW: Full Authentication System**
-  - **Auth Pages**: White background, black text, green ADLTrack logo (always stays emerald)
-  - **Flow**: Landing → Role Selection → Auth Page (with email/password form) → Google OAuth → Dashboard
-  - **Logo Navigation**: Clicking ADLTrack logo returns to landing page (no back arrow)
-  - Backend auth endpoints: /api/auth/session, /api/auth/me, /api/auth/logout, /api/auth/switch-role
-  - AuthContext for state management
-  - AuthCallback component for OAuth redirect handling
-- **NEW: Shared Data Model & Role Switching**
-  - Same email can access Caregiver, Family, and Agency dashboards
-  - Data uploaded in one role is visible across all roles (for testing)
-  - RoleSwitcher component added to all dashboards (in Menu/Settings)
-  - Backend endpoints: /api/tasks, /api/activities, /api/vitals, /api/messages, /api/upload/image
-  - All data shared across roles - perfect for user testing and feedback
-- **Bug Fix**: Strikethrough on completed tasks now applies only to task title, not time (TaskCard.jsx)
-- **Enhancement**: Caregiver dashboard now skips "Start Shift" screen and goes directly to main dashboard
+### Design System
+- Primary color: #25D366 (Green)
+- Accent color for incidents: Rose/Pink (#f43f5e)
+- Dark/Light mode support
+- Font: Manrope
+- Rounded corners: 2xl/3xl for cards
+- Tailwind CSS + Shadcn/UI components
 
----
+## Technical Stack
+- **Frontend**: React, Tailwind CSS, Shadcn/UI, Lucide Icons, Framer Motion
+- **Backend**: FastAPI (Python)
+- **Database**: MongoDB (planned, currently mock data)
+- **AI Integration**: Gemini via emergentintegrations
 
-## Implemented Features
+## What's Been Implemented (As of Jan 2026)
 
-### ✅ Authentication System (NEW - January 2025)
-- **Landing Page**: "Log In" and "Get Started" buttons navigate to role selection
-- **Role Selection Page**: 
-  - 3 role cards with hover effects
-  - Role-specific colors (Caregiver=teal, Family=rose, Agency=indigo)
-  - Switch between sign in/sign up modes
-- **Auth Page (Sign In/Sign Up)**:
-  - Role badge and description at top
-  - "Continue/Sign up with Google" - functional OAuth via auth.emergentagent.com
-  - "Continue/Sign up with Apple" - disabled with tooltip
-  - Email/Password form (Name field only on signup)
-  - "Forgot password?" link (signin only)
-  - Terms agreement (signup only)
-- **Backend Auth**:
-  - POST /api/auth/session - exchange Emergent session_id for app session
-  - GET /api/auth/me - get current authenticated user
-  - POST /api/auth/update-role - update user role
-  - POST /api/auth/logout - clear session
-  - Session stored in MongoDB with 7-day expiry
+### Completed Features
+- ✅ Landing page with marketing content
+- ✅ Role selection and mock authentication flow
+- ✅ Caregiver Dashboard with full task management
+- ✅ Family Dashboard with care timeline
+- ✅ Dark/Light mode theming (ThemeContext)
+- ✅ Vitals display and tracking UI
+- ✅ Patient profile modal with care history calendar
+- ✅ AI Copilot chat interface (connected to Gemini backend)
+- ✅ Task completion with photo evidence
+- ✅ **Incident Reporting as Bottom Navigation Tab** (Jan 20, 2026)
+  - Moved from floating action button to dedicated nav tab
+  - New IncidentReportPage component with history view
+  - Multi-step incident creation form
+  - Past incidents display with expandable details
+  - Rose/pink accent color for incident tab
 
-### ✅ Landing Page
-- Hero section with "Simple. Secure." messaging
-- Phone mockups showing app interface
-- Timeline and feature sections
-- Contact form
-- Mobile-responsive
+### Backend Endpoints
+- `POST /api/copilot/chat` - AI copilot (working)
+- `GET /health` - Health check endpoint
+- Auth and data endpoints exist but not connected to frontend
 
-### ✅ Caregiver Dashboard (Dark Theme - January 2025)
-- **Offline State**: 
-  - Dark background (stone-950)
-  - Greeting with caregiver profile photo
-  - Patient preview card with dark styling
-  - Uber-style "GO" button with pulse animation
-  - Task count preview
-- **Online State**:
-  - **Enlarged patient photo header (h-72 = 288px)** - Shows patient face prominently
-  - Vitals cards overlapping from middle of photo area
-  - Patient name/age displayed with drop shadow for readability
-  - Vitals cards (BP, HR, Temp, Pain) - dark cards with colored icons
-  - Progress bar (emerald gradient)
-  - Minimal tab control (Requests --- Today's Tasks)
-  - Task cards with dark styling
-  - AI Copilot floating button (emerald gradient)
-- **Bottom Navigation**: Dark background with emerald active state
-- **Sub-Pages**: All dark themed (Profile, Settings, Support, History, Earnings)
+## Pending/Future Work
 
-### ✅ Family Dashboard (Dark Theme - January 2025)
-- **Home**: 
-  - Vitals row with dark cards and colored icons
-  - Care Progress bar (emerald gradient)
-  - Timeline/Requests tabs
-  - Empty state cards with dark styling
-- **Menu**: 
-  - Profile header with dark background
-  - Menu items with dark cards
-- **Add Request Modal**: Dark themed with emerald submit button
-- **Sub-Pages**: All dark themed (Profile, Caregiver, Settings, Support, History, Billing)
+### P0 - High Priority
+- [ ] Backend Implementation & MongoDB Integration
+- [ ] Connect frontend to real API endpoints
+- [ ] Real authentication (JWT + Google OAuth)
 
-### ✅ Supporting Components (All Dark Themed - January 2025)
-- **TaskCard**: Dark cards with proper text contrast
-- **TaskRequestCard**: Dark styling with priority badges
-- **TaskCompletionModal**: Dark background, dark form inputs
-- **VitalsModal**: Dark charts, dark history list, emerald buttons
-- **PatientProfileModal**: Dark background with colored accent sections
-- **AICopilot**: Emerald gradient button, dark chat interface
-- **ChatPage**: Dark message bubbles, dark input field
-- **SettingsPage**: Dark toggles with emerald accent
-- **ProfilePage**: Dark cards, emerald accent buttons
-- **AccountsPage**: Dark transaction list
-- **HistoryPage**: Dark shift cards
-- **SupportPage**: Dark FAQ list and contact options
-- **CaregiverPage**: Dark profile card
-- **UpdatesPage**: Dark notifications list
+### P1 - Medium Priority
+- [ ] Settings page refactor (profile card clickable)
+- [ ] Dead code cleanup (RoleSwitcher.jsx, AuthCallback.jsx)
+- [ ] ESLint cleanup
 
----
+### P2 - Low Priority / Future
+- [ ] Real-time notifications for family
+- [ ] Advanced AI features (contextual chat)
+- [ ] Caregiver reputation scoring
+- [ ] Pattern detection in care data
 
-## Technical Architecture
+## Known Issues
+- Application runs on mock data (mockData.js)
+- Authentication is simulated, not real
+- Some lint warnings present
 
-### Frontend Stack
-- React 19 with JavaScript/JSX
-- Tailwind CSS with dark theme tokens
-- Manrope font (Google Fonts)
-- Lucide React icons
-- Recharts for vitals charts (dark styled)
-- Framer Motion for animations
-
-### Backend Stack
-- FastAPI (Python)
-- MongoDB (Motor async driver)
-- emergentintegrations for Gemini LLM
-
----
-
-## Testing Status (January 2025)
-- **Dark Theme**: 100% implemented across all components ✅
-- **Caregiver Dashboard**: All pages/modals dark themed ✅
-- **Family Dashboard**: All pages/modals dark themed ✅
-- **Vitals Modal**: Dark charts and forms ✅
-- **All Sub-Pages**: Settings, Profile, History, Support, etc. ✅
-
----
-
-## Prioritized Backlog
-
-### P0 - Critical
-- [ ] Connect frontend to real backend APIs
-- [ ] Implement user authentication (JWT or Emergent OAuth)
-- [ ] Persist task completions to MongoDB
-- [ ] Store vital signs readings
-
-### P1 - High Priority
-- [ ] Real-time messaging between caregiver and family
-- [ ] Push notifications for task reminders
-- [ ] Photo evidence upload to cloud storage
-- [ ] Incident report submission
-
-### P2 - Medium Priority
-- [ ] Enterprise Dashboard with dark theme
-- [ ] Shift history analytics
-- [ ] Care plan template management
-- [ ] Multi-patient support
-
-### P3 - Lower Priority
-- [ ] Pattern detection & anomaly alerts
-- [ ] Caregiver reputation/rating system
-- [ ] Offline-first functionality
-- [ ] Export data for compliance audits
-- [ ] Fix 34 minor lint errors in LandingPage.jsx, FAQPage.jsx
-
----
-
-## Data Status
-**MOCKED**: All data uses mock data from `/app/frontend/src/services/mockData.js`
-- Patient: David Smith (78 years old)
-- Caregiver: Julia Martinez (CNA)
-- Tasks: 12 daily care tasks
-- Proposed Tasks: 2 family requests
-- Vitals: 7-day history
+## File Structure Reference
+```
+/app/frontend/src/
+├── components/
+│   ├── CaregiverDashboard.jsx    # Main caregiver view
+│   ├── FamilyDashboard.jsx       # Main family view
+│   ├── IncidentReportPage.jsx    # NEW - Incident tab content
+│   ├── IncidentReportModal.jsx   # Legacy modal (can be removed)
+│   ├── IncidentViewModal.jsx     # Family incident viewing
+│   ├── AICopilot.jsx             # Chat interface
+│   ├── PatientProfileModal.jsx   # Patient details + calendar
+│   └── ...
+├── context/
+│   ├── ThemeContext.jsx          # Dark/Light mode
+│   └── AuthContext.jsx           # Mock auth state
+├── services/
+│   └── mockData.js               # All mock data
+└── App.js                        # Main routing
+```
