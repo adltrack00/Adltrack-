@@ -34,6 +34,8 @@ export const CaregiverDashboard = ({
   onDeclineTask,
   onAddVital,
   onUpdatePatientPhoto,
+  incidents = [],
+  onAddIncident,
   skipStartShift = false
 }) => {
   const { isDarkMode, bg, bgCard, bgCardHover, border, text, textSecondary, textMuted, bgNav, bgInput } = useTheme();
