@@ -27,6 +27,7 @@ export const FamilyDashboard = ({
   tasks = [],
   patient,
   vitalsData,
+  incidents = [],
   onAddRequest
 }) => {
   const { isDarkMode, bg, bgCard, bgCardHover, border, text, textSecondary, textMuted, bgNav, bgInput } = useTheme();
