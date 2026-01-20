@@ -440,10 +440,10 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
 
       {/* --- HERO SECTION --- */}
       <section className="pt-32 pb-20 lg:pt-48 relative overflow-hidden">
-        <div className="container mx-auto px-6">
+        <div className="w-full max-w-[1920px] mx-auto px-6 lg:px-12 xl:px-20">
           <div className="flex flex-col lg:flex-row items-center gap-16">
             {/* Text */}
-            <div className="flex-1 max-w-2xl">
+            <div className="flex-1 max-w-2xl lg:max-w-3xl">
               <h1 className="text-5xl lg:text-[5.5rem] leading-[1.05] font-normal tracking-tight mb-6 text-[#111B21]">
                 Simple. Secure.<br/>Reliable Care.
               </h1>
