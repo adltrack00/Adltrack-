@@ -10,14 +10,13 @@ import { TaskCompletionModal } from './TaskCompletionModal';
 import { PatientProfileModal } from './PatientProfileModal';
 import { VitalsModal } from './VitalsModal';
 import { AICopilot } from './AICopilot';
-import { IncidentReportModal } from './IncidentReportModal';
+import { IncidentReportPage } from './IncidentReportPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AccountsPage } from './pages/AccountsPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { SupportPage } from './pages/SupportPage';
 import { ChatPage } from './pages/ChatPage';
-import { RoleSwitcher } from './RoleSwitcher';
 import { CAREGIVER_PROFILE } from '../services/mockData';
 import { useTheme } from '../context/ThemeContext';
 
