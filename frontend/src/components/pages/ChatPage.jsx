@@ -138,19 +138,20 @@ export const ChatPage = ({ onBack, role }) => {
 
         {/* Input - Fixed at bottom above navigation */}
         <div className="fixed bottom-16 left-0 right-0 border-t border-stone-800 p-4 bg-stone-900 z-20">
-          <div className="flex gap-2 max-w-screen-lg mx-auto">
+          <div className="flex gap-3 max-w-screen-lg mx-auto">
             <input
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Type a message..."
-              className="flex-1 px-4 py-3 bg-stone-800 text-white rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-stone-400"
+              className="flex-1 px-4 py-3 bg-stone-800 text-white rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-stone-400"
+              style={{ fontSize: '16px' }} /* Prevents iOS zoom */
               data-testid="chat-input"
             />
             <button
               onClick={handleSend}
-              className="px-4 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors"
+              className="px-5 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors"
               data-testid="chat-send-btn"
             >
               <Send className="w-5 h-5" />
