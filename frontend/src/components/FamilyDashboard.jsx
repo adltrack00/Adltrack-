@@ -513,7 +513,7 @@ export const FamilyDashboard = ({
         <div className="flex justify-around items-center py-2">
           {[
             { id: 'home', icon: Home, label: 'Home' },
-            { id: 'incident', icon: AlertTriangle, label: 'Incident', isIncident: true, badge: 3 },
+            { id: 'incident', icon: AlertTriangle, label: 'Incident', badge: incidents.length > 0 ? incidents.length : null },
             { id: 'chat', icon: MessageSquare, label: 'Message' },
             { id: 'notifications', icon: Bell, label: 'Alerts' },
             { id: 'settings', icon: Settings, label: 'Menu' },
@@ -523,16 +523,14 @@ export const FamilyDashboard = ({
               onClick={() => setActiveTab(tab.id)}
               className={`flex flex-col items-center py-2 px-3 transition-all relative ${
                 activeTab === tab.id 
-                  ? tab.isIncident ? 'text-rose-500' : 'text-[#25D366]'
+                  ? 'text-[#25D366]'
                   : `${textMuted} hover:${textSecondary}`
               }`}
               data-testid={`nav-${tab.id}`}
             >
               <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
               <span className={`text-[10px] font-semibold mt-1 ${
-                activeTab === tab.id 
-                  ? tab.isIncident ? 'text-rose-500' : 'text-[#25D366]'
-                  : textMuted
+                activeTab === tab.id ? 'text-[#25D366]' : textMuted
               }`}>{tab.label}</span>
               {tab.badge && (
                 <div className={`absolute top-0 right-1 w-4 h-4 bg-rose-500 rounded-full flex items-center justify-center ring-2 ${isDarkMode ? 'ring-stone-900' : 'ring-white'}`}>

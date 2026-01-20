@@ -566,7 +566,7 @@ export const CaregiverDashboard = ({
         <div className="flex justify-around items-center py-2">
           {[
             { id: 'home', icon: Home, label: 'Home' },
-            { id: 'incident', icon: AlertTriangle, label: 'Incident', isIncident: true },
+            { id: 'incident', icon: AlertTriangle, label: 'Incident' },
             { id: 'chat', icon: MessageSquare, label: 'Message' },
             { id: 'shift', icon: Clock, label: 'Shifts', badge: isShiftActive },
             { id: 'settings', icon: Settings, label: 'Menu' },
@@ -576,16 +576,14 @@ export const CaregiverDashboard = ({
               onClick={() => setActiveTab(tab.id)}
               className={`flex flex-col items-center py-2 px-4 transition-all relative ${
                 activeTab === tab.id 
-                  ? tab.isIncident ? 'text-rose-500' : 'text-[#25D366]'
+                  ? 'text-[#25D366]'
                   : `${textMuted} hover:${textSecondary}`
               }`}
               data-testid={`nav-${tab.id}`}
             >
               <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
               <span className={`text-[10px] font-semibold mt-1 ${
-                activeTab === tab.id 
-                  ? tab.isIncident ? 'text-rose-500' : 'text-[#25D366]'
-                  : textMuted
+                activeTab === tab.id ? 'text-[#25D366]' : textMuted
               }`}>{tab.label}</span>
               {tab.badge && (
                 <div className={`absolute top-1 right-2 w-2.5 h-2.5 bg-[#25D366] rounded-full ring-2 ${isDarkMode ? 'ring-stone-900' : 'ring-white'}`} />
