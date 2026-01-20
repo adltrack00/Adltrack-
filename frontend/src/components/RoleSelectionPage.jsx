@@ -56,13 +56,13 @@ export const RoleSelectionPage = ({ onSelectRole, onBack, mode = 'signin' }) => 
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center justify-center px-6 pb-12">
-        <div className="w-full max-w-md space-y-8">
+        <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl space-y-8">
           {/* Welcome Text */}
           <div className="text-center space-y-3">
-            <h1 className="text-3xl font-bold text-stone-900 tracking-tight">
+            <h1 className="text-3xl lg:text-4xl font-bold text-stone-900 tracking-tight">
               {isSignUp ? 'Create your account' : 'Welcome back'}
             </h1>
-            <p className="text-stone-600 font-medium">
+            <p className="text-stone-600 font-medium lg:text-lg">
               Select your account type to {isSignUp ? 'get started' : 'continue'}
             </p>
           </div>
@@ -73,18 +73,18 @@ export const RoleSelectionPage = ({ onSelectRole, onBack, mode = 'signin' }) => 
               <button
                 key={role}
                 onClick={() => onSelectRole(role)}
-                className={`w-full p-5 bg-white border-2 border-stone-200 rounded-2xl ${hoverBorder} hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all duration-200 group text-left`}
+                className={`w-full p-5 lg:p-6 bg-white border-2 border-stone-200 rounded-2xl ${hoverBorder} hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all duration-200 group text-left`}
                 data-testid={`role-select-${role}`}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-14 h-14 rounded-xl ${iconBg} flex items-center justify-center transition-colors`}>
-                    <Icon className={`w-7 h-7 ${iconColor}`} />
+                  <div className={`w-14 h-14 lg:w-16 lg:h-16 rounded-xl ${iconBg} flex items-center justify-center transition-colors`}>
+                    <Icon className={`w-7 h-7 lg:w-8 lg:h-8 ${iconColor}`} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-bold text-stone-900">{title}</h3>
-                    <p className="text-sm text-stone-500 font-medium">{description}</p>
+                    <h3 className="text-lg lg:text-xl font-bold text-stone-900">{title}</h3>
+                    <p className="text-sm lg:text-base text-stone-500 font-medium">{description}</p>
                   </div>
-                  <ArrowRight className={`w-5 h-5 text-stone-300 ${hoverArrow} group-hover:translate-x-1 transition-all`} />
+                  <ArrowRight className={`w-5 h-5 lg:w-6 lg:h-6 text-stone-300 ${hoverArrow} group-hover:translate-x-1 transition-all`} />
                 </div>
               </button>
             ))}
