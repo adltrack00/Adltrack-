@@ -914,7 +914,7 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
 
       {/* --- FOOTER --- */}
       <footer className="bg-[#111B21] text-white pt-20 pb-10 border-t border-slate-800">
-        <div className="container mx-auto px-6">
+        <div className="w-full max-w-[1920px] mx-auto px-6 lg:px-12 xl:px-20">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             {/* Brand Column */}
             <div className="space-y-4">
