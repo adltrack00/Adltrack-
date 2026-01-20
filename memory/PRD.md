@@ -46,7 +46,13 @@ Build a comprehensive caregiving dashboard application with:
 
 ### Bottom Navigation Structure
 **Caregiver**: Home | Incident | Message | Shifts | Menu
-**Family**: Home | Message | Alerts | Menu
+**Family**: Home | Incident | Message | Alerts | Menu
+
+**Tab Styling:**
+- Active tab: GREEN (#25D366) for all tabs except Incident
+- Active Incident tab: RED/ROSE (#f43f5e)
+- Inactive tabs: Gray/muted color
+- Incident tab on Family dashboard shows notification badge with count
 
 ### Design System
 - Primary color: #25D366 (Green)
