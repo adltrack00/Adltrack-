@@ -92,30 +92,51 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
           </div>
 
           {/* Actions Taken */}
-          <div className={`${bgCard} border ${border} rounded-2xl p-5`}>
-            <h3 className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-2`}>Actions Taken</h3>
-            <p className={`${text} leading-relaxed`}>{selectedIncident.actionsTaken}</p>
-          </div>
+          {selectedIncident.actionsTaken && (
+            <div className={`${bgCard} border ${border} rounded-2xl p-5`}>
+              <h3 className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-2`}>Actions Taken</h3>
+              <p className={`${text} leading-relaxed`}>{selectedIncident.actionsTaken}</p>
+            </div>
+          )}
 
-          {/* Caregiver Info */}
-          <div className={`${bgCard} border ${border} rounded-2xl p-5`}>
-            <h3 className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-3`}>Reported By</h3>
-            <div className="flex items-center gap-4">
-              <img 
-                src={selectedIncident.createdBy.photo}
-                alt={selectedIncident.createdBy.name}
-                className="w-14 h-14 rounded-xl object-cover"
-              />
-              <div className="flex-1">
-                <p className={`font-semibold ${text}`}>{selectedIncident.createdBy.name}</p>
-                <p className={`text-sm ${textMuted}`}>{selectedIncident.createdBy.title}</p>
-              </div>
-              <div className="flex items-center gap-1 text-[#25D366]">
-                <CheckCircle className="w-4 h-4" />
-                <span className="text-sm font-medium">Verified</span>
+          {/* Photos */}
+          {selectedIncident.photos && selectedIncident.photos.length > 0 && (
+            <div className={`${bgCard} border ${border} rounded-2xl p-5`}>
+              <h3 className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-3`}>Evidence Photos ({selectedIncident.photos.length})</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {selectedIncident.photos.map((photo) => (
+                  <img 
+                    key={photo.id}
+                    src={photo.url} 
+                    alt="Incident evidence"
+                    className="w-full aspect-square rounded-xl object-cover"
+                  />
+                ))}
               </div>
             </div>
-          </div>
+          )}
+
+          {/* Caregiver Info */}
+          {selectedIncident.createdBy && (
+            <div className={`${bgCard} border ${border} rounded-2xl p-5`}>
+              <h3 className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-3`}>Reported By</h3>
+              <div className="flex items-center gap-4">
+                <img 
+                  src={selectedIncident.createdBy.photo}
+                  alt={selectedIncident.createdBy.name}
+                  className="w-14 h-14 rounded-xl object-cover"
+                />
+                <div className="flex-1">
+                  <p className={`font-semibold ${text}`}>{selectedIncident.createdBy.name}</p>
+                  <p className={`text-sm ${textMuted}`}>{selectedIncident.createdBy.title}</p>
+                </div>
+                <div className="flex items-center gap-1 text-[#25D366]">
+                  <CheckCircle className="w-4 h-4" />
+                  <span className="text-sm font-medium">Verified</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Notification Status */}
           {selectedIncident.familyNotified && (
