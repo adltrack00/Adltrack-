@@ -592,7 +592,8 @@ export const FamilyDashboard = ({
                   value={newRequest.title}
                   onChange={(e) => setNewRequest(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="e.g., Extra blanket, Call me back"
-                  className={`w-full px-4 py-3 ${isDarkMode ? 'bg-stone-900 border-stone-800 text-white placeholder-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder-stone-400'} border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:border-transparent`}
+                  className={`w-full px-4 py-3 text-base ${isDarkMode ? 'bg-stone-900 border-stone-800 text-white placeholder-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder-stone-400'} border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:border-transparent`}
+                  style={{ fontSize: '16px' }}
                   data-testid="request-title-input"
                 />
               </div>
@@ -607,7 +608,8 @@ export const FamilyDashboard = ({
                   onChange={(e) => setNewRequest(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Any specific instructions..."
                   rows={3}
-                  className={`w-full px-4 py-3 ${isDarkMode ? 'bg-stone-900 border-stone-800 text-white placeholder-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder-stone-400'} border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:border-transparent resize-none`}
+                  className={`w-full px-4 py-3 text-base ${isDarkMode ? 'bg-stone-900 border-stone-800 text-white placeholder-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder-stone-400'} border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:border-transparent resize-none`}
+                  style={{ fontSize: '16px' }}
                   data-testid="request-description-input"
                 />
               </div>
