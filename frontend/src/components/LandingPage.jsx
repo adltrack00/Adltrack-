@@ -879,9 +879,9 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
       {/* --- CONTACT SECTION --- */}
       <section id="contact" className="bg-[#111B21] py-20 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-[#25D366] opacity-5 skew-x-12 transform origin-top-right"></div>
-        <div className="container mx-auto px-6 relative z-10">
+        <div className="w-full max-w-[1920px] mx-auto px-6 lg:px-12 xl:px-20 relative z-10">
           <div className="bg-[#1F2C34] rounded-[32px] p-8 md:p-12 flex flex-col md:flex-row items-center justify-between shadow-2xl border border-slate-800">
-            <div className="max-w-xl mb-8 md:mb-0">
+            <div className="max-w-xl lg:max-w-2xl mb-8 md:mb-0">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to transform your care experience?</h2>
               <p className="text-slate-400 text-lg mb-8">
                 Whether you're a concerned family member or an agency owner looking to scale, our team is here to help you get set up.
