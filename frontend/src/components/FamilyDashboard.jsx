@@ -35,7 +35,6 @@ export const FamilyDashboard = ({
   const [showPatientProfile, setShowPatientProfile] = useState(false);
   const [showVitals, setShowVitals] = useState(false);
   const [showCopilot, setShowCopilot] = useState(false);
-  const [showIncidentView, setShowIncidentView] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [activePage, setActivePage] = useState(null);
   const [newRequest, setNewRequest] = useState({ title: '', description: '', priority: 'standard' });
