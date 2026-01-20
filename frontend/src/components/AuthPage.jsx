@@ -157,7 +157,8 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your full name"
-                    className="w-full p-4 pl-12 bg-stone-50 border border-stone-200 rounded-2xl text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                    className="w-full p-4 pl-12 bg-stone-50 border border-stone-200 rounded-2xl text-base text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                    style={{ fontSize: '16px' }}
                     data-testid="auth-name-input"
                   />
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">
@@ -177,7 +178,8 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="w-full p-4 pl-12 bg-stone-50 border border-stone-200 rounded-2xl text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                  className="w-full p-4 pl-12 bg-stone-50 border border-stone-200 rounded-2xl text-base text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                  style={{ fontSize: '16px' }}
                   data-testid="auth-email-input"
                 />
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
@@ -192,7 +194,8 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={isSignUp ? 'Create a password' : 'Enter your password'}
-                  className="w-full p-4 pl-12 pr-12 bg-stone-50 border border-stone-200 rounded-2xl text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                  className="w-full p-4 pl-12 pr-12 bg-stone-50 border border-stone-200 rounded-2xl text-base text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                  style={{ fontSize: '16px' }}
                   data-testid="auth-password-input"
                 />
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
