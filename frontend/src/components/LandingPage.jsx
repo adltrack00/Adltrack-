@@ -706,11 +706,11 @@ export const LandingPage = ({ onNavigateToAuth, onNavigateToFAQ }) => {
       {/* --- VIDEO & FAMILY CHAT SHOWCASE --- */}
       <section id="demo" className="py-24 bg-[#F0F4F9] relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[50%] h-full bg-gradient-to-l from-white/40 to-transparent pointer-events-none"></div>
-        <div className="container mx-auto px-6 relative z-10">
+        <div className="w-full max-w-[1920px] mx-auto px-6 lg:px-12 xl:px-20 relative z-10">
           <div className="flex flex-col lg:flex-row items-center gap-16">
             {/* Left Side: Video Content & Context */}
             <div className="flex-1 space-y-12">
-              <div className="max-w-xl">
+              <div className="max-w-xl lg:max-w-2xl">
                 <h2 className="text-3xl lg:text-4xl font-bold text-[#111B21] mb-6">
                   See Care in Action
                 </h2>
