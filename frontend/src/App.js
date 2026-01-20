@@ -145,6 +145,21 @@ function App() {
     }));
   };
 
+  // Incident handlers
+  const handleAddIncident = (incident) => {
+    const newIncident = {
+      ...incident,
+      id: Date.now(),
+      createdAt: new Date().toLocaleString('en-US', { 
+        month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'
+      }),
+      createdBy: CAREGIVER_PROFILE,
+      status: 'new',
+      familyNotified: incident.notifyFamily
+    };
+    setIncidents(prev => [newIncident, ...prev]);
+  };
+
   // Render the appropriate view
   const renderView = () => {
     // FAQ page
