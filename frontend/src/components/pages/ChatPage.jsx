@@ -98,6 +98,7 @@ export const ChatPage = ({ onBack, role }) => {
         [activeConversation]: getInitialMessages(activeConversation)
       }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeConversation]);
 
   // Scroll to bottom when messages change
