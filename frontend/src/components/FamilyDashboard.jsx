@@ -7,7 +7,7 @@ import { TaskStatus, UserRole } from '../types';
 import { PatientProfileModal } from './PatientProfileModal';
 import { VitalsModal } from './VitalsModal';
 import { AICopilot } from './AICopilot';
-import { IncidentViewModal } from './IncidentViewModal';
+import { IncidentViewPage } from './IncidentViewPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AccountsPage } from './pages/AccountsPage';
@@ -16,7 +16,6 @@ import { SupportPage } from './pages/SupportPage';
 import { ChatPage } from './pages/ChatPage';
 import { UpdatesPage } from './pages/UpdatesPage';
 import { CaregiverPage } from './pages/CaregiverPage';
-import { RoleSwitcher } from './RoleSwitcher';
 import { CARE_IMAGES, CAREGIVER_PROFILE } from '../services/mockData';
 import { useTheme } from '../context/ThemeContext';
 
