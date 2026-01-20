@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   AlertTriangle, Clock, ChevronRight, ChevronDown, Shield, Heart,
-  Thermometer, Brain, Pill, HelpCircle, FileText, CheckCircle, User
+  Thermometer, Brain, Pill, HelpCircle, FileText, CheckCircle, User, X, ZoomIn, ChevronLeft
 } from 'lucide-react';
 import { CAREGIVER_PROFILE } from '../services/mockData';
 import { useTheme } from '../context/ThemeContext';
@@ -26,6 +26,95 @@ const SEVERITY_LEVELS = [
 export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [] }) => {
   const { isDarkMode, bg, bgCard, bgCardHover, border, text, textSecondary, textMuted } = useTheme();
   const [selectedIncident, setSelectedIncident] = useState(null);
+  const [viewingPhoto, setViewingPhoto] = useState(null);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+
+  // Photo viewer navigation
+  const navigatePhoto = (direction) => {
+    if (!selectedIncident?.photos) return;
+    const newIndex = currentPhotoIndex + direction;
+    if (newIndex >= 0 && newIndex < selectedIncident.photos.length) {
+      setCurrentPhotoIndex(newIndex);
+      setViewingPhoto(selectedIncident.photos[newIndex]);
+    }
+  };
+
+  // Photo Viewer Modal
+  const PhotoViewerModal = () => {
+    if (!viewingPhoto) return null;
+    
+    const hasMultiple = selectedIncident?.photos?.length > 1;
+    const canGoBack = currentPhotoIndex > 0;
+    const canGoForward = currentPhotoIndex < (selectedIncident?.photos?.length || 1) - 1;
+
+    return (
+      <div 
+        className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center"
+        onClick={() => setViewingPhoto(null)}
+      >
+        {/* Close button */}
+        <button
+          onClick={() => setViewingPhoto(null)}
+          className="absolute top-4 right-4 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors z-10"
+          data-testid="close-photo-viewer"
+        >
+          <X className="w-6 h-6 text-white" />
+        </button>
+
+        {/* Photo counter */}
+        {hasMultiple && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/50 rounded-full">
+            <span className="text-white text-sm font-medium">
+              {currentPhotoIndex + 1} / {selectedIncident.photos.length}
+            </span>
+          </div>
+        )}
+
+        {/* Navigation arrows */}
+        {hasMultiple && canGoBack && (
+          <button
+            onClick={(e) => { e.stopPropagation(); navigatePhoto(-1); }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+            data-testid="photo-prev"
+          >
+            <ChevronLeft className="w-6 h-6 text-white" />
+          </button>
+        )}
+        
+        {hasMultiple && canGoForward && (
+          <button
+            onClick={(e) => { e.stopPropagation(); navigatePhoto(1); }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+            data-testid="photo-next"
+          >
+            <ChevronRight className="w-6 h-6 text-white" />
+          </button>
+        )}
+
+        {/* Image */}
+        <div 
+          className="max-w-[90vw] max-h-[85vh] flex items-center justify-center p-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <img
+            src={viewingPhoto.url}
+            alt={viewingPhoto.name || 'Evidence photo'}
+            className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+          />
+        </div>
+
+        {/* Photo info */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center">
+          <p className="text-white/70 text-sm">
+            {viewingPhoto.name || 'Evidence Photo'}
+          </p>
+          <p className="text-white/50 text-xs mt-1">
+            Tap outside or press X to close
+          </p>
+        </div>
+      </div>
+    );
+  };
 
   // Detailed incident view
   if (selectedIncident) {
@@ -34,6 +123,9 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
     
     return (
       <div className={`flex-1 overflow-y-auto ${bg} pb-24`}>
+        {/* Photo Viewer */}
+        <PhotoViewerModal />
+
         {/* Header */}
         <div className={`${isDarkMode ? 'bg-stone-900' : 'bg-white'} border-b ${border} px-5 py-4`}>
           <button 
@@ -99,18 +191,41 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
             </div>
           )}
 
-          {/* Photos */}
+          {/* Photos - Clickable */}
           {selectedIncident.photos && selectedIncident.photos.length > 0 && (
             <div className={`${bgCard} border ${border} rounded-2xl p-5`}>
-              <h3 className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-3`}>Evidence Photos ({selectedIncident.photos.length})</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className={`text-xs font-bold ${textMuted} uppercase tracking-wider`}>Evidence Photos ({selectedIncident.photos.length})</h3>
+                <div className="flex items-center gap-1 text-[#25D366]">
+                  <ZoomIn className="w-3.5 h-3.5" />
+                  <span className="text-xs font-medium">Tap to view</span>
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-3">
-                {selectedIncident.photos.map((photo) => (
-                  <img 
+                {selectedIncident.photos.map((photo, index) => (
+                  <button
                     key={photo.id}
-                    src={photo.url} 
-                    alt="Incident evidence"
-                    className="w-full aspect-square rounded-xl object-cover"
-                  />
+                    onClick={() => {
+                      setCurrentPhotoIndex(index);
+                      setViewingPhoto(photo);
+                    }}
+                    className="relative group aspect-square rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#25D366]"
+                    data-testid={`view-photo-${photo.id}`}
+                  >
+                    <img 
+                      src={photo.url} 
+                      alt={photo.name || 'Incident evidence'}
+                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                    />
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                          <ZoomIn className="w-5 h-5 text-white" />
+                        </div>
+                      </div>
+                    </div>
+                  </button>
                 ))}
               </div>
             </div>
