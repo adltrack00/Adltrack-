@@ -488,7 +488,7 @@ export const FamilyDashboard = ({
     <div className={`min-h-screen ${bg} flex flex-col font-['Manrope',sans-serif]`}>
       {/* Main Content */}
       {activeTab === 'home' && renderHomeContent()}
-      {activeTab === 'incident' && <IncidentViewPage patientName={patient?.name} />}
+      {activeTab === 'incident' && <IncidentViewPage patientName={patient?.name} incidents={incidents} />}
       {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.FAMILY} />}
       {activeTab === 'notifications' && <UpdatesPage onBack={() => setActiveTab('home')} />}
       {activeTab === 'settings' && renderSettingsContent()}
