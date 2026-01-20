@@ -211,7 +211,7 @@ export const ChatPage = ({ onBack, role }) => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-stone-950 pb-24">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-stone-950">
           {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[80%] px-4 py-3 rounded-2xl ${
@@ -233,7 +233,8 @@ export const ChatPage = ({ onBack, role }) => {
               </div>
             </div>
           ))}
-          <div ref={messagesEndRef} />
+          {/* Spacer to ensure last message is fully visible above input bar */}
+          <div ref={messagesEndRef} className="h-32" />
         </div>
 
         {/* Input - Fixed at bottom above navigation */}
