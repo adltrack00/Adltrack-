@@ -542,7 +542,7 @@ export const CaregiverDashboard = ({
     <div className={`min-h-screen ${bg} flex flex-col font-['Manrope',sans-serif]`}>
       {/* Main Content */}
       {activeTab === 'home' && renderHomeContent()}
-      {activeTab === 'incident' && <IncidentReportPage patientName={patient?.name} />}
+      {activeTab === 'incident' && <IncidentReportPage patientName={patient?.name} incidents={incidents} onAddIncident={onAddIncident} />}
       {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.CAREGIVER} />}
       {activeTab === 'shift' && renderShiftContent()}
       {activeTab === 'settings' && renderSettingsContent()}
