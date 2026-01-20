@@ -187,14 +187,18 @@ export const VitalsModal = ({
                       placeholder="Systolic"
                       value={newVital.systolic}
                       onChange={(e) => setNewVital({...newVital, systolic: e.target.value})}
-                      className="flex-1 px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-sm font-medium text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="flex-1 px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-base font-medium text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      style={{ fontSize: '16px' }}
+                      data-testid="vital-systolic"
                     />
                     <input
                       type="number"
                       placeholder="Diastolic"
                       value={newVital.diastolic}
                       onChange={(e) => setNewVital({...newVital, diastolic: e.target.value})}
-                      className="flex-1 px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-sm font-medium text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="flex-1 px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-base font-medium text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      style={{ fontSize: '16px' }}
+                      data-testid="vital-diastolic"
                     />
                   </div>
                 )}
@@ -205,7 +209,9 @@ export const VitalsModal = ({
                     placeholder="Heart Rate (BPM)"
                     value={newVital.heartRate}
                     onChange={(e) => setNewVital({...newVital, heartRate: e.target.value})}
-                    className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-sm font-medium text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-base font-medium text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    style={{ fontSize: '16px' }}
+                    data-testid="vital-heartrate"
                   />
                 )}
                 
@@ -216,7 +222,9 @@ export const VitalsModal = ({
                     placeholder="Temperature (°F)"
                     value={newVital.temperature}
                     onChange={(e) => setNewVital({...newVital, temperature: e.target.value})}
-                    className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-sm font-medium text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-base font-medium text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    style={{ fontSize: '16px' }}
+                    data-testid="vital-temperature"
                   />
                 )}
                 
@@ -228,7 +236,9 @@ export const VitalsModal = ({
                     placeholder="Pain Level (0-10)"
                     value={newVital.pain}
                     onChange={(e) => setNewVital({...newVital, pain: e.target.value})}
-                    className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-sm font-medium text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-3 bg-stone-800 border border-stone-700 rounded-xl text-base font-medium text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    style={{ fontSize: '16px' }}
+                    data-testid="vital-pain"
                   />
                 )}
 
