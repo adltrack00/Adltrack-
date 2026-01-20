@@ -23,47 +23,8 @@ const SEVERITY_LEVELS = [
   { id: 'critical', label: 'Critical', color: 'rose' },
 ];
 
-// Mock incidents for family view
-const FAMILY_INCIDENTS = [
-  {
-    id: 1,
-    type: 'fall',
-    severity: 'medium',
-    description: 'Patient experienced a near-fall while transitioning from bed to wheelchair. Caregiver was present and prevented full fall.',
-    actionsTaken: 'Assisted patient safely back to bed, checked for injuries (none found), monitored vitals for 30 minutes. Will use transfer belt for future transitions.',
-    createdAt: 'Jan 16, 2026 • 2:30 PM',
-    createdBy: CAREGIVER_PROFILE,
-    status: 'resolved',
-    familyNotified: true
-  },
-  {
-    id: 2,
-    type: 'medication',
-    severity: 'low',
-    description: 'Morning medication was taken 30 minutes late due to breakfast timing adjustment.',
-    actionsTaken: 'Adjusted medication schedule, documented delay. No adverse effects observed.',
-    createdAt: 'Jan 15, 2026 • 9:15 AM',
-    createdBy: CAREGIVER_PROFILE,
-    status: 'resolved',
-    familyNotified: true
-  },
-  {
-    id: 3,
-    type: 'behavioral',
-    severity: 'medium',
-    description: 'Patient showed increased confusion and agitation during afternoon. Had difficulty recognizing caregiver briefly.',
-    actionsTaken: 'Engaged in calming conversation, played favorite music, ensured comfortable environment. Episode resolved after 20 minutes.',
-    createdAt: 'Jan 14, 2026 • 3:45 PM',
-    createdBy: CAREGIVER_PROFILE,
-    status: 'resolved',
-    familyNotified: true
-  }
-];
-
-export const IncidentViewPage = ({ patientName = 'Your loved one' }) => {
+export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [] }) => {
   const { isDarkMode, bg, bgCard, bgCardHover, border, text, textSecondary, textMuted } = useTheme();
-  const [incidents] = useState(FAMILY_INCIDENTS);
-  const [expandedIncident, setExpandedIncident] = useState(null);
   const [selectedIncident, setSelectedIncident] = useState(null);
 
   // Detailed incident view
