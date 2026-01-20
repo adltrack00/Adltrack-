@@ -7,42 +7,59 @@ The current focus has shifted to implementing a complete authentication and data
 -   **Core Loop**: Start/End Shift, manage a dynamic task list, capture evidence (photos, notes).
 -   **Dashboards**: Separate, tailored experiences for Caregivers, Family Members, and Agencies. Data uploaded in one role should be visible in others for testing purposes.
 -   **AI Copilot**: A chat interface for caregivers and family members to ask questions, powered by Gemini.
+-   **Incident Reporting**: A multi-step flow for caregivers to report incidents (falls, medication issues) and a corresponding view for family members.
+-   **Care History**: A calendar view within the patient's profile to review tasks and activities from previous days.
 -   **Authentication**: A mock sign-in/sign-up flow that looks real but navigates directly to the dashboards to allow for full app testing without real user accounts.
 -   **Design**: A high-end, human-centric design with a functional dark/light theme, inspired by Airbnb's aesthetic. The app's primary branding color is green (), and the logo text is Adltrack.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The project is a high-fidelity, frontend-only React application built with mock data. It features a mock authentication flow with a , a , and an  that simulates sign-in/sign-up and navigates directly to the appropriate dashboard. The app supports three roles: Caregiver, Family, and Agency.
+The project is a high-fidelity, frontend-only React application built with mock data. It features a mock authentication flow that simulates sign-in/sign-up and navigates directly to the appropriate dashboard (Caregiver, Family, or Agency).
 
-A  provides a dark/light mode toggle. An  manages the mock authentication state. While backend endpoints for authentication and data sharing were created in , the frontend is **not** connected to them and operates in a fully mocked state. The UI has been extensively refined to match the user's branding and aesthetic requirements.
+A  provides a dark/light mode toggle that is respected by most components, including the newly added floating action buttons. An  manages the mock authentication state. While backend stubs for authentication and data sharing exist in , the frontend is **not** connected to them (except for ) and operates in a fully mocked state. The UI has been extensively refined, with major features like an AI Copilot, a Care History calendar, and a comprehensive Incident Reporting system having been implemented and visually polished according to user specifications.
 
 **Last working item**:
-    - Last item agent was working: The user requested to refactor the settings page on the dashboards. This involved removing the Test Other Views (Role Switcher) component entirely and making the user's profile card (containing their name and picture) a clickable button that navigates to the profile page, thus removing the redundant, separate Profile menu item.
+    - Last item agent was working: The user reported that the multi-step Incident Report modal was not displaying correctly, with content being cut off at the bottom, making it unusable. The agent identified this as a layout issue and rewrote the  component to use a more robust, fixed-height structure that ensures content is scrollable and buttons are always visible.
     - Status: IN PROGRESS
     - Agent Testing Done: N
-    - Which testing method agent to use? screenshot tool. The next agent should verify the UI changes on the Caregiver, Family, and Enterprise dashboards.
+    - Which testing method agent to use? screenshot tool. The next agent must test the incident report creation flow on the Caregiver dashboard. This involves clicking the incident report button and proceeding through all steps of the modal (1-4) to verify that the layout is fixed and no content is obscured on both desktop and mobile viewports.
     - User Testing Done: N
 
 **All Pending/In progress Issue list**:
-  - Issue 1: Complete Settings Page Refactor (P0)
-  - Issue 2: Minor Lint Errors (P2)
+  - Issue 1: Fix Incident Report Modal Layout (P0)
+  - Issue 2: Complete Settings Page Refactor (P1)
+  - Issue 3: Minor Lint Errors (P2)
   
   Issues Detail:
-  - **Issue 1: Complete Settings Page Refactor**
-     - **Attempted fixes:** The agent has edited  to make the profile card clickable and remove the role switcher/profile link. The role switcher was also removed from  and .
+  - **Issue 1: Fix Incident Report Modal Layout**
+     - **Attempted fixes:** The agent identified that  was causing content to be cut off. The entire  file was overwritten with a new implementation intended to fix the layout, but this fix has not yet been tested.
      - **Next debug checklist:**
-        1. Verify the changes in  are working as intended (profile card is clickable, profile page loads, role switcher and old profile link are gone).
-        2. Implement the same clickable profile card functionality in  and  (if applicable) and remove their separate Profile links.
-        3. Use the screenshot tool to test the settings view on all three dashboards.
-     - **Why fix this issue and what will be achieved with the fix?**: Fulfills a direct user request to streamline the settings UI and improve user experience by removing redundant elements.
+        1.  Use the  to navigate to the .
+        2.  Click the Incident Report floating action button.
+        3.  Proceed through all steps of the modal, taking screenshots at each step.
+        4.  Verify that all content is visible, the main content area scrolls if needed, and the footer with the Continue/Back buttons is always visible and not obscured.
+        5.  Repeat the test with a mobile viewport to ensure responsiveness.
+     - **Why fix this issue and what will be achieved with the fix?**: The incident report feature is a critical part of the application but is currently unusable because the form is cut off. This fix will restore its functionality.
      - **Status**:  IN PROGRESS
      - **Is recurring issue?**: N
      - **Should Test frontend/backend/both after fix?**: frontend
      - **Blocked on other issue**: None
 
-  - **Issue 2: Minor Lint Errors**
-     - **Attempted fixes:** None in the last session. This is a known, low-priority issue.
+  - **Issue 2: Complete Settings Page Refactor**
+     - **Attempted fixes:** This was started in a previous fork but was not completed. The goal is to make the user's profile card in the menu a clickable button that navigates to the profile page, removing the redundant, separate Profile menu item.
+     - **Next debug checklist:**
+        1.  In  and , locate the  function.
+        2.  Wrap the main user profile card  in a  or add an  handler.
+        3.  The  should navigate the user to the .
+     - **Why fix this issue and what will be achieved with the fix?**: Fulfills a direct user request to streamline the settings UI and improve navigation.
+     - **Status**:  NOT STARTED
+     - **Is recurring issue?**: N
+     - **Should Test frontend/backend/both after fix?**: frontend
+     - **Blocked on other issue**: None
+
+  - **Issue 3: Minor Lint Errors**
+     - **Attempted fixes:** None. This is a known, low-priority issue from a previous session.
      - **Next debug checklist:** Run  in the  directory and review the automatic changes.
      - **Why fix this issue and what will be achieved with the fix?**: Improves overall code quality and maintainability.
      - **Status**:  NOT STARTED
@@ -51,122 +68,134 @@ A  provides a dark/light mode toggle. An  manages the mock authentication state.
      - **Blocked on other issue**: None
 
 **In progress Task List**:
-The Complete Settings Page Refactor issue is the only in-progress task.
+The Fix Incident Report Modal Layout issue is the only in-progress task.
 
 **Upcoming and Future Tasks**
 *   **Upcoming Tasks (P0):**
-    *   **Backend Implementation & DB Integration:** This is the highest priority after the UI is finalized. The application is currently a non-functional mockup.
-        *   **Action**: Build out FastAPI API endpoints for all data entities (users, tasks, vitals, requests, messages).
-        *   **Action**: Integrate a database (e.g., PostgreSQL or MongoDB) to replace .
-        *   **Action**: Implement real authentication (e.g., JWT with Google OAuth) to replace the mock auth flow when the user is ready for production.
-*   **Upcoming Tasks (P1):**
-    *   **Connect Frontend to Backend**:
-        *   **Action**: Refactor all components (, , , modals) to fetch and mutate data via API calls instead of using hardcoded mock data and local state.
-
+    *   **Backend Implementation & DB Integration**: This is the highest priority after the UI is finalized. The application is currently a non-functional mockup.
+        *   **Action**: Build out FastAPI API endpoints for all data entities (users, tasks, vitals, requests, messages, incidents).
+        *   **Action**: Integrate the existing MongoDB database to replace .
+        *   **Action**: Connect the frontend to the backend, refactoring all components to fetch and mutate data via API calls.
 *   **Future Tasks (From PRD):**
-    *   **Advanced Family Features**: Implement contextual chat linked to specific tasks and configurable alerts.
+    *   **Real Authentication**: Implement a real authentication system (e.g., JWT with Google OAuth) to replace the mock auth flow.
+    *   **Real-time Notifications**: Implement real-time updates for incidents for family members.
+    *   **Advanced Features**: Implement contextual chat linked to specific tasks and configurable alerts.
     *   **Pattern Detection & Reputation**: Develop caregiver reputation scoring and anomaly detection systems.
 
 **Completed work in this session**
-- **Authentication Flow Implementation (and Reversion to Mock):**
-  - Built a full, real authentication system with Google Sign-In using Emergent-managed auth.
-  - Created backend endpoints () and frontend components (, , , ).
-  - Per user request, **reverted the entire flow to a mock UI**. The app now *looks* like it has authentication, but clicking Continue with Google bypasses real auth and navigates directly to the dashboard.
-- **Shared Data Model & Role Switching:**
-  - Implemented backend logic and frontend components () to allow a user to switch between Caregiver, Family, and Agency views to test the flow of information (e.g., a photo uploaded by a caregiver appearing on the family dashboard).
-- **Major UI/UX Refinements:**
-  - **Auth Pages Redesign**: Iterated on the Sign-In/Sign-Up pages multiple times to achieve a light theme (white background, black text) while keeping role-specific accent colors for buttons.
-  - **Branding Unification**: Standardized the app logo to Adltrack (capital 'A') in a specific green (). This color was then applied consistently to all green UI elements (buttons, progress bars, active tabs) across the entire application. The logo shape was changed from circular to a rounded box.
-  - **AI Copilot Fixes**: Corrected the AI Copilot UI to work with the dark theme, ensuring the background, text, and input field were all styled correctly and functional.
-- **Bug Fixes:**
-  - Corrected the styling for completed tasks to use a strikethrough on the text only, not the time.
+- **AI Copilot UI Overhaul:**
+  - Fixed the AI Copilot modal, which was previously too large and resized inconsistently. It is now a stable, fixed-height chat interface that works on both desktop and mobile across all dashboards.
+- **Patient Care History Calendar Feature:**
+  - Implemented a Care History feature within the . Clicking it opens an Airbnb-style calendar that indicates which past dates have recorded tasks.
+  - Selecting a date now closes the modal and filters the main dashboard (Caregiver or Family) to show all data for that specific historical day, displaying a Viewing History banner.
+- **Comprehensive Incident Report Feature:**
+  - Designed and built a multi-step flow for Caregivers to create detailed incident reports (type, severity, photos, notes) via .
+  - Created a corresponding view for Family members () to see a list of incidents and view a detailed, Airbnb-style report for each.
+- **Floating Action Button (FAB) UI Refinement:**
+  - Added FABs for Incident Report and AI Copilot on both dashboards.
+  - Iterated on the FAB design based on user feedback, changing the shape, size, and color to be theme-aware (dark background in dark mode, white in light mode) and match the style of the vital signs icons ( shape,  size).
+- **Menu/Settings UI Cleanup:**
+  - Moved the Sign Out button from the  to the main Menu tab on both dashboards for easier access.
+  - Removed the Care History link from the Family dashboard menu, as this feature is now accessed exclusively through the Patient Profile modal.
+- **Deployment Readiness Fixes:**
+  - Added a root-level  endpoint to  to satisfy Kubernetes health checks.
+  - Corrected  to stop ignoring  files, which are necessary for deployment.
+  - Added  projection to several MongoDB queries in  to prevent  serialization errors.
 
 **Earlier issues found/mentioned but not fixed**
 - **Issue 1: Lint Errors**
-    - **Description**: The linter identifies 27+ minor errors (e.g., unescaped characters) in pre-existing files like .
+    - **Description**: The linter identifies minor errors in pre-existing files.
     - **Debug checklist**: Run  in .
     - **Why to solve this issue and what will be achieved with this?**: Code quality. Low priority.
     - **Should Test frontend/backend/both after fix**: frontend
     - **Is recurring issue?**: Y
+- **Issue 2: Dead Code**
+    - **Description**:  and  are no longer used in the current mock UI flow.
+    - **Debug checklist**: Delete the files  and . Remove any imports pointing to them.
+    - **Why to solve this issue and what will be achieved with this?**: Code cleanup and reduced confusion for future development.
+    - **Should Test frontend/backend/both after fix**: frontend
+    - **Is recurring issue?**: N
 
 **Known issue recurrence from previous fork**
-  - **Issue recurrence**: The user frequently requests major and sometimes contradictory UI/UX changes.
-  - **Recurrence count**: Very High. This was observed again when the agent built a full authentication system, only for the user to request it be reverted to a mock UI immediately after.
-  - **Status**: RESOLVED (by being aware). This is a core behavioral pattern. The next agent must be prepared to be flexible and confirm requirements carefully.
+  - **Issue recurrence**: The user frequently requests major and sometimes contradictory UI/UX changes after implementation.
+  - **Recurrence count**: Very High. This is a core behavioral pattern.
+  - **Status**: RESOLVED (by being aware). The next agent must be prepared to be flexible, confirm requirements carefully, and expect iterative feedback.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Frontend**: React, Tailwind CSS,  (icons).
-- **State Management**: Prop drilling from ,  for dark/light mode, and  for the mock user session.
-- **Backend**: FastAPI with endpoints for AI copilot and (unused) auth/data.
-- **Authentication**: **Mock UI only**.  simulates a logged-in user.
+- **Frontend**: React, Tailwind CSS, , , .
+- **State Management**: ,  for dark/light mode, and  for mock user session.
+- **Backend**: FastAPI with endpoints for AI copilot and a new  check. Other endpoints are stubs.
+- **Theming**: Components are now theme-aware, conditionally applying styles for light and dark modes (e.g., ).
 
 **key DB schema**
 - **(Planned, Not Implemented)**
 
 **changes in tech stack**
--  was added to manage frontend authentication state.  was added to the backend.
+- No new technologies were added, but  components (like Calendar) were utilized.
 
 **All files of reference**
-- **State & Routing**: , 
-- **Auth UI**: , 
-- **Dashboards**: , , 
-- **Branding/Logo**: , 
-- **Data**: 
-- **Backend (stubs)**: 
+- **Incident Report**:  (creation),  (viewing)
+- **Care History/Calendar**: 
+- **Dashboards & FABs**: , 
+- **AI Copilot**: 
+- **Backend Health Check**: 
+- **Deployment Config**: 
 
 **Areas that need refactoring**:
-- **Data Layer**: The entire application is a mockup running on hardcoded data. This is the highest-priority refactoring needed.
-- **Dead Code Removal**:  and  are no longer used in the current mock UI flow and should be removed to avoid confusion. The backend API routes for authentication and data sharing exist but are unused and will need to be properly implemented and connected.
-- **Prop Drilling**: State management is still heavily reliant on prop drilling.
+- **Data Layer**: The entire application is a mockup running on hardcoded data from . This is the highest-priority refactoring needed to make the app functional.
+- **Dead Code**:  and  are unused from a previous authentication implementation and should be removed.
 
 **key api endpoints**
-- : The only active and connected backend endpoint.
+- : The only active and connected backend endpoint for data.
+- : The new root-level health check endpoint for deployment readiness.
 -  and : Exist on the backend but are **not** used by the current mock frontend.
 
 **Critical Info for New Agent**
-- **AUTH IS MOCK**: The user explicitly requested to revert from real authentication to a **mock UI-only flow**. Do not attempt to implement real authentication until the user confirms they are ready for production. The goal is to allow testers to explore all roles and features seamlessly.
-- **Aesthetics are Paramount**: The user is very specific about the visual design. All changes must adhere to the established theme, the green color , and the Adltrack branding.
-- **Role Switcher is Removed**: The UI for switching roles has been removed per the latest user request. The underlying logic in  to show different dashboards remains, but the interactive switcher component is gone. Consider removing the now-dead code.
+- **The immediate task is to fix the layout of the Incident Report modal.** This feature is unusable in its current state. Verify the fix across all steps of the modal.
+- **AUTH IS MOCK**: The user explicitly requested a mock UI-only flow. Do not implement real authentication.
+- **Aesthetics are Paramount**: The user is very specific about the visual design. All changes must adhere to the established theme.
+- **FABs are Theme-Aware**: The floating action buttons for Copilot and Incident Report change their background color based on the selected theme (dark/light). This logic is in  and .
+- **Historical View**: The calendar feature filters the main dashboard view to a past date. This state is managed by the  variable in the dashboard components.
 
 **documents and test reports created in this job**
-- 
--  (Note: This report is for the *real* auth flow that was subsequently removed).
--  was updated multiple times.
+- None.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User**: Requested  instead of  everywhere. (COMPLETED)
-2.  **User**: Requested to change all logos to  (lowercase) and reduce size. (COMPLETED, then superseded)
-3.  **User**: Requested to use Airbnb's logo style and a specific green color () for the logo and all green UI elements. (COMPLETED)
-4.  **User**: Reported issues with the AI Copilot UI (dark mode, text input). (COMPLETED)
-5.  **User**: Requested to make the landing page logo consistent with the rest of the app. (COMPLETED)
-6.  **User**: Reverted the request to simplify the auth flow, asking to bring back the pages with email/password forms, but keep the new light theme and green logo. Explained the Emergent Auth page cannot be removed for real Google sign-in. (COMPLETED)
-7.  **User**: Requested a shared data model where a single email can access all three roles (Caregiver, Family, Agency) to see data flow between them for testing. (COMPLETED, via mock state and role switching)
-8.  **User**: Requested to revert to mock-only authentication to facilitate testing of the shared data features, and to remove the Emergent Google auth page from the flow. (COMPLETED)
-9.  **User**: Provided feedback on the implemented auth flow, asking for UI changes (white background, static green logo) and removal of the role selection page to simplify the flow. (COMPLETED, then partially reverted)
-10. **User**: Requested to remove the Test Other Views (role switcher) from the settings page and make the main profile card clickable to open the profile page. (IN PROGRESS)
+1.  **User**: Add a calendar to the patient profile to view historical task data. (SUPERSEDED)
+2.  **User**: Instead of a list in the calendar modal, clicking a date should close it and filter the main dashboard to that day's view. (COMPLETED)
+3.  **User**: Move the Sign Out button to the main menu. (COMPLETED)
+4.  **User**: Remove Care History from the Family Menu, as it's now in the patient profile. (COMPLETED)
+5.  **User**: Add a new Incident Report feature with a detailed design. (COMPLETED)
+6.  **User**: Turn Copilot/Incident buttons into circles, resize them, and change their colors. (SUPERSEDED)
+7.  **User**: Make the button backgrounds black in dark mode (like vitals cards) and white in light mode. (COMPLETED)
+8.  **User**: Match the button shape () and size () to the vital signs icons. (COMPLETED)
+9.  **User**: Fix the Incident Report screen; it doesn't appear properly when you open the steps. (IN PROGRESS)
+10. **User**: continue (Said after accidentally cancelling an agent action).
 
 **Project Health Check:**
-- **Broken**: No.
-- **Mocked**: Yes. The entire application is a UI mockup. The backend is not connected, and authentication is simulated on the frontend.
+- **Broken**: No, but the Incident Report feature is unusable due to a UI bug.
+- **Mocked**: Yes. The entire application is a UI mockup. The backend is not connected for data persistence, and authentication is simulated.
 
 **3rd Party Integrations**
-- ****: Used on the backend for the (active) Gemini API connection.
+- ****: Used on the backend for the Gemini API connection.
 - ****: For icons.
 - ****: For UI animations.
 - ****: For charts.
+- ****: For UI components like .
 
 **Testing status**
-  - Testing agent used after significant changes: YES, for the initial real-auth implementation which has since been removed.
+  - Testing agent used after significant changes: NO (Deployment agent was used for readiness checks).
   - Troubleshoot agent used after agent stuck in loop: NO
   - Test files created: []
-  - Known regressions: None.
+  - Known regressions: The Incident Report modal layout is broken.
 
 **Credentials to test flow:**
 - N/A. The sign-in page is a mock interface. Clicking Continue with Google or Sign In will navigate directly to the dashboard.
 
 **What agent forgot to execute**
-- The agent started the last user request (refactoring the settings menu) but has not fully completed or verified it across all dashboards ( and  still need the profile card made clickable).
-- Dead code from the now-removed role-switcher () and real-auth flow () has not been cleaned up.</analysis>
+- The agent did not test the fix for the  layout after rewriting the file.
+- The agent did not complete the Settings Page Refactor from the previous fork (making the profile card clickable to navigate to the profile page).
+- The agent did not clean up dead code (, ) as noted in the previous handoff summary.</analysis>
