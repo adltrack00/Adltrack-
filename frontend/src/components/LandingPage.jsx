@@ -103,7 +103,7 @@ const MockStaffRow = ({ name, role, status, location }) => (
 const FeatureRow = ({ title, description, visual, reversed = false, themeColor = "blue" }) => {
   return (
     <div className="py-32 overflow-hidden">
-      <div className="container mx-auto px-6">
+      <div className="w-full max-w-[1920px] mx-auto px-6 lg:px-12 xl:px-20">
         <div className={`flex flex-col ${reversed ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-24 lg:gap-40`}>
           {/* Visual Side */}
           <motion.div
