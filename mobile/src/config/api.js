@@ -1,5 +1,5 @@
 // API Configuration
-export const API_BASE_URL = 'https://caremate-app-1.preview.emergentagent.com/api';
+export const API_BASE_URL = 'https://carecoord-app.preview.emergentagent.com/api';
 
 export const ENDPOINTS = {
   // Auth
