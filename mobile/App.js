@@ -16,9 +16,9 @@ import AuthScreen from './src/screens/AuthScreen';
 // Caregiver Navigator & Screens
 import CaregiverTabs from './src/navigation/CaregiverTabs';
 import AICopilotScreen from './src/screens/caregiver/AICopilotScreen';
-import PatientProfileScreen from './src/screens/PatientProfileScreen';
-import VitalsDetailScreen from './src/screens/VitalsDetailScreen';
-import TaskDetailScreen from './src/screens/TaskDetailScreen';
+import PatientProfileScreen from './src/screens/caregiver/PatientProfileScreen';
+import VitalsDetailScreen from './src/screens/caregiver/VitalsDetailScreen';
+import TaskDetailScreen from './src/screens/caregiver/TaskDetailScreen';
 
 const Stack = createStackNavigator();
 
@@ -79,7 +79,7 @@ function AppNavigator() {
   const { isDark, theme } = useTheme();
 
   if (isLoading) {
-    return null; // Or a splash screen
+    return null;
   }
 
   return (
