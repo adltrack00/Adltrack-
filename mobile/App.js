@@ -16,8 +16,63 @@ import AuthScreen from './src/screens/AuthScreen';
 // Caregiver Navigator & Screens
 import CaregiverTabs from './src/navigation/CaregiverTabs';
 import AICopilotScreen from './src/screens/caregiver/AICopilotScreen';
+import PatientProfileScreen from './src/screens/PatientProfileScreen';
+import VitalsDetailScreen from './src/screens/VitalsDetailScreen';
+import TaskDetailScreen from './src/screens/TaskDetailScreen';
 
 const Stack = createStackNavigator();
+
+function AuthStack() {
+  const { theme } = useTheme();
+  
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        cardStyle: { backgroundColor: theme.background },
+      }}
+    >
+      <Stack.Screen name="Landing" component={LandingScreen} />
+      <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
+      <Stack.Screen name="Auth" component={AuthScreen} />
+    </Stack.Navigator>
+  );
+}
+
+function CaregiverStack() {
+  const { theme } = useTheme();
+  
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        cardStyle: { backgroundColor: theme.background },
+      }}
+    >
+      <Stack.Screen name="CaregiverTabs" component={CaregiverTabs} />
+      <Stack.Screen 
+        name="AICopilot" 
+        component={AICopilotScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen 
+        name="PatientProfile" 
+        component={PatientProfileScreen}
+        options={{ presentation: 'card' }}
+      />
+      <Stack.Screen 
+        name="VitalsModal" 
+        component={VitalsDetailScreen}
+        options={{ presentation: 'modal' }}
+      />
+      <Stack.Screen 
+        name="TaskDetail" 
+        component={TaskDetailScreen}
+        options={{ presentation: 'card' }}
+      />
+    </Stack.Navigator>
+  );
+}
 
 function AppNavigator() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -38,36 +93,17 @@ function AppNavigator() {
           }}
         >
           {!isAuthenticated ? (
-            // Auth Stack
-            <>
-              <Stack.Screen name="Landing" component={LandingScreen} />
-              <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
-              <Stack.Screen name="Auth" component={AuthScreen} />
-            </>
+            <Stack.Screen name="AuthFlow" component={AuthStack} />
           ) : (
-            // Main App Stack based on role
             <>
-              {user?.role === 'caregiver' && (
-                <>
-                  <Stack.Screen name="CaregiverDashboard" component={CaregiverTabs} />
-                  <Stack.Screen 
-                    name="AICopilot" 
-                    component={AICopilotScreen}
-                    options={{
-                      presentation: 'modal',
-                    }}
-                  />
-                </>
+              {(user?.role === 'caregiver' || !user?.role) && (
+                <Stack.Screen name="CaregiverDashboard" component={CaregiverStack} />
               )}
               {user?.role === 'family' && (
-                <Stack.Screen name="FamilyDashboard" component={CaregiverTabs} />
+                <Stack.Screen name="FamilyDashboard" component={CaregiverStack} />
               )}
               {user?.role === 'agency' && (
-                <Stack.Screen name="AgencyDashboard" component={CaregiverTabs} />
-              )}
-              {/* Fallback to Caregiver if role not set */}
-              {!user?.role && (
-                <Stack.Screen name="CaregiverDashboard" component={CaregiverTabs} />
+                <Stack.Screen name="AgencyDashboard" component={CaregiverStack} />
               )}
             </>
           )}
