@@ -103,8 +103,10 @@ Build a comprehensive caregiving dashboard application with:
 - [ ] Real authentication (JWT + Google OAuth)
 
 ### P1 - Medium Priority
-- [ ] Settings page refactor (profile card clickable)
-- [ ] Dead code cleanup (RoleSwitcher.jsx, AuthCallback.jsx)
+- [x] Settings page refactor (profile card clickable) ✅ DONE Jan 29, 2026
+- [x] Dead code cleanup ✅ DONE Jan 29, 2026
+  - Removed: AuthCallback.jsx, IncidentReportModal.jsx, IncidentViewModal.jsx, IncidentModal.jsx
+  - Kept: RoleSwitcher.jsx (used by EnterpriseDashboard)
 - [ ] ESLint cleanup
 
 ### P2 - Low Priority / Future
@@ -118,18 +120,34 @@ Build a comprehensive caregiving dashboard application with:
 - Authentication is simulated, not real
 - Some lint warnings present
 
+## Recent Updates (Jan 29, 2026)
+- ✅ Verified desktop layout fixes for Landing, Role Selection, and Auth pages
+- ✅ Settings page profile card is now clickable and navigates to Profile page
+- ✅ Deleted dead code files:
+  - AuthCallback.jsx (not imported anywhere)
+  - IncidentReportModal.jsx (replaced by IncidentReportPage.jsx)
+  - IncidentViewModal.jsx (replaced by IncidentViewPage.jsx)
+  - IncidentModal.jsx (legacy, unused)
+- ✅ Build verified - no errors
+- ✅ Created Mobile Agent Handoff document at /app/memory/MOBILE_AGENT_HANDOFF.md
+
 ## File Structure Reference
 ```
 /app/frontend/src/
 ├── components/
 │   ├── CaregiverDashboard.jsx    # Main caregiver view
 │   ├── FamilyDashboard.jsx       # Main family view
-│   ├── IncidentReportPage.jsx    # NEW - Incident tab content
-│   ├── IncidentReportModal.jsx   # Legacy modal (can be removed)
-│   ├── IncidentViewModal.jsx     # Family incident viewing
+│   ├── IncidentReportPage.jsx    # Incident tab for Caregivers
+│   ├── IncidentViewPage.jsx      # Incident tab for Family
 │   ├── AICopilot.jsx             # Chat interface
 │   ├── PatientProfileModal.jsx   # Patient details + calendar
-│   └── ...
+│   ├── VitalsModal.jsx           # Vitals detailed view
+│   ├── LandingPage.jsx           # Marketing landing page
+│   ├── AuthPage.jsx              # Sign-in/Sign-up form
+│   ├── RoleSelectionPage.jsx     # Role selection
+│   ├── EnterpriseDashboard.jsx   # Agency dashboard
+│   ├── RoleSwitcher.jsx          # Role switching (used by Enterprise)
+│   └── pages/                    # Sub-pages (Profile, Settings, etc.)
 ├── context/
 │   ├── ThemeContext.jsx          # Dark/Light mode
 │   └── AuthContext.jsx           # Mock auth state
