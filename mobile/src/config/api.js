@@ -1,5 +1,5 @@
 // API Configuration
-export const API_BASE_URL = 'https://carecoord-app.preview.emergentagent.com/api';
+export const API_BASE_URL = 'https://careflow-app-16.preview.emergentagent.com/api';
 
 export const ENDPOINTS = {
   // Auth
