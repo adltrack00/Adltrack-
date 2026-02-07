@@ -1426,6 +1426,238 @@ const PainModal = ({ visible, onClose, vitals, onUpdateVitals }) => {
     </Modal>
   );
 };
+
+// ============================================
+// TASK DETAIL MODAL
+// ============================================
+const TaskDetailModal = ({ visible, onClose, task, onComplete, onCantComplete }) => {
+  const [mode, setMode] = useState('complete'); // 'complete' or 'cantComplete'
+  const [notes, setNotes] = useState('');
+  const [photo, setPhoto] = useState(null);
+  const [selectedReason, setSelectedReason] = useState(null);
+  const [showCamera, setShowCamera] = useState(false);
+
+  const handleTakePhoto = () => {
+    // Simulate taking a photo - in real app would use expo-camera
+    setPhoto('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400');
+  };
+
+  const handleRemovePhoto = () => {
+    setPhoto(null);
+  };
+
+  const handleComplete = () => {
+    if (task) {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const hour12 = hours % 12 || 12;
+      const completedTime = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+      
+      onComplete(task.id, {
+        completedTime,
+        notes: notes || 'Task completed successfully',
+        photo: photo || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400',
+      });
+      
+      // Reset state
+      setNotes('');
+      setPhoto(null);
+      setMode('complete');
+      onClose();
+    }
+  };
+
+  const handleCantComplete = () => {
+    if (task && selectedReason) {
+      onCantComplete(task.id, {
+        reason: selectedReason,
+        notes,
+        photo,
+      });
+      
+      // Reset state
+      setNotes('');
+      setPhoto(null);
+      setSelectedReason(null);
+      setMode('complete');
+      onClose();
+    }
+  };
+
+  const handleClose = () => {
+    setNotes('');
+    setPhoto(null);
+    setSelectedReason(null);
+    setMode('complete');
+    onClose();
+  };
+
+  if (!task) return null;
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
+      <View style={styles.taskModalContainer}>
+        <StatusBar style="light" />
+        
+        {/* Header */}
+        <View style={styles.taskModalHeader}>
+          <Text style={styles.taskModalTitle}>{task.title}</Text>
+          <TouchableOpacity onPress={handleClose} style={styles.taskModalClose}>
+            <Ionicons name="close" size={28} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Mode Toggle */}
+          <View style={styles.modeToggleContainer}>
+            <TouchableOpacity
+              style={[
+                styles.modeToggleBtn,
+                mode === 'complete' && styles.modeToggleBtnActive,
+              ]}
+              onPress={() => setMode('complete')}
+            >
+              <Ionicons 
+                name="checkmark-circle" 
+                size={20} 
+                color={mode === 'complete' ? COLORS.white : COLORS.textSecondary} 
+              />
+              <Text style={[
+                styles.modeToggleText,
+                mode === 'complete' && styles.modeToggleTextActive,
+              ]}>Complete</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.modeToggleBtn,
+                mode === 'cantComplete' && styles.modeToggleBtnCantComplete,
+              ]}
+              onPress={() => setMode('cantComplete')}
+            >
+              <Ionicons 
+                name="close-circle" 
+                size={20} 
+                color={mode === 'cantComplete' ? COLORS.white : COLORS.textSecondary} 
+              />
+              <Text style={[
+                styles.modeToggleText,
+                mode === 'cantComplete' && styles.modeToggleTextActive,
+              ]}>Can't Complete</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Instructions Card */}
+          <View style={styles.instructionsCard}>
+            <Text style={styles.instructionsLabel}>INSTRUCTIONS</Text>
+            <Text style={styles.instructionsText}>{task.instructions}</Text>
+          </View>
+
+          {/* Photo Evidence Section */}
+          <View style={styles.photoEvidenceSection}>
+            <Text style={styles.photoEvidenceLabel}>
+              PHOTO EVIDENCE {task.requiresPhoto ? '(REQUIRED)' : '(OPTIONAL)'}
+            </Text>
+            {!photo ? (
+              <TouchableOpacity style={styles.photoUploadBox} onPress={handleTakePhoto}>
+                <Ionicons name="camera" size={40} color={COLORS.textMuted} />
+                <Text style={styles.photoUploadText}>Tap to add photo</Text>
+                <Text style={styles.photoUploadSubtext}>Take a photo for documentation</Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.photoPreviewContainer}>
+                <Image source={{ uri: photo }} style={styles.photoPreview} />
+                <TouchableOpacity style={styles.photoRemoveBtn} onPress={handleRemovePhoto}>
+                  <Ionicons name="close" size={20} color={COLORS.white} />
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+
+          {/* Notes Section */}
+          <View style={styles.notesSection}>
+            <Text style={styles.notesLabel}>NOTES</Text>
+            <TextInput
+              style={[
+                styles.notesInput,
+                mode === 'cantComplete' && styles.notesInputCantComplete,
+              ]}
+              placeholder="Add any relevant notes here..."
+              placeholderTextColor={COLORS.textMuted}
+              multiline
+              numberOfLines={4}
+              value={notes}
+              onChangeText={setNotes}
+              textAlignVertical="top"
+            />
+          </View>
+
+          {/* Can't Complete Reason Section */}
+          {mode === 'cantComplete' && (
+            <View style={styles.cantCompleteSection}>
+              <View style={styles.cantCompleteHeader}>
+                <Ionicons name="warning" size={20} color={COLORS.confirmBtn} />
+                <Text style={styles.cantCompleteLabel}>REASON FOR NOT COMPLETING</Text>
+              </View>
+              {CANT_COMPLETE_REASONS.map((reason, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.cantCompleteOption,
+                    selectedReason === reason && styles.cantCompleteOptionSelected,
+                  ]}
+                  onPress={() => setSelectedReason(reason)}
+                >
+                  <Text style={[
+                    styles.cantCompleteOptionText,
+                    selectedReason === reason && styles.cantCompleteOptionTextSelected,
+                  ]}>
+                    {reason}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          <View style={{ height: 100 }} />
+        </ScrollView>
+
+        {/* Bottom Button */}
+        <View style={styles.taskModalBottom}>
+          {mode === 'complete' ? (
+            <TouchableOpacity 
+              style={[
+                styles.completeTaskBtn,
+                (!photo && task.requiresPhoto) && styles.completeTaskBtnDisabled,
+              ]} 
+              onPress={handleComplete}
+              disabled={!photo && task.requiresPhoto}
+            >
+              <Ionicons name="checkmark-circle" size={22} color={COLORS.white} />
+              <Text style={styles.completeTaskBtnText}>Mark as Complete</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity 
+              style={[
+                styles.submitReportBtn,
+                !selectedReason && styles.submitReportBtnDisabled,
+              ]} 
+              onPress={handleCantComplete}
+              disabled={!selectedReason}
+            >
+              <Text style={[
+                styles.submitReportBtnText,
+                !selectedReason && styles.submitReportBtnTextDisabled,
+              ]}>Submit Report</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
 const CareHistoryModal = ({ visible, onClose, onSelectDate }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 17));
   const today = 17;
