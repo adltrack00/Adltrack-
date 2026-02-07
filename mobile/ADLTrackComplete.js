@@ -2673,7 +2673,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
-  completedTaskBar: { width: 5, backgroundColor: COLORS.completed, borderTopLeftRadius: 16, borderBottomLeftRadius: 16 },
+  completedTaskBar: { width: 5, backgroundColor: COLORS.primary, borderTopLeftRadius: 16, borderBottomLeftRadius: 16 },
   completedTaskContent: { flex: 1, paddingVertical: 18, paddingLeft: 16, paddingRight: 8 },
   completedTaskTitle: { fontSize: 18, fontWeight: '600', color: COLORS.textSecondary, textDecorationLine: 'line-through', marginBottom: 6 },
   completedTaskMeta: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
