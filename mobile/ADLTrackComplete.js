@@ -894,3 +894,307 @@ const PatientProfileModal = ({ visible, onClose }) => {
     </Modal>
   );
 };
+
+// ============================================
+// VITALS MODAL - With Chart
+// ============================================
+const VitalsModal = ({ visible, onClose }) => {
+  const [activeVital, setActiveVital] = useState('bp');
+
+  const vitals = [
+    { id: 'bp', label: 'Blood Pressure' },
+    { id: 'heart', label: 'Heart Rate' },
+    { id: 'temp', label: 'Temperature' },
+  ];
+
+  // Simple bar chart visualization
+  const renderChart = () => {
+    const maxSystolic = 140;
+    const minSystolic = 100;
+    
+    return (
+      <View style={styles.chartContainer}>
+        <View style={styles.chartYAxis}>
+          <Text style={styles.chartYLabel}>140</Text>
+          <Text style={styles.chartYLabel}>120</Text>
+          <Text style={styles.chartYLabel}>100</Text>
+        </View>
+        <View style={styles.chartBars}>
+          {VITALS_HISTORY.map((entry, index) => {
+            const systolicHeight = ((entry.systolic - minSystolic) / (maxSystolic - minSystolic)) * 100;
+            const diastolicHeight = ((entry.diastolic - 60) / (40)) * 100;
+            
+            return (
+              <View key={index} style={styles.chartBarGroup}>
+                <View style={styles.chartBarContainer}>
+                  <View style={[styles.chartBarSystolic, { height: `${systolicHeight}%` }]} />
+                </View>
+                <Text style={styles.chartBarLabel}>{entry.day}</Text>
+              </View>
+            );
+          })}
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+      <View style={styles.vitalsModalContainer}>
+        <StatusBar style="light" />
+        
+        {/* Header */}
+        <View style={styles.vitalsModalHeader}>
+          <TouchableOpacity onPress={onClose} style={styles.vitalsCloseBtn}>
+            <Ionicons name="close" size={24} color={COLORS.textPrimary} />
+          </TouchableOpacity>
+          <Text style={styles.vitalsModalTitle}>Vitals</Text>
+          <View style={{ width: 40 }} />
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Vital Type Tabs */}
+          <View style={styles.vitalsTabs}>
+            {vitals.map(vital => (
+              <TouchableOpacity
+                key={vital.id}
+                style={[
+                  styles.vitalsTab,
+                  activeVital === vital.id && styles.vitalsTabActive
+                ]}
+                onPress={() => setActiveVital(vital.id)}
+              >
+                <Text style={[
+                  styles.vitalsTabText,
+                  activeVital === vital.id && styles.vitalsTabTextActive
+                ]}>
+                  {vital.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Current Reading */}
+          <View style={styles.currentReadingCard}>
+            <View style={[styles.currentReadingIcon, { backgroundColor: COLORS.vitalBPBg }]}>
+              <Ionicons name="heart" size={32} color={COLORS.vitalBP} />
+            </View>
+            <View style={styles.currentReadingInfo}>
+              <Text style={styles.currentReadingValue}>
+                {VITALS.bp.systolic}/{VITALS.bp.diastolic}
+              </Text>
+              <Text style={styles.currentReadingUnit}>mmHg</Text>
+              <View style={styles.currentReadingStatus}>
+                <View style={styles.statusDotGreen} />
+                <Text style={styles.statusText}>Normal</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Chart */}
+          <View style={styles.chartCard}>
+            <Text style={styles.chartTitle}>Weekly Trend</Text>
+            {renderChart()}
+            <View style={styles.chartLegend}>
+              <View style={styles.chartLegendItem}>
+                <View style={[styles.chartLegendDot, { backgroundColor: COLORS.vitalBP }]} />
+                <Text style={styles.chartLegendText}>Systolic</Text>
+              </View>
+              <View style={styles.chartLegendItem}>
+                <View style={[styles.chartLegendDot, { backgroundColor: '#60a5fa' }]} />
+                <Text style={styles.chartLegendText}>Diastolic</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Log New Reading Button */}
+          <TouchableOpacity style={styles.logReadingBtn}>
+            <Ionicons name="add" size={20} color={COLORS.primary} />
+            <Text style={styles.logReadingBtnText}>Log New Reading</Text>
+          </TouchableOpacity>
+
+          {/* Recent History */}
+          <View style={styles.recentHistorySection}>
+            <Text style={styles.recentHistoryTitle}>RECENT HISTORY</Text>
+            {VITALS_HISTORY.map((entry, index) => (
+              <View key={index} style={styles.historyItem}>
+                <View style={styles.historyItemLeft}>
+                  <Text style={styles.historyItemDay}>{entry.day}</Text>
+                  <Text style={styles.historyItemTime}>{entry.time}</Text>
+                </View>
+                <View style={styles.historyItemRight}>
+                  <Text style={styles.historyItemValue}>{entry.systolic}/{entry.diastolic}</Text>
+                  <Text style={styles.historyItemUnit}>mmHg</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      </View>
+    </Modal>
+  );
+};
+
+// ============================================
+// TASK COMPLETION MODAL
+// ============================================
+const TaskCompletionModal = ({ visible, onClose, task, onComplete }) => {
+  const [completionType, setCompletionType] = useState('complete');
+  const [notes, setNotes] = useState('');
+  const [photo, setPhoto] = useState(null);
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+
+  if (!task) return null;
+
+  const handlePhotoSelect = (option) => {
+    // Simulate photo selection
+    setPhoto('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400');
+    setShowPhotoOptions(false);
+  };
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+      <View style={styles.taskModalContainer}>
+        <StatusBar style="light" />
+        
+        {/* Header */}
+        <View style={styles.taskModalHeader}>
+          <TouchableOpacity onPress={onClose}>
+            <Ionicons name="close" size={24} color={COLORS.textPrimary} />
+          </TouchableOpacity>
+          <Text style={styles.taskModalTitle}>{task.title}</Text>
+          <View style={{ width: 24 }} />
+        </View>
+
+        <ScrollView style={styles.taskModalContent} showsVerticalScrollIndicator={false}>
+          {/* Completion Type Toggle */}
+          <View style={styles.completionToggle}>
+            <TouchableOpacity
+              style={[
+                styles.completionToggleBtn,
+                completionType === 'complete' && styles.completionToggleBtnActive
+              ]}
+              onPress={() => setCompletionType('complete')}
+            >
+              <Ionicons 
+                name="checkmark-circle" 
+                size={20} 
+                color={completionType === 'complete' ? '#fff' : COLORS.textSecondary} 
+              />
+              <Text style={[
+                styles.completionToggleText,
+                completionType === 'complete' && styles.completionToggleTextActive
+              ]}>Complete</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.completionToggleBtn,
+                completionType === 'cant' && styles.completionToggleBtnCant
+              ]}
+              onPress={() => setCompletionType('cant')}
+            >
+              <Ionicons 
+                name="close-circle" 
+                size={20} 
+                color={completionType === 'cant' ? '#fff' : COLORS.textSecondary} 
+              />
+              <Text style={[
+                styles.completionToggleText,
+                completionType === 'cant' && styles.completionToggleTextActive
+              ]}>Can't Complete</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Instructions */}
+          <View style={styles.instructionsCard}>
+            <Text style={styles.instructionsLabel}>INSTRUCTIONS</Text>
+            <Text style={styles.instructionsText}>{task.instructions}</Text>
+          </View>
+
+          {/* Photo Evidence */}
+          {task.requiresPhoto && (
+            <View style={styles.photoSection}>
+              <Text style={styles.photoSectionTitle}>PHOTO EVIDENCE (REQUIRED)</Text>
+              
+              {photo ? (
+                <View style={styles.photoPreview}>
+                  <Image source={{ uri: photo }} style={styles.photoPreviewImage} />
+                  <TouchableOpacity 
+                    style={styles.photoRemoveBtn}
+                    onPress={() => setPhoto(null)}
+                  >
+                    <Ionicons name="close-circle" size={28} color={COLORS.critical} />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity 
+                  style={styles.photoUploadBtn}
+                  onPress={() => setShowPhotoOptions(true)}
+                >
+                  <Ionicons name="camera" size={32} color={COLORS.textSecondary} />
+                  <Text style={styles.photoUploadText}>Tap to add photo</Text>
+                </TouchableOpacity>
+              )}
+
+              {/* Photo Options Dropdown */}
+              {showPhotoOptions && (
+                <View style={styles.photoOptionsDropdown}>
+                  <TouchableOpacity 
+                    style={styles.photoOption}
+                    onPress={() => handlePhotoSelect('library')}
+                  >
+                    <Ionicons name="images" size={20} color={COLORS.textPrimary} />
+                    <Text style={styles.photoOptionText}>Photo Library</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.photoOption}
+                    onPress={() => handlePhotoSelect('camera')}
+                  >
+                    <Ionicons name="camera" size={20} color={COLORS.textPrimary} />
+                    <Text style={styles.photoOptionText}>Take Photo</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={styles.photoOption}
+                    onPress={() => handlePhotoSelect('file')}
+                  >
+                    <Ionicons name="document" size={20} color={COLORS.textPrimary} />
+                    <Text style={styles.photoOptionText}>Choose File</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          )}
+
+          {/* Notes */}
+          <View style={styles.notesSection}>
+            <Text style={styles.notesSectionTitle}>NOTES (OPTIONAL)</Text>
+            <TextInput
+              style={styles.notesInput}
+              placeholder="Add notes about this task..."
+              placeholderTextColor={COLORS.textMuted}
+              value={notes}
+              onChangeText={setNotes}
+              multiline
+              numberOfLines={4}
+            />
+          </View>
+
+          {/* Complete Button */}
+          <TouchableOpacity 
+            style={[
+              styles.completeBtn,
+              (!photo && task.requiresPhoto) && styles.completeBtnDisabled
+            ]}
+            onPress={onComplete}
+            disabled={!photo && task.requiresPhoto}
+          >
+            <Ionicons name="checkmark-circle" size={20} color="#fff" />
+            <Text style={styles.completeBtnText}>Mark as Complete</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+    </Modal>
+  );
+};
