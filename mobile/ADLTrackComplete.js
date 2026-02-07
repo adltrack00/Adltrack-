@@ -193,6 +193,16 @@ const INITIAL_TEMP_HISTORY = [
   { id: 7, day: 'Mon', time: '10:15 AM', value: 98.4 },
 ];
 
+const INITIAL_PAIN_HISTORY = [
+  { id: 1, day: 'Sun', time: '10:30 AM', value: 1 },
+  { id: 2, day: 'Sat', time: '10:35 AM', value: 2 },
+  { id: 3, day: 'Fri', time: '10:20 AM', value: 2 },
+  { id: 4, day: 'Thu', time: '10:30 AM', value: 1 },
+  { id: 5, day: 'Wed', time: '10:45 AM', value: 2 },
+  { id: 6, day: 'Tue', time: '10:30 AM', value: 3 },
+  { id: 7, day: 'Mon', time: '10:15 AM', value: 2 },
+];
+
 const HISTORY_TASKS = {
   '2026-01-16': [
     { id: 1, title: 'Morning Medication', completedTime: '8:15 AM', notes: 'Took all medications with breakfast', photo: 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=200' },
