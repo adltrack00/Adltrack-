@@ -1013,3 +1013,332 @@ const ProposedTaskCard = ({ task, onAccept, onDecline }) => {
     </View>
   );
 };
+
+// ============================================
+// PATIENT PROFILE MODAL - Complete Version
+// ============================================
+const PatientProfileModal = ({ visible, onClose, patient }) => {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const tabs = [
+    { id: 'overview', label: 'Overview', icon: 'person' },
+    { id: 'medical', label: 'Medical', icon: 'medical' },
+    { id: 'history', label: 'History', icon: 'calendar' },
+    { id: 'contacts', label: 'Contacts', icon: 'call' },
+  ];
+
+  const renderOverview = () => (
+    <ScrollView showsVerticalScrollIndicator={false}>
+      {/* Basic Info */}
+      <View style={styles.profileSection}>
+        <Text style={styles.profileSectionTitle}>Basic Information</Text>
+        <View style={styles.profileInfoGrid}>
+          <View style={styles.profileInfoItem}>
+            <Text style={styles.profileInfoLabel}>Full Name</Text>
+            <Text style={styles.profileInfoValue}>{patient.name}</Text>
+          </View>
+          <View style={styles.profileInfoItem}>
+            <Text style={styles.profileInfoLabel}>Date of Birth</Text>
+            <Text style={styles.profileInfoValue}>{patient.dateOfBirth}</Text>
+          </View>
+          <View style={styles.profileInfoItem}>
+            <Text style={styles.profileInfoLabel}>Age</Text>
+            <Text style={styles.profileInfoValue}>{patient.age} years</Text>
+          </View>
+          <View style={styles.profileInfoItem}>
+            <Text style={styles.profileInfoLabel}>Gender</Text>
+            <Text style={styles.profileInfoValue}>{patient.gender}</Text>
+          </View>
+          <View style={styles.profileInfoItem}>
+            <Text style={styles.profileInfoLabel}>Room</Text>
+            <Text style={styles.profileInfoValue}>{patient.room}</Text>
+          </View>
+          <View style={styles.profileInfoItem}>
+            <Text style={styles.profileInfoLabel}>Code Status</Text>
+            <Text style={styles.profileInfoValue}>{patient.codeStatus}</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Care Preferences */}
+      <View style={styles.profileSection}>
+        <Text style={styles.profileSectionTitle}>Care Preferences</Text>
+        <View style={styles.preferenceItem}>
+          <Ionicons name="sunny-outline" size={20} color={COLORS.primary} />
+          <View style={styles.preferenceContent}>
+            <Text style={styles.preferenceLabel}>Wake Time</Text>
+            <Text style={styles.preferenceValue}>{patient.carePreferences.wakeTime}</Text>
+          </View>
+        </View>
+        <View style={styles.preferenceItem}>
+          <Ionicons name="moon-outline" size={20} color={COLORS.primary} />
+          <View style={styles.preferenceContent}>
+            <Text style={styles.preferenceLabel}>Sleep Time</Text>
+            <Text style={styles.preferenceValue}>{patient.carePreferences.sleepTime}</Text>
+          </View>
+        </View>
+        <View style={styles.preferenceItem}>
+          <Ionicons name="water-outline" size={20} color={COLORS.primary} />
+          <View style={styles.preferenceContent}>
+            <Text style={styles.preferenceLabel}>Shower Preference</Text>
+            <Text style={styles.preferenceValue}>{patient.carePreferences.showerPreference}</Text>
+          </View>
+        </View>
+        <View style={styles.preferenceItem}>
+          <Ionicons name="restaurant-outline" size={20} color={COLORS.primary} />
+          <View style={styles.preferenceContent}>
+            <Text style={styles.preferenceLabel}>Meal Preferences</Text>
+            <Text style={styles.preferenceValue}>{patient.carePreferences.mealPreferences}</Text>
+          </View>
+        </View>
+        <View style={styles.preferenceItem}>
+          <Ionicons name="heart-outline" size={20} color={COLORS.primary} />
+          <View style={styles.preferenceContent}>
+            <Text style={styles.preferenceLabel}>Activities</Text>
+            <Text style={styles.preferenceValue}>{patient.carePreferences.activities}</Text>
+          </View>
+        </View>
+      </View>
+    </ScrollView>
+  );
+
+  const renderMedical = () => (
+    <ScrollView showsVerticalScrollIndicator={false}>
+      {/* Allergies - Critical */}
+      <View style={[styles.profileSection, styles.alertSection]}>
+        <View style={styles.alertHeader}>
+          <Ionicons name="alert-circle" size={24} color={COLORS.error} />
+          <Text style={[styles.profileSectionTitle, { color: COLORS.error, marginLeft: 8 }]}>
+            Allergies
+          </Text>
+        </View>
+        <View style={styles.allergyTags}>
+          {patient.allergies.map((allergy, index) => (
+            <View key={index} style={styles.allergyTag}>
+              <Text style={styles.allergyTagText}>{allergy}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      {/* Conditions */}
+      <View style={styles.profileSection}>
+        <Text style={styles.profileSectionTitle}>Medical Conditions</Text>
+        {patient.conditions.map((condition, index) => (
+          <View key={index} style={styles.conditionItem}>
+            <View style={styles.conditionDot} />
+            <Text style={styles.conditionText}>{condition}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Medications */}
+      <View style={styles.profileSection}>
+        <Text style={styles.profileSectionTitle}>Current Medications</Text>
+        {patient.medications.map((med, index) => (
+          <View key={index} style={styles.medicationCard}>
+            <View style={styles.medicationIcon}>
+              <Ionicons name="medical" size={20} color={COLORS.primary} />
+            </View>
+            <View style={styles.medicationInfo}>
+              <Text style={styles.medicationName}>{med.name}</Text>
+              <Text style={styles.medicationDetails}>
+                {med.dosage} • {med.frequency}
+              </Text>
+              <Text style={styles.medicationTime}>
+                <Ionicons name="time-outline" size={12} color={COLORS.textSecondary} />
+                {' '}{med.time}
+              </Text>
+            </View>
+          </View>
+        ))}
+      </View>
+
+      {/* Mobility & Diet */}
+      <View style={styles.profileSection}>
+        <Text style={styles.profileSectionTitle}>Care Requirements</Text>
+        <View style={styles.careReqItem}>
+          <Ionicons name="walk" size={20} color={COLORS.warning} />
+          <View style={styles.careReqContent}>
+            <Text style={styles.careReqLabel}>Mobility</Text>
+            <Text style={styles.careReqValue}>{patient.mobility}</Text>
+          </View>
+        </View>
+        <View style={styles.careReqItem}>
+          <Ionicons name="nutrition" size={20} color={COLORS.success} />
+          <View style={styles.careReqContent}>
+            <Text style={styles.careReqLabel}>Diet</Text>
+            <Text style={styles.careReqValue}>{patient.diet}</Text>
+          </View>
+        </View>
+      </View>
+    </ScrollView>
+  );
+
+  const renderHistory = () => {
+    // Simple calendar implementation
+    const daysInMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).getDate();
+    const firstDay = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1).getDay();
+    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    const emptyDays = Array.from({ length: firstDay }, (_, i) => null);
+    const allDays = [...emptyDays, ...days];
+
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'];
+
+    return (
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.calendarContainer}>
+          <View style={styles.calendarHeader}>
+            <TouchableOpacity onPress={() => {
+              const newDate = new Date(selectedDate);
+              newDate.setMonth(newDate.getMonth() - 1);
+              setSelectedDate(newDate);
+            }}>
+              <Ionicons name="chevron-back" size={24} color={COLORS.primary} />
+            </TouchableOpacity>
+            <Text style={styles.calendarMonth}>
+              {monthNames[selectedDate.getMonth()]} {selectedDate.getFullYear()}
+            </Text>
+            <TouchableOpacity onPress={() => {
+              const newDate = new Date(selectedDate);
+              newDate.setMonth(newDate.getMonth() + 1);
+              setSelectedDate(newDate);
+            }}>
+              <Ionicons name="chevron-forward" size={24} color={COLORS.primary} />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.calendarWeekDays}>
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+              <Text key={day} style={styles.calendarWeekDay}>{day}</Text>
+            ))}
+          </View>
+          <View style={styles.calendarDays}>
+            {allDays.map((day, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.calendarDay,
+                  day === selectedDate.getDate() && styles.calendarDaySelected
+                ]}
+                onPress={() => day && setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day))}
+              >
+                {day && <Text style={[
+                  styles.calendarDayText,
+                  day === selectedDate.getDate() && styles.calendarDayTextSelected
+                ]}>{day}</Text>}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+        
+        <View style={styles.historyContent}>
+          <Text style={styles.historyTitle}>Care Summary for {formatDate(selectedDate)}</Text>
+          <View style={styles.historySummary}>
+            <View style={styles.historySummaryItem}>
+              <Ionicons name="checkmark-circle" size={20} color={COLORS.success} />
+              <Text style={styles.historySummaryText}>7 tasks completed</Text>
+            </View>
+            <View style={styles.historySummaryItem}>
+              <Ionicons name="pulse" size={20} color={COLORS.info} />
+              <Text style={styles.historySummaryText}>4 vital checks</Text>
+            </View>
+            <View style={styles.historySummaryItem}>
+              <Ionicons name="document-text" size={20} color={COLORS.warning} />
+              <Text style={styles.historySummaryText}>2 notes added</Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    );
+  };
+
+  const renderContacts = () => (
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={styles.profileSection}>
+        <Text style={styles.profileSectionTitle}>Emergency Contacts</Text>
+        {patient.emergencyContacts.map((contact, index) => (
+          <View key={index} style={styles.contactCard}>
+            <View style={styles.contactAvatar}>
+              <Text style={styles.contactAvatarText}>
+                {contact.name.split(' ').map(n => n[0]).join('')}
+              </Text>
+              {contact.isPrimary && (
+                <View style={styles.primaryBadge}>
+                  <Ionicons name="star" size={10} color="#fff" />
+                </View>
+              )}
+            </View>
+            <View style={styles.contactInfo}>
+              <Text style={styles.contactName}>{contact.name}</Text>
+              <Text style={styles.contactRelation}>{contact.relationship}</Text>
+              <Text style={styles.contactPhone}>{contact.phone}</Text>
+            </View>
+            <View style={styles.contactActions}>
+              <TouchableOpacity style={styles.contactActionBtn}>
+                <Ionicons name="call" size={20} color={COLORS.primary} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.contactActionBtn}>
+                <Ionicons name="chatbubble" size={20} color={COLORS.info} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))}
+      </View>
+    </ScrollView>
+  );
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+      <View style={styles.modalContainer}>
+        {/* Header */}
+        <View style={styles.modalHeader}>
+          <TouchableOpacity onPress={onClose} style={styles.modalCloseBtn}>
+            <Ionicons name="close" size={24} color={COLORS.text} />
+          </TouchableOpacity>
+          <Text style={styles.modalTitle}>Patient Profile</Text>
+          <View style={{ width: 40 }} />
+        </View>
+
+        {/* Patient Header */}
+        <View style={styles.profileHeader}>
+          <Image source={{ uri: patient.photo }} style={styles.profilePhoto} />
+          <Text style={styles.profileName}>{patient.name}</Text>
+          <Text style={styles.profileSubtitle}>
+            Room {patient.room} • {patient.age} years old • {patient.gender}
+          </Text>
+        </View>
+
+        {/* Tabs */}
+        <View style={styles.profileTabs}>
+          {tabs.map((tab) => (
+            <TouchableOpacity
+              key={tab.id}
+              style={[styles.profileTab, activeTab === tab.id && styles.profileTabActive]}
+              onPress={() => setActiveTab(tab.id)}
+            >
+              <Ionicons 
+                name={tab.icon} 
+                size={18} 
+                color={activeTab === tab.id ? COLORS.primary : COLORS.textSecondary} 
+              />
+              <Text style={[
+                styles.profileTabText,
+                activeTab === tab.id && styles.profileTabTextActive
+              ]}>{tab.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Tab Content */}
+        <View style={styles.profileContent}>
+          {activeTab === 'overview' && renderOverview()}
+          {activeTab === 'medical' && renderMedical()}
+          {activeTab === 'history' && renderHistory()}
+          {activeTab === 'contacts' && renderContacts()}
+        </View>
+      </View>
+    </Modal>
+  );
+};
