@@ -2019,12 +2019,15 @@ const CaregiverHomeScreen = () => {
   const [showHeartRate, setShowHeartRate] = useState(false);
   const [showTemperature, setShowTemperature] = useState(false);
   const [showPain, setShowPain] = useState(false);
+  const [showTaskDetail, setShowTaskDetail] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
   const [viewingHistory, setViewingHistory] = useState(null);
   const [tasks, setTasks] = useState(INITIAL_TASKS);
   const [requests, setRequests] = useState(INITIAL_REQUESTS);
   const [vitals, setVitals] = useState({ bp: { systolic: 120, diastolic: 76 }, heart: 72, temp: 98.6, pain: 1 });
 
-  const completedCount = viewingHistory ? (HISTORY_TASKS[viewingHistory]?.length || 0) : 0;
+  const completedTasks = tasks.filter(t => t.completed || t.cantComplete);
+  const completedCount = viewingHistory ? (HISTORY_TASKS[viewingHistory]?.length || 0) : completedTasks.length;
   const totalCount = viewingHistory ? (HISTORY_TASKS[viewingHistory]?.length || 0) : tasks.length;
 
   const getPriorityColor = (priority) => {
@@ -2054,6 +2057,27 @@ const CaregiverHomeScreen = () => {
 
   const handleBackToToday = () => {
     setViewingHistory(null);
+  };
+
+  const handleStartTask = (task) => {
+    setSelectedTask(task);
+    setShowTaskDetail(true);
+  };
+
+  const handleCompleteTask = (taskId, data) => {
+    setTasks(tasks.map(t => 
+      t.id === taskId 
+        ? { ...t, completed: true, ...data }
+        : t
+    ));
+  };
+
+  const handleCantCompleteTask = (taskId, data) => {
+    setTasks(tasks.map(t => 
+      t.id === taskId 
+        ? { ...t, cantComplete: true, cantCompleteReason: data.reason, ...data }
+        : t
+    ));
   };
 
   const handleOpenCareHistory = () => {
