@@ -2710,7 +2710,7 @@ const styles = StyleSheet.create({
 
   // ===== PATIENT PROFILE MODAL =====
   profileContainer: { flex: 1, backgroundColor: COLORS.background },
-  profileHero: { height: 200, position: 'relative' },
+  profileHero: { height: 280, position: 'relative' },
   profileHeroImage: { width: '100%', height: '100%', resizeMode: 'cover' },
   closeButton: { position: 'absolute', top: 50, right: 16, width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(60, 60, 60, 0.9)', alignItems: 'center', justifyContent: 'center' },
   cameraButton: { position: 'absolute', top: 50, right: 66, width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(60, 60, 60, 0.9)', alignItems: 'center', justifyContent: 'center' },
