@@ -2396,6 +2396,13 @@ const CaregiverHomeScreen = () => {
         vitals={vitals}
         onUpdateVitals={setVitals}
       />
+      <TaskDetailModal
+        visible={showTaskDetail}
+        onClose={() => setShowTaskDetail(false)}
+        task={selectedTask}
+        onComplete={handleCompleteTask}
+        onCantComplete={handleCantCompleteTask}
+      />
     </View>
   );
 };
