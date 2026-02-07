@@ -2293,7 +2293,7 @@ const CaregiverHomeScreen = () => {
                 {/* Completed Task */}
                 {task.completed ? (
                   <View style={styles.taskCardCompleted}>
-                    <View style={[styles.taskPriorityBar, { backgroundColor: COLORS.completed }]} />
+                    <View style={[styles.taskPriorityBar, { backgroundColor: COLORS.primary }]} />
                     <View style={styles.taskContentCompleted}>
                       <Text style={styles.taskTitleCompleted}>{task.title}</Text>
                       <View style={styles.taskMeta}>
