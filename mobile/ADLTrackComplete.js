@@ -1342,3 +1342,394 @@ const PatientProfileModal = ({ visible, onClose, patient }) => {
     </Modal>
   );
 };
+
+// ============================================
+// VITALS MODAL - Complete Version with Charts
+// ============================================
+const VitalsModal = ({ visible, onClose, vitals, history, isCaregiver }) => {
+  const [activeTab, setActiveTab] = useState('current');
+  const [showAddVital, setShowAddVital] = useState(false);
+  const [selectedVitalType, setSelectedVitalType] = useState('BP');
+  const [vitalValue, setVitalValue] = useState('');
+
+  const vitalTypes = [
+    { type: 'BP', label: 'Blood Pressure', unit: 'mmHg', placeholder: '120/80' },
+    { type: 'HR', label: 'Heart Rate', unit: 'bpm', placeholder: '72' },
+    { type: 'TEMP', label: 'Temperature', unit: '°F', placeholder: '98.6' },
+    { type: 'O2', label: 'Oxygen Saturation', unit: '%', placeholder: '97' },
+    { type: 'PAIN', label: 'Pain Level', unit: '/10', placeholder: '3' },
+  ];
+
+  const handleAddVital = () => {
+    if (!vitalValue) {
+      Alert.alert('Error', 'Please enter a value');
+      return;
+    }
+    Alert.alert('Success', `${selectedVitalType} recorded: ${vitalValue}`);
+    setVitalValue('');
+    setShowAddVital(false);
+  };
+
+  const renderCurrentVitals = () => (
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={styles.vitalsGrid}>
+        {vitals.map((vital) => (
+          <View key={vital.id} style={styles.vitalDetailCard}>
+            <View style={styles.vitalDetailHeader}>
+              <View style={[
+                styles.vitalDetailIcon,
+                { backgroundColor: vital.status === 'normal' ? '#dcfce7' : '#fef3c7' }
+              ]}>
+                <Ionicons 
+                  name={vital.icon} 
+                  size={24} 
+                  color={vital.status === 'normal' ? COLORS.success : COLORS.warning} 
+                />
+              </View>
+              <View style={[
+                styles.vitalStatusBadge,
+                { backgroundColor: vital.status === 'normal' ? '#dcfce7' : '#fef3c7' }
+              ]}>
+                <Text style={[
+                  styles.vitalStatusText,
+                  { color: vital.status === 'normal' ? COLORS.success : COLORS.warning }
+                ]}>
+                  {vital.status}
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.vitalDetailValue}>{vital.value}</Text>
+            <Text style={styles.vitalDetailUnit}>{vital.unit}</Text>
+            <Text style={styles.vitalDetailLabel}>{vital.label}</Text>
+            <Text style={styles.vitalDetailTime}>
+              <Ionicons name="time-outline" size={12} color={COLORS.textSecondary} />
+              {' '}{vital.time}
+            </Text>
+          </View>
+        ))}
+      </View>
+    </ScrollView>
+  );
+
+  const renderHistory = () => (
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={styles.vitalsHistoryContainer}>
+        {/* Simple Chart Visualization */}
+        <View style={styles.chartContainer}>
+          <Text style={styles.chartTitle}>Blood Pressure Trend (7 Days)</Text>
+          <View style={styles.chartPlaceholder}>
+            <View style={styles.chartBars}>
+              {history.slice(0, 5).map((record, index) => {
+                const [systolic] = record.BP.split('/');
+                const height = (parseInt(systolic) - 100) * 2;
+                return (
+                  <View key={index} style={styles.chartBarContainer}>
+                    <View style={[styles.chartBar, { height: Math.max(height, 20) }]} />
+                    <Text style={styles.chartBarLabel}>{record.date.split('-')[2]}</Text>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        </View>
+
+        {/* History Table */}
+        <View style={styles.historyTable}>
+          <View style={styles.historyTableHeader}>
+            <Text style={[styles.historyTableCell, styles.historyTableHeaderCell]}>Date</Text>
+            <Text style={[styles.historyTableCell, styles.historyTableHeaderCell]}>BP</Text>
+            <Text style={[styles.historyTableCell, styles.historyTableHeaderCell]}>HR</Text>
+            <Text style={[styles.historyTableCell, styles.historyTableHeaderCell]}>Temp</Text>
+            <Text style={[styles.historyTableCell, styles.historyTableHeaderCell]}>O2</Text>
+          </View>
+          {history.map((record, index) => (
+            <View key={index} style={styles.historyTableRow}>
+              <Text style={styles.historyTableCell}>{record.date.split('-').slice(1).join('/')}</Text>
+              <Text style={styles.historyTableCell}>{record.BP}</Text>
+              <Text style={styles.historyTableCell}>{record.HR}</Text>
+              <Text style={styles.historyTableCell}>{record.TEMP}</Text>
+              <Text style={styles.historyTableCell}>{record.O2}%</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    </ScrollView>
+  );
+
+  const renderAddVital = () => (
+    <View style={styles.addVitalContainer}>
+      <Text style={styles.addVitalTitle}>Record New Vital</Text>
+      
+      {/* Vital Type Selector */}
+      <Text style={styles.addVitalLabel}>Vital Type</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View style={styles.vitalTypeSelector}>
+          {vitalTypes.map((type) => (
+            <TouchableOpacity
+              key={type.type}
+              style={[
+                styles.vitalTypeBtn,
+                selectedVitalType === type.type && styles.vitalTypeBtnActive
+              ]}
+              onPress={() => setSelectedVitalType(type.type)}
+            >
+              <Text style={[
+                styles.vitalTypeBtnText,
+                selectedVitalType === type.type && styles.vitalTypeBtnTextActive
+              ]}>{type.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+
+      {/* Value Input */}
+      <Text style={styles.addVitalLabel}>Value</Text>
+      <View style={styles.vitalInputContainer}>
+        <TextInput
+          style={styles.vitalInput}
+          placeholder={vitalTypes.find(t => t.type === selectedVitalType)?.placeholder}
+          placeholderTextColor={COLORS.textLight}
+          value={vitalValue}
+          onChangeText={setVitalValue}
+          keyboardType="numeric"
+        />
+        <Text style={styles.vitalInputUnit}>
+          {vitalTypes.find(t => t.type === selectedVitalType)?.unit}
+        </Text>
+      </View>
+
+      {/* Action Buttons */}
+      <View style={styles.addVitalActions}>
+        <TouchableOpacity 
+          style={styles.cancelVitalBtn}
+          onPress={() => setShowAddVital(false)}
+        >
+          <Text style={styles.cancelVitalBtnText}>Cancel</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.saveVitalBtn}
+          onPress={handleAddVital}
+        >
+          <Ionicons name="checkmark" size={20} color="#fff" />
+          <Text style={styles.saveVitalBtnText}>Save Vital</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+      <View style={styles.modalContainer}>
+        {/* Header */}
+        <View style={styles.modalHeader}>
+          <TouchableOpacity onPress={onClose} style={styles.modalCloseBtn}>
+            <Ionicons name="close" size={24} color={COLORS.text} />
+          </TouchableOpacity>
+          <Text style={styles.modalTitle}>Vitals</Text>
+          {isCaregiver && !showAddVital && (
+            <TouchableOpacity onPress={() => setShowAddVital(true)} style={styles.addVitalHeaderBtn}>
+              <Ionicons name="add" size={24} color={COLORS.primary} />
+            </TouchableOpacity>
+          )}
+          {(!isCaregiver || showAddVital) && <View style={{ width: 40 }} />}
+        </View>
+
+        {showAddVital ? (
+          renderAddVital()
+        ) : (
+          <>
+            {/* Tabs */}
+            <View style={styles.vitalsTabs}>
+              <TouchableOpacity
+                style={[styles.vitalsTab, activeTab === 'current' && styles.vitalsTabActive]}
+                onPress={() => setActiveTab('current')}
+              >
+                <Text style={[
+                  styles.vitalsTabText,
+                  activeTab === 'current' && styles.vitalsTabTextActive
+                ]}>Current</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.vitalsTab, activeTab === 'history' && styles.vitalsTabActive]}
+                onPress={() => setActiveTab('history')}
+              >
+                <Text style={[
+                  styles.vitalsTabText,
+                  activeTab === 'history' && styles.vitalsTabTextActive
+                ]}>History</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Content */}
+            {activeTab === 'current' ? renderCurrentVitals() : renderHistory()}
+          </>
+        )}
+      </View>
+    </Modal>
+  );
+};
+
+// ============================================
+// TASK COMPLETION MODAL
+// ============================================
+const TaskCompletionModal = ({ visible, onClose, task, onComplete }) => {
+  const [notes, setNotes] = useState('');
+  const [photo, setPhoto] = useState(null);
+
+  if (!task) return null;
+
+  const handleComplete = () => {
+    onComplete(task.id, notes, photo);
+    setNotes('');
+    setPhoto(null);
+  };
+
+  const handleAddPhoto = () => {
+    Alert.alert(
+      'Add Photo',
+      'Choose an option',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Take Photo', onPress: () => setPhoto('https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=200') },
+        { text: 'Choose from Library', onPress: () => setPhoto('https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=200') },
+      ]
+    );
+  };
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+      <KeyboardAvoidingView 
+        style={styles.modalContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        {/* Header */}
+        <View style={styles.modalHeader}>
+          <TouchableOpacity onPress={onClose} style={styles.modalCloseBtn}>
+            <Ionicons name="close" size={24} color={COLORS.text} />
+          </TouchableOpacity>
+          <Text style={styles.modalTitle}>
+            {task.status === 'completed' ? 'Task Details' : 'Complete Task'}
+          </Text>
+          <View style={{ width: 40 }} />
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Task Info */}
+          <View style={styles.taskDetailCard}>
+            <View style={styles.taskDetailHeader}>
+              <View style={[
+                styles.taskDetailIcon,
+                { backgroundColor: `${getPriorityColor(task.priority)}15` }
+              ]}>
+                <Ionicons 
+                  name={getCategoryIcon(task.category)} 
+                  size={24} 
+                  color={getPriorityColor(task.priority)} 
+                />
+              </View>
+              <View style={styles.taskDetailInfo}>
+                <Text style={styles.taskDetailTitle}>{task.title}</Text>
+                <View style={styles.taskDetailMeta}>
+                  <View style={[styles.priorityBadge, { backgroundColor: getPriorityColor(task.priority) }]}>
+                    <Text style={styles.priorityBadgeText}>{task.priority}</Text>
+                  </View>
+                  <Text style={styles.taskDetailTime}>
+                    <Ionicons name="time-outline" size={14} color={COLORS.textSecondary} />
+                    {' '}{task.scheduledTime}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <Text style={styles.taskDetailDescription}>{task.description}</Text>
+          </View>
+
+          {/* Instructions */}
+          {task.instructions && (
+            <View style={styles.instructionsCard}>
+              <Text style={styles.instructionsTitle}>Instructions</Text>
+              {task.instructions.map((instruction, index) => (
+                <View key={index} style={styles.instructionItem}>
+                  <View style={styles.instructionNumber}>
+                    <Text style={styles.instructionNumberText}>{index + 1}</Text>
+                  </View>
+                  <Text style={styles.instructionText}>{instruction}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Completion Form (only for pending tasks) */}
+          {task.status !== 'completed' && (
+            <View style={styles.completionForm}>
+              <Text style={styles.completionFormTitle}>Completion Details</Text>
+              
+              {/* Notes */}
+              <Text style={styles.formLabel}>Notes (Optional)</Text>
+              <TextInput
+                style={styles.notesInput}
+                placeholder="Add notes about task completion..."
+                placeholderTextColor={COLORS.textLight}
+                value={notes}
+                onChangeText={setNotes}
+                multiline
+                numberOfLines={4}
+              />
+
+              {/* Photo */}
+              <Text style={styles.formLabel}>Photo Documentation</Text>
+              {photo ? (
+                <View style={styles.photoPreview}>
+                  <Image source={{ uri: photo }} style={styles.photoPreviewImage} />
+                  <TouchableOpacity 
+                    style={styles.removePhotoBtn}
+                    onPress={() => setPhoto(null)}
+                  >
+                    <Ionicons name="close-circle" size={24} color={COLORS.error} />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity style={styles.addPhotoBtn} onPress={handleAddPhoto}>
+                  <Ionicons name="camera" size={24} color={COLORS.primary} />
+                  <Text style={styles.addPhotoBtnText}>Add Photo</Text>
+                </TouchableOpacity>
+              )}
+
+              {/* Complete Button */}
+              <TouchableOpacity style={styles.completeTaskBtn} onPress={handleComplete}>
+                <Ionicons name="checkmark-circle" size={20} color="#fff" />
+                <Text style={styles.completeTaskBtnText}>Mark as Complete</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Completed Task Info */}
+          {task.status === 'completed' && (
+            <View style={styles.completedInfo}>
+              <View style={styles.completedBadge}>
+                <Ionicons name="checkmark-circle" size={24} color={COLORS.success} />
+                <Text style={styles.completedBadgeText}>Completed</Text>
+              </View>
+              {task.completedTime && (
+                <Text style={styles.completedTime}>
+                  Completed at {formatTime(task.completedTime)}
+                </Text>
+              )}
+              {task.notes && (
+                <View style={styles.completedNotes}>
+                  <Text style={styles.completedNotesLabel}>Notes:</Text>
+                  <Text style={styles.completedNotesText}>{task.notes}</Text>
+                </View>
+              )}
+              {task.completionPhoto && (
+                <View style={styles.completedPhoto}>
+                  <Text style={styles.completedPhotoLabel}>Documentation:</Text>
+                  <Image source={{ uri: task.completionPhoto }} style={styles.completedPhotoImage} />
+                </View>
+              )}
+            </View>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+};
