@@ -2722,7 +2722,7 @@ const styles = StyleSheet.create({
   profileHeroOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 20, paddingBottom: 20, paddingTop: 60, zIndex: 5 },
   profileName: { fontSize: 32, fontWeight: 'bold', color: COLORS.white },
   profileMeta: { fontSize: 16, color: 'rgba(255,255,255,0.7)', marginTop: 4 },
-  profileContent: { paddingHorizontal: 16, paddingTop: 16 },
+  profileContent: { paddingHorizontal: 16, paddingTop: 50, backgroundColor: COLORS.background },
   careHistoryCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.careHistoryBg, borderRadius: 16, padding: 16, marginBottom: 16 },
   careHistoryIconBg: { width: 50, height: 50, borderRadius: 14, backgroundColor: 'rgba(34, 197, 94, 0.4)', alignItems: 'center', justifyContent: 'center', marginRight: 14 },
   careHistoryInfo: { flex: 1 },
