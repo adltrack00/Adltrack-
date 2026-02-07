@@ -2064,6 +2064,12 @@ const CaregiverHomeScreen = () => {
         vitals={vitals}
         onUpdateVitals={setVitals}
       />
+      <PainModal
+        visible={showPain}
+        onClose={() => setShowPain(false)}
+        vitals={vitals}
+        onUpdateVitals={setVitals}
+      />
     </View>
   );
 };
