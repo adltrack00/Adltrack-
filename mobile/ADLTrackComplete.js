@@ -543,7 +543,7 @@ const RequestCard = ({ request, onAccept, onDecline }) => {
 // CAREGIVER HOME SCREEN
 // ============================================
 const CaregiverHomeScreen = () => {
-  const [activeTab, setActiveTab] = useState('requests');
+  const [activeTab, setActiveTab] = useState('tasks');
   const [expandedTask, setExpandedTask] = useState(null);
   const [showPatientProfile, setShowPatientProfile] = useState(false);
   const [showCareHistory, setShowCareHistory] = useState(false);
