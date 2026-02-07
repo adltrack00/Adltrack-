@@ -2539,7 +2539,8 @@ const styles = StyleSheet.create({
 
   // Task List
   taskList: { paddingHorizontal: 16 },
-  taskCard: { flexDirection: 'row', backgroundColor: COLORS.card, borderRadius: 16, marginBottom: 10, overflow: 'hidden' },
+  taskCard: { backgroundColor: COLORS.card, borderRadius: 16, marginBottom: 10, overflow: 'hidden', flexDirection: 'row' },
+  taskCardExpanded: { flexDirection: 'column' },
   taskPriorityBar: { width: 5, borderTopLeftRadius: 16, borderBottomLeftRadius: 16 },
   taskContent: { flex: 1, paddingVertical: 18, paddingLeft: 16, paddingRight: 8 },
   taskTitle: { fontSize: 18, fontWeight: '600', color: COLORS.white, marginBottom: 6 },
@@ -2549,6 +2550,88 @@ const styles = StyleSheet.create({
   photoBadgeText: { fontSize: 13, color: COLORS.textSecondary, marginLeft: 4 },
   taskChevronContainer: { justifyContent: 'center', paddingRight: 12 },
   taskChevronCircle: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+
+  // Task Expanded Content
+  taskExpandedContent: { marginTop: 16 },
+  taskInstructionsBox: { backgroundColor: COLORS.background, borderRadius: 12, padding: 14, marginBottom: 12 },
+  taskInstructionsLabel: { fontSize: 12, fontWeight: '600', color: COLORS.textSecondary, marginBottom: 8, letterSpacing: 0.5 },
+  taskInstructionsText: { fontSize: 15, color: COLORS.textSecondary, lineHeight: 22 },
+  taskTimeWindowRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+  taskTimeWindowLabel: { fontSize: 13, color: COLORS.textSecondary, marginLeft: 8 },
+  taskTimeWindowValue: { fontSize: 13, fontWeight: '600', color: COLORS.white, marginLeft: 8 },
+  startTaskBtn: { backgroundColor: COLORS.primary, borderRadius: 12, paddingVertical: 16, alignItems: 'center' },
+  startTaskBtnText: { fontSize: 17, fontWeight: '600', color: COLORS.white },
+
+  // Completed Task on Dashboard
+  taskCardCompleted: { flexDirection: 'row', backgroundColor: COLORS.card, borderRadius: 16, marginBottom: 10, overflow: 'hidden' },
+  taskContentCompleted: { flex: 1, paddingVertical: 18, paddingLeft: 16, paddingRight: 8 },
+  taskTitleCompleted: { fontSize: 18, fontWeight: '600', color: COLORS.textSecondary, textDecorationLine: 'line-through', marginBottom: 6 },
+  taskNotesPreview: { fontSize: 14, color: COLORS.textSecondary, fontStyle: 'italic', marginTop: 6 },
+  completedPhotoContainer: { justifyContent: 'center', paddingRight: 12, position: 'relative' },
+  completedPhotoThumb: { width: 60, height: 60, borderRadius: 10 },
+  completedPhotoOverlay: { position: 'absolute', bottom: 4, right: 16, width: 24, height: 24, borderRadius: 6, backgroundColor: 'rgba(60, 60, 60, 0.9)', alignItems: 'center', justifyContent: 'center' },
+
+  // Can't Complete Task on Dashboard
+  taskCardCantComplete: { flexDirection: 'row', backgroundColor: COLORS.card, borderRadius: 16, marginBottom: 10, overflow: 'hidden' },
+  taskContentCantComplete: { flex: 1, paddingVertical: 18, paddingLeft: 16, paddingRight: 8 },
+  taskTitleCantComplete: { fontSize: 18, fontWeight: '600', color: COLORS.textSecondary, marginBottom: 6 },
+  cantCompleteReasonRow: { flexDirection: 'row', alignItems: 'center' },
+  cantCompleteReasonText: { fontSize: 14, color: COLORS.critical, marginLeft: 6 },
+  cantCompleteCloseBtn: { justifyContent: 'center', paddingRight: 16 },
+
+  // Task Detail Modal
+  taskModalContainer: { flex: 1, backgroundColor: COLORS.background, paddingTop: 50 },
+  taskModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20 },
+  taskModalTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.white, flex: 1 },
+  taskModalClose: { padding: 4 },
+
+  // Mode Toggle
+  modeToggleContainer: { flexDirection: 'row', marginHorizontal: 16, marginBottom: 20, gap: 12 },
+  modeToggleBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.card, paddingVertical: 14, borderRadius: 12, gap: 8 },
+  modeToggleBtnActive: { backgroundColor: COLORS.primary },
+  modeToggleBtnCantComplete: { backgroundColor: COLORS.confirmBtn },
+  modeToggleText: { fontSize: 16, fontWeight: '600', color: COLORS.textSecondary },
+  modeToggleTextActive: { color: COLORS.white },
+
+  // Instructions Card in Modal
+  instructionsCard: { backgroundColor: COLORS.card, marginHorizontal: 16, borderRadius: 16, padding: 18, marginBottom: 20 },
+  instructionsLabel: { fontSize: 12, fontWeight: '600', color: COLORS.textSecondary, marginBottom: 10, letterSpacing: 0.5 },
+  instructionsText: { fontSize: 16, color: COLORS.textSecondary, lineHeight: 24 },
+
+  // Photo Evidence Section
+  photoEvidenceSection: { marginHorizontal: 16, marginBottom: 20 },
+  photoEvidenceLabel: { fontSize: 12, fontWeight: '600', color: COLORS.textSecondary, marginBottom: 12, letterSpacing: 0.5 },
+  photoUploadBox: { borderWidth: 2, borderColor: COLORS.cardBorder, borderStyle: 'dashed', borderRadius: 16, paddingVertical: 40, alignItems: 'center', justifyContent: 'center' },
+  photoUploadText: { fontSize: 17, color: COLORS.textSecondary, marginTop: 12 },
+  photoUploadSubtext: { fontSize: 14, color: COLORS.textMuted, marginTop: 4 },
+  photoPreviewContainer: { position: 'relative' },
+  photoPreview: { width: '100%', height: 200, borderRadius: 16 },
+  photoRemoveBtn: { position: 'absolute', top: 12, right: 12, width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(0, 0, 0, 0.7)', alignItems: 'center', justifyContent: 'center' },
+
+  // Notes Section
+  notesSection: { marginHorizontal: 16, marginBottom: 20 },
+  notesLabel: { fontSize: 12, fontWeight: '600', color: COLORS.textSecondary, marginBottom: 12, letterSpacing: 0.5 },
+  notesInput: { backgroundColor: COLORS.card, borderRadius: 16, padding: 16, fontSize: 16, color: COLORS.white, minHeight: 100, borderWidth: 2, borderColor: 'transparent' },
+  notesInputCantComplete: { borderColor: COLORS.primary },
+
+  // Can't Complete Section
+  cantCompleteSection: { marginHorizontal: 16, marginBottom: 20 },
+  cantCompleteHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  cantCompleteLabel: { fontSize: 12, fontWeight: '600', color: COLORS.confirmBtn, marginLeft: 8, letterSpacing: 0.5 },
+  cantCompleteOption: { backgroundColor: COLORS.card, paddingVertical: 16, paddingHorizontal: 16, borderRadius: 12, marginBottom: 8, borderWidth: 2, borderColor: 'transparent' },
+  cantCompleteOptionSelected: { backgroundColor: 'rgba(244, 63, 94, 0.15)', borderColor: COLORS.confirmBtn },
+  cantCompleteOptionText: { fontSize: 16, color: COLORS.textSecondary },
+  cantCompleteOptionTextSelected: { color: COLORS.confirmBtn, fontWeight: '500' },
+
+  // Task Modal Bottom
+  taskModalBottom: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16, paddingBottom: 34, backgroundColor: COLORS.background },
+  completeTaskBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary, paddingVertical: 18, borderRadius: 14, gap: 10 },
+  completeTaskBtnDisabled: { backgroundColor: COLORS.cardBorder },
+  completeTaskBtnText: { fontSize: 18, fontWeight: '600', color: COLORS.white },
+  submitReportBtn: { alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.cardBorder, paddingVertical: 18, borderRadius: 14 },
+  submitReportBtnDisabled: { backgroundColor: COLORS.cardBorder },
+  submitReportBtnText: { fontSize: 18, fontWeight: '600', color: COLORS.white },
+  submitReportBtnTextDisabled: { color: COLORS.textMuted },
 
   // Completed Task Card
   completedTaskCard: {
