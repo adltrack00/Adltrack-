@@ -1290,13 +1290,13 @@ const CaregiverHomeScreen = () => {
             <Text style={styles.vitalValue}>{vitals.bp.systolic}/{vitals.bp.diastolic}</Text>
             <Text style={styles.vitalLabel}>BP</Text>
           </TouchableOpacity>
-          <View style={styles.vitalCard}>
+          <TouchableOpacity style={styles.vitalCard} onPress={() => setShowHeartRate(true)}>
             <View style={[styles.vitalIconBg, { backgroundColor: COLORS.vitalHeartBg }]}>
               <Ionicons name="pulse" size={22} color={COLORS.vitalHeart} />
             </View>
             <Text style={styles.vitalValue}>{vitals.heart}</Text>
             <Text style={styles.vitalLabel}>Heart</Text>
-          </View>
+          </TouchableOpacity>
           <View style={styles.vitalCard}>
             <View style={[styles.vitalIconBg, { backgroundColor: COLORS.vitalTempBg }]}>
               <Ionicons name="thermometer" size={22} color={COLORS.vitalTemp} />
