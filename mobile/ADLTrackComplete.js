@@ -1651,8 +1651,6 @@ const TaskDetailModal = ({ visible, onClose, task, onComplete, onCantComplete })
               ))}
             </View>
           )}
-
-          <View style={{ height: 100 }} />
         </ScrollView>
 
         {/* Bottom Button */}
@@ -1685,7 +1683,7 @@ const TaskDetailModal = ({ visible, onClose, task, onComplete, onCantComplete })
             </TouchableOpacity>
           )}
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
