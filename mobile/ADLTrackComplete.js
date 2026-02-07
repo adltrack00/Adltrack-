@@ -3425,3 +3425,730 @@ const FamilyProfileScreen = () => {
     </View>
   );
 };
+
+// ============================================
+// NAVIGATION - CAREGIVER TABS
+// ============================================
+const CaregiverTabs = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarStyle: styles.tabBar,
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.textSecondary,
+        tabBarLabelStyle: styles.tabBarLabel,
+        tabBarIcon: ({ focused, color }) => {
+          let iconName;
+          switch (route.name) {
+            case 'Home':
+              iconName = focused ? 'home' : 'home-outline';
+              break;
+            case 'Incidents':
+              iconName = focused ? 'warning' : 'warning-outline';
+              break;
+            case 'Messages':
+              iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+              break;
+            case 'AICopilot':
+              iconName = focused ? 'sparkles' : 'sparkles-outline';
+              break;
+            case 'Profile':
+              iconName = focused ? 'person' : 'person-outline';
+              break;
+          }
+          return <Ionicons name={iconName} size={22} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen name="Home" component={CaregiverHomeScreen} />
+      <Tab.Screen name="Incidents" component={CaregiverIncidentsScreen} />
+      <Tab.Screen name="Messages" component={CaregiverMessagesScreen} />
+      <Tab.Screen name="AICopilot" component={AICopilotScreen} options={{ tabBarLabel: 'AI Help' }} />
+      <Tab.Screen name="Profile" component={CaregiverProfileScreen} />
+    </Tab.Navigator>
+  );
+};
+
+// ============================================
+// NAVIGATION - FAMILY TABS
+// ============================================
+const FamilyTabs = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarStyle: styles.tabBar,
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.textSecondary,
+        tabBarLabelStyle: styles.tabBarLabel,
+        tabBarIcon: ({ focused, color }) => {
+          let iconName;
+          switch (route.name) {
+            case 'Home':
+              iconName = focused ? 'home' : 'home-outline';
+              break;
+            case 'Updates':
+              iconName = focused ? 'notifications' : 'notifications-outline';
+              break;
+            case 'Incidents':
+              iconName = focused ? 'alert-circle' : 'alert-circle-outline';
+              break;
+            case 'Messages':
+              iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+              break;
+            case 'Profile':
+              iconName = focused ? 'person' : 'person-outline';
+              break;
+          }
+          return <Ionicons name={iconName} size={22} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen name="Home" component={FamilyHomeScreen} />
+      <Tab.Screen name="Updates" component={FamilyUpdatesScreen} />
+      <Tab.Screen name="Incidents" component={FamilyIncidentsScreen} />
+      <Tab.Screen name="Messages" component={FamilyMessagesScreen} />
+      <Tab.Screen name="Profile" component={FamilyProfileScreen} />
+    </Tab.Navigator>
+  );
+};
+
+// ============================================
+// MAIN APP NAVIGATOR
+// ============================================
+const AppNavigator = () => {
+  const { user } = useAuth();
+
+  if (!user) {
+    return <AuthScreen />;
+  }
+
+  return user.role === 'caregiver' ? <CaregiverTabs /> : <FamilyTabs />;
+};
+
+// ============================================
+// MAIN APP COMPONENT
+// ============================================
+export default function App() {
+  return (
+    <AuthProvider>
+      <NavigationContainer>
+        <AppNavigator />
+      </NavigationContainer>
+    </AuthProvider>
+  );
+}
+
+// ============================================
+// STYLES
+// ============================================
+const styles = StyleSheet.create({
+  // Auth Styles
+  authContainer: {
+    flex: 1,
+  },
+  authGradient: {
+    flex: 1,
+  },
+  authScrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    padding: 24,
+  },
+  authLogoSection: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  authLogoContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  authTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  authSubtitle: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.8)',
+  },
+  authCard: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  authCardTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: 4,
+  },
+  authCardSubtitle: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginBottom: 24,
+  },
+  roleSelector: {
+    flexDirection: 'row',
+    marginBottom: 24,
+    gap: 12,
+  },
+  roleButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+    gap: 8,
+  },
+  roleButtonActive: {
+    backgroundColor: COLORS.primary,
+  },
+  roleButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.primary,
+  },
+  roleButtonTextActive: {
+    color: '#fff',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.background,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: COLORS.text,
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fef2f2',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+    gap: 8,
+  },
+  errorText: {
+    color: COLORS.error,
+    fontSize: 14,
+  },
+  loginButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.primary,
+    paddingVertical: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  loginButtonDisabled: {
+    opacity: 0.7,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  demoInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+    gap: 6,
+  },
+  demoInfoText: {
+    fontSize: 12,
+    color: COLORS.info,
+  },
+
+  // Screen Container
+  screenContainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+
+  // Dashboard Header
+  dashboardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 16,
+  },
+  headerLeft: {},
+  greeting: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+  },
+  userName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
+  headerAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+  },
+
+  // Shift Card
+  shiftCard: {
+    backgroundColor: '#fff',
+    marginHorizontal: 20,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: COLORS.cardShadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  shiftHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  shiftInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  shiftLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.text,
+  },
+  shiftTime: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+  },
+  shiftProgressBar: {
+    height: 8,
+    backgroundColor: COLORS.border,
+    borderRadius: 4,
+    marginBottom: 12,
+  },
+  shiftProgressFill: {
+    height: '100%',
+    backgroundColor: COLORS.primary,
+    borderRadius: 4,
+  },
+  shiftStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  shiftStatItem: {
+    alignItems: 'center',
+  },
+  shiftStatValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
+  shiftStatLabel: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+  },
+
+  // Patient Card
+  patientCard: {
+    backgroundColor: '#fff',
+    marginHorizontal: 20,
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    shadowColor: COLORS.cardShadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  patientPhoto: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 12,
+  },
+  patientInfo: {
+    flex: 1,
+  },
+  patientName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: 2,
+  },
+  patientDetails: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginBottom: 8,
+  },
+  patientTags: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  patientTag: {
+    backgroundColor: '#dcfce7',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  patientTagText: {
+    fontSize: 11,
+    color: COLORS.success,
+    fontWeight: '500',
+  },
+  patientTagWarning: {
+    backgroundColor: '#fef3c7',
+  },
+  patientTagTextWarning: {
+    fontSize: 11,
+    color: COLORS.warning,
+    fontWeight: '500',
+  },
+
+  // Quick Actions
+  quickActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  quickActionButton: {
+    alignItems: 'center',
+  },
+  quickActionIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  quickActionText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
+  },
+
+  // Section
+  sectionContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+  },
+  sectionLink: {
+    fontSize: 14,
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+  badge: {
+    backgroundColor: COLORS.error,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  badgeText: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+
+  // Vitals Row
+  vitalsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  vitalCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    width: 85,
+    shadowColor: COLORS.cardShadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  vitalIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  vitalValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
+  vitalUnit: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+  },
+  vitalLabel: {
+    fontSize: 10,
+    color: COLORS.textSecondary,
+    marginTop: 4,
+    textAlign: 'center',
+  },
+
+  // Task Card
+  taskCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: COLORS.cardShadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  taskCardCompleted: {
+    opacity: 0.7,
+  },
+  taskStatusIndicator: {
+    width: 4,
+    height: '100%',
+    borderRadius: 2,
+    marginRight: 12,
+    minHeight: 60,
+  },
+  taskContent: {
+    flex: 1,
+  },
+  taskHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  taskCategoryIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  taskTitleContainer: {
+    flex: 1,
+  },
+  taskTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.text,
+  },
+  taskTitleCompleted: {
+    textDecorationLine: 'line-through',
+    color: COLORS.textSecondary,
+  },
+  taskTime: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  taskDescription: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
+  },
+  taskCompletedInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 4,
+  },
+  taskCompletedText: {
+    fontSize: 12,
+    color: COLORS.success,
+  },
+  priorityBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  priorityBadgeText: {
+    fontSize: 10,
+    color: '#fff',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+  },
+
+  // Proposed Task Card
+  proposedTaskCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: COLORS.info,
+    borderStyle: 'dashed',
+  },
+  proposedTaskHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  proposedTaskIcon: {
+    marginRight: 12,
+  },
+  proposedTaskInfo: {
+    flex: 1,
+  },
+  proposedTaskTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.text,
+  },
+  proposedTaskRequester: {
+    fontSize: 12,
+    color: COLORS.info,
+  },
+  proposedTaskTime: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+  },
+  proposedTaskDescription: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginBottom: 12,
+  },
+  proposedTaskActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 12,
+  },
+  declineButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.error,
+    gap: 4,
+  },
+  declineButtonText: {
+    fontSize: 14,
+    color: COLORS.error,
+    fontWeight: '500',
+  },
+  acceptButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: COLORS.primary,
+    gap: 4,
+  },
+  acceptButtonText: {
+    fontSize: 14,
+    color: '#fff',
+    fontWeight: '500',
+  },
+
+  // Tab Bar
+  tabBar: {
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    height: 85,
+    paddingTop: 8,
+    paddingBottom: 25,
+  },
+  tabBarLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+  },
+
+  // Modal Styles
+  modalContainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 12,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  modalCloseBtn: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.text,
+  },
