@@ -1472,6 +1472,12 @@ const CaregiverHomeScreen = () => {
         vitals={vitals}
         onUpdateVitals={setVitals}
       />
+      <HeartRateModal
+        visible={showHeartRate}
+        onClose={() => setShowHeartRate(false)}
+        vitals={vitals}
+        onUpdateVitals={setVitals}
+      />
     </View>
   );
 };
