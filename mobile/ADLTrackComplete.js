@@ -1197,6 +1197,7 @@ const CaregiverHomeScreen = () => {
   const [showPatientProfile, setShowPatientProfile] = useState(false);
   const [showCareHistory, setShowCareHistory] = useState(false);
   const [showVitalSigns, setShowVitalSigns] = useState(false);
+  const [showHeartRate, setShowHeartRate] = useState(false);
   const [viewingHistory, setViewingHistory] = useState(null);
   const [tasks, setTasks] = useState(INITIAL_TASKS);
   const [requests, setRequests] = useState(INITIAL_REQUESTS);
