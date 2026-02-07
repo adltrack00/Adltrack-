@@ -1,5 +1,5 @@
 // ADLTrack - Exact Replica Mobile App for Expo Snack
-// Caregiver Dashboard + Patient Profile + Care History
+// Caregiver Dashboard + Patient Profile + Care History + Requests
 
 import React, { useState } from 'react';
 import {
@@ -34,7 +34,7 @@ const COLORS = {
   critical: '#ef4444',
   standard: '#3b82f6',
   low: '#22c55e',
-  completed: '#f59e0b', // Yellow/amber for completed tasks
+  completed: '#f59e0b',
   vitalBP: '#be185d',
   vitalBPBg: 'rgba(190, 24, 93, 0.25)',
   vitalHeart: '#ea580c',
@@ -63,12 +63,22 @@ const COLORS = {
   callBtnGreen: '#22c55e',
   callBtnBlue: '#3b82f6',
   badgeRed: '#ef4444',
-  // History banner colors
   historyBannerBg: 'rgba(180, 130, 20, 0.2)',
   historyBannerBorder: 'rgba(234, 179, 8, 0.6)',
   historyIconBg: 'rgba(234, 179, 8, 0.3)',
   historyText: '#eab308',
   historyButtonBg: '#f59e0b',
+  // Request colors
+  requestBorder: '#6366f1', // Blue/indigo for request cards
+  acceptBtn: '#22c55e',
+  declineBtn: '#3a3a3c',
+  declineReasonBg: '#2c2c2e',
+  declineReasonSelected: 'rgba(239, 68, 68, 0.2)',
+  declineReasonSelectedBorder: '#ef4444',
+  declineReasonText: '#ef4444',
+  confirmBtn: '#f43f5e',
+  confirmBtnDisabled: '#4a4a4c',
+  fabBg: '#3a3a3c',
 };
 
 // ============================================
@@ -98,7 +108,7 @@ const PATIENT = {
 
 const VITALS = { bp: { systolic: 120, diastolic: 76 }, heart: 72, temp: 98.6, pain: 1 };
 
-const TASKS = [
+const INITIAL_TASKS = [
   { id: 1, title: 'Morning Medication', time: '08:00 AM', priority: 'critical', requiresPhoto: true },
   { id: 2, title: 'Breakfast Assistance', time: '08:30 AM', priority: 'standard', requiresPhoto: false },
   { id: 3, title: 'Morning Walk', time: '10:00 AM', priority: 'low', requiresPhoto: false },
@@ -111,6 +121,34 @@ const TASKS = [
   { id: 10, title: 'Evening Medication', time: '5:00 PM', priority: 'critical', requiresPhoto: true },
   { id: 11, title: 'Dinner Service', time: '6:00 PM', priority: 'standard', requiresPhoto: true },
   { id: 12, title: 'Bedtime Routine', time: '8:00 PM', priority: 'low', requiresPhoto: false },
+];
+
+const INITIAL_REQUESTS = [
+  { 
+    id: 101, 
+    title: 'Extra Walk in Garden', 
+    time: '4:00 PM', 
+    requester: 'Mary Smith',
+    relation: 'Daughter',
+    description: 'Take a short walk in the backyard garden',
+  },
+  { 
+    id: 102, 
+    title: 'Video Call with Grandchildren', 
+    time: '5:30 PM', 
+    requester: 'Tom Smith',
+    relation: 'Son',
+    description: 'Help set up tablet for video call',
+  },
+];
+
+const DECLINE_REASONS = [
+  'Schedule Conflict',
+  'Patient Refused',
+  'Not Certified for This Task',
+  'Safety Concern',
+  'Need More Information',
+  'Other',
 ];
 
 // Historical completed tasks
@@ -136,10 +174,7 @@ const HISTORY_TASKS = {
   ],
 };
 
-// Dates that have care activities (for green dots)
 const CARE_ACTIVITY_DATES = [10, 13, 14, 15, 16];
-
-const REQUESTS_COUNT = 2;
 
 // ============================================
 // AUTH CONTEXT
@@ -156,8 +191,8 @@ const Tab = createBottomTabNavigator();
 // CARE HISTORY CALENDAR MODAL
 // ============================================
 const CareHistoryModal = ({ visible, onClose, onSelectDate }) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 17)); // January 2026
-  const today = 17; // Today is the 17th
+  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 17));
+  const today = 17;
   
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
@@ -174,7 +209,6 @@ const CareHistoryModal = ({ visible, onClose, onSelectDate }) => {
   const renderCalendarDays = () => {
     const days = [];
     
-    // Previous month days
     for (let i = firstDayOfMonth - 1; i >= 0; i--) {
       days.push(
         <View key={`prev-${i}`} style={styles.calendarDay}>
@@ -183,10 +217,8 @@ const CareHistoryModal = ({ visible, onClose, onSelectDate }) => {
       );
     }
     
-    // Current month days
     for (let day = 1; day <= daysInMonth; day++) {
       const isToday = day === today && month === 0 && year === 2026;
-      const isPast = day < today || month < 0;
       const hasActivity = CARE_ACTIVITY_DATES.includes(day);
       const isFuture = day > today;
       
@@ -214,7 +246,6 @@ const CareHistoryModal = ({ visible, onClose, onSelectDate }) => {
       );
     }
     
-    // Next month days to fill the grid
     const totalCells = Math.ceil((firstDayOfMonth + daysInMonth) / 7) * 7;
     const remainingDays = totalCells - (firstDayOfMonth + daysInMonth);
     for (let i = 1; i <= remainingDays; i++) {
@@ -232,7 +263,6 @@ const CareHistoryModal = ({ visible, onClose, onSelectDate }) => {
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.calendarOverlay}>
         <View style={styles.calendarModal}>
-          {/* Header */}
           <View style={styles.calendarHeader}>
             <Text style={styles.calendarTitle}>Care History</Text>
             <TouchableOpacity onPress={onClose} style={styles.calendarCloseBtn}>
@@ -242,7 +272,6 @@ const CareHistoryModal = ({ visible, onClose, onSelectDate }) => {
           
           <Text style={styles.calendarSubtitle}>Select a date to view all care activities</Text>
           
-          {/* Month Navigation */}
           <View style={styles.monthNavigation}>
             <TouchableOpacity onPress={prevMonth} style={styles.monthNavBtn}>
               <Ionicons name="chevron-back" size={24} color={COLORS.textPrimary} />
@@ -253,22 +282,18 @@ const CareHistoryModal = ({ visible, onClose, onSelectDate }) => {
             </TouchableOpacity>
           </View>
           
-          {/* Divider */}
           <View style={styles.calendarDivider} />
           
-          {/* Weekday Headers */}
           <View style={styles.weekdayRow}>
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
               <Text key={day} style={styles.weekdayText}>{day}</Text>
             ))}
           </View>
           
-          {/* Calendar Grid */}
           <View style={styles.calendarGrid}>
             {renderCalendarDays()}
           </View>
           
-          {/* Footer */}
           <Text style={styles.calendarFooter}>Tap a date to view that day's care timeline</Text>
         </View>
       </View>
@@ -288,7 +313,6 @@ const PatientProfileModal = ({ visible, onClose, onOpenCareHistory }) => {
       <View style={styles.profileContainer}>
         <StatusBar style="light" />
         <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Hero Image Section */}
           <View style={styles.profileHero}>
             <Image source={{ uri: PATIENT.photo }} style={styles.profileHeroImage} />
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -304,7 +328,6 @@ const PatientProfileModal = ({ visible, onClose, onOpenCareHistory }) => {
           </View>
 
           <View style={styles.profileContent}>
-            {/* Care History Card - Opens Calendar */}
             <TouchableOpacity style={styles.careHistoryCard} onPress={onOpenCareHistory}>
               <View style={styles.careHistoryIconBg}>
                 <Ionicons name="calendar" size={24} color={COLORS.white} />
@@ -316,7 +339,6 @@ const PatientProfileModal = ({ visible, onClose, onOpenCareHistory }) => {
               <Ionicons name="chevron-forward" size={24} color={COLORS.careHistoryLight} />
             </TouchableOpacity>
 
-            {/* Allergies Card */}
             <View style={styles.allergiesCard}>
               <View style={styles.sectionHeader}>
                 <Ionicons name="warning" size={20} color={COLORS.allergyText} />
@@ -331,7 +353,6 @@ const PatientProfileModal = ({ visible, onClose, onOpenCareHistory }) => {
               </View>
             </View>
 
-            {/* Medical Conditions Card */}
             <View style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
                 <Ionicons name="heart" size={20} color={COLORS.conditionIcon} />
@@ -345,7 +366,6 @@ const PatientProfileModal = ({ visible, onClose, onOpenCareHistory }) => {
               ))}
             </View>
 
-            {/* Current Medications Card */}
             <View style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
                 <Ionicons name="bandage" size={20} color={COLORS.medicationIcon} />
@@ -359,7 +379,6 @@ const PatientProfileModal = ({ visible, onClose, onOpenCareHistory }) => {
               ))}
             </View>
 
-            {/* Code Status & Mobility Row */}
             <View style={styles.statusRow}>
               <View style={styles.codeStatusCard}>
                 <Ionicons name="shield-outline" size={28} color={COLORS.codeStatusText} />
@@ -373,7 +392,6 @@ const PatientProfileModal = ({ visible, onClose, onOpenCareHistory }) => {
               </View>
             </View>
 
-            {/* Access Instructions Card */}
             <View style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
                 <Ionicons name="location" size={20} color={COLORS.accessIcon} />
@@ -382,7 +400,6 @@ const PatientProfileModal = ({ visible, onClose, onOpenCareHistory }) => {
               <Text style={styles.accessText}>{PATIENT.accessInstructions}</Text>
             </View>
 
-            {/* Emergency Contacts Card */}
             <View style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
                 <Ionicons name="call" size={20} color={COLORS.emergencyIcon} />
@@ -412,7 +429,6 @@ const PatientProfileModal = ({ visible, onClose, onOpenCareHistory }) => {
               </View>
             </View>
 
-            {/* Share Medical ID Button */}
             <TouchableOpacity style={styles.shareButton}>
               <Ionicons name="share-social" size={22} color={COLORS.white} />
               <Text style={styles.shareButtonText}>Share Medical ID for EMS</Text>
@@ -427,17 +443,116 @@ const PatientProfileModal = ({ visible, onClose, onOpenCareHistory }) => {
 };
 
 // ============================================
+// REQUEST CARD COMPONENT
+// ============================================
+const RequestCard = ({ request, onAccept, onDecline }) => {
+  const [showDeclineReasons, setShowDeclineReasons] = useState(false);
+  const [selectedReason, setSelectedReason] = useState(null);
+
+  const handleDeclinePress = () => {
+    setShowDeclineReasons(true);
+  };
+
+  const handleCancelDecline = () => {
+    setShowDeclineReasons(false);
+    setSelectedReason(null);
+  };
+
+  const handleConfirmDecline = () => {
+    if (selectedReason) {
+      onDecline(request.id, selectedReason);
+      setShowDeclineReasons(false);
+      setSelectedReason(null);
+    }
+  };
+
+  const handleAccept = () => {
+    onAccept(request);
+  };
+
+  return (
+    <View style={styles.requestCard}>
+      <View style={styles.requestBorder} />
+      <View style={styles.requestContent}>
+        <Text style={styles.requestTitle}>{request.title}</Text>
+        <View style={styles.requestMeta}>
+          <Ionicons name="time-outline" size={16} color={COLORS.textSecondary} />
+          <Text style={styles.requestTime}>{request.time}</Text>
+          <Ionicons name="person-outline" size={16} color={COLORS.textSecondary} style={{ marginLeft: 16 }} />
+          <Text style={styles.requestRequester}>{request.requester} ({request.relation})</Text>
+        </View>
+        <Text style={styles.requestDescription}>{request.description}</Text>
+
+        {!showDeclineReasons ? (
+          <View style={styles.requestButtons}>
+            <TouchableOpacity style={styles.acceptButton} onPress={handleAccept}>
+              <Ionicons name="checkmark" size={20} color={COLORS.white} />
+              <Text style={styles.acceptButtonText}>Accept</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.declineButton} onPress={handleDeclinePress}>
+              <Ionicons name="close" size={20} color={COLORS.white} />
+              <Text style={styles.declineButtonText}>Decline</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.declineReasonsContainer}>
+            <Text style={styles.selectReasonLabel}>SELECT REASON:</Text>
+            {DECLINE_REASONS.map((reason, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.declineReasonOption,
+                  selectedReason === reason && styles.declineReasonSelected,
+                ]}
+                onPress={() => setSelectedReason(reason)}
+              >
+                <Text style={[
+                  styles.declineReasonText,
+                  selectedReason === reason && styles.declineReasonTextSelected,
+                ]}>
+                  {reason}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            <View style={styles.declineActionButtons}>
+              <TouchableOpacity style={styles.cancelButton} onPress={handleCancelDecline}>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[
+                  styles.confirmButton,
+                  !selectedReason && styles.confirmButtonDisabled,
+                ]} 
+                onPress={handleConfirmDecline}
+                disabled={!selectedReason}
+              >
+                <Text style={[
+                  styles.confirmButtonText,
+                  !selectedReason && styles.confirmButtonTextDisabled,
+                ]}>Confirm</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </View>
+    </View>
+  );
+};
+
+// ============================================
 // CAREGIVER HOME SCREEN
 // ============================================
 const CaregiverHomeScreen = () => {
-  const [activeTab, setActiveTab] = useState('tasks');
+  const [activeTab, setActiveTab] = useState('requests');
   const [expandedTask, setExpandedTask] = useState(null);
   const [showPatientProfile, setShowPatientProfile] = useState(false);
   const [showCareHistory, setShowCareHistory] = useState(false);
-  const [viewingHistory, setViewingHistory] = useState(null); // null = today, or date string
+  const [viewingHistory, setViewingHistory] = useState(null);
+  const [tasks, setTasks] = useState(INITIAL_TASKS);
+  const [requests, setRequests] = useState(INITIAL_REQUESTS);
 
   const completedCount = viewingHistory ? (HISTORY_TASKS[viewingHistory]?.length || 0) : 0;
-  const totalCount = viewingHistory ? (HISTORY_TASKS[viewingHistory]?.length || 0) : 12;
+  const totalCount = viewingHistory ? (HISTORY_TASKS[viewingHistory]?.length || 0) : tasks.length;
 
   const getPriorityColor = (priority) => {
     switch (priority) {
@@ -458,7 +573,7 @@ const CaregiverHomeScreen = () => {
 
   const handleSelectDate = (dateStr, day) => {
     if (day === 17) {
-      setViewingHistory(null); // Back to today
+      setViewingHistory(null);
     } else {
       setViewingHistory(dateStr);
     }
@@ -471,6 +586,34 @@ const CaregiverHomeScreen = () => {
   const handleOpenCareHistory = () => {
     setShowPatientProfile(false);
     setShowCareHistory(true);
+  };
+
+  const handleAcceptRequest = (request) => {
+    // Add the request to tasks
+    const newTask = {
+      id: request.id,
+      title: request.title,
+      time: request.time,
+      priority: 'standard',
+      requiresPhoto: false,
+      fromRequest: true,
+    };
+    setTasks([...tasks, newTask]);
+    // Remove from requests
+    setRequests(requests.filter(r => r.id !== request.id));
+    // Switch to tasks tab if all requests are handled
+    if (requests.length === 1) {
+      setActiveTab('tasks');
+    }
+  };
+
+  const handleDeclineRequest = (requestId, reason) => {
+    // Remove the request
+    setRequests(requests.filter(r => r.id !== requestId));
+    // Switch to tasks tab if all requests are handled
+    if (requests.length === 1) {
+      setActiveTab('tasks');
+    }
   };
 
   return (
@@ -562,9 +705,9 @@ const CaregiverHomeScreen = () => {
         ) : (
           <View style={styles.tabContainer}>
             <TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('requests')}>
-              {REQUESTS_COUNT > 0 && (
+              {requests.length > 0 && (
                 <View style={styles.tabBadge}>
-                  <Text style={styles.tabBadgeText}>{REQUESTS_COUNT}</Text>
+                  <Text style={styles.tabBadgeText}>{requests.length}</Text>
                 </View>
               )}
               <Text style={[styles.tabText, activeTab === 'requests' && styles.tabTextActive]}>Requests</Text>
@@ -576,7 +719,7 @@ const CaregiverHomeScreen = () => {
           </View>
         )}
 
-        {/* Task List */}
+        {/* Content List */}
         <View style={styles.taskList}>
           {viewingHistory ? (
             // Show completed historical tasks
@@ -599,9 +742,26 @@ const CaregiverHomeScreen = () => {
                 </View>
               </View>
             ))
+          ) : activeTab === 'requests' ? (
+            // Show requests
+            requests.length > 0 ? (
+              requests.map((request) => (
+                <RequestCard
+                  key={request.id}
+                  request={request}
+                  onAccept={handleAcceptRequest}
+                  onDecline={handleDeclineRequest}
+                />
+              ))
+            ) : (
+              <View style={styles.emptyState}>
+                <Ionicons name="checkmark-circle-outline" size={48} color={COLORS.textMuted} />
+                <Text style={styles.emptyStateText}>No pending requests</Text>
+              </View>
+            )
           ) : (
             // Show today's tasks
-            TASKS.map((task) => (
+            tasks.map((task) => (
               <TouchableOpacity 
                 key={task.id}
                 style={styles.taskCard}
@@ -634,6 +794,14 @@ const CaregiverHomeScreen = () => {
 
         <View style={{ height: 100 }} />
       </ScrollView>
+
+      {/* Calendar FAB */}
+      <TouchableOpacity 
+        style={styles.calendarFab} 
+        onPress={() => setShowCareHistory(true)}
+      >
+        <Ionicons name="calendar-outline" size={24} color={COLORS.white} />
+      </TouchableOpacity>
 
       {/* Modals */}
       <PatientProfileModal 
@@ -821,6 +989,187 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(60, 60, 60, 0.9)',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  // Request Card
+  requestCard: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    marginBottom: 12,
+    overflow: 'hidden',
+  },
+  requestBorder: {
+    width: 5,
+    backgroundColor: COLORS.requestBorder,
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
+  },
+  requestContent: {
+    flex: 1,
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+  },
+  requestTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: COLORS.white,
+    marginBottom: 8,
+  },
+  requestMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  requestTime: {
+    fontSize: 15,
+    color: COLORS.textSecondary,
+    marginLeft: 6,
+  },
+  requestRequester: {
+    fontSize: 15,
+    color: COLORS.textSecondary,
+    marginLeft: 6,
+  },
+  requestDescription: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
+    marginBottom: 18,
+    lineHeight: 22,
+  },
+  requestButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  acceptButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.acceptBtn,
+    paddingVertical: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  acceptButtonText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
+  declineButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.declineBtn,
+    paddingVertical: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  declineButtonText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
+
+  // Decline Reasons
+  declineReasonsContainer: {
+    marginTop: 4,
+  },
+  selectReasonLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+    marginBottom: 12,
+    letterSpacing: 0.5,
+  },
+  declineReasonOption: {
+    backgroundColor: COLORS.declineReasonBg,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  declineReasonSelected: {
+    backgroundColor: COLORS.declineReasonSelected,
+    borderColor: COLORS.declineReasonSelectedBorder,
+  },
+  declineReasonText: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
+  },
+  declineReasonTextSelected: {
+    color: COLORS.declineReasonText,
+    fontWeight: '500',
+  },
+  declineActionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  cancelButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.declineBtn,
+    paddingVertical: 16,
+    borderRadius: 12,
+  },
+  cancelButtonText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
+  confirmButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.confirmBtn,
+    paddingVertical: 16,
+    borderRadius: 12,
+  },
+  confirmButtonDisabled: {
+    backgroundColor: COLORS.confirmBtnDisabled,
+  },
+  confirmButtonText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
+  confirmButtonTextDisabled: {
+    color: COLORS.textMuted,
+  },
+
+  // Empty State
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: COLORS.textMuted,
+    marginTop: 12,
+  },
+
+  // Calendar FAB
+  calendarFab: {
+    position: 'absolute',
+    bottom: 100,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: COLORS.fabBg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
 
   // Tab Bar
