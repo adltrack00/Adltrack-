@@ -2710,13 +2710,11 @@ const styles = StyleSheet.create({
 
   // ===== PATIENT PROFILE MODAL =====
   profileContainer: { flex: 1, backgroundColor: COLORS.background },
-  profileHero: { height: 280, position: 'relative', marginBottom: -40 },
+  profileHero: { height: 280, position: 'relative' },
   profileHeroImage: { width: '100%', height: '100%', resizeMode: 'cover' },
-  profileGradientTop: { position: 'absolute', top: 0, left: 0, right: 0, height: 80, backgroundColor: 'rgba(0,0,0,0.2)' },
-  profileGradientBottom: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 140, backgroundColor: 'rgba(0,0,0,0.7)' },
   closeButton: { position: 'absolute', top: 50, right: 16, width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(60, 60, 60, 0.9)', alignItems: 'center', justifyContent: 'center', zIndex: 10 },
   cameraButton: { position: 'absolute', top: 50, right: 66, width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(60, 60, 60, 0.9)', alignItems: 'center', justifyContent: 'center', zIndex: 10 },
-  profileHeroOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 20, paddingBottom: 20, paddingTop: 60, zIndex: 5 },
+  profileHeroOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 20, paddingBottom: 20, paddingTop: 40, zIndex: 5 },
   profileName: { fontSize: 32, fontWeight: 'bold', color: COLORS.white },
   profileMeta: { fontSize: 16, color: 'rgba(255,255,255,0.7)', marginTop: 4 },
   profileContent: { paddingHorizontal: 16, paddingTop: 50, backgroundColor: COLORS.background },
