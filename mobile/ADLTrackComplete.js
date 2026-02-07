@@ -2198,7 +2198,7 @@ const styles = StyleSheet.create({
   // Tab Container
   tabContainer: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 28, marginBottom: 16 },
   tabItem: { position: 'relative', paddingVertical: 8, paddingHorizontal: 4 },
-  tabBadge: { position: 'absolute', top: -16, left: '50%', marginLeft: -8, backgroundColor: COLORS.badgeRed, width: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center', zIndex: 1 },
+  tabBadge: { position: 'absolute', top: -14, right: -5, backgroundColor: COLORS.badgeRed, width: 18, height: 18, borderRadius: 9, alignItems: 'center', justifyContent: 'center', zIndex: 1 },
   tabBadgeText: { fontSize: 10, fontWeight: 'bold', color: COLORS.white },
   tabText: { fontSize: 18, color: COLORS.textSecondary },
   tabTextActive: { color: COLORS.white, fontWeight: '600' },
