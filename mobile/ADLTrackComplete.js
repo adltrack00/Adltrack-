@@ -124,18 +124,27 @@ const PATIENT = {
 };
 
 const INITIAL_TASKS = [
-  { id: 1, title: 'Morning Medication', time: '08:00 AM', priority: 'critical', requiresPhoto: true },
-  { id: 2, title: 'Breakfast Assistance', time: '08:30 AM', priority: 'standard', requiresPhoto: false },
-  { id: 3, title: 'Morning Walk', time: '10:00 AM', priority: 'low', requiresPhoto: false },
-  { id: 4, title: 'Blood Pressure Check', time: '10:30 AM', priority: 'critical', requiresPhoto: true },
-  { id: 5, title: 'Hydration Check', time: '11:00 AM', priority: 'low', requiresPhoto: false },
-  { id: 6, title: 'Lunch Preparation', time: '12:00 PM', priority: 'standard', requiresPhoto: true },
-  { id: 7, title: 'Afternoon Medication', time: '12:30 PM', priority: 'critical', requiresPhoto: true },
-  { id: 8, title: 'Rest Period', time: '2:00 PM', priority: 'low', requiresPhoto: false },
-  { id: 9, title: 'Physical Therapy Exercises', time: '3:30 PM', priority: 'standard', requiresPhoto: false },
-  { id: 10, title: 'Evening Medication', time: '5:00 PM', priority: 'critical', requiresPhoto: true },
-  { id: 11, title: 'Dinner Service', time: '6:00 PM', priority: 'standard', requiresPhoto: true },
-  { id: 12, title: 'Bedtime Routine', time: '8:00 PM', priority: 'low', requiresPhoto: false },
+  { id: 1, title: 'Morning Medication', time: '08:00 AM', priority: 'critical', requiresPhoto: true, instructions: 'Give 2 tablets of Metformin with food. Ensure patient drinks full glass of water.', timeWindow: '7:30 AM - 9:00 AM' },
+  { id: 2, title: 'Breakfast Assistance', time: '08:30 AM', priority: 'standard', requiresPhoto: false, instructions: 'Assist patient with breakfast. Ensure balanced meal with protein and fiber.', timeWindow: '8:00 AM - 9:30 AM' },
+  { id: 3, title: 'Morning Walk', time: '10:00 AM', priority: 'low', requiresPhoto: false, instructions: 'Take patient for a 15-minute walk around the house or garden.', timeWindow: '9:30 AM - 11:00 AM' },
+  { id: 4, title: 'Blood Pressure Check', time: '10:30 AM', priority: 'critical', requiresPhoto: true, instructions: 'Check blood pressure using the arm cuff. Record systolic and diastolic values.', timeWindow: '10:00 AM - 11:30 AM' },
+  { id: 5, title: 'Hydration Check', time: '11:00 AM', priority: 'low', requiresPhoto: false, instructions: 'Ensure patient has consumed at least 2 glasses of water since morning.', timeWindow: '10:30 AM - 12:00 PM' },
+  { id: 6, title: 'Lunch Preparation', time: '12:00 PM', priority: 'standard', requiresPhoto: true, instructions: 'Prepare a balanced lunch. Include vegetables and lean protein.', timeWindow: '11:30 AM - 1:00 PM' },
+  { id: 7, title: 'Afternoon Medication', time: '12:30 PM', priority: 'critical', requiresPhoto: true, instructions: 'Give afternoon dose of Lisinopril with lunch.', timeWindow: '12:00 PM - 1:30 PM' },
+  { id: 8, title: 'Rest Period', time: '2:00 PM', priority: 'low', requiresPhoto: false, instructions: 'Ensure patient rests comfortably. Check on them every 30 minutes.', timeWindow: '1:30 PM - 3:00 PM' },
+  { id: 9, title: 'Physical Therapy Exercises', time: '3:30 PM', priority: 'standard', requiresPhoto: false, instructions: 'Guide patient through prescribed physical therapy exercises.', timeWindow: '3:00 PM - 4:30 PM' },
+  { id: 10, title: 'Evening Medication', time: '5:00 PM', priority: 'critical', requiresPhoto: true, instructions: 'Give evening dose of Aspirin with a snack.', timeWindow: '4:30 PM - 6:00 PM' },
+  { id: 11, title: 'Dinner Service', time: '6:00 PM', priority: 'standard', requiresPhoto: true, instructions: 'Serve dinner and assist patient as needed.', timeWindow: '5:30 PM - 7:00 PM' },
+  { id: 12, title: 'Bedtime Routine', time: '8:00 PM', priority: 'low', requiresPhoto: false, instructions: 'Help patient prepare for bed. Ensure comfortable sleeping environment.', timeWindow: '7:30 PM - 9:00 PM' },
+];
+
+const CANT_COMPLETE_REASONS = [
+  'Schedule Conflict',
+  'Patient Refused',
+  'Not Certified for This Task',
+  'Safety Concern',
+  'Need More Information',
+  'Other',
 ];
 
 const INITIAL_REQUESTS = [
