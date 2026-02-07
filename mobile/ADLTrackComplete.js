@@ -90,6 +90,9 @@ const COLORS = {
   // Heart Rate colors
   heartCardBg: '#5c3d1e',
   heartColor: '#ea580c',
+  // Temperature colors
+  tempCardBg: '#1e3a5f',
+  tempColor: '#3b82f6',
 };
 
 // ============================================
