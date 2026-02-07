@@ -1770,6 +1770,12 @@ const CaregiverHomeScreen = () => {
         vitals={vitals}
         onUpdateVitals={setVitals}
       />
+      <TemperatureModal
+        visible={showTemperature}
+        onClose={() => setShowTemperature(false)}
+        vitals={vitals}
+        onUpdateVitals={setVitals}
+      />
     </View>
   );
 };
