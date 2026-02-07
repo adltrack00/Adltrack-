@@ -1589,13 +1589,13 @@ const CaregiverHomeScreen = () => {
             <Text style={styles.vitalValue}>{vitals.heart}</Text>
             <Text style={styles.vitalLabel}>Heart</Text>
           </TouchableOpacity>
-          <View style={styles.vitalCard}>
+          <TouchableOpacity style={styles.vitalCard} onPress={() => setShowTemperature(true)}>
             <View style={[styles.vitalIconBg, { backgroundColor: COLORS.vitalTempBg }]}>
               <Ionicons name="thermometer" size={22} color={COLORS.vitalTemp} />
             </View>
             <Text style={styles.vitalValue}>{vitals.temp}°</Text>
             <Text style={styles.vitalLabel}>Temp</Text>
-          </View>
+          </TouchableOpacity>
           <View style={styles.vitalCard}>
             <View style={[styles.vitalIconBg, { backgroundColor: COLORS.vitalPainBg }]}>
               <Ionicons name="sad-outline" size={22} color={COLORS.vitalPain} />
