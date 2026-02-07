@@ -643,3 +643,373 @@ const AuthScreen = () => {
     </KeyboardAvoidingView>
   );
 };
+
+// ============================================
+// CAREGIVER DASHBOARD - HOME TAB
+// ============================================
+const CaregiverHomeScreen = ({ navigation }) => {
+  const { user } = useAuth();
+  const [tasks, setTasks] = useState(MOCK_TASKS);
+  const [proposedTasks, setProposedTasks] = useState(MOCK_PROPOSED_TASKS);
+  const [showPatientProfile, setShowPatientProfile] = useState(false);
+  const [showVitalsModal, setShowVitalsModal] = useState(false);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [showIncidentModal, setShowIncidentModal] = useState(false);
+
+  const pendingTasks = tasks.filter(t => t.status === 'pending');
+  const completedTasks = tasks.filter(t => t.status === 'completed');
+  const criticalTasks = pendingTasks.filter(t => t.priority === 'critical' || t.priority === 'high');
+
+  const handleTaskPress = (task) => {
+    setSelectedTask(task);
+    setShowTaskModal(true);
+  };
+
+  const handleCompleteTask = (taskId, notes, photo) => {
+    setTasks(tasks.map(t => 
+      t.id === taskId 
+        ? { ...t, status: 'completed', completedTime: new Date().toISOString(), notes, completionPhoto: photo }
+        : t
+    ));
+    setShowTaskModal(false);
+    Alert.alert('Success', 'Task completed successfully!');
+  };
+
+  const handleAcceptProposed = (taskId) => {
+    const proposedTask = proposedTasks.find(t => t.id === taskId);
+    if (proposedTask) {
+      setTasks([...tasks, { ...proposedTask, id: `t${tasks.length + 1}`, status: 'pending', scheduledTime: 'TBD' }]);
+      setProposedTasks(proposedTasks.filter(t => t.id !== taskId));
+      Alert.alert('Success', 'Task accepted and added to your list');
+    }
+  };
+
+  const handleDeclineProposed = (taskId) => {
+    Alert.alert(
+      'Decline Task Request',
+      'Are you sure you want to decline this task request?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Decline', 
+          style: 'destructive',
+          onPress: () => setProposedTasks(proposedTasks.filter(t => t.id !== taskId))
+        }
+      ]
+    );
+  };
+
+  return (
+    <View style={styles.screenContainer}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <View style={styles.dashboardHeader}>
+          <View style={styles.headerLeft}>
+            <Text style={styles.greeting}>Good Morning,</Text>
+            <Text style={styles.userName}>{user?.name}</Text>
+          </View>
+          <TouchableOpacity style={styles.headerAvatar}>
+            <Image source={{ uri: user?.avatar }} style={styles.avatarImage} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Shift Progress */}
+        <View style={styles.shiftCard}>
+          <View style={styles.shiftHeader}>
+            <View style={styles.shiftInfo}>
+              <Ionicons name="time-outline" size={20} color={COLORS.primary} />
+              <Text style={styles.shiftLabel}>Current Shift</Text>
+            </View>
+            <Text style={styles.shiftTime}>{MOCK_SHIFT.startTime} - {MOCK_SHIFT.endTime}</Text>
+          </View>
+          <View style={styles.shiftProgressBar}>
+            <View style={[styles.shiftProgressFill, { width: `${(MOCK_SHIFT.hoursWorked / MOCK_SHIFT.totalHours) * 100}%` }]} />
+          </View>
+          <View style={styles.shiftStats}>
+            <View style={styles.shiftStatItem}>
+              <Text style={styles.shiftStatValue}>{MOCK_SHIFT.tasksCompleted}/{MOCK_SHIFT.totalTasks}</Text>
+              <Text style={styles.shiftStatLabel}>Tasks</Text>
+            </View>
+            <View style={styles.shiftStatItem}>
+              <Text style={styles.shiftStatValue}>{MOCK_SHIFT.hoursWorked}h</Text>
+              <Text style={styles.shiftStatLabel}>Worked</Text>
+            </View>
+            <View style={styles.shiftStatItem}>
+              <Text style={styles.shiftStatValue}>{MOCK_SHIFT.breaksTaken}/{MOCK_SHIFT.breaksAllowed}</Text>
+              <Text style={styles.shiftStatLabel}>Breaks</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Patient Card */}
+        <TouchableOpacity 
+          style={styles.patientCard}
+          onPress={() => setShowPatientProfile(true)}
+        >
+          <Image source={{ uri: MOCK_PATIENT.photo }} style={styles.patientPhoto} />
+          <View style={styles.patientInfo}>
+            <Text style={styles.patientName}>{MOCK_PATIENT.name}</Text>
+            <Text style={styles.patientDetails}>Room {MOCK_PATIENT.room} • {MOCK_PATIENT.age} years old</Text>
+            <View style={styles.patientTags}>
+              <View style={styles.patientTag}>
+                <Text style={styles.patientTagText}>{MOCK_PATIENT.mobility}</Text>
+              </View>
+              <View style={[styles.patientTag, styles.patientTagWarning]}>
+                <Text style={styles.patientTagTextWarning}>{MOCK_PATIENT.diet}</Text>
+              </View>
+            </View>
+          </View>
+          <Ionicons name="chevron-forward" size={24} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+
+        {/* Quick Actions */}
+        <View style={styles.quickActions}>
+          <TouchableOpacity 
+            style={styles.quickActionButton}
+            onPress={() => setShowVitalsModal(true)}
+          >
+            <View style={[styles.quickActionIcon, { backgroundColor: '#dcfce7' }]}>
+              <Ionicons name="pulse" size={24} color={COLORS.success} />
+            </View>
+            <Text style={styles.quickActionText}>Vitals</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.quickActionButton}
+            onPress={() => setShowIncidentModal(true)}
+          >
+            <View style={[styles.quickActionIcon, { backgroundColor: '#fef3c7' }]}>
+              <Ionicons name="warning" size={24} color={COLORS.warning} />
+            </View>
+            <Text style={styles.quickActionText}>Incident</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.quickActionButton}
+            onPress={() => navigation.navigate('Messages')}
+          >
+            <View style={[styles.quickActionIcon, { backgroundColor: '#dbeafe' }]}>
+              <Ionicons name="chatbubbles" size={24} color={COLORS.info} />
+            </View>
+            <Text style={styles.quickActionText}>Message</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.quickActionButton}
+            onPress={() => navigation.navigate('AICopilot')}
+          >
+            <View style={[styles.quickActionIcon, { backgroundColor: '#f3e8ff' }]}>
+              <Ionicons name="sparkles" size={24} color="#8b5cf6" />
+            </View>
+            <Text style={styles.quickActionText}>AI Help</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Current Vitals Summary */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Current Vitals</Text>
+            <TouchableOpacity onPress={() => setShowVitalsModal(true)}>
+              <Text style={styles.sectionLink}>View All</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View style={styles.vitalsRow}>
+              {MOCK_VITALS.map((vital) => (
+                <View key={vital.id} style={styles.vitalCard}>
+                  <View style={[styles.vitalIconContainer, { backgroundColor: vital.status === 'normal' ? '#dcfce7' : '#fef3c7' }]}>
+                    <Ionicons name={vital.icon} size={20} color={vital.status === 'normal' ? COLORS.success : COLORS.warning} />
+                  </View>
+                  <Text style={styles.vitalValue}>{vital.value}</Text>
+                  <Text style={styles.vitalUnit}>{vital.unit}</Text>
+                  <Text style={styles.vitalLabel}>{vital.label}</Text>
+                </View>
+              ))}
+            </View>
+          </ScrollView>
+        </View>
+
+        {/* Priority Tasks */}
+        {criticalTasks.length > 0 && (
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionTitleRow}>
+                <Ionicons name="alert-circle" size={20} color={COLORS.error} />
+                <Text style={[styles.sectionTitle, { color: COLORS.error, marginLeft: 6 }]}>Priority Tasks</Text>
+              </View>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{criticalTasks.length}</Text>
+              </View>
+            </View>
+            {criticalTasks.map((task) => (
+              <TaskCard 
+                key={task.id} 
+                task={task} 
+                onPress={() => handleTaskPress(task)}
+                showPriority
+              />
+            ))}
+          </View>
+        )}
+
+        {/* Proposed Tasks from Family */}
+        {proposedTasks.length > 0 && (
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionTitleRow}>
+                <Ionicons name="people" size={20} color={COLORS.info} />
+                <Text style={[styles.sectionTitle, { marginLeft: 6 }]}>Family Requests</Text>
+              </View>
+              <View style={[styles.badge, { backgroundColor: COLORS.info }]}>
+                <Text style={styles.badgeText}>{proposedTasks.length}</Text>
+              </View>
+            </View>
+            {proposedTasks.map((task) => (
+              <ProposedTaskCard
+                key={task.id}
+                task={task}
+                onAccept={() => handleAcceptProposed(task.id)}
+                onDecline={() => handleDeclineProposed(task.id)}
+              />
+            ))}
+          </View>
+        )}
+
+        {/* All Tasks */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Today's Tasks</Text>
+            <Text style={styles.sectionSubtitle}>{completedTasks.length}/{tasks.length} completed</Text>
+          </View>
+          {tasks.map((task) => (
+            <TaskCard 
+              key={task.id} 
+              task={task} 
+              onPress={() => handleTaskPress(task)}
+            />
+          ))}
+        </View>
+
+        <View style={{ height: 100 }} />
+      </ScrollView>
+
+      {/* Modals */}
+      <PatientProfileModal 
+        visible={showPatientProfile} 
+        onClose={() => setShowPatientProfile(false)} 
+        patient={MOCK_PATIENT}
+      />
+      <VitalsModal 
+        visible={showVitalsModal} 
+        onClose={() => setShowVitalsModal(false)}
+        vitals={MOCK_VITALS}
+        history={MOCK_VITALS_HISTORY}
+        isCaregiver={true}
+      />
+      <TaskCompletionModal
+        visible={showTaskModal}
+        onClose={() => setShowTaskModal(false)}
+        task={selectedTask}
+        onComplete={handleCompleteTask}
+      />
+      <IncidentReportModal
+        visible={showIncidentModal}
+        onClose={() => setShowIncidentModal(false)}
+      />
+    </View>
+  );
+};
+
+// ============================================
+// TASK CARD COMPONENT
+// ============================================
+const TaskCard = ({ task, onPress, showPriority = false }) => {
+  const isCompleted = task.status === 'completed';
+  
+  return (
+    <TouchableOpacity 
+      style={[styles.taskCard, isCompleted && styles.taskCardCompleted]}
+      onPress={onPress}
+    >
+      <View style={[
+        styles.taskStatusIndicator, 
+        { backgroundColor: getStatusColor(task.status) }
+      ]} />
+      <View style={styles.taskContent}>
+        <View style={styles.taskHeader}>
+          <View style={[styles.taskCategoryIcon, { backgroundColor: `${getPriorityColor(task.priority)}15` }]}>
+            <Ionicons 
+              name={getCategoryIcon(task.category)} 
+              size={16} 
+              color={getPriorityColor(task.priority)} 
+            />
+          </View>
+          <View style={styles.taskTitleContainer}>
+            <Text style={[styles.taskTitle, isCompleted && styles.taskTitleCompleted]}>
+              {task.title}
+            </Text>
+            <Text style={styles.taskTime}>
+              <Ionicons name="time-outline" size={12} color={COLORS.textSecondary} />
+              {' '}{task.scheduledTime}
+              {task.estimatedDuration && ` • ${task.estimatedDuration}`}
+            </Text>
+          </View>
+          {showPriority && (
+            <View style={[styles.priorityBadge, { backgroundColor: getPriorityColor(task.priority) }]}>
+              <Text style={styles.priorityBadgeText}>{task.priority}</Text>
+            </View>
+          )}
+        </View>
+        <Text style={styles.taskDescription} numberOfLines={2}>
+          {task.description}
+        </Text>
+        {isCompleted && (
+          <View style={styles.taskCompletedInfo}>
+            <Ionicons name="checkmark-circle" size={14} color={COLORS.success} />
+            <Text style={styles.taskCompletedText}>
+              Completed at {task.completedTime ? formatTime(task.completedTime) : 'N/A'}
+            </Text>
+          </View>
+        )}
+      </View>
+      <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+    </TouchableOpacity>
+  );
+};
+
+// ============================================
+// PROPOSED TASK CARD COMPONENT
+// ============================================
+const ProposedTaskCard = ({ task, onAccept, onDecline }) => {
+  return (
+    <View style={styles.proposedTaskCard}>
+      <View style={styles.proposedTaskHeader}>
+        <View style={styles.proposedTaskIcon}>
+          <Ionicons name="person-circle" size={36} color={COLORS.info} />
+        </View>
+        <View style={styles.proposedTaskInfo}>
+          <Text style={styles.proposedTaskTitle}>{task.title}</Text>
+          <Text style={styles.proposedTaskRequester}>
+            Requested by {task.requestedBy}
+          </Text>
+          <Text style={styles.proposedTaskTime}>{task.requestedAt}</Text>
+        </View>
+      </View>
+      <Text style={styles.proposedTaskDescription}>{task.description}</Text>
+      <View style={styles.proposedTaskActions}>
+        <TouchableOpacity 
+          style={styles.declineButton}
+          onPress={onDecline}
+        >
+          <Ionicons name="close" size={18} color={COLORS.error} />
+          <Text style={styles.declineButtonText}>Decline</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.acceptButton}
+          onPress={onAccept}
+        >
+          <Ionicons name="checkmark" size={18} color="#fff" />
+          <Text style={styles.acceptButtonText}>Accept</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
