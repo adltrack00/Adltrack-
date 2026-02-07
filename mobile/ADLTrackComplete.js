@@ -2714,7 +2714,7 @@ const styles = StyleSheet.create({
   profileHeroImage: { width: '100%', height: '100%', resizeMode: 'cover' },
   closeButton: { position: 'absolute', top: 50, right: 16, width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(60, 60, 60, 0.9)', alignItems: 'center', justifyContent: 'center' },
   cameraButton: { position: 'absolute', top: 110, right: 16, width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(60, 60, 60, 0.9)', alignItems: 'center', justifyContent: 'center' },
-  profileHeroOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 20, paddingBottom: 24, paddingTop: 80 },
+  profileHeroOverlay: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 20, paddingBottom: 16, paddingTop: 40, background: 'linear-gradient(transparent, rgba(0,0,0,0.7))' },
   profileName: { fontSize: 32, fontWeight: 'bold', color: COLORS.white },
   profileMeta: { fontSize: 16, color: 'rgba(255,255,255,0.7)', marginTop: 4 },
   profileContent: { paddingHorizontal: 16, paddingTop: 16 },
