@@ -559,6 +559,284 @@ const VitalSignsModal = ({ visible, onClose, vitals, onUpdateVitals }) => {
 };
 
 // ============================================
+// HEART RATE CHART COMPONENT
+// ============================================
+const HeartRateChart = ({ data, selectedDay, onSelectDay }) => {
+  const chartWidth = SCREEN_WIDTH - 80;
+  const chartHeight = 180;
+  const paddingLeft = 35;
+  const paddingRight = 10;
+  const paddingTop = 20;
+  const paddingBottom = 30;
+  
+  const graphWidth = chartWidth - paddingLeft - paddingRight;
+  const graphHeight = chartHeight - paddingTop - paddingBottom;
+  
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const yLabels = [80, 60, 40, 20, 0];
+  const minY = 0;
+  const maxY = 80;
+  
+  const getY = (value) => {
+    const ratio = (value - minY) / (maxY - minY);
+    return paddingTop + graphHeight - (ratio * graphHeight);
+  };
+  
+  const getX = (index) => {
+    return paddingLeft + (index * (graphWidth / 6));
+  };
+
+  const getDataForDay = (day) => {
+    const reading = data.find(d => d.day === day);
+    return reading || null;
+  };
+
+  return (
+    <View style={styles.chartContainer}>
+      {/* Y-axis labels */}
+      {yLabels.map((label) => (
+        <Text key={label} style={[styles.yAxisLabel, { top: getY(label) - 8 }]}>
+          {label}
+        </Text>
+      ))}
+      
+      {/* Grid lines */}
+      <View style={styles.chartGrid}>
+        {yLabels.map((label) => (
+          <View 
+            key={label} 
+            style={[styles.gridLine, { top: getY(label) - paddingTop }]} 
+          />
+        ))}
+        {days.map((day, index) => (
+          <View 
+            key={day} 
+            style={[styles.verticalGridLine, { left: getX(index) - paddingLeft }]} 
+          />
+        ))}
+      </View>
+
+      {/* Chart area */}
+      <View style={[styles.chartArea, { marginLeft: paddingLeft }]}>
+        {/* Heart rate line (orange) */}
+        <View style={styles.lineContainer}>
+          {days.map((day, index) => {
+            const reading = getDataForDay(day);
+            if (!reading) return null;
+            const nextDay = days[index + 1];
+            const nextReading = getDataForDay(nextDay);
+            
+            if (nextReading) {
+              const x1 = getX(index) - paddingLeft;
+              const y1 = getY(reading.value) - paddingTop;
+              const x2 = getX(index + 1) - paddingLeft;
+              const y2 = getY(nextReading.value) - paddingTop;
+              const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+              const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+              
+              return (
+                <View
+                  key={`heart-line-${index}`}
+                  style={[
+                    styles.chartLine,
+                    {
+                      width: length,
+                      left: x1,
+                      top: y1,
+                      transform: [{ rotate: `${angle}deg` }],
+                      backgroundColor: COLORS.heartColor,
+                    },
+                  ]}
+                />
+              );
+            }
+            return null;
+          })}
+        </View>
+
+        {/* Data points */}
+        {days.map((day, index) => {
+          const reading = getDataForDay(day);
+          if (!reading) return null;
+          
+          const isSelected = selectedDay === day;
+          
+          return (
+            <TouchableOpacity
+              key={`point-${day}`}
+              style={[styles.dataPointTouchable, { left: getX(index) - paddingLeft - 15, top: 0, height: graphHeight }]}
+              onPress={() => onSelectDay(day)}
+            >
+              {/* Heart rate point */}
+              <View
+                style={[
+                  styles.dataPoint,
+                  {
+                    backgroundColor: isSelected ? COLORS.background : COLORS.heartColor,
+                    borderColor: COLORS.heartColor,
+                    borderWidth: isSelected ? 2 : 0,
+                    top: getY(reading.value) - paddingTop - 5,
+                    left: 10,
+                  },
+                ]}
+              />
+              
+              {/* Tooltip */}
+              {isSelected && (
+                <View style={[styles.tooltip, { top: getY(reading.value) - paddingTop - 70 }]}>
+                  <View style={styles.tooltipVerticalLine} />
+                  <View style={styles.tooltipContent}>
+                    <Text style={styles.tooltipDay}>{day}</Text>
+                    <Text style={[styles.tooltipSystolic, { color: COLORS.heartColor }]}>value : {reading.value}</Text>
+                  </View>
+                </View>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* X-axis labels */}
+      <View style={styles.xAxisContainer}>
+        {days.map((day, index) => (
+          <Text key={day} style={[styles.xAxisLabel, { left: getX(index) - 12 }]}>
+            {day}
+          </Text>
+        ))}
+      </View>
+    </View>
+  );
+};
+
+// ============================================
+// HEART RATE MODAL
+// ============================================
+const HeartRateModal = ({ visible, onClose, vitals, onUpdateVitals }) => {
+  const [showLogForm, setShowLogForm] = useState(false);
+  const [heartInput, setHeartInput] = useState('');
+  const [heartHistory, setHeartHistory] = useState(INITIAL_HEART_HISTORY);
+  const [selectedDay, setSelectedDay] = useState('Thu');
+
+  const handleSave = () => {
+    if (heartInput) {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const hour12 = hours % 12 || 12;
+      const timeStr = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+      
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const dayStr = days[now.getDay()];
+      
+      const newReading = {
+        id: Date.now(),
+        day: dayStr,
+        time: timeStr,
+        value: parseInt(heartInput),
+      };
+      
+      setHeartHistory([newReading, ...heartHistory]);
+      onUpdateVitals({
+        ...vitals,
+        heart: parseInt(heartInput)
+      });
+      
+      setHeartInput('');
+      setShowLogForm(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setHeartInput('');
+    setShowLogForm(false);
+  };
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
+      <View style={styles.vitalModalContainer}>
+        <StatusBar style="light" />
+        
+        {/* Header */}
+        <View style={styles.vitalModalHeader}>
+          <Text style={styles.vitalModalTitle}>Vital Signs</Text>
+          <TouchableOpacity onPress={onClose} style={styles.vitalModalClose}>
+            <Ionicons name="close" size={28} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Current Reading Card */}
+          <View style={[styles.currentReadingCard, { backgroundColor: COLORS.heartCardBg }]}>
+            <View style={[styles.currentReadingIconBg, { backgroundColor: 'rgba(234, 88, 12, 0.4)' }]}>
+              <Ionicons name="pulse" size={32} color={COLORS.heartColor} />
+            </View>
+            <Text style={styles.currentReadingValue}>
+              {vitals.heart} bpm
+            </Text>
+            <Text style={styles.currentReadingLabel}>Current Reading</Text>
+          </View>
+
+          {/* Weekly Trend Chart */}
+          <View style={styles.chartWrapper}>
+            <HeartRateChart 
+              data={heartHistory} 
+              selectedDay={selectedDay}
+              onSelectDay={setSelectedDay}
+            />
+          </View>
+          <Text style={styles.weeklyTrendLabel}>Weekly trend</Text>
+
+          {/* Log New Reading Button/Form */}
+          {!showLogForm ? (
+            <TouchableOpacity 
+              style={styles.logNewReadingBtn}
+              onPress={() => setShowLogForm(true)}
+            >
+              <Ionicons name="add" size={24} color={COLORS.textSecondary} />
+              <Text style={styles.logNewReadingText}>Log New Reading</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.logFormContainer}>
+              <Text style={styles.logFormTitle}>Log New Reading</Text>
+              <TextInput
+                style={[styles.logFormInput, { marginBottom: 16 }]}
+                placeholder="Heart Rate (BPM)"
+                placeholderTextColor={COLORS.textMuted}
+                keyboardType="numeric"
+                value={heartInput}
+                onChangeText={setHeartInput}
+              />
+              <View style={styles.logFormButtons}>
+                <TouchableOpacity style={styles.logFormCancelBtn} onPress={handleCancel}>
+                  <Text style={styles.logFormCancelText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.logFormSaveBtn} onPress={handleSave}>
+                  <Text style={styles.logFormSaveText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          {/* Recent History */}
+          <Text style={styles.recentHistoryTitle}>RECENT HISTORY</Text>
+          <View style={styles.recentHistoryList}>
+            {heartHistory.slice(0, 5).map((reading) => (
+              <View key={reading.id} style={styles.historyItem}>
+                <Text style={styles.historyItemTime}>{reading.day} at {reading.time}</Text>
+                <Text style={styles.historyItemValue}>{reading.value}</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      </View>
+    </Modal>
+  );
+};
+
+// ============================================
 // CARE HISTORY CALENDAR MODAL
 // ============================================
 const CareHistoryModal = ({ visible, onClose, onSelectDate }) => {
