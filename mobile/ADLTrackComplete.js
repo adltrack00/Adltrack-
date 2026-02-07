@@ -1,5 +1,5 @@
 // ADLTrack - Exact Replica Mobile App for Expo Snack
-// Caregiver Dashboard + Patient Profile + Care History + Requests
+// Caregiver Dashboard + Patient Profile + Care History + Requests + Vital Signs
 
 import React, { useState } from 'react';
 import {
@@ -11,6 +11,7 @@ import {
   Modal,
   Image,
   Dimensions,
+  TextInput,
 } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -68,8 +69,7 @@ const COLORS = {
   historyIconBg: 'rgba(234, 179, 8, 0.3)',
   historyText: '#eab308',
   historyButtonBg: '#f59e0b',
-  // Request colors
-  requestBorder: '#6366f1', // Blue/indigo for request cards
+  requestBorder: '#6366f1',
   acceptBtn: '#22c55e',
   declineBtn: '#3a3a3c',
   declineReasonBg: '#2c2c2e',
@@ -79,6 +79,14 @@ const COLORS = {
   confirmBtn: '#f43f5e',
   confirmBtnDisabled: '#4a4a4c',
   fabBg: '#3a3a3c',
+  // Vital Signs colors
+  vitalCardBg: '#4a1525',
+  vitalCardBgDark: '#3d1120',
+  chartBg: '#2c2c2e',
+  chartLine: '#3a3a3c',
+  systolicColor: '#f43f5e',
+  diastolicColor: '#f59e0b',
+  inputBg: '#3a3a3c',
 };
 
 // ============================================
@@ -105,8 +113,6 @@ const PATIENT = {
   ],
   physician: { name: 'Dr. Rebecca Johnson', facility: 'Springfield Medical Center' },
 };
-
-const VITALS = { bp: { systolic: 120, diastolic: 76 }, heart: 72, temp: 98.6, pain: 1 };
 
 const INITIAL_TASKS = [
   { id: 1, title: 'Morning Medication', time: '08:00 AM', priority: 'critical', requiresPhoto: true },
@@ -151,7 +157,16 @@ const DECLINE_REASONS = [
   'Other',
 ];
 
-// Historical completed tasks
+const INITIAL_BP_HISTORY = [
+  { id: 1, day: 'Sun', time: '10:30 AM', systolic: 120, diastolic: 76 },
+  { id: 2, day: 'Sat', time: '10:35 AM', systolic: 121, diastolic: 78 },
+  { id: 3, day: 'Fri', time: '10:20 AM', systolic: 119, diastolic: 75 },
+  { id: 4, day: 'Thu', time: '10:30 AM', systolic: 120, diastolic: 77 },
+  { id: 5, day: 'Wed', time: '10:45 AM', systolic: 125, diastolic: 80 },
+  { id: 6, day: 'Tue', time: '10:30 AM', systolic: 122, diastolic: 79 },
+  { id: 7, day: 'Mon', time: '10:15 AM', systolic: 118, diastolic: 76 },
+];
+
 const HISTORY_TASKS = {
   '2026-01-16': [
     { id: 1, title: 'Morning Medication', completedTime: '8:15 AM', notes: 'Took all medications with breakfast', photo: 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=200' },
@@ -186,6 +201,349 @@ const AuthProvider = ({ children }) => {
 };
 
 const Tab = createBottomTabNavigator();
+
+// ============================================
+// BLOOD PRESSURE CHART COMPONENT
+// ============================================
+const BPChart = ({ data, selectedDay, onSelectDay }) => {
+  const chartWidth = SCREEN_WIDTH - 80;
+  const chartHeight = 180;
+  const paddingLeft = 35;
+  const paddingRight = 10;
+  const paddingTop = 20;
+  const paddingBottom = 30;
+  
+  const graphWidth = chartWidth - paddingLeft - paddingRight;
+  const graphHeight = chartHeight - paddingTop - paddingBottom;
+  
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const yLabels = [160, 135, 110, 85, 60];
+  const minY = 60;
+  const maxY = 160;
+  
+  const getY = (value) => {
+    const ratio = (value - minY) / (maxY - minY);
+    return paddingTop + graphHeight - (ratio * graphHeight);
+  };
+  
+  const getX = (index) => {
+    return paddingLeft + (index * (graphWidth / 6));
+  };
+
+  // Get data for each day
+  const getDataForDay = (day) => {
+    const reading = data.find(d => d.day === day);
+    return reading || null;
+  };
+
+  return (
+    <View style={styles.chartContainer}>
+      {/* Y-axis labels */}
+      {yLabels.map((label, index) => (
+        <Text key={label} style={[styles.yAxisLabel, { top: getY(label) - 8 }]}>
+          {label}
+        </Text>
+      ))}
+      
+      {/* Grid lines */}
+      <View style={styles.chartGrid}>
+        {yLabels.map((label, index) => (
+          <View 
+            key={label} 
+            style={[styles.gridLine, { top: getY(label) - paddingTop }]} 
+          />
+        ))}
+        {days.map((day, index) => (
+          <View 
+            key={day} 
+            style={[styles.verticalGridLine, { left: getX(index) - paddingLeft }]} 
+          />
+        ))}
+      </View>
+
+      {/* Chart area */}
+      <View style={[styles.chartArea, { marginLeft: paddingLeft }]}>
+        {/* Systolic line (pink) */}
+        <View style={styles.lineContainer}>
+          {days.map((day, index) => {
+            const reading = getDataForDay(day);
+            if (!reading) return null;
+            const nextDay = days[index + 1];
+            const nextReading = getDataForDay(nextDay);
+            
+            if (nextReading) {
+              const x1 = getX(index) - paddingLeft;
+              const y1 = getY(reading.systolic) - paddingTop;
+              const x2 = getX(index + 1) - paddingLeft;
+              const y2 = getY(nextReading.systolic) - paddingTop;
+              const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+              const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+              
+              return (
+                <View
+                  key={`systolic-line-${index}`}
+                  style={[
+                    styles.chartLine,
+                    {
+                      width: length,
+                      left: x1,
+                      top: y1,
+                      transform: [{ rotate: `${angle}deg` }],
+                      backgroundColor: COLORS.systolicColor,
+                    },
+                  ]}
+                />
+              );
+            }
+            return null;
+          })}
+        </View>
+
+        {/* Diastolic line (orange) */}
+        <View style={styles.lineContainer}>
+          {days.map((day, index) => {
+            const reading = getDataForDay(day);
+            if (!reading) return null;
+            const nextDay = days[index + 1];
+            const nextReading = getDataForDay(nextDay);
+            
+            if (nextReading) {
+              const x1 = getX(index) - paddingLeft;
+              const y1 = getY(reading.diastolic) - paddingTop;
+              const x2 = getX(index + 1) - paddingLeft;
+              const y2 = getY(nextReading.diastolic) - paddingTop;
+              const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+              const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+              
+              return (
+                <View
+                  key={`diastolic-line-${index}`}
+                  style={[
+                    styles.chartLine,
+                    {
+                      width: length,
+                      left: x1,
+                      top: y1,
+                      transform: [{ rotate: `${angle}deg` }],
+                      backgroundColor: COLORS.diastolicColor,
+                    },
+                  ]}
+                />
+              );
+            }
+            return null;
+          })}
+        </View>
+
+        {/* Data points */}
+        {days.map((day, index) => {
+          const reading = getDataForDay(day);
+          if (!reading) return null;
+          
+          const isSelected = selectedDay === day;
+          
+          return (
+            <TouchableOpacity
+              key={`point-${day}`}
+              style={[styles.dataPointTouchable, { left: getX(index) - paddingLeft - 15, top: 0, height: graphHeight }]}
+              onPress={() => onSelectDay(day)}
+            >
+              {/* Systolic point */}
+              <View
+                style={[
+                  styles.dataPoint,
+                  {
+                    backgroundColor: isSelected ? COLORS.background : COLORS.systolicColor,
+                    borderColor: COLORS.systolicColor,
+                    borderWidth: isSelected ? 2 : 0,
+                    top: getY(reading.systolic) - paddingTop - 5,
+                    left: 10,
+                  },
+                ]}
+              />
+              {/* Diastolic point */}
+              <View
+                style={[
+                  styles.dataPoint,
+                  {
+                    backgroundColor: isSelected ? COLORS.background : COLORS.diastolicColor,
+                    borderColor: COLORS.diastolicColor,
+                    borderWidth: isSelected ? 2 : 0,
+                    top: getY(reading.diastolic) - paddingTop - 5,
+                    left: 10,
+                  },
+                ]}
+              />
+              
+              {/* Tooltip */}
+              {isSelected && (
+                <View style={[styles.tooltip, { top: getY(reading.systolic) - paddingTop - 70 }]}>
+                  <View style={styles.tooltipVerticalLine} />
+                  <View style={styles.tooltipContent}>
+                    <Text style={styles.tooltipDay}>{day}</Text>
+                    <Text style={styles.tooltipDiastolic}>diastolic : {reading.diastolic}</Text>
+                    <Text style={styles.tooltipSystolic}>systolic : {reading.systolic}</Text>
+                  </View>
+                </View>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* X-axis labels */}
+      <View style={styles.xAxisContainer}>
+        {days.map((day, index) => (
+          <Text key={day} style={[styles.xAxisLabel, { left: getX(index) - 12 }]}>
+            {day}
+          </Text>
+        ))}
+      </View>
+    </View>
+  );
+};
+
+// ============================================
+// VITAL SIGNS MODAL (Blood Pressure)
+// ============================================
+const VitalSignsModal = ({ visible, onClose, vitals, onUpdateVitals }) => {
+  const [showLogForm, setShowLogForm] = useState(false);
+  const [systolicInput, setSystolicInput] = useState('');
+  const [diastolicInput, setDiastolicInput] = useState('');
+  const [bpHistory, setBpHistory] = useState(INITIAL_BP_HISTORY);
+  const [selectedDay, setSelectedDay] = useState('Fri');
+
+  const handleSave = () => {
+    if (systolicInput && diastolicInput) {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const hour12 = hours % 12 || 12;
+      const timeStr = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+      
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const dayStr = days[now.getDay()];
+      
+      const newReading = {
+        id: Date.now(),
+        day: dayStr,
+        time: timeStr,
+        systolic: parseInt(systolicInput),
+        diastolic: parseInt(diastolicInput),
+      };
+      
+      setBpHistory([newReading, ...bpHistory]);
+      onUpdateVitals({
+        ...vitals,
+        bp: { systolic: parseInt(systolicInput), diastolic: parseInt(diastolicInput) }
+      });
+      
+      setSystolicInput('');
+      setDiastolicInput('');
+      setShowLogForm(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setSystolicInput('');
+    setDiastolicInput('');
+    setShowLogForm(false);
+  };
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
+      <View style={styles.vitalModalContainer}>
+        <StatusBar style="light" />
+        
+        {/* Header */}
+        <View style={styles.vitalModalHeader}>
+          <Text style={styles.vitalModalTitle}>Vital Signs</Text>
+          <TouchableOpacity onPress={onClose} style={styles.vitalModalClose}>
+            <Ionicons name="close" size={28} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Current Reading Card */}
+          <View style={styles.currentReadingCard}>
+            <View style={styles.currentReadingIconBg}>
+              <Ionicons name="heart-outline" size={32} color={COLORS.vitalBP} />
+            </View>
+            <Text style={styles.currentReadingValue}>
+              {vitals.bp.systolic}/{vitals.bp.diastolic}
+            </Text>
+            <Text style={styles.currentReadingLabel}>Current Reading</Text>
+          </View>
+
+          {/* Weekly Trend Chart */}
+          <View style={styles.chartWrapper}>
+            <BPChart 
+              data={bpHistory} 
+              selectedDay={selectedDay}
+              onSelectDay={setSelectedDay}
+            />
+          </View>
+          <Text style={styles.weeklyTrendLabel}>Weekly trend</Text>
+
+          {/* Log New Reading Button/Form */}
+          {!showLogForm ? (
+            <TouchableOpacity 
+              style={styles.logNewReadingBtn}
+              onPress={() => setShowLogForm(true)}
+            >
+              <Ionicons name="add" size={24} color={COLORS.textSecondary} />
+              <Text style={styles.logNewReadingText}>Log New Reading</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.logFormContainer}>
+              <Text style={styles.logFormTitle}>Log New Reading</Text>
+              <View style={styles.logFormInputs}>
+                <TextInput
+                  style={styles.logFormInput}
+                  placeholder="Systolic"
+                  placeholderTextColor={COLORS.textMuted}
+                  keyboardType="numeric"
+                  value={systolicInput}
+                  onChangeText={setSystolicInput}
+                />
+                <TextInput
+                  style={styles.logFormInput}
+                  placeholder="Diastolic"
+                  placeholderTextColor={COLORS.textMuted}
+                  keyboardType="numeric"
+                  value={diastolicInput}
+                  onChangeText={setDiastolicInput}
+                />
+              </View>
+              <View style={styles.logFormButtons}>
+                <TouchableOpacity style={styles.logFormCancelBtn} onPress={handleCancel}>
+                  <Text style={styles.logFormCancelText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.logFormSaveBtn} onPress={handleSave}>
+                  <Text style={styles.logFormSaveText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          {/* Recent History */}
+          <Text style={styles.recentHistoryTitle}>RECENT HISTORY</Text>
+          <View style={styles.recentHistoryList}>
+            {bpHistory.slice(0, 5).map((reading) => (
+              <View key={reading.id} style={styles.historyItem}>
+                <Text style={styles.historyItemTime}>{reading.day} at {reading.time}</Text>
+                <Text style={styles.historyItemValue}>{reading.systolic}/{reading.diastolic}</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      </View>
+    </Modal>
+  );
+};
 
 // ============================================
 // CARE HISTORY CALENDAR MODAL
@@ -547,9 +905,11 @@ const CaregiverHomeScreen = () => {
   const [expandedTask, setExpandedTask] = useState(null);
   const [showPatientProfile, setShowPatientProfile] = useState(false);
   const [showCareHistory, setShowCareHistory] = useState(false);
+  const [showVitalSigns, setShowVitalSigns] = useState(false);
   const [viewingHistory, setViewingHistory] = useState(null);
   const [tasks, setTasks] = useState(INITIAL_TASKS);
   const [requests, setRequests] = useState(INITIAL_REQUESTS);
+  const [vitals, setVitals] = useState({ bp: { systolic: 120, diastolic: 76 }, heart: 72, temp: 98.6, pain: 1 });
 
   const completedCount = viewingHistory ? (HISTORY_TASKS[viewingHistory]?.length || 0) : 0;
   const totalCount = viewingHistory ? (HISTORY_TASKS[viewingHistory]?.length || 0) : tasks.length;
@@ -589,7 +949,6 @@ const CaregiverHomeScreen = () => {
   };
 
   const handleAcceptRequest = (request) => {
-    // Add the request to tasks
     const newTask = {
       id: request.id,
       title: request.title,
@@ -599,18 +958,14 @@ const CaregiverHomeScreen = () => {
       fromRequest: true,
     };
     setTasks([...tasks, newTask]);
-    // Remove from requests
     setRequests(requests.filter(r => r.id !== request.id));
-    // Switch to tasks tab if all requests are handled
     if (requests.length === 1) {
       setActiveTab('tasks');
     }
   };
 
   const handleDeclineRequest = (requestId, reason) => {
-    // Remove the request
     setRequests(requests.filter(r => r.id !== requestId));
-    // Switch to tasks tab if all requests are handled
     if (requests.length === 1) {
       setActiveTab('tasks');
     }
@@ -636,32 +991,32 @@ const CaregiverHomeScreen = () => {
 
         {/* Vitals Grid */}
         <View style={styles.vitalsContainer}>
-          <View style={styles.vitalCard}>
+          <TouchableOpacity style={styles.vitalCard} onPress={() => setShowVitalSigns(true)}>
             <View style={[styles.vitalIconBg, { backgroundColor: COLORS.vitalBPBg }]}>
               <Ionicons name="heart" size={22} color={COLORS.vitalBP} />
             </View>
-            <Text style={styles.vitalValue}>{VITALS.bp.systolic}/{VITALS.bp.diastolic}</Text>
+            <Text style={styles.vitalValue}>{vitals.bp.systolic}/{vitals.bp.diastolic}</Text>
             <Text style={styles.vitalLabel}>BP</Text>
-          </View>
+          </TouchableOpacity>
           <View style={styles.vitalCard}>
             <View style={[styles.vitalIconBg, { backgroundColor: COLORS.vitalHeartBg }]}>
               <Ionicons name="pulse" size={22} color={COLORS.vitalHeart} />
             </View>
-            <Text style={styles.vitalValue}>{VITALS.heart}</Text>
+            <Text style={styles.vitalValue}>{vitals.heart}</Text>
             <Text style={styles.vitalLabel}>Heart</Text>
           </View>
           <View style={styles.vitalCard}>
             <View style={[styles.vitalIconBg, { backgroundColor: COLORS.vitalTempBg }]}>
               <Ionicons name="thermometer" size={22} color={COLORS.vitalTemp} />
             </View>
-            <Text style={styles.vitalValue}>{VITALS.temp}°</Text>
+            <Text style={styles.vitalValue}>{vitals.temp}°</Text>
             <Text style={styles.vitalLabel}>Temp</Text>
           </View>
           <View style={styles.vitalCard}>
             <View style={[styles.vitalIconBg, { backgroundColor: COLORS.vitalPainBg }]}>
               <Ionicons name="sad-outline" size={22} color={COLORS.vitalPain} />
             </View>
-            <Text style={styles.vitalValue}>{VITALS.pain}/10</Text>
+            <Text style={styles.vitalValue}>{vitals.pain}/10</Text>
             <Text style={styles.vitalLabel}>Pain</Text>
           </View>
         </View>
@@ -706,10 +1061,7 @@ const CaregiverHomeScreen = () => {
           <View style={styles.tabContainer}>
             <TouchableOpacity 
               style={styles.tabItem} 
-              onPress={() => {
-                console.log('Switching to requests');
-                setActiveTab('requests');
-              }}
+              onPress={() => setActiveTab('requests')}
               activeOpacity={0.6}
             >
               {requests.length > 0 && (
@@ -722,10 +1074,7 @@ const CaregiverHomeScreen = () => {
             <View style={styles.tabDivider} />
             <TouchableOpacity 
               style={styles.tabItem} 
-              onPress={() => {
-                console.log('Switching to tasks');
-                setActiveTab('tasks');
-              }}
+              onPress={() => setActiveTab('tasks')}
               activeOpacity={0.6}
             >
               <Text style={[styles.tabText, activeTab === 'tasks' && styles.tabTextActive]}>Today's Tasks</Text>
@@ -736,7 +1085,6 @@ const CaregiverHomeScreen = () => {
         {/* Content List */}
         <View style={styles.taskList}>
           {viewingHistory ? (
-            // Show completed historical tasks
             (HISTORY_TASKS[viewingHistory] || []).map((task) => (
               <View key={task.id} style={styles.completedTaskCard}>
                 <View style={styles.completedTaskBar} />
@@ -757,7 +1105,6 @@ const CaregiverHomeScreen = () => {
               </View>
             ))
           ) : activeTab === 'requests' ? (
-            // Show requests
             requests.length > 0 ? (
               requests.map((request) => (
                 <RequestCard
@@ -774,7 +1121,6 @@ const CaregiverHomeScreen = () => {
               </View>
             )
           ) : (
-            // Show today's tasks
             tasks.map((task) => (
               <TouchableOpacity 
                 key={task.id}
@@ -827,6 +1173,12 @@ const CaregiverHomeScreen = () => {
         visible={showCareHistory}
         onClose={() => setShowCareHistory(false)}
         onSelectDate={handleSelectDate}
+      />
+      <VitalSignsModal
+        visible={showVitalSigns}
+        onClose={() => setShowVitalSigns(false)}
+        vitals={vitals}
+        onUpdateVitals={setVitals}
       />
     </View>
   );
@@ -975,7 +1327,7 @@ const styles = StyleSheet.create({
   taskChevronContainer: { justifyContent: 'center', paddingRight: 12 },
   taskChevronCircle: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
 
-  // Completed Task Card (History View)
+  // Completed Task Card
   completedTaskCard: {
     flexDirection: 'row',
     backgroundColor: COLORS.card,
@@ -1195,6 +1547,276 @@ const styles = StyleSheet.create({
   // Placeholder
   placeholderScreen: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center' },
   placeholderText: { fontSize: 18, color: COLORS.textSecondary, marginTop: 12 },
+
+  // ===== VITAL SIGNS MODAL =====
+  vitalModalContainer: { flex: 1, backgroundColor: COLORS.background, paddingTop: 50 },
+  vitalModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20 },
+  vitalModalTitle: { fontSize: 28, fontWeight: 'bold', color: COLORS.white },
+  vitalModalClose: { padding: 4 },
+
+  currentReadingCard: {
+    backgroundColor: COLORS.vitalCardBg,
+    marginHorizontal: 16,
+    borderRadius: 20,
+    paddingVertical: 30,
+    alignItems: 'center',
+  },
+  currentReadingIconBg: {
+    width: 64,
+    height: 64,
+    borderRadius: 18,
+    backgroundColor: 'rgba(190, 24, 93, 0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  currentReadingValue: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: COLORS.white,
+    marginBottom: 4,
+  },
+  currentReadingLabel: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
+  },
+
+  // Chart
+  chartWrapper: {
+    backgroundColor: COLORS.chartBg,
+    marginHorizontal: 16,
+    marginTop: 20,
+    borderRadius: 16,
+    padding: 16,
+  },
+  chartContainer: {
+    height: 220,
+    position: 'relative',
+  },
+  yAxisLabel: {
+    position: 'absolute',
+    left: 0,
+    fontSize: 12,
+    color: COLORS.textMuted,
+  },
+  chartGrid: {
+    position: 'absolute',
+    top: 20,
+    left: 35,
+    right: 10,
+    bottom: 30,
+  },
+  gridLine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 1,
+    borderWidth: 1,
+    borderColor: COLORS.chartLine,
+    borderStyle: 'dashed',
+  },
+  verticalGridLine: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: 1,
+    borderWidth: 1,
+    borderColor: COLORS.chartLine,
+    borderStyle: 'dashed',
+  },
+  chartArea: {
+    position: 'absolute',
+    top: 20,
+    right: 10,
+    bottom: 30,
+  },
+  lineContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  chartLine: {
+    position: 'absolute',
+    height: 2,
+    transformOrigin: 'left center',
+  },
+  dataPointTouchable: {
+    position: 'absolute',
+    width: 30,
+  },
+  dataPoint: {
+    position: 'absolute',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  tooltip: {
+    position: 'absolute',
+    left: -40,
+    alignItems: 'center',
+  },
+  tooltipVerticalLine: {
+    position: 'absolute',
+    width: 1,
+    height: 200,
+    backgroundColor: COLORS.white,
+    opacity: 0.3,
+    top: 60,
+  },
+  tooltipContent: {
+    backgroundColor: 'rgba(60, 60, 60, 0.95)',
+    borderRadius: 8,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+  },
+  tooltipDay: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.white,
+    marginBottom: 4,
+  },
+  tooltipDiastolic: {
+    fontSize: 13,
+    color: COLORS.diastolicColor,
+    marginBottom: 2,
+  },
+  tooltipSystolic: {
+    fontSize: 13,
+    color: COLORS.systolicColor,
+  },
+  xAxisContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 30,
+  },
+  xAxisLabel: {
+    position: 'absolute',
+    bottom: 0,
+    fontSize: 12,
+    color: COLORS.textMuted,
+  },
+  weeklyTrendLabel: {
+    textAlign: 'center',
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginTop: 12,
+  },
+
+  // Log New Reading
+  logNewReadingBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 16,
+    marginTop: 20,
+    paddingVertical: 18,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: COLORS.cardBorder,
+    borderStyle: 'dashed',
+    gap: 8,
+  },
+  logNewReadingText: {
+    fontSize: 17,
+    color: COLORS.textSecondary,
+  },
+  logFormContainer: {
+    backgroundColor: COLORS.card,
+    marginHorizontal: 16,
+    marginTop: 20,
+    borderRadius: 16,
+    padding: 20,
+  },
+  logFormTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.white,
+    marginBottom: 16,
+  },
+  logFormInputs: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+  },
+  logFormInput: {
+    flex: 1,
+    backgroundColor: COLORS.inputBg,
+    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: COLORS.white,
+  },
+  logFormButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  logFormCancelBtn: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.declineBtn,
+    paddingVertical: 16,
+    borderRadius: 12,
+  },
+  logFormCancelText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
+  logFormSaveBtn: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.acceptBtn,
+    paddingVertical: 16,
+    borderRadius: 12,
+  },
+  logFormSaveText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
+
+  // Recent History
+  recentHistoryTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+    marginHorizontal: 16,
+    marginTop: 28,
+    marginBottom: 12,
+    letterSpacing: 0.5,
+  },
+  recentHistoryList: {
+    marginHorizontal: 16,
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  historyItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.cardBorder,
+  },
+  historyItemTime: {
+    fontSize: 16,
+    color: COLORS.white,
+  },
+  historyItemValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
 
   // ===== PATIENT PROFILE MODAL =====
   profileContainer: { flex: 1, backgroundColor: COLORS.background },
