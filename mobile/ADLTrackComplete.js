@@ -1733,3 +1733,357 @@ const TaskCompletionModal = ({ visible, onClose, task, onComplete }) => {
     </Modal>
   );
 };
+
+// ============================================
+// INCIDENT REPORT MODAL - Multi-Step Form
+// ============================================
+const IncidentReportModal = ({ visible, onClose }) => {
+  const [step, setStep] = useState(1);
+  const [incidentData, setIncidentData] = useState({
+    type: '',
+    severity: 'moderate',
+    date: new Date().toISOString().split('T')[0],
+    time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+    location: '',
+    description: '',
+    actionsTaken: '',
+    witnesses: '',
+    photos: [],
+    immediateActions: [],
+    notifyFamily: true,
+    notifyNurse: true,
+  });
+
+  const handleNext = () => {
+    if (step === 1 && !incidentData.type) {
+      Alert.alert('Required', 'Please select an incident type');
+      return;
+    }
+    if (step === 2 && !incidentData.description) {
+      Alert.alert('Required', 'Please provide a description');
+      return;
+    }
+    if (step < 4) setStep(step + 1);
+  };
+
+  const handleBack = () => {
+    if (step > 1) setStep(step - 1);
+  };
+
+  const handleSubmit = () => {
+    Alert.alert(
+      'Incident Reported',
+      'Your incident report has been submitted successfully.',
+      [{ text: 'OK', onPress: onClose }]
+    );
+    // Reset form
+    setStep(1);
+    setIncidentData({
+      type: '',
+      severity: 'moderate',
+      date: new Date().toISOString().split('T')[0],
+      time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
+      location: '',
+      description: '',
+      actionsTaken: '',
+      witnesses: '',
+      photos: [],
+      immediateActions: [],
+      notifyFamily: true,
+      notifyNurse: true,
+    });
+  };
+
+  const renderStep1 = () => (
+    <View style={styles.incidentStepContent}>
+      <Text style={styles.incidentStepTitle}>Step 1: Incident Type</Text>
+      <Text style={styles.incidentStepSubtitle}>Select the type of incident that occurred</Text>
+
+      <View style={styles.incidentTypeGrid}>
+        {INCIDENT_TYPES.map((type) => (
+          <TouchableOpacity
+            key={type}
+            style={[
+              styles.incidentTypeCard,
+              incidentData.type === type && styles.incidentTypeCardSelected
+            ]}
+            onPress={() => setIncidentData({ ...incidentData, type })}
+          >
+            <Ionicons 
+              name={
+                type.includes('Fall') ? 'walk' :
+                type.includes('Medication') ? 'medical' :
+                type.includes('Behavioral') ? 'person' :
+                type.includes('Skin') ? 'body' :
+                type.includes('Equipment') ? 'construct' :
+                type.includes('Environmental') ? 'warning' :
+                'alert-circle'
+              }
+              size={24}
+              color={incidentData.type === type ? '#fff' : COLORS.primary}
+            />
+            <Text style={[
+              styles.incidentTypeText,
+              incidentData.type === type && styles.incidentTypeTextSelected
+            ]}>{type}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Severity */}
+      <Text style={styles.formLabel}>Severity Level</Text>
+      <View style={styles.severitySelector}>
+        {INCIDENT_SEVERITIES.map((sev) => (
+          <TouchableOpacity
+            key={sev.value}
+            style={[
+              styles.severityBtn,
+              incidentData.severity === sev.value && { backgroundColor: sev.color }
+            ]}
+            onPress={() => setIncidentData({ ...incidentData, severity: sev.value })}
+          >
+            <Text style={[
+              styles.severityBtnText,
+              incidentData.severity === sev.value && styles.severityBtnTextSelected
+            ]}>{sev.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+
+  const renderStep2 = () => (
+    <ScrollView style={styles.incidentStepContent} showsVerticalScrollIndicator={false}>
+      <Text style={styles.incidentStepTitle}>Step 2: Details</Text>
+      <Text style={styles.incidentStepSubtitle}>Provide information about the incident</Text>
+
+      {/* Date & Time */}
+      <View style={styles.dateTimeRow}>
+        <View style={styles.dateTimeField}>
+          <Text style={styles.formLabel}>Date</Text>
+          <View style={styles.dateTimeInput}>
+            <Ionicons name="calendar-outline" size={20} color={COLORS.textSecondary} />
+            <Text style={styles.dateTimeText}>{incidentData.date}</Text>
+          </View>
+        </View>
+        <View style={styles.dateTimeField}>
+          <Text style={styles.formLabel}>Time</Text>
+          <View style={styles.dateTimeInput}>
+            <Ionicons name="time-outline" size={20} color={COLORS.textSecondary} />
+            <Text style={styles.dateTimeText}>{incidentData.time}</Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Location */}
+      <Text style={styles.formLabel}>Location</Text>
+      <TextInput
+        style={styles.formInput}
+        placeholder="Where did the incident occur?"
+        placeholderTextColor={COLORS.textLight}
+        value={incidentData.location}
+        onChangeText={(text) => setIncidentData({ ...incidentData, location: text })}
+      />
+
+      {/* Description */}
+      <Text style={styles.formLabel}>Description *</Text>
+      <TextInput
+        style={[styles.formInput, styles.textArea]}
+        placeholder="Describe what happened in detail..."
+        placeholderTextColor={COLORS.textLight}
+        value={incidentData.description}
+        onChangeText={(text) => setIncidentData({ ...incidentData, description: text })}
+        multiline
+        numberOfLines={5}
+      />
+
+      {/* Witnesses */}
+      <Text style={styles.formLabel}>Witnesses</Text>
+      <TextInput
+        style={styles.formInput}
+        placeholder="List any witnesses (names)"
+        placeholderTextColor={COLORS.textLight}
+        value={incidentData.witnesses}
+        onChangeText={(text) => setIncidentData({ ...incidentData, witnesses: text })}
+      />
+    </ScrollView>
+  );
+
+  const renderStep3 = () => (
+    <ScrollView style={styles.incidentStepContent} showsVerticalScrollIndicator={false}>
+      <Text style={styles.incidentStepTitle}>Step 3: Actions Taken</Text>
+      <Text style={styles.incidentStepSubtitle}>Document the response to this incident</Text>
+
+      {/* Actions Taken */}
+      <Text style={styles.formLabel}>Immediate Actions Taken</Text>
+      <TextInput
+        style={[styles.formInput, styles.textArea]}
+        placeholder="What actions were taken immediately after the incident?"
+        placeholderTextColor={COLORS.textLight}
+        value={incidentData.actionsTaken}
+        onChangeText={(text) => setIncidentData({ ...incidentData, actionsTaken: text })}
+        multiline
+        numberOfLines={4}
+      />
+
+      {/* Photo Documentation */}
+      <Text style={styles.formLabel}>Photo Documentation</Text>
+      <View style={styles.photoDocSection}>
+        <TouchableOpacity 
+          style={styles.addPhotoDocBtn}
+          onPress={() => {
+            Alert.alert('Add Photo', 'Photo capture would open here');
+          }}
+        >
+          <Ionicons name="camera" size={32} color={COLORS.primary} />
+          <Text style={styles.addPhotoDocText}>Take Photo</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.addPhotoDocBtn}
+          onPress={() => {
+            Alert.alert('Add Photo', 'Photo library would open here');
+          }}
+        >
+          <Ionicons name="images" size={32} color={COLORS.primary} />
+          <Text style={styles.addPhotoDocText}>Choose Photo</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+
+  const renderStep4 = () => (
+    <ScrollView style={styles.incidentStepContent} showsVerticalScrollIndicator={false}>
+      <Text style={styles.incidentStepTitle}>Step 4: Review & Submit</Text>
+      <Text style={styles.incidentStepSubtitle}>Review the incident report before submitting</Text>
+
+      {/* Summary Card */}
+      <View style={styles.incidentSummaryCard}>
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Type:</Text>
+          <Text style={styles.summaryValue}>{incidentData.type}</Text>
+        </View>
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Severity:</Text>
+          <View style={[
+            styles.summarySeverityBadge,
+            { backgroundColor: INCIDENT_SEVERITIES.find(s => s.value === incidentData.severity)?.color }
+          ]}>
+            <Text style={styles.summarySeverityText}>{incidentData.severity}</Text>
+          </View>
+        </View>
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Date/Time:</Text>
+          <Text style={styles.summaryValue}>{incidentData.date} at {incidentData.time}</Text>
+        </View>
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Location:</Text>
+          <Text style={styles.summaryValue}>{incidentData.location || 'Not specified'}</Text>
+        </View>
+        <View style={styles.summaryDescRow}>
+          <Text style={styles.summaryLabel}>Description:</Text>
+          <Text style={styles.summaryDescText}>{incidentData.description}</Text>
+        </View>
+      </View>
+
+      {/* Notifications */}
+      <View style={styles.notificationSettings}>
+        <Text style={styles.notificationTitle}>Notifications</Text>
+        <View style={styles.notificationItem}>
+          <View style={styles.notificationInfo}>
+            <Ionicons name="people" size={20} color={COLORS.primary} />
+            <Text style={styles.notificationText}>Notify Family Member</Text>
+          </View>
+          <Switch
+            value={incidentData.notifyFamily}
+            onValueChange={(value) => setIncidentData({ ...incidentData, notifyFamily: value })}
+            trackColor={{ false: COLORS.border, true: COLORS.primary }}
+          />
+        </View>
+        <View style={styles.notificationItem}>
+          <View style={styles.notificationInfo}>
+            <Ionicons name="medkit" size={20} color={COLORS.primary} />
+            <Text style={styles.notificationText}>Notify Supervising Nurse</Text>
+          </View>
+          <Switch
+            value={incidentData.notifyNurse}
+            onValueChange={(value) => setIncidentData({ ...incidentData, notifyNurse: value })}
+            trackColor={{ false: COLORS.border, true: COLORS.primary }}
+          />
+        </View>
+      </View>
+    </ScrollView>
+  );
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+      <View style={styles.modalContainer}>
+        {/* Header */}
+        <View style={styles.modalHeader}>
+          <TouchableOpacity onPress={onClose} style={styles.modalCloseBtn}>
+            <Ionicons name="close" size={24} color={COLORS.text} />
+          </TouchableOpacity>
+          <Text style={styles.modalTitle}>Incident Report</Text>
+          <View style={{ width: 40 }} />
+        </View>
+
+        {/* Progress Steps */}
+        <View style={styles.stepsIndicator}>
+          {[1, 2, 3, 4].map((s) => (
+            <View key={s} style={styles.stepIndicatorItem}>
+              <View style={[
+                styles.stepDot,
+                step >= s && styles.stepDotActive,
+                step === s && styles.stepDotCurrent
+              ]}>
+                {step > s ? (
+                  <Ionicons name="checkmark" size={14} color="#fff" />
+                ) : (
+                  <Text style={[
+                    styles.stepDotText,
+                    step >= s && styles.stepDotTextActive
+                  ]}>{s}</Text>
+                )}
+              </View>
+              {s < 4 && (
+                <View style={[
+                  styles.stepLine,
+                  step > s && styles.stepLineActive
+                ]} />
+              )}
+            </View>
+          ))}
+        </View>
+
+        {/* Step Content */}
+        <View style={styles.stepContentContainer}>
+          {step === 1 && renderStep1()}
+          {step === 2 && renderStep2()}
+          {step === 3 && renderStep3()}
+          {step === 4 && renderStep4()}
+        </View>
+
+        {/* Navigation Buttons */}
+        <View style={styles.stepNavigation}>
+          {step > 1 && (
+            <TouchableOpacity style={styles.stepBackBtn} onPress={handleBack}>
+              <Ionicons name="arrow-back" size={20} color={COLORS.text} />
+              <Text style={styles.stepBackBtnText}>Back</Text>
+            </TouchableOpacity>
+          )}
+          <View style={{ flex: 1 }} />
+          {step < 4 ? (
+            <TouchableOpacity style={styles.stepNextBtn} onPress={handleNext}>
+              <Text style={styles.stepNextBtnText}>Next</Text>
+              <Ionicons name="arrow-forward" size={20} color="#fff" />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.stepSubmitBtn} onPress={handleSubmit}>
+              <Ionicons name="checkmark-circle" size={20} color="#fff" />
+              <Text style={styles.stepSubmitBtnText}>Submit Report</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+    </Modal>
+  );
+};
