@@ -2237,3 +2237,503 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
+
+  // Calendar Modal
+  calendarOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  calendarModal: {
+    backgroundColor: COLORS.card,
+    borderRadius: 20,
+    padding: 20,
+    width: SCREEN_WIDTH - 40,
+  },
+  calendarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  calendarMonthYear: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+  calendarWeekdays: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  calendarWeekday: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
+  },
+  calendarDays: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  calendarDay: {
+    width: `${100/7}%`,
+    aspectRatio: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  calendarDayToday: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 20,
+  },
+  calendarDayText: {
+    fontSize: 15,
+    color: COLORS.textPrimary,
+  },
+  calendarDayTextToday: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  calendarDayTextFuture: {
+    color: COLORS.textMuted,
+  },
+
+  // Vitals Modal
+  vitalsModalContainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  vitalsModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 60,
+    paddingBottom: 16,
+  },
+  vitalsCloseBtn: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  vitalsModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+  },
+  vitalsTabs: {
+    flexDirection: 'row',
+    marginHorizontal: 16,
+    marginBottom: 20,
+    gap: 8,
+  },
+  vitalsTab: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: COLORS.card,
+  },
+  vitalsTabActive: {
+    backgroundColor: COLORS.primary,
+  },
+  vitalsTabText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
+  },
+  vitalsTabTextActive: {
+    color: '#fff',
+  },
+
+  // Current Reading Card
+  currentReadingCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.card,
+    marginHorizontal: 16,
+    borderRadius: 20,
+    padding: 20,
+  },
+  currentReadingIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  currentReadingInfo: {},
+  currentReadingValue: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+  },
+  currentReadingUnit: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  currentReadingStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+    gap: 6,
+  },
+  statusDotGreen: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.low,
+  },
+  statusText: {
+    fontSize: 14,
+    color: COLORS.low,
+    fontWeight: '500',
+  },
+
+  // Chart Card
+  chartCard: {
+    backgroundColor: COLORS.card,
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 20,
+    padding: 20,
+  },
+  chartTitle: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    marginBottom: 16,
+  },
+  chartContainer: {
+    flexDirection: 'row',
+    height: 150,
+  },
+  chartYAxis: {
+    width: 30,
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+  },
+  chartYLabel: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+  },
+  chartBars: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'flex-end',
+  },
+  chartBarGroup: {
+    alignItems: 'center',
+  },
+  chartBarContainer: {
+    width: 24,
+    height: 100,
+    justifyContent: 'flex-end',
+  },
+  chartBarSystolic: {
+    width: '100%',
+    backgroundColor: COLORS.vitalBP,
+    borderRadius: 4,
+  },
+  chartBarLabel: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    marginTop: 8,
+  },
+  chartLegend: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 16,
+    gap: 20,
+  },
+  chartLegendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  chartLegendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  chartLegendText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+  },
+
+  // Log Reading Button
+  logReadingBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 16,
+    marginTop: 16,
+    paddingVertical: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: COLORS.cardBorder,
+    gap: 8,
+  },
+  logReadingBtnText: {
+    fontSize: 15,
+    color: COLORS.primary,
+    fontWeight: '500',
+  },
+
+  // Recent History
+  recentHistorySection: {
+    marginHorizontal: 16,
+    marginTop: 24,
+  },
+  recentHistoryTitle: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  historyItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: COLORS.card,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  historyItemLeft: {},
+  historyItemDay: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+  historyItemTime: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  historyItemRight: {
+    alignItems: 'flex-end',
+  },
+  historyItemValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+  },
+  historyItemUnit: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+  },
+
+  // Task Modal
+  taskModalContainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  taskModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 60,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.cardBorder,
+  },
+  taskModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+    flex: 1,
+    textAlign: 'center',
+  },
+  taskModalContent: {
+    padding: 16,
+  },
+
+  // Completion Toggle
+  completionToggle: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.card,
+    borderRadius: 12,
+    padding: 4,
+    marginBottom: 20,
+  },
+  completionToggleBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 10,
+    gap: 6,
+  },
+  completionToggleBtnActive: {
+    backgroundColor: COLORS.primary,
+  },
+  completionToggleBtnCant: {
+    backgroundColor: COLORS.critical,
+  },
+  completionToggleText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
+  },
+  completionToggleTextActive: {
+    color: '#fff',
+  },
+
+  // Instructions Card in Modal
+  instructionsCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+  },
+  instructionsLabel: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  instructionsText: {
+    fontSize: 15,
+    color: COLORS.textPrimary,
+    lineHeight: 22,
+  },
+
+  // Photo Section
+  photoSection: {
+    marginBottom: 20,
+  },
+  photoSectionTitle: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  photoPreview: {
+    position: 'relative',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  photoPreviewImage: {
+    width: '100%',
+    height: 200,
+  },
+  photoRemoveBtn: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+  },
+  photoUploadBtn: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: COLORS.cardBorder,
+  },
+  photoUploadText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginTop: 8,
+  },
+  photoOptionsDropdown: {
+    backgroundColor: COLORS.card,
+    borderRadius: 12,
+    marginTop: 8,
+    overflow: 'hidden',
+  },
+  photoOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.cardBorder,
+    gap: 12,
+  },
+  photoOptionText: {
+    fontSize: 15,
+    color: COLORS.textPrimary,
+  },
+
+  // Notes Section
+  notesSection: {
+    marginBottom: 20,
+  },
+  notesSectionTitle: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  notesInput: {
+    backgroundColor: COLORS.card,
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 15,
+    color: COLORS.textPrimary,
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+
+  // Complete Button
+  completeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.primary,
+    borderRadius: 12,
+    padding: 16,
+    gap: 8,
+  },
+  completeBtnDisabled: {
+    backgroundColor: COLORS.cardLight,
+  },
+  completeBtnText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+
+  // Placeholder Container
+  placeholderContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  placeholderText: {
+    fontSize: 18,
+    color: COLORS.textSecondary,
+    marginTop: 12,
+  },
+
+  // Menu
+  menuContainer: {
+    paddingTop: 80,
+    paddingHorizontal: 16,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.card,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  menuItemLogout: {
+    marginTop: 20,
+  },
+  menuItemText: {
+    flex: 1,
+    fontSize: 16,
+    color: COLORS.textPrimary,
+    marginLeft: 14,
+  },
+});
