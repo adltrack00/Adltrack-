@@ -704,7 +704,14 @@ const CaregiverHomeScreen = () => {
           </View>
         ) : (
           <View style={styles.tabContainer}>
-            <TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('requests')}>
+            <TouchableOpacity 
+              style={styles.tabItem} 
+              onPress={() => {
+                console.log('Switching to requests');
+                setActiveTab('requests');
+              }}
+              activeOpacity={0.6}
+            >
               {requests.length > 0 && (
                 <View style={styles.tabBadge}>
                   <Text style={styles.tabBadgeText}>{requests.length}</Text>
@@ -713,7 +720,14 @@ const CaregiverHomeScreen = () => {
               <Text style={[styles.tabText, activeTab === 'requests' && styles.tabTextActive]}>Requests</Text>
             </TouchableOpacity>
             <View style={styles.tabDivider} />
-            <TouchableOpacity style={styles.tabItem} onPress={() => setActiveTab('tasks')}>
+            <TouchableOpacity 
+              style={styles.tabItem} 
+              onPress={() => {
+                console.log('Switching to tasks');
+                setActiveTab('tasks');
+              }}
+              activeOpacity={0.6}
+            >
               <Text style={[styles.tabText, activeTab === 'tasks' && styles.tabTextActive]}>Today's Tasks</Text>
             </TouchableOpacity>
           </View>
