@@ -850,6 +850,284 @@ const HeartRateModal = ({ visible, onClose, vitals, onUpdateVitals }) => {
 };
 
 // ============================================
+// TEMPERATURE CHART COMPONENT
+// ============================================
+const TemperatureChart = ({ data, selectedDay, onSelectDay }) => {
+  const chartWidth = SCREEN_WIDTH - 80;
+  const chartHeight = 180;
+  const paddingLeft = 35;
+  const paddingRight = 10;
+  const paddingTop = 20;
+  const paddingBottom = 30;
+  
+  const graphWidth = chartWidth - paddingLeft - paddingRight;
+  const graphHeight = chartHeight - paddingTop - paddingBottom;
+  
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const yLabels = [100, 75, 50, 25, 0];
+  const minY = 0;
+  const maxY = 100;
+  
+  const getY = (value) => {
+    const ratio = (value - minY) / (maxY - minY);
+    return paddingTop + graphHeight - (ratio * graphHeight);
+  };
+  
+  const getX = (index) => {
+    return paddingLeft + (index * (graphWidth / 6));
+  };
+
+  const getDataForDay = (day) => {
+    const reading = data.find(d => d.day === day);
+    return reading || null;
+  };
+
+  return (
+    <View style={styles.chartContainer}>
+      {/* Y-axis labels */}
+      {yLabels.map((label) => (
+        <Text key={label} style={[styles.yAxisLabel, { top: getY(label) - 8 }]}>
+          {label}
+        </Text>
+      ))}
+      
+      {/* Grid lines */}
+      <View style={styles.chartGrid}>
+        {yLabels.map((label) => (
+          <View 
+            key={label} 
+            style={[styles.gridLine, { top: getY(label) - paddingTop }]} 
+          />
+        ))}
+        {days.map((day, index) => (
+          <View 
+            key={day} 
+            style={[styles.verticalGridLine, { left: getX(index) - paddingLeft }]} 
+          />
+        ))}
+      </View>
+
+      {/* Chart area */}
+      <View style={[styles.chartArea, { marginLeft: paddingLeft }]}>
+        {/* Temperature line (blue) */}
+        <View style={styles.lineContainer}>
+          {days.map((day, index) => {
+            const reading = getDataForDay(day);
+            if (!reading) return null;
+            const nextDay = days[index + 1];
+            const nextReading = getDataForDay(nextDay);
+            
+            if (nextReading) {
+              const x1 = getX(index) - paddingLeft;
+              const y1 = getY(reading.value) - paddingTop;
+              const x2 = getX(index + 1) - paddingLeft;
+              const y2 = getY(nextReading.value) - paddingTop;
+              const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+              const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+              
+              return (
+                <View
+                  key={`temp-line-${index}`}
+                  style={[
+                    styles.chartLine,
+                    {
+                      width: length,
+                      left: x1,
+                      top: y1,
+                      transform: [{ rotate: `${angle}deg` }],
+                      backgroundColor: COLORS.tempColor,
+                    },
+                  ]}
+                />
+              );
+            }
+            return null;
+          })}
+        </View>
+
+        {/* Data points */}
+        {days.map((day, index) => {
+          const reading = getDataForDay(day);
+          if (!reading) return null;
+          
+          const isSelected = selectedDay === day;
+          
+          return (
+            <TouchableOpacity
+              key={`point-${day}`}
+              style={[styles.dataPointTouchable, { left: getX(index) - paddingLeft - 15, top: 0, height: graphHeight }]}
+              onPress={() => onSelectDay(day)}
+            >
+              {/* Temperature point */}
+              <View
+                style={[
+                  styles.dataPoint,
+                  {
+                    backgroundColor: isSelected ? COLORS.background : COLORS.tempColor,
+                    borderColor: COLORS.tempColor,
+                    borderWidth: isSelected ? 2 : 0,
+                    top: getY(reading.value) - paddingTop - 5,
+                    left: 10,
+                  },
+                ]}
+              />
+              
+              {/* Tooltip */}
+              {isSelected && (
+                <View style={[styles.tooltip, { top: getY(reading.value) - paddingTop - 70 }]}>
+                  <View style={styles.tooltipVerticalLine} />
+                  <View style={styles.tooltipContent}>
+                    <Text style={styles.tooltipDay}>{day}</Text>
+                    <Text style={[styles.tooltipSystolic, { color: COLORS.tempColor }]}>value : {reading.value}</Text>
+                  </View>
+                </View>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* X-axis labels */}
+      <View style={styles.xAxisContainer}>
+        {days.map((day, index) => (
+          <Text key={day} style={[styles.xAxisLabel, { left: getX(index) - 12 }]}>
+            {day}
+          </Text>
+        ))}
+      </View>
+    </View>
+  );
+};
+
+// ============================================
+// TEMPERATURE MODAL
+// ============================================
+const TemperatureModal = ({ visible, onClose, vitals, onUpdateVitals }) => {
+  const [showLogForm, setShowLogForm] = useState(false);
+  const [tempInput, setTempInput] = useState('');
+  const [tempHistory, setTempHistory] = useState(INITIAL_TEMP_HISTORY);
+  const [selectedDay, setSelectedDay] = useState('Sat');
+
+  const handleSave = () => {
+    if (tempInput) {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const hour12 = hours % 12 || 12;
+      const timeStr = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+      
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const dayStr = days[now.getDay()];
+      
+      const newReading = {
+        id: Date.now(),
+        day: dayStr,
+        time: timeStr,
+        value: parseFloat(tempInput),
+      };
+      
+      setTempHistory([newReading, ...tempHistory]);
+      onUpdateVitals({
+        ...vitals,
+        temp: parseFloat(tempInput)
+      });
+      
+      setTempInput('');
+      setShowLogForm(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setTempInput('');
+    setShowLogForm(false);
+  };
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
+      <View style={styles.vitalModalContainer}>
+        <StatusBar style="light" />
+        
+        {/* Header */}
+        <View style={styles.vitalModalHeader}>
+          <Text style={styles.vitalModalTitle}>Vital Signs</Text>
+          <TouchableOpacity onPress={onClose} style={styles.vitalModalClose}>
+            <Ionicons name="close" size={28} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Current Reading Card */}
+          <View style={[styles.currentReadingCard, { backgroundColor: COLORS.tempCardBg }]}>
+            <View style={[styles.currentReadingIconBg, { backgroundColor: 'rgba(59, 130, 246, 0.4)' }]}>
+              <Ionicons name="thermometer" size={32} color={COLORS.tempColor} />
+            </View>
+            <Text style={styles.currentReadingValue}>
+              {vitals.temp}°F
+            </Text>
+            <Text style={styles.currentReadingLabel}>Current Reading</Text>
+          </View>
+
+          {/* Weekly Trend Chart */}
+          <View style={styles.chartWrapper}>
+            <TemperatureChart 
+              data={tempHistory} 
+              selectedDay={selectedDay}
+              onSelectDay={setSelectedDay}
+            />
+          </View>
+          <Text style={styles.weeklyTrendLabel}>Weekly trend</Text>
+
+          {/* Log New Reading Button/Form */}
+          {!showLogForm ? (
+            <TouchableOpacity 
+              style={styles.logNewReadingBtn}
+              onPress={() => setShowLogForm(true)}
+            >
+              <Ionicons name="add" size={24} color={COLORS.textSecondary} />
+              <Text style={styles.logNewReadingText}>Log New Reading</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.logFormContainer}>
+              <Text style={styles.logFormTitle}>Log New Reading</Text>
+              <TextInput
+                style={[styles.logFormInput, { marginBottom: 16 }]}
+                placeholder="Temperature (°F)"
+                placeholderTextColor={COLORS.textMuted}
+                keyboardType="decimal-pad"
+                value={tempInput}
+                onChangeText={setTempInput}
+              />
+              <View style={styles.logFormButtons}>
+                <TouchableOpacity style={styles.logFormCancelBtn} onPress={handleCancel}>
+                  <Text style={styles.logFormCancelText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.logFormSaveBtn} onPress={handleSave}>
+                  <Text style={styles.logFormSaveText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          {/* Recent History */}
+          <Text style={styles.recentHistoryTitle}>RECENT HISTORY</Text>
+          <View style={styles.recentHistoryList}>
+            {tempHistory.slice(0, 5).map((reading) => (
+              <View key={reading.id} style={styles.historyItem}>
+                <Text style={styles.historyItemTime}>{reading.day} at {reading.time}</Text>
+                <Text style={styles.historyItemValue}>{reading.value}°F</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      </View>
+    </Modal>
+  );
+};
+
+// ============================================
 // CARE HISTORY CALENDAR MODAL
 // ============================================
 const CareHistoryModal = ({ visible, onClose, onSelectDate }) => {
