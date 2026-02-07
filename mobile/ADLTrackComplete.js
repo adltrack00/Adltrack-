@@ -1314,3 +1314,467 @@ export default function App() {
     </AuthProvider>
   );
 }
+
+// ============================================
+// STYLES - Dark Theme Exact Match
+// ============================================
+const styles = StyleSheet.create({
+  // Auth Screens - Light Theme (as shown in screenshots)
+  authContainer: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  authHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 16,
+    gap: 8,
+  },
+  logoContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: '#f0fdf4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logoText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1f2937',
+  },
+  authDivider: {
+    height: 1,
+    backgroundColor: '#e5e7eb',
+    marginHorizontal: 20,
+  },
+  authContent: {
+    padding: 20,
+    flex: 1,
+  },
+  authTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#1f2937',
+    marginBottom: 8,
+    marginTop: 20,
+  },
+  authSubtitle: {
+    fontSize: 16,
+    color: '#6b7280',
+    marginBottom: 24,
+  },
+  roleCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  roleIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  roleTextContainer: {
+    flex: 1,
+  },
+  roleTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+  },
+  roleSubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  roleBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#dcfce7',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginBottom: 8,
+  },
+  roleBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.primary,
+  },
+  socialButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    gap: 10,
+  },
+  googleIcon: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4285f4',
+  },
+  socialButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#1f2937',
+  },
+  orDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  orLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#e5e7eb',
+  },
+  orText: {
+    marginHorizontal: 16,
+    fontSize: 14,
+    color: '#9ca3af',
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f9fafb',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 14,
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#1f2937',
+  },
+  primaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.primary,
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 8,
+    gap: 8,
+  },
+  primaryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  signInContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  signInText: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  signInLink: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.primary,
+  },
+  termsText: {
+    fontSize: 12,
+    color: '#9ca3af',
+    textAlign: 'center',
+    marginTop: 20,
+    lineHeight: 18,
+  },
+  termsLink: {
+    color: COLORS.primary,
+  },
+  authFooter: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#9ca3af',
+  },
+
+  // Main Screen Container - Dark Theme
+  screenContainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+
+  // Patient Hero Card
+  patientHeroCard: {
+    marginHorizontal: 16,
+    marginTop: 60,
+    borderRadius: 20,
+    overflow: 'hidden',
+    height: 160,
+  },
+  patientHeroImage: {
+    width: '100%',
+    height: '100%',
+  },
+  patientHeroOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  patientHeroInfo: {},
+  patientHeroName: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  patientHeroAge: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 2,
+  },
+
+  // Vitals Grid
+  vitalsGrid: {
+    flexDirection: 'row',
+    marginHorizontal: 16,
+    marginTop: 16,
+    gap: 8,
+  },
+  vitalCard: {
+    flex: 1,
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    padding: 12,
+    alignItems: 'center',
+  },
+  vitalIconBg: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  vitalValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+  },
+  vitalLabel: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginTop: 4,
+  },
+
+  // History Banner
+  historyBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    marginHorizontal: 16,
+    marginTop: 16,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.3)',
+  },
+  historyBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  historyIconBg: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  historyBannerLabel: {
+    fontSize: 10,
+    color: '#f59e0b',
+    fontWeight: '600',
+  },
+  historyBannerDate: {
+    fontSize: 14,
+    color: COLORS.textPrimary,
+    fontWeight: '500',
+  },
+  backToTodayBtn: {
+    backgroundColor: COLORS.card,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  backToTodayText: {
+    fontSize: 13,
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+
+  // Progress Section
+  progressSection: {
+    marginHorizontal: 16,
+    marginTop: 20,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  progressTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+  progressCount: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: COLORS.card,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: COLORS.primary,
+    borderRadius: 4,
+  },
+
+  // Tab Switcher
+  tabSwitcher: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginTop: 24,
+    marginBottom: 16,
+  },
+  tabButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  tabText: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
+  },
+  tabTextActive: {
+    color: COLORS.textPrimary,
+  },
+  tabBadge: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  tabBadgeText: {
+    fontSize: 12,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  tabDivider: {
+    width: 1,
+    height: 20,
+    backgroundColor: COLORS.cardBorder,
+    marginHorizontal: 16,
+  },
+
+  // Task List
+  taskList: {
+    paddingHorizontal: 16,
+  },
+  taskCard: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    marginBottom: 12,
+    overflow: 'hidden',
+  },
+  taskPriorityBar: {
+    width: 4,
+  },
+  taskContent: {
+    flex: 1,
+    padding: 16,
+  },
+  taskHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  taskTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+    flex: 1,
+  },
+  taskTitleCompleted: {
+    textDecorationLine: 'line-through',
+    color: COLORS.textSecondary,
+  },
+  taskThumb: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    marginLeft: 12,
+  },
+  taskMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 6,
+  },
+  taskTime: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+  },
+  photoBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.cardLight,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginLeft: 8,
+    gap: 4,
+  },
+  photoBadgeText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+  },
+  taskExpandBtn: {
+    padding: 16,
+    justifyContent: 'center',
+  },
