@@ -664,3 +664,233 @@ const CaregiverHomeScreen = () => {
     </View>
   );
 };
+
+// ============================================
+// PATIENT PROFILE MODAL - Exact Replica
+// ============================================
+const PatientProfileModal = ({ visible, onClose }) => {
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const today = new Date();
+  const year = selectedDate.getFullYear();
+  const month = selectedDate.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDayOfMonth = new Date(year, month, 1).getDay();
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+
+  const renderCalendar = () => {
+    const days = [];
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      days.push(<View key={`empty-${i}`} style={styles.calendarDay} />);
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+      const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+      const isPast = new Date(year, month, day) < today;
+      days.push(
+        <TouchableOpacity
+          key={day}
+          style={[
+            styles.calendarDay,
+            isToday && styles.calendarDayToday,
+          ]}
+          onPress={() => {
+            if (isPast || isToday) {
+              setShowCalendar(false);
+              // Would navigate to historical view
+            }
+          }}
+        >
+          <Text style={[
+            styles.calendarDayText,
+            isToday && styles.calendarDayTextToday,
+            !isPast && !isToday && styles.calendarDayTextFuture,
+          ]}>{day}</Text>
+        </TouchableOpacity>
+      );
+    }
+    return days;
+  };
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
+      <View style={styles.profileModalContainer}>
+        <StatusBar style="light" />
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Hero Image */}
+          <View style={styles.profileHero}>
+            <Image source={{ uri: PATIENT.photo }} style={styles.profileHeroImage} />
+            <TouchableOpacity style={styles.profileCloseBtn} onPress={onClose}>
+              <Ionicons name="close" size={24} color="#fff" />
+            </TouchableOpacity>
+            <View style={styles.profileHeroOverlay}>
+              <Text style={styles.profileHeroName}>{PATIENT.name}</Text>
+              <View style={styles.profileHeroMeta}>
+                <Text style={styles.profileHeroAge}>{PATIENT.age} Years Old</Text>
+                <View style={styles.profileDot} />
+                <Text style={styles.profileHeroDob}>DOB: {PATIENT.dob}</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.profileContent}>
+            {/* Care History Card */}
+            <TouchableOpacity 
+              style={styles.careHistoryCard}
+              onPress={() => setShowCalendar(true)}
+            >
+              <View style={styles.careHistoryIcon}>
+                <Ionicons name="calendar" size={24} color={COLORS.primary} />
+              </View>
+              <View style={styles.careHistoryInfo}>
+                <Text style={styles.careHistoryLabel}>CARE HISTORY</Text>
+                <Text style={styles.careHistoryDate}>
+                  {monthNames[today.getMonth()]} {today.getDate()}, {today.getFullYear()}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+            </TouchableOpacity>
+
+            {/* Allergies */}
+            <View style={styles.allergiesCard}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="alert-circle" size={20} color={COLORS.critical} />
+                <Text style={styles.sectionTitle}>Allergies</Text>
+              </View>
+              <View style={styles.allergyTags}>
+                {PATIENT.allergies.map((allergy, index) => (
+                  <View key={index} style={styles.allergyTag}>
+                    <Text style={styles.allergyTagText}>{allergy}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            {/* Medical Conditions */}
+            <View style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Medical Conditions</Text>
+              {PATIENT.conditions.map((condition, index) => (
+                <View key={index} style={styles.conditionItem}>
+                  <View style={styles.conditionDot} />
+                  <Text style={styles.conditionText}>{condition}</Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Current Medications */}
+            <View style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Current Medications</Text>
+              {PATIENT.medications.map((med, index) => (
+                <View key={index} style={styles.medicationItem}>
+                  <View style={styles.medicationIconBg}>
+                    <Ionicons name="medical" size={16} color={COLORS.primary} />
+                  </View>
+                  <View style={styles.medicationInfo}>
+                    <Text style={styles.medicationName}>{med.name}</Text>
+                    <Text style={styles.medicationDosage}>{med.dosage} - {med.frequency}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+
+            {/* Code Status & Mobility */}
+            <View style={styles.statusRow}>
+              <View style={[styles.statusCard, { borderColor: COLORS.codeStatusBorder, backgroundColor: COLORS.codeStatusBg }]}>
+                <Text style={styles.statusLabel}>CODE STATUS</Text>
+                <Text style={styles.statusValue}>{PATIENT.codeStatus}</Text>
+              </View>
+              <View style={[styles.statusCard, { borderColor: COLORS.mobilityBorder, backgroundColor: COLORS.mobilityBg }]}>
+                <Text style={styles.statusLabel}>MOBILITY</Text>
+                <Text style={styles.statusValue}>{PATIENT.mobility}</Text>
+              </View>
+            </View>
+
+            {/* Access Instructions */}
+            <View style={styles.sectionCard}>
+              <View style={styles.sectionHeaderRow}>
+                <Ionicons name="key" size={20} color={COLORS.textSecondary} />
+                <Text style={styles.sectionTitle}>Access Instructions</Text>
+              </View>
+              <Text style={styles.accessText}>{PATIENT.accessInstructions}</Text>
+            </View>
+
+            {/* Physician */}
+            <View style={styles.physicianCard}>
+              <View style={styles.physicianIcon}>
+                <Ionicons name="person" size={20} color="#fff" />
+              </View>
+              <View style={styles.physicianInfo}>
+                <Text style={styles.physicianName}>{PATIENT.physician.name}</Text>
+                <Text style={styles.physicianFacility}>{PATIENT.physician.facility}</Text>
+              </View>
+              <TouchableOpacity style={styles.callBtn}>
+                <Ionicons name="call" size={18} color={COLORS.primary} />
+                <Text style={styles.callBtnText}>Call</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Emergency Contacts */}
+            <View style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Emergency Contacts</Text>
+              {PATIENT.emergencyContacts.map((contact, index) => (
+                <View key={index} style={styles.contactItem}>
+                  <View style={styles.contactIcon}>
+                    <Text style={styles.contactInitial}>{contact.name[0]}</Text>
+                  </View>
+                  <View style={styles.contactInfo}>
+                    <Text style={styles.contactName}>{contact.name}</Text>
+                    <Text style={styles.contactRelation}>{contact.relation}</Text>
+                  </View>
+                  <TouchableOpacity style={styles.contactCallBtn}>
+                    <Ionicons name="call" size={18} color={COLORS.primary} />
+                    <Text style={styles.contactCallText}>Call</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+
+            {/* Share Medical ID */}
+            <TouchableOpacity style={styles.shareEmsBtn}>
+              <Ionicons name="share-social" size={20} color="#fff" />
+              <Text style={styles.shareEmsBtnText}>Share Medical ID for EMS</Text>
+            </TouchableOpacity>
+
+            <View style={{ height: 40 }} />
+          </View>
+        </ScrollView>
+
+        {/* Calendar Modal */}
+        <Modal visible={showCalendar} transparent animationType="fade">
+          <TouchableOpacity 
+            style={styles.calendarOverlay}
+            activeOpacity={1}
+            onPress={() => setShowCalendar(false)}
+          >
+            <View style={styles.calendarModal}>
+              <View style={styles.calendarHeader}>
+                <TouchableOpacity onPress={() => setSelectedDate(new Date(year, month - 1, 1))}>
+                  <Ionicons name="chevron-back" size={24} color={COLORS.textPrimary} />
+                </TouchableOpacity>
+                <Text style={styles.calendarMonthYear}>
+                  {monthNames[month]} {year}
+                </Text>
+                <TouchableOpacity onPress={() => setSelectedDate(new Date(year, month + 1, 1))}>
+                  <Ionicons name="chevron-forward" size={24} color={COLORS.textPrimary} />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.calendarWeekdays}>
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                  <Text key={day} style={styles.calendarWeekday}>{day}</Text>
+                ))}
+              </View>
+              <View style={styles.calendarDays}>
+                {renderCalendar()}
+              </View>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      </View>
+    </Modal>
+  );
+};
