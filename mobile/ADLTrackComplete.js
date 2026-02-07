@@ -1542,9 +1542,6 @@ const PatientProfileModal = ({ visible, onClose, onOpenCareHistory }) => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.profileHero}>
             <Image source={{ uri: PATIENT.photo }} style={styles.profileHeroImage} />
-            {/* Gradient overlay for smooth blend */}
-            <View style={styles.profileGradientTop} />
-            <View style={styles.profileGradientBottom} />
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
               <Ionicons name="close" size={24} color={COLORS.white} />
             </TouchableOpacity>
