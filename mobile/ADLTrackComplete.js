@@ -1439,11 +1439,31 @@ const TaskDetailModal = ({ visible, onClose, task, onComplete, onCantComplete })
   const [notes, setNotes] = useState('');
   const [photo, setPhoto] = useState(null);
   const [selectedReason, setSelectedReason] = useState(null);
-  const [showCamera, setShowCamera] = useState(false);
 
-  const handleTakePhoto = () => {
-    // Simulate taking a photo - in real app would use expo-camera
-    setPhoto('https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400');
+  const handleTakePhoto = async () => {
+    // Request camera permissions
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    
+    if (status !== 'granted') {
+      Alert.alert(
+        'Camera Permission Required',
+        'Please grant camera access to take photos for task documentation.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    // Launch camera (no library access - camera only)
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setPhoto(result.assets[0].uri);
+    }
   };
 
   const handleRemovePhoto = () => {
@@ -1462,7 +1482,7 @@ const TaskDetailModal = ({ visible, onClose, task, onComplete, onCantComplete })
       onComplete(task.id, {
         completedTime,
         notes: notes || 'Task completed successfully',
-        photo: photo || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400',
+        photo: photo,
       });
       
       // Reset state
@@ -1502,7 +1522,11 @@ const TaskDetailModal = ({ visible, onClose, task, onComplete, onCantComplete })
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
-      <View style={styles.taskModalContainer}>
+      <KeyboardAvoidingView 
+        style={styles.taskModalContainer} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+      >
         <StatusBar style="light" />
         
         {/* Header */}
@@ -1513,7 +1537,11 @@ const TaskDetailModal = ({ visible, onClose, task, onComplete, onCantComplete })
           </TouchableOpacity>
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: 120 }}
+        >
           {/* Mode Toggle */}
           <View style={styles.modeToggleContainer}>
             <TouchableOpacity
