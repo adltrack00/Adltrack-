@@ -2087,3 +2087,561 @@ const IncidentReportModal = ({ visible, onClose }) => {
     </Modal>
   );
 };
+
+// ============================================
+// CAREGIVER - INCIDENTS TAB
+// ============================================
+const CaregiverIncidentsScreen = () => {
+  const [incidents, setIncidents] = useState(MOCK_INCIDENTS);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [selectedIncident, setSelectedIncident] = useState(null);
+
+  const getSeverityColor = (severity) => {
+    switch (severity) {
+      case 'critical': return COLORS.critical;
+      case 'high': return COLORS.error;
+      case 'moderate': return COLORS.warning;
+      case 'low': return COLORS.info;
+      default: return COLORS.textSecondary;
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'resolved': return 'checkmark-circle';
+      case 'under_review': return 'time';
+      case 'pending': return 'alert-circle';
+      default: return 'help-circle';
+    }
+  };
+
+  return (
+    <View style={styles.screenContainer}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <View style={styles.pageHeader}>
+          <Text style={styles.pageTitle}>Incident Reports</Text>
+          <TouchableOpacity 
+            style={styles.newIncidentBtn}
+            onPress={() => setShowReportModal(true)}
+          >
+            <Ionicons name="add" size={20} color="#fff" />
+            <Text style={styles.newIncidentBtnText}>New Report</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Stats */}
+        <View style={styles.incidentStats}>
+          <View style={styles.incidentStatCard}>
+            <Text style={styles.incidentStatValue}>
+              {incidents.filter(i => i.status === 'under_review').length}
+            </Text>
+            <Text style={styles.incidentStatLabel}>Under Review</Text>
+          </View>
+          <View style={styles.incidentStatCard}>
+            <Text style={styles.incidentStatValue}>
+              {incidents.filter(i => i.status === 'resolved').length}
+            </Text>
+            <Text style={styles.incidentStatLabel}>Resolved</Text>
+          </View>
+          <View style={styles.incidentStatCard}>
+            <Text style={styles.incidentStatValue}>{incidents.length}</Text>
+            <Text style={styles.incidentStatLabel}>Total</Text>
+          </View>
+        </View>
+
+        {/* Incidents List */}
+        <View style={styles.incidentsList}>
+          {incidents.map((incident) => (
+            <TouchableOpacity 
+              key={incident.id} 
+              style={styles.incidentCard}
+              onPress={() => setSelectedIncident(incident)}
+            >
+              <View style={styles.incidentCardHeader}>
+                <View style={[
+                  styles.incidentSeverityIndicator,
+                  { backgroundColor: getSeverityColor(incident.severity) }
+                ]} />
+                <View style={styles.incidentCardTitle}>
+                  <Text style={styles.incidentTitle}>{incident.title}</Text>
+                  <Text style={styles.incidentType}>{incident.type}</Text>
+                </View>
+                <View style={[
+                  styles.incidentStatusBadge,
+                  { backgroundColor: incident.status === 'resolved' ? '#dcfce7' : '#fef3c7' }
+                ]}>
+                  <Ionicons 
+                    name={getStatusIcon(incident.status)} 
+                    size={14} 
+                    color={incident.status === 'resolved' ? COLORS.success : COLORS.warning}
+                  />
+                  <Text style={[
+                    styles.incidentStatusText,
+                    { color: incident.status === 'resolved' ? COLORS.success : COLORS.warning }
+                  ]}>
+                    {incident.status === 'under_review' ? 'Under Review' : 'Resolved'}
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.incidentDescription} numberOfLines={2}>
+                {incident.description}
+              </Text>
+              <View style={styles.incidentMeta}>
+                <Text style={styles.incidentMetaText}>
+                  <Ionicons name="calendar-outline" size={12} color={COLORS.textSecondary} />
+                  {' '}{incident.date}
+                </Text>
+                <Text style={styles.incidentMetaText}>
+                  <Ionicons name="time-outline" size={12} color={COLORS.textSecondary} />
+                  {' '}{incident.time}
+                </Text>
+                <Text style={styles.incidentMetaText}>
+                  <Ionicons name="location-outline" size={12} color={COLORS.textSecondary} />
+                  {' '}{incident.location}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={{ height: 100 }} />
+      </ScrollView>
+
+      <IncidentReportModal
+        visible={showReportModal}
+        onClose={() => setShowReportModal(false)}
+      />
+
+      {/* Incident Detail Modal */}
+      <Modal 
+        visible={selectedIncident !== null} 
+        animationType="slide" 
+        presentationStyle="pageSheet"
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity 
+              onPress={() => setSelectedIncident(null)} 
+              style={styles.modalCloseBtn}
+            >
+              <Ionicons name="close" size={24} color={COLORS.text} />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Incident Details</Text>
+            <View style={{ width: 40 }} />
+          </View>
+
+          {selectedIncident && (
+            <ScrollView showsVerticalScrollIndicator={false} style={{ padding: 20 }}>
+              {/* Header */}
+              <View style={styles.incidentDetailHeader}>
+                <View style={[
+                  styles.incidentDetailSeverity,
+                  { backgroundColor: getSeverityColor(selectedIncident.severity) }
+                ]}>
+                  <Text style={styles.incidentDetailSeverityText}>
+                    {selectedIncident.severity.toUpperCase()}
+                  </Text>
+                </View>
+                <Text style={styles.incidentDetailTitle}>{selectedIncident.title}</Text>
+                <Text style={styles.incidentDetailType}>{selectedIncident.type}</Text>
+              </View>
+
+              {/* Details */}
+              <View style={styles.incidentDetailSection}>
+                <Text style={styles.incidentDetailLabel}>Date & Time</Text>
+                <Text style={styles.incidentDetailValue}>
+                  {selectedIncident.date} at {selectedIncident.time}
+                </Text>
+              </View>
+
+              <View style={styles.incidentDetailSection}>
+                <Text style={styles.incidentDetailLabel}>Location</Text>
+                <Text style={styles.incidentDetailValue}>{selectedIncident.location}</Text>
+              </View>
+
+              <View style={styles.incidentDetailSection}>
+                <Text style={styles.incidentDetailLabel}>Description</Text>
+                <Text style={styles.incidentDetailValue}>{selectedIncident.description}</Text>
+              </View>
+
+              <View style={styles.incidentDetailSection}>
+                <Text style={styles.incidentDetailLabel}>Actions Taken</Text>
+                {selectedIncident.actionsTaken.map((action, index) => (
+                  <View key={index} style={styles.actionItem}>
+                    <View style={styles.actionDot} />
+                    <Text style={styles.actionText}>{action}</Text>
+                  </View>
+                ))}
+              </View>
+
+              {selectedIncident.followUp && (
+                <View style={styles.incidentDetailSection}>
+                  <Text style={styles.incidentDetailLabel}>Follow-up Required</Text>
+                  <Text style={styles.incidentDetailValue}>{selectedIncident.followUp}</Text>
+                </View>
+              )}
+
+              <View style={styles.incidentDetailSection}>
+                <Text style={styles.incidentDetailLabel}>Reported By</Text>
+                <Text style={styles.incidentDetailValue}>{selectedIncident.reportedBy}</Text>
+              </View>
+            </ScrollView>
+          )}
+        </View>
+      </Modal>
+    </View>
+  );
+};
+
+// ============================================
+// CAREGIVER - MESSAGES TAB
+// ============================================
+const CaregiverMessagesScreen = () => {
+  const { user } = useAuth();
+  const [messages, setMessages] = useState(MOCK_MESSAGES);
+  const [newMessage, setNewMessage] = useState('');
+  const scrollViewRef = useRef(null);
+
+  const handleSend = () => {
+    if (!newMessage.trim()) return;
+    
+    const message = {
+      id: `m${messages.length + 1}`,
+      sender: user.name,
+      senderRole: user.role,
+      content: newMessage,
+      timestamp: new Date().toLocaleString(),
+      read: true,
+    };
+    
+    setMessages([...messages, message]);
+    setNewMessage('');
+    
+    // Scroll to bottom
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  };
+
+  return (
+    <KeyboardAvoidingView 
+      style={styles.screenContainer}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={90}
+    >
+      {/* Header */}
+      <View style={styles.chatHeader}>
+        <View style={styles.chatHeaderInfo}>
+          <Image 
+            source={{ uri: MOCK_USERS.family.avatar }} 
+            style={styles.chatAvatar} 
+          />
+          <View>
+            <Text style={styles.chatName}>{MOCK_USERS.family.name}</Text>
+            <Text style={styles.chatRelation}>Family Member • {MOCK_PATIENT.name}'s Son</Text>
+          </View>
+        </View>
+        <TouchableOpacity style={styles.chatHeaderBtn}>
+          <Ionicons name="call" size={22} color={COLORS.primary} />
+        </TouchableOpacity>
+      </View>
+
+      {/* Messages */}
+      <ScrollView 
+        ref={scrollViewRef}
+        style={styles.messagesContainer}
+        contentContainerStyle={styles.messagesContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {messages.map((message) => (
+          <View 
+            key={message.id}
+            style={[
+              styles.messageBubble,
+              message.senderRole === user.role ? styles.messageBubbleSent : styles.messageBubbleReceived
+            ]}
+          >
+            <Text style={[
+              styles.messageText,
+              message.senderRole === user.role ? styles.messageTextSent : styles.messageTextReceived
+            ]}>
+              {message.content}
+            </Text>
+            <Text style={[
+              styles.messageTime,
+              message.senderRole === user.role ? styles.messageTimeSent : styles.messageTimeReceived
+            ]}>
+              {message.timestamp.split(' ')[1]} {message.timestamp.split(' ')[2]}
+            </Text>
+          </View>
+        ))}
+      </ScrollView>
+
+      {/* Input */}
+      <View style={styles.chatInputContainer}>
+        <TouchableOpacity style={styles.attachBtn}>
+          <Ionicons name="attach" size={24} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+        <TextInput
+          style={styles.chatInput}
+          placeholder="Type a message..."
+          placeholderTextColor={COLORS.textLight}
+          value={newMessage}
+          onChangeText={setNewMessage}
+          multiline
+        />
+        <TouchableOpacity 
+          style={[styles.sendBtn, !newMessage.trim() && styles.sendBtnDisabled]}
+          onPress={handleSend}
+          disabled={!newMessage.trim()}
+        >
+          <Ionicons name="send" size={20} color={newMessage.trim() ? '#fff' : COLORS.textSecondary} />
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
+  );
+};
+
+// ============================================
+// AI COPILOT SCREEN
+// ============================================
+const AICopilotScreen = () => {
+  const [messages, setMessages] = useState([
+    {
+      id: '1',
+      role: 'assistant',
+      content: 'Hello! I\'m your AI Care Assistant. I can help you with care questions, documentation, and best practices. How can I assist you today?',
+    }
+  ]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollViewRef = useRef(null);
+
+  const quickPrompts = [
+    'How to handle medication refusal?',
+    'Fall prevention best practices',
+    'Signs of dehydration in elderly',
+    'Proper transfer techniques',
+  ];
+
+  const handleSend = async (text = input) => {
+    if (!text.trim()) return;
+
+    const userMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: text,
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+
+    // Simulate AI response
+    setTimeout(() => {
+      const aiResponse = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: getAIResponse(text),
+      };
+      setMessages(prev => [...prev, aiResponse]);
+      setIsLoading(false);
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 1500);
+  };
+
+  const getAIResponse = (query) => {
+    const lowerQuery = query.toLowerCase();
+    if (lowerQuery.includes('medication') || lowerQuery.includes('refusal')) {
+      return 'When a patient refuses medication:\n\n1. Stay calm and respectful\n2. Ask about their concerns\n3. Explain the importance of the medication\n4. Offer alternatives (take with food, different time)\n5. Document the refusal and notify the RN\n6. Try again after 30 minutes if appropriate\n\nNever force medication. Always document refusals in the care record.';
+    }
+    if (lowerQuery.includes('fall') || lowerQuery.includes('prevention')) {
+      return 'Fall Prevention Best Practices:\n\n1. Ensure adequate lighting in all areas\n2. Keep pathways clear of clutter\n3. Use non-slip mats in bathroom\n4. Encourage proper footwear\n5. Assist with transfers when needed\n6. Keep call bell within reach\n7. Regular toileting schedule\n8. Review medications that may cause dizziness\n\nAlways assess fall risk daily and update care plans accordingly.';
+    }
+    if (lowerQuery.includes('dehydration')) {
+      return 'Signs of Dehydration in Elderly:\n\n• Dry mouth and cracked lips\n• Dark urine or decreased output\n• Confusion or dizziness\n• Fatigue and weakness\n• Sunken eyes\n• Rapid heartbeat\n• Low blood pressure\n\nPrevention:\n- Offer fluids regularly (aim for 6-8 cups/day)\n- Include water-rich foods\n- Monitor intake and output\n- Watch for early signs';
+    }
+    return 'Thank you for your question. As an AI care assistant, I\'m here to help with care-related queries, best practices, and documentation guidance. Please feel free to ask specific questions about patient care, and I\'ll provide evidence-based recommendations.\n\nSome topics I can help with:\n• Medication management\n• Fall prevention\n• Nutrition and hydration\n• Personal care techniques\n• Documentation best practices';
+  };
+
+  return (
+    <KeyboardAvoidingView 
+      style={styles.screenContainer}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={90}
+    >
+      {/* Header */}
+      <View style={styles.aiHeader}>
+        <View style={styles.aiHeaderIcon}>
+          <Ionicons name="sparkles" size={24} color="#8b5cf6" />
+        </View>
+        <View>
+          <Text style={styles.aiHeaderTitle}>AI Care Assistant</Text>
+          <Text style={styles.aiHeaderSubtitle}>Powered by Gemini</Text>
+        </View>
+      </View>
+
+      {/* Messages */}
+      <ScrollView 
+        ref={scrollViewRef}
+        style={styles.aiMessagesContainer}
+        contentContainerStyle={styles.aiMessagesContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {messages.map((message) => (
+          <View 
+            key={message.id}
+            style={[
+              styles.aiMessageBubble,
+              message.role === 'user' ? styles.aiUserMessage : styles.aiAssistantMessage
+            ]}
+          >
+            {message.role === 'assistant' && (
+              <View style={styles.aiMessageIcon}>
+                <Ionicons name="sparkles" size={16} color="#8b5cf6" />
+              </View>
+            )}
+            <Text style={[
+              styles.aiMessageText,
+              message.role === 'user' ? styles.aiUserMessageText : styles.aiAssistantMessageText
+            ]}>
+              {message.content}
+            </Text>
+          </View>
+        ))}
+        {isLoading && (
+          <View style={styles.aiLoadingBubble}>
+            <ActivityIndicator size="small" color="#8b5cf6" />
+            <Text style={styles.aiLoadingText}>Thinking...</Text>
+          </View>
+        )}
+
+        {/* Quick Prompts */}
+        {messages.length === 1 && (
+          <View style={styles.quickPromptsContainer}>
+            <Text style={styles.quickPromptsTitle}>Quick Questions</Text>
+            <View style={styles.quickPromptsGrid}>
+              {quickPrompts.map((prompt, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.quickPromptBtn}
+                  onPress={() => handleSend(prompt)}
+                >
+                  <Text style={styles.quickPromptText}>{prompt}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
+      </ScrollView>
+
+      {/* Input */}
+      <View style={styles.aiInputContainer}>
+        <TextInput
+          style={styles.aiInput}
+          placeholder="Ask a care question..."
+          placeholderTextColor={COLORS.textLight}
+          value={input}
+          onChangeText={setInput}
+          multiline
+        />
+        <TouchableOpacity 
+          style={[styles.aiSendBtn, !input.trim() && styles.aiSendBtnDisabled]}
+          onPress={() => handleSend()}
+          disabled={!input.trim() || isLoading}
+        >
+          <Ionicons name="send" size={20} color={input.trim() ? '#fff' : COLORS.textSecondary} />
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
+  );
+};
+
+// ============================================
+// CAREGIVER - PROFILE/SETTINGS TAB
+// ============================================
+const CaregiverProfileScreen = () => {
+  const { user, logout } = useAuth();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+
+  const menuItems = [
+    { icon: 'person-outline', label: 'Edit Profile', onPress: () => Alert.alert('Edit Profile') },
+    { icon: 'notifications-outline', label: 'Notifications', toggle: true, value: notificationsEnabled, onToggle: setNotificationsEnabled },
+    { icon: 'shield-outline', label: 'Privacy & Security', onPress: () => Alert.alert('Privacy') },
+    { icon: 'help-circle-outline', label: 'Help & Support', onPress: () => Alert.alert('Support') },
+    { icon: 'document-text-outline', label: 'Terms of Service', onPress: () => Alert.alert('Terms') },
+    { icon: 'information-circle-outline', label: 'About', onPress: () => Alert.alert('ADLTrack v1.0.0') },
+  ];
+
+  return (
+    <View style={styles.screenContainer}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Profile Header */}
+        <View style={styles.profileScreenHeader}>
+          <Image source={{ uri: user?.avatar }} style={styles.profileScreenAvatar} />
+          <Text style={styles.profileScreenName}>{user?.name}</Text>
+          <Text style={styles.profileScreenRole}>{user?.certification} • {user?.experience}</Text>
+          <View style={styles.profileScreenBadge}>
+            <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
+            <Text style={styles.profileScreenBadgeText}>Verified Caregiver</Text>
+          </View>
+        </View>
+
+        {/* Stats */}
+        <View style={styles.profileStats}>
+          <View style={styles.profileStatItem}>
+            <Text style={styles.profileStatValue}>127</Text>
+            <Text style={styles.profileStatLabel}>Tasks Done</Text>
+          </View>
+          <View style={styles.profileStatDivider} />
+          <View style={styles.profileStatItem}>
+            <Text style={styles.profileStatValue}>4.9</Text>
+            <Text style={styles.profileStatLabel}>Rating</Text>
+          </View>
+          <View style={styles.profileStatDivider} />
+          <View style={styles.profileStatItem}>
+            <Text style={styles.profileStatValue}>98%</Text>
+            <Text style={styles.profileStatLabel}>On Time</Text>
+          </View>
+        </View>
+
+        {/* Menu Items */}
+        <View style={styles.profileMenu}>
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.profileMenuItem}
+              onPress={item.onPress}
+              disabled={item.toggle}
+            >
+              <View style={styles.profileMenuItemLeft}>
+                <View style={styles.profileMenuIcon}>
+                  <Ionicons name={item.icon} size={22} color={COLORS.primary} />
+                </View>
+                <Text style={styles.profileMenuLabel}>{item.label}</Text>
+              </View>
+              {item.toggle ? (
+                <Switch
+                  value={item.value}
+                  onValueChange={item.onToggle}
+                  trackColor={{ false: COLORS.border, true: COLORS.primary }}
+                />
+              ) : (
+                <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Logout Button */}
+        <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
+          <Ionicons name="log-out-outline" size={22} color={COLORS.error} />
+          <Text style={styles.logoutBtnText}>Sign Out</Text>
+        </TouchableOpacity>
+
+        <View style={{ height: 100 }} />
+      </ScrollView>
+    </View>
+  );
+};
