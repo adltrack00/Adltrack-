@@ -93,6 +93,9 @@ const COLORS = {
   // Temperature colors
   tempCardBg: '#1e3a5f',
   tempColor: '#3b82f6',
+  // Pain colors
+  painCardBg: '#3d2963',
+  painColor: '#a855f7',
 };
 
 // ============================================
