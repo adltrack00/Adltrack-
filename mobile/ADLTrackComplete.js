@@ -1141,8 +1141,282 @@ const TemperatureModal = ({ visible, onClose, vitals, onUpdateVitals }) => {
 };
 
 // ============================================
-// CARE HISTORY CALENDAR MODAL
+// PAIN CHART COMPONENT
 // ============================================
+const PainChart = ({ data, selectedDay, onSelectDay }) => {
+  const chartWidth = SCREEN_WIDTH - 80;
+  const chartHeight = 180;
+  const paddingLeft = 40;
+  const paddingRight = 10;
+  const paddingTop = 20;
+  const paddingBottom = 30;
+  
+  const graphWidth = chartWidth - paddingLeft - paddingRight;
+  const graphHeight = chartHeight - paddingTop - paddingBottom;
+  
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const yLabels = [3, 2.25, 1.5, 0.75, 0];
+  const minY = 0;
+  const maxY = 3;
+  
+  const getY = (value) => {
+    const ratio = (value - minY) / (maxY - minY);
+    return paddingTop + graphHeight - (ratio * graphHeight);
+  };
+  
+  const getX = (index) => {
+    return paddingLeft + (index * (graphWidth / 6));
+  };
+
+  const getDataForDay = (day) => {
+    const reading = data.find(d => d.day === day);
+    return reading || null;
+  };
+
+  return (
+    <View style={styles.chartContainer}>
+      {/* Y-axis labels */}
+      {yLabels.map((label) => (
+        <Text key={label} style={[styles.yAxisLabel, { top: getY(label) - 8 }]}>
+          {label}
+        </Text>
+      ))}
+      
+      {/* Grid lines */}
+      <View style={[styles.chartGrid, { left: paddingLeft }]}>
+        {yLabels.map((label) => (
+          <View 
+            key={label} 
+            style={[styles.gridLine, { top: getY(label) - paddingTop }]} 
+          />
+        ))}
+        {days.map((day, index) => (
+          <View 
+            key={day} 
+            style={[styles.verticalGridLine, { left: getX(index) - paddingLeft }]} 
+          />
+        ))}
+      </View>
+
+      {/* Chart area */}
+      <View style={[styles.chartArea, { marginLeft: paddingLeft }]}>
+        {/* Pain line (purple) */}
+        <View style={styles.lineContainer}>
+          {days.map((day, index) => {
+            const reading = getDataForDay(day);
+            if (!reading) return null;
+            const nextDay = days[index + 1];
+            const nextReading = getDataForDay(nextDay);
+            
+            if (nextReading) {
+              const x1 = getX(index) - paddingLeft;
+              const y1 = getY(reading.value) - paddingTop;
+              const x2 = getX(index + 1) - paddingLeft;
+              const y2 = getY(nextReading.value) - paddingTop;
+              const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+              const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+              
+              return (
+                <View
+                  key={`pain-line-${index}`}
+                  style={[
+                    styles.chartLine,
+                    {
+                      width: length,
+                      left: x1,
+                      top: y1,
+                      transform: [{ rotate: `${angle}deg` }],
+                      backgroundColor: COLORS.painColor,
+                    },
+                  ]}
+                />
+              );
+            }
+            return null;
+          })}
+        </View>
+
+        {/* Data points */}
+        {days.map((day, index) => {
+          const reading = getDataForDay(day);
+          if (!reading) return null;
+          
+          const isSelected = selectedDay === day;
+          
+          return (
+            <TouchableOpacity
+              key={`point-${day}`}
+              style={[styles.dataPointTouchable, { left: getX(index) - paddingLeft - 15, top: 0, height: graphHeight }]}
+              onPress={() => onSelectDay(day)}
+            >
+              {/* Pain point */}
+              <View
+                style={[
+                  styles.dataPoint,
+                  {
+                    backgroundColor: isSelected ? COLORS.background : COLORS.painColor,
+                    borderColor: COLORS.painColor,
+                    borderWidth: isSelected ? 2 : 0,
+                    top: getY(reading.value) - paddingTop - 5,
+                    left: 10,
+                  },
+                ]}
+              />
+              
+              {/* Tooltip */}
+              {isSelected && (
+                <View style={[styles.tooltip, { top: getY(reading.value) - paddingTop - 70 }]}>
+                  <View style={styles.tooltipVerticalLine} />
+                  <View style={styles.tooltipContent}>
+                    <Text style={styles.tooltipDay}>{day}</Text>
+                    <Text style={[styles.tooltipSystolic, { color: COLORS.painColor }]}>value : {reading.value}</Text>
+                  </View>
+                </View>
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {/* X-axis labels */}
+      <View style={styles.xAxisContainer}>
+        {days.map((day, index) => (
+          <Text key={day} style={[styles.xAxisLabel, { left: getX(index) - 12 }]}>
+            {day}
+          </Text>
+        ))}
+      </View>
+    </View>
+  );
+};
+
+// ============================================
+// PAIN MODAL
+// ============================================
+const PainModal = ({ visible, onClose, vitals, onUpdateVitals }) => {
+  const [showLogForm, setShowLogForm] = useState(false);
+  const [painInput, setPainInput] = useState('');
+  const [painHistory, setPainHistory] = useState(INITIAL_PAIN_HISTORY);
+  const [selectedDay, setSelectedDay] = useState('Sat');
+
+  const handleSave = () => {
+    if (painInput) {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const hour12 = hours % 12 || 12;
+      const timeStr = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+      
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const dayStr = days[now.getDay()];
+      
+      const newReading = {
+        id: Date.now(),
+        day: dayStr,
+        time: timeStr,
+        value: parseInt(painInput),
+      };
+      
+      setPainHistory([newReading, ...painHistory]);
+      onUpdateVitals({
+        ...vitals,
+        pain: parseInt(painInput)
+      });
+      
+      setPainInput('');
+      setShowLogForm(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setPainInput('');
+    setShowLogForm(false);
+  };
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen">
+      <View style={styles.vitalModalContainer}>
+        <StatusBar style="light" />
+        
+        {/* Header */}
+        <View style={styles.vitalModalHeader}>
+          <Text style={styles.vitalModalTitle}>Vital Signs</Text>
+          <TouchableOpacity onPress={onClose} style={styles.vitalModalClose}>
+            <Ionicons name="close" size={28} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Current Reading Card */}
+          <View style={[styles.currentReadingCard, { backgroundColor: COLORS.painCardBg }]}>
+            <View style={[styles.currentReadingIconBg, { backgroundColor: 'rgba(168, 85, 247, 0.4)' }]}>
+              <Ionicons name="sad-outline" size={32} color={COLORS.painColor} />
+            </View>
+            <Text style={styles.currentReadingValue}>
+              {vitals.pain}/10
+            </Text>
+            <Text style={styles.currentReadingLabel}>Current Reading</Text>
+          </View>
+
+          {/* Weekly Trend Chart */}
+          <View style={styles.chartWrapper}>
+            <PainChart 
+              data={painHistory} 
+              selectedDay={selectedDay}
+              onSelectDay={setSelectedDay}
+            />
+          </View>
+          <Text style={styles.weeklyTrendLabel}>Weekly trend</Text>
+
+          {/* Log New Reading Button/Form */}
+          {!showLogForm ? (
+            <TouchableOpacity 
+              style={styles.logNewReadingBtn}
+              onPress={() => setShowLogForm(true)}
+            >
+              <Ionicons name="add" size={24} color={COLORS.textSecondary} />
+              <Text style={styles.logNewReadingText}>Log New Reading</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.logFormContainer}>
+              <Text style={styles.logFormTitle}>Log New Reading</Text>
+              <TextInput
+                style={[styles.logFormInput, { marginBottom: 16 }]}
+                placeholder="Pain Level (0-10)"
+                placeholderTextColor={COLORS.textMuted}
+                keyboardType="numeric"
+                value={painInput}
+                onChangeText={setPainInput}
+              />
+              <View style={styles.logFormButtons}>
+                <TouchableOpacity style={styles.logFormCancelBtn} onPress={handleCancel}>
+                  <Text style={styles.logFormCancelText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.logFormSaveBtn} onPress={handleSave}>
+                  <Text style={styles.logFormSaveText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          {/* Recent History */}
+          <Text style={styles.recentHistoryTitle}>RECENT HISTORY</Text>
+          <View style={styles.recentHistoryList}>
+            {painHistory.slice(0, 5).map((reading) => (
+              <View key={reading.id} style={styles.historyItem}>
+                <Text style={styles.historyItemTime}>{reading.day} at {reading.time}</Text>
+                <Text style={styles.historyItemValue}>{reading.value}/10</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      </View>
+    </Modal>
+  );
+};
 const CareHistoryModal = ({ visible, onClose, onSelectDate }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 17));
   const today = 17;
