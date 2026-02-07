@@ -88,7 +88,7 @@ const PATIENT = {
   name: 'David Smith',
   age: 78,
   dob: '1946-03-15',
-  photo: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400',
+  photo: 'https://customer-assets.emergentagent.com/job_adlcare-expo/artifacts/0kd0031g_IMG_9932.jpeg',
   allergies: ['Penicillin', 'Shellfish'],
   conditions: ['Type 2 Diabetes', 'Hypertension', 'Mild Cognitive Impairment'],
   medications: [
