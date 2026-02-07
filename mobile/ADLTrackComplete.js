@@ -167,6 +167,16 @@ const INITIAL_BP_HISTORY = [
   { id: 7, day: 'Mon', time: '10:15 AM', systolic: 118, diastolic: 76 },
 ];
 
+const INITIAL_HEART_HISTORY = [
+  { id: 1, day: 'Sun', time: '10:30 AM', value: 72 },
+  { id: 2, day: 'Sat', time: '10:35 AM', value: 69 },
+  { id: 3, day: 'Fri', time: '10:20 AM', value: 71 },
+  { id: 4, day: 'Thu', time: '10:30 AM', value: 70 },
+  { id: 5, day: 'Wed', time: '10:45 AM', value: 75 },
+  { id: 6, day: 'Tue', time: '10:30 AM', value: 73 },
+  { id: 7, day: 'Mon', time: '10:15 AM', value: 74 },
+];
+
 const HISTORY_TASKS = {
   '2026-01-16': [
     { id: 1, title: 'Morning Medication', completedTime: '8:15 AM', notes: 'Took all medications with breakfast', photo: 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?w=200' },
