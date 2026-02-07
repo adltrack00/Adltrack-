@@ -1198,3 +1198,119 @@ const TaskCompletionModal = ({ visible, onClose, task, onComplete }) => {
     </Modal>
   );
 };
+
+// ============================================
+// PLACEHOLDER SCREENS
+// ============================================
+const IncidentScreen = () => (
+  <View style={styles.screenContainer}>
+    <View style={styles.placeholderContainer}>
+      <Ionicons name="alert-circle-outline" size={48} color={COLORS.textSecondary} />
+      <Text style={styles.placeholderText}>Incident Reports</Text>
+    </View>
+  </View>
+);
+
+const MessageScreen = () => (
+  <View style={styles.screenContainer}>
+    <View style={styles.placeholderContainer}>
+      <Ionicons name="chatbubbles-outline" size={48} color={COLORS.textSecondary} />
+      <Text style={styles.placeholderText}>Messages</Text>
+    </View>
+  </View>
+);
+
+const ShiftsScreen = () => (
+  <View style={styles.screenContainer}>
+    <View style={styles.placeholderContainer}>
+      <Ionicons name="time-outline" size={48} color={COLORS.textSecondary} />
+      <Text style={styles.placeholderText}>Shifts</Text>
+    </View>
+  </View>
+);
+
+const MenuScreen = () => {
+  const { logout } = useAuth();
+  
+  return (
+    <View style={styles.screenContainer}>
+      <View style={styles.menuContainer}>
+        <TouchableOpacity style={styles.menuItem}>
+          <Ionicons name="person-outline" size={24} color={COLORS.textPrimary} />
+          <Text style={styles.menuItemText}>Profile</Text>
+          <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem}>
+          <Ionicons name="settings-outline" size={24} color={COLORS.textPrimary} />
+          <Text style={styles.menuItemText}>Settings</Text>
+          <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem}>
+          <Ionicons name="help-circle-outline" size={24} color={COLORS.textPrimary} />
+          <Text style={styles.menuItemText}>Help & Support</Text>
+          <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.menuItem, styles.menuItemLogout]} onPress={logout}>
+          <Ionicons name="log-out-outline" size={24} color={COLORS.critical} />
+          <Text style={[styles.menuItemText, { color: COLORS.critical }]}>Sign Out</Text>
+          <Ionicons name="chevron-forward" size={20} color={COLORS.critical} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+// ============================================
+// CAREGIVER TAB NAVIGATOR
+// ============================================
+const CaregiverTabs = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarStyle: styles.tabBar,
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.textSecondary,
+        tabBarLabelStyle: styles.tabLabel,
+        tabBarIcon: ({ focused, color }) => {
+          let iconName;
+          if (route.name === 'Home') iconName = focused ? 'home' : 'home-outline';
+          else if (route.name === 'Incident') iconName = focused ? 'alert-circle' : 'alert-circle-outline';
+          else if (route.name === 'Message') iconName = focused ? 'chatbubble' : 'chatbubble-outline';
+          else if (route.name === 'Shifts') iconName = focused ? 'time' : 'time-outline';
+          else if (route.name === 'Menu') iconName = focused ? 'menu' : 'menu-outline';
+          return <Ionicons name={iconName} size={24} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen name="Home" component={CaregiverHomeScreen} />
+      <Tab.Screen name="Incident" component={IncidentScreen} />
+      <Tab.Screen name="Message" component={MessageScreen} />
+      <Tab.Screen name="Shifts" component={ShiftsScreen} />
+      <Tab.Screen name="Menu" component={MenuScreen} />
+    </Tab.Navigator>
+  );
+};
+
+// ============================================
+// MAIN APP
+// ============================================
+const AppContent = () => {
+  const { user } = useAuth();
+
+  if (!user) {
+    return <AuthNavigator />;
+  }
+
+  return <CaregiverTabs />;
+};
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <NavigationContainer>
+        <AppContent />
+      </NavigationContainer>
+    </AuthProvider>
+  );
+}
