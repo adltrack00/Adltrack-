@@ -383,3 +383,284 @@ const AuthNavigator = () => {
     </Stack.Navigator>
   );
 };
+
+// ============================================
+// CAREGIVER HOME SCREEN
+// ============================================
+const CaregiverHomeScreen = () => {
+  const [tasks, setTasks] = useState(TASKS);
+  const [activeTab, setActiveTab] = useState('tasks'); // 'requests' or 'tasks'
+  const [expandedTask, setExpandedTask] = useState(null);
+  const [showPatientProfile, setShowPatientProfile] = useState(false);
+  const [showVitalsModal, setShowVitalsModal] = useState(false);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [viewingHistory, setViewingHistory] = useState(null);
+
+  const completedCount = tasks.filter(t => t.status === 'completed').length;
+  const totalCount = tasks.length;
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'critical': return COLORS.critical;
+      case 'high': return COLORS.high;
+      case 'standard': return COLORS.standard;
+      case 'low': return COLORS.low;
+      default: return COLORS.standard;
+    }
+  };
+
+  const handleTaskPress = (task) => {
+    if (expandedTask === task.id) {
+      setExpandedTask(null);
+    } else {
+      setExpandedTask(task.id);
+    }
+  };
+
+  const handleStartTask = (task) => {
+    setSelectedTask(task);
+    setShowTaskModal(true);
+  };
+
+  const handleCompleteTask = () => {
+    if (selectedTask) {
+      setTasks(tasks.map(t => 
+        t.id === selectedTask.id ? { ...t, status: 'completed' } : t
+      ));
+      setShowTaskModal(false);
+      setExpandedTask(null);
+    }
+  };
+
+  return (
+    <View style={styles.screenContainer}>
+      <StatusBar style="light" />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Patient Card with Photo */}
+        <TouchableOpacity 
+          style={styles.patientHeroCard}
+          onPress={() => setShowPatientProfile(true)}
+        >
+          <Image source={{ uri: PATIENT.photo }} style={styles.patientHeroImage} />
+          <View style={styles.patientHeroOverlay}>
+            <View style={styles.patientHeroInfo}>
+              <Text style={styles.patientHeroName}>{PATIENT.name}</Text>
+              <Text style={styles.patientHeroAge}>{PATIENT.age} years old</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#fff" />
+          </View>
+        </TouchableOpacity>
+
+        {/* Vitals Grid */}
+        <TouchableOpacity onPress={() => setShowVitalsModal(true)}>
+          <View style={styles.vitalsGrid}>
+            <View style={styles.vitalCard}>
+              <View style={[styles.vitalIconBg, { backgroundColor: COLORS.vitalBPBg }]}>
+                <Ionicons name="heart" size={20} color={COLORS.vitalBP} />
+              </View>
+              <Text style={styles.vitalValue}>{VITALS.bp.systolic}/{VITALS.bp.diastolic}</Text>
+              <Text style={styles.vitalLabel}>BP</Text>
+            </View>
+            <View style={styles.vitalCard}>
+              <View style={[styles.vitalIconBg, { backgroundColor: COLORS.vitalHeartBg }]}>
+                <Ionicons name="pulse" size={20} color={COLORS.vitalHeart} />
+              </View>
+              <Text style={styles.vitalValue}>{VITALS.heart}</Text>
+              <Text style={styles.vitalLabel}>Heart</Text>
+            </View>
+            <View style={styles.vitalCard}>
+              <View style={[styles.vitalIconBg, { backgroundColor: COLORS.vitalTempBg }]}>
+                <Ionicons name="thermometer" size={20} color={COLORS.vitalTemp} />
+              </View>
+              <Text style={styles.vitalValue}>{VITALS.temp}°</Text>
+              <Text style={styles.vitalLabel}>Temp</Text>
+            </View>
+            <View style={styles.vitalCard}>
+              <View style={[styles.vitalIconBg, { backgroundColor: COLORS.vitalPainBg }]}>
+                <Ionicons name="sad-outline" size={20} color={COLORS.vitalPain} />
+              </View>
+              <Text style={styles.vitalValue}>{VITALS.pain}/10</Text>
+              <Text style={styles.vitalLabel}>Pain</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        {/* History Banner (when viewing past) */}
+        {viewingHistory && (
+          <View style={styles.historyBanner}>
+            <View style={styles.historyBannerLeft}>
+              <View style={styles.historyIconBg}>
+                <Ionicons name="time" size={20} color="#f59e0b" />
+              </View>
+              <View>
+                <Text style={styles.historyBannerLabel}>VIEWING HISTORY</Text>
+                <Text style={styles.historyBannerDate}>{viewingHistory}</Text>
+              </View>
+            </View>
+            <TouchableOpacity 
+              style={styles.backToTodayBtn}
+              onPress={() => setViewingHistory(null)}
+            >
+              <Text style={styles.backToTodayText}>Back to Today</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Progress */}
+        <View style={styles.progressSection}>
+          <View style={styles.progressHeader}>
+            <Text style={styles.progressTitle}>Today's Progress</Text>
+            <Text style={styles.progressCount}>{completedCount}/{totalCount}</Text>
+          </View>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${(completedCount / totalCount) * 100}%` }]} />
+          </View>
+        </View>
+
+        {/* Tab Switcher */}
+        <View style={styles.tabSwitcher}>
+          <TouchableOpacity 
+            style={styles.tabButton}
+            onPress={() => setActiveTab('requests')}
+          >
+            <Text style={[styles.tabText, activeTab === 'requests' && styles.tabTextActive]}>
+              Requests
+            </Text>
+            {REQUESTS.length > 0 && (
+              <View style={styles.tabBadge}>
+                <Text style={styles.tabBadgeText}>{REQUESTS.length}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+          <View style={styles.tabDivider} />
+          <TouchableOpacity 
+            style={styles.tabButton}
+            onPress={() => setActiveTab('tasks')}
+          >
+            <Text style={[styles.tabText, activeTab === 'tasks' && styles.tabTextActive]}>
+              Today's Tasks
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Task List */}
+        {activeTab === 'tasks' && (
+          <View style={styles.taskList}>
+            {tasks.map((task) => (
+              <View key={task.id}>
+                <TouchableOpacity 
+                  style={styles.taskCard}
+                  onPress={() => handleTaskPress(task)}
+                >
+                  <View style={[styles.taskPriorityBar, { backgroundColor: getPriorityColor(task.priority) }]} />
+                  <View style={styles.taskContent}>
+                    <View style={styles.taskHeader}>
+                      <Text style={[
+                        styles.taskTitle,
+                        task.status === 'completed' && styles.taskTitleCompleted
+                      ]}>
+                        {task.title}
+                      </Text>
+                      {task.status === 'completed' && task.photo && (
+                        <Image source={{ uri: task.photo }} style={styles.taskThumb} />
+                      )}
+                    </View>
+                    <View style={styles.taskMeta}>
+                      <Ionicons name="time-outline" size={14} color={COLORS.textSecondary} />
+                      <Text style={styles.taskTime}>{task.time}</Text>
+                      {task.requiresPhoto && (
+                        <View style={styles.photoBadge}>
+                          <Ionicons name="camera-outline" size={12} color={COLORS.textSecondary} />
+                          <Text style={styles.photoBadgeText}>Photo</Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                  <TouchableOpacity 
+                    style={styles.taskExpandBtn}
+                    onPress={() => handleTaskPress(task)}
+                  >
+                    <Ionicons 
+                      name={expandedTask === task.id ? 'chevron-up' : 'chevron-down'} 
+                      size={20} 
+                      color={COLORS.textSecondary} 
+                    />
+                  </TouchableOpacity>
+                </TouchableOpacity>
+
+                {/* Expanded Task Details */}
+                {expandedTask === task.id && task.status !== 'completed' && (
+                  <View style={styles.taskExpanded}>
+                    <View style={styles.taskInstructionsCard}>
+                      <Text style={styles.taskInstructionsLabel}>INSTRUCTIONS</Text>
+                      <Text style={styles.taskInstructionsText}>{task.instructions}</Text>
+                    </View>
+                    {task.timeWindow && (
+                      <View style={styles.taskTimeWindow}>
+                        <Text style={styles.taskTimeWindowLabel}>TIME WINDOW</Text>
+                        <Text style={styles.taskTimeWindowText}>{task.timeWindow}</Text>
+                      </View>
+                    )}
+                    <TouchableOpacity 
+                      style={styles.startTaskBtn}
+                      onPress={() => handleStartTask(task)}
+                    >
+                      <Text style={styles.startTaskBtnText}>Start Task</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Requests */}
+        {activeTab === 'requests' && (
+          <View style={styles.taskList}>
+            {REQUESTS.map((request) => (
+              <View key={request.id} style={styles.requestCard}>
+                <View style={styles.requestContent}>
+                  <Text style={styles.requestTitle}>{request.title}</Text>
+                  <Text style={styles.requestFrom}>From: {request.from}</Text>
+                  <Text style={styles.requestTime}>Requested for: {request.time}</Text>
+                </View>
+                <View style={styles.requestActions}>
+                  <TouchableOpacity style={styles.requestDeclineBtn}>
+                    <Ionicons name="close" size={20} color={COLORS.critical} />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.requestAcceptBtn}>
+                    <Ionicons name="checkmark" size={20} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        <View style={{ height: 100 }} />
+      </ScrollView>
+
+      {/* FAB for AI Copilot */}
+      <TouchableOpacity style={styles.fab}>
+        <Ionicons name="sparkles" size={24} color="#fff" />
+      </TouchableOpacity>
+
+      {/* Modals */}
+      <PatientProfileModal 
+        visible={showPatientProfile} 
+        onClose={() => setShowPatientProfile(false)}
+      />
+      <VitalsModal 
+        visible={showVitalsModal} 
+        onClose={() => setShowVitalsModal(false)}
+      />
+      <TaskCompletionModal
+        visible={showTaskModal}
+        onClose={() => setShowTaskModal(false)}
+        task={selectedTask}
+        onComplete={handleCompleteTask}
+      />
+    </View>
+  );
+};
