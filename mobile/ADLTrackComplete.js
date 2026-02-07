@@ -2259,32 +2259,93 @@ const CaregiverHomeScreen = () => {
             )
           ) : (
             tasks.map((task) => (
-              <TouchableOpacity 
-                key={task.id}
-                style={styles.taskCard}
-                activeOpacity={0.7}
-                onPress={() => setExpandedTask(expandedTask === task.id ? null : task.id)}
-              >
-                <View style={[styles.taskPriorityBar, { backgroundColor: getPriorityColor(task.priority) }]} />
-                <View style={styles.taskContent}>
-                  <Text style={styles.taskTitle}>{task.title}</Text>
-                  <View style={styles.taskMeta}>
-                    <Ionicons name="time-outline" size={14} color={COLORS.textSecondary} />
-                    <Text style={styles.taskTime}>{task.time}</Text>
-                    {task.requiresPhoto && (
-                      <View style={styles.photoBadge}>
-                        <Ionicons name="camera-outline" size={12} color={COLORS.textSecondary} />
-                        <Text style={styles.photoBadgeText}>Photo</Text>
+              <View key={task.id}>
+                {/* Completed Task */}
+                {task.completed ? (
+                  <View style={styles.taskCardCompleted}>
+                    <View style={[styles.taskPriorityBar, { backgroundColor: COLORS.completed }]} />
+                    <View style={styles.taskContentCompleted}>
+                      <Text style={styles.taskTitleCompleted}>{task.title}</Text>
+                      <View style={styles.taskMeta}>
+                        <Ionicons name="time-outline" size={14} color={COLORS.textSecondary} />
+                        <Text style={styles.taskTime}>{task.completedTime}</Text>
+                      </View>
+                      <Text style={styles.taskNotesPreview}>"{task.notes}"</Text>
+                    </View>
+                    <View style={styles.completedPhotoContainer}>
+                      <Image source={{ uri: task.photo }} style={styles.completedPhotoThumb} />
+                      <View style={styles.completedPhotoOverlay}>
+                        <Ionicons name="images" size={14} color={COLORS.white} />
+                      </View>
+                    </View>
+                  </View>
+                ) : task.cantComplete ? (
+                  /* Can't Complete Task */
+                  <View style={styles.taskCardCantComplete}>
+                    <View style={[styles.taskPriorityBar, { backgroundColor: COLORS.critical }]} />
+                    <View style={styles.taskContentCantComplete}>
+                      <Text style={styles.taskTitleCantComplete}>{task.title}</Text>
+                      <View style={styles.cantCompleteReasonRow}>
+                        <Ionicons name="warning" size={16} color={COLORS.critical} />
+                        <Text style={styles.cantCompleteReasonText}>{task.cantCompleteReason}</Text>
+                      </View>
+                    </View>
+                    <TouchableOpacity style={styles.cantCompleteCloseBtn}>
+                      <Ionicons name="close" size={20} color={COLORS.textSecondary} />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  /* Regular Task */
+                  <TouchableOpacity 
+                    style={[styles.taskCard, expandedTask === task.id && styles.taskCardExpanded]}
+                    activeOpacity={0.7}
+                    onPress={() => setExpandedTask(expandedTask === task.id ? null : task.id)}
+                  >
+                    <View style={[styles.taskPriorityBar, { backgroundColor: getPriorityColor(task.priority) }]} />
+                    <View style={styles.taskContent}>
+                      <Text style={styles.taskTitle}>{task.title}</Text>
+                      <View style={styles.taskMeta}>
+                        <Ionicons name="time-outline" size={14} color={COLORS.textSecondary} />
+                        <Text style={styles.taskTime}>{task.time}</Text>
+                        {task.requiresPhoto && (
+                          <View style={styles.photoBadge}>
+                            <Ionicons name="camera-outline" size={12} color={COLORS.textSecondary} />
+                            <Text style={styles.photoBadgeText}>Photo</Text>
+                          </View>
+                        )}
+                      </View>
+                      
+                      {/* Expanded Content */}
+                      {expandedTask === task.id && (
+                        <View style={styles.taskExpandedContent}>
+                          <View style={styles.taskInstructionsBox}>
+                            <Text style={styles.taskInstructionsLabel}>INSTRUCTIONS</Text>
+                            <Text style={styles.taskInstructionsText}>{task.instructions}</Text>
+                          </View>
+                          <View style={styles.taskTimeWindowRow}>
+                            <Ionicons name="time" size={16} color={COLORS.textSecondary} />
+                            <Text style={styles.taskTimeWindowLabel}>TIME WINDOW</Text>
+                            <Text style={styles.taskTimeWindowValue}>{task.timeWindow}</Text>
+                          </View>
+                          <TouchableOpacity 
+                            style={styles.startTaskBtn}
+                            onPress={() => handleStartTask(task)}
+                          >
+                            <Text style={styles.startTaskBtnText}>Start Task</Text>
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    </View>
+                    {expandedTask !== task.id && (
+                      <View style={styles.taskChevronContainer}>
+                        <View style={styles.taskChevronCircle}>
+                          <Ionicons name="chevron-down" size={20} color={COLORS.textSecondary} />
+                        </View>
                       </View>
                     )}
-                  </View>
-                </View>
-                <View style={styles.taskChevronContainer}>
-                  <View style={styles.taskChevronCircle}>
-                    <Ionicons name={expandedTask === task.id ? "chevron-up" : "chevron-down"} size={20} color={COLORS.textSecondary} />
-                  </View>
-                </View>
-              </TouchableOpacity>
+                  </TouchableOpacity>
+                )}
+              </View>
             ))
           )}
         </View>
