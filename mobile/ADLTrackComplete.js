@@ -1778,3 +1778,462 @@ const styles = StyleSheet.create({
     padding: 16,
     justifyContent: 'center',
   },
+
+  // Task Expanded
+  taskExpanded: {
+    backgroundColor: COLORS.cardLight,
+    marginHorizontal: 16,
+    marginTop: -12,
+    marginBottom: 12,
+    borderRadius: 16,
+    padding: 16,
+  },
+  taskInstructionsCard: {
+    marginBottom: 12,
+  },
+  taskInstructionsLabel: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  taskInstructionsText: {
+    fontSize: 14,
+    color: COLORS.textPrimary,
+    lineHeight: 20,
+  },
+  taskTimeWindow: {
+    marginBottom: 16,
+  },
+  taskTimeWindowLabel: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  taskTimeWindowText: {
+    fontSize: 14,
+    color: COLORS.textPrimary,
+  },
+  startTaskBtn: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 12,
+    padding: 14,
+    alignItems: 'center',
+  },
+  startTaskBtnText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+
+  // Request Card
+  requestCard: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+  },
+  requestContent: {
+    flex: 1,
+  },
+  requestTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+  requestFrom: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginTop: 4,
+  },
+  requestTime: {
+    fontSize: 13,
+    color: COLORS.textMuted,
+    marginTop: 2,
+  },
+  requestActions: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  requestDeclineBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  requestAcceptBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // FAB
+  fab: {
+    position: 'absolute',
+    bottom: 100,
+    right: 16,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+
+  // Tab Bar
+  tabBar: {
+    backgroundColor: COLORS.card,
+    borderTopWidth: 0,
+    height: 85,
+    paddingBottom: 25,
+    paddingTop: 10,
+  },
+  tabLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+  },
+
+  // Profile Modal
+  profileModalContainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  profileHero: {
+    height: 300,
+    position: 'relative',
+  },
+  profileHeroImage: {
+    width: '100%',
+    height: '100%',
+  },
+  profileCloseBtn: {
+    position: 'absolute',
+    top: 50,
+    left: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileHeroOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 20,
+    paddingBottom: 24,
+    background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
+  },
+  profileHeroName: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  profileHeroMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 8,
+  },
+  profileHeroAge: {
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.8)',
+  },
+  profileDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255,255,255,0.5)',
+  },
+  profileHeroDob: {
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.7)',
+  },
+  profileContent: {
+    padding: 16,
+  },
+
+  // Care History Card
+  careHistoryCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+  },
+  careHistoryIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: 'rgba(37, 211, 102, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  careHistoryInfo: {
+    flex: 1,
+  },
+  careHistoryLabel: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+  },
+  careHistoryDate: {
+    fontSize: 16,
+    color: COLORS.textPrimary,
+    fontWeight: '500',
+    marginTop: 2,
+  },
+
+  // Allergies Card
+  allergiesCard: {
+    backgroundColor: COLORS.allergyBg,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: COLORS.allergyBorder,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+  allergyTags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  allergyTag: {
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.4)',
+  },
+  allergyTagText: {
+    fontSize: 13,
+    color: '#f87171',
+    fontWeight: '500',
+  },
+
+  // Section Card
+  sectionCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+  },
+  conditionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    gap: 10,
+  },
+  conditionDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.primary,
+  },
+  conditionText: {
+    fontSize: 15,
+    color: COLORS.textPrimary,
+  },
+
+  // Medication Item
+  medicationItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  medicationIconBg: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: 'rgba(37, 211, 102, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  medicationInfo: {
+    flex: 1,
+  },
+  medicationName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+  medicationDosage: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+
+  // Status Row
+  statusRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 16,
+  },
+  statusCard: {
+    flex: 1,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+  },
+  statusLabel: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  statusValue: {
+    fontSize: 14,
+    color: COLORS.textPrimary,
+    fontWeight: '500',
+  },
+  accessText: {
+    fontSize: 14,
+    color: COLORS.textPrimary,
+    lineHeight: 20,
+  },
+
+  // Physician Card
+  physicianCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+  },
+  physicianIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  physicianInfo: {
+    flex: 1,
+  },
+  physicianName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+  physicianFacility: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  callBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(37, 211, 102, 0.15)',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 6,
+  },
+  callBtnText: {
+    fontSize: 14,
+    color: COLORS.primary,
+    fontWeight: '500',
+  },
+
+  // Contact Item
+  contactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 14,
+  },
+  contactIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.cardLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  contactInitial: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+  },
+  contactInfo: {
+    flex: 1,
+  },
+  contactName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+  contactRelation: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+  },
+  contactCallBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(37, 211, 102, 0.15)',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 6,
+  },
+  contactCallText: {
+    fontSize: 14,
+    color: COLORS.primary,
+    fontWeight: '500',
+  },
+
+  // Share EMS Button
+  shareEmsBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#be185d',
+    borderRadius: 12,
+    padding: 16,
+    gap: 10,
+    marginTop: 8,
+  },
+  shareEmsBtnText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
