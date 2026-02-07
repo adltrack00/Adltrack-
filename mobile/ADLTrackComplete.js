@@ -87,6 +87,9 @@ const COLORS = {
   systolicColor: '#f43f5e',
   diastolicColor: '#f59e0b',
   inputBg: '#3a3a3c',
+  // Heart Rate colors
+  heartCardBg: '#5c3d1e',
+  heartColor: '#ea580c',
 };
 
 // ============================================
