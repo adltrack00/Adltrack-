@@ -941,11 +941,11 @@ const styles = StyleSheet.create({
 
   // Tab Container
   tabContainer: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 28, marginBottom: 16 },
-  tabItem: { position: 'relative' },
-  tabBadge: { position: 'absolute', top: -14, left: '50%', marginLeft: -11, backgroundColor: COLORS.badgeRed, width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  tabItem: { position: 'relative', paddingVertical: 8, paddingHorizontal: 4 },
+  tabBadge: { position: 'absolute', top: -6, left: '50%', marginLeft: -11, backgroundColor: COLORS.badgeRed, width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', zIndex: 1 },
   tabBadgeText: { fontSize: 12, fontWeight: 'bold', color: COLORS.white },
   tabText: { fontSize: 18, color: COLORS.textSecondary },
-  tabTextActive: { color: COLORS.white },
+  tabTextActive: { color: COLORS.white, fontWeight: '600' },
   tabDivider: { flex: 1, height: 1, backgroundColor: COLORS.cardBorder, marginHorizontal: 16 },
 
   // Task List
