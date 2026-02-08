@@ -2449,7 +2449,895 @@ const PlaceholderScreen = ({ icon, title }) => (
   </View>
 );
 
-const IncidentScreen = () => <PlaceholderScreen icon="alert-circle-outline" title="Incident Reports" />;
+// ============================================
+// INCIDENT TYPES DATA
+// ============================================
+const INCIDENT_TYPES = [
+  { id: 'fall', title: 'Fall', description: 'Patient fall or near-fall', icon: 'warning' },
+  { id: 'medication', title: 'Medication Issue', description: 'Missed dose, wrong medication, or reaction', icon: 'medical' },
+  { id: 'behavioral', title: 'Behavioral Change', description: 'Confusion, agitation, or mood changes', icon: 'fitness' },
+  { id: 'injury', title: 'Injury', description: 'Cut, bruise, or other physical injury', icon: 'bandage' },
+  { id: 'vital', title: 'Vital Sign Concern', description: 'Abnormal vital signs', icon: 'thermometer' },
+  { id: 'other', title: 'Other', description: 'Other incident type', icon: 'help-circle' },
+];
+
+const SEVERITY_LEVELS = ['Low', 'Medium', 'High', 'Critical'];
+
+const INITIAL_PAST_REPORTS = [];
+
+// ============================================
+// INCIDENT SCREEN
+// ============================================
+const IncidentScreen = () => {
+  const [showNewReport, setShowNewReport] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [selectedType, setSelectedType] = useState(null);
+  const [severity, setSeverity] = useState('High');
+  const [description, setDescription] = useState('');
+  const [actionsTaken, setActionsTaken] = useState('');
+  const [photos, setPhotos] = useState([]);
+  const [notifyFamily, setNotifyFamily] = useState(true);
+  const [followUpRequired, setFollowUpRequired] = useState(false);
+  const [pastReports, setPastReports] = useState(INITIAL_PAST_REPORTS);
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+
+  const resetForm = () => {
+    setCurrentStep(1);
+    setSelectedType(null);
+    setSeverity('High');
+    setDescription('');
+    setActionsTaken('');
+    setPhotos([]);
+    setNotifyFamily(true);
+    setFollowUpRequired(false);
+  };
+
+  const handleCancel = () => {
+    resetForm();
+    setShowNewReport(false);
+  };
+
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleContinue = () => {
+    if (currentStep < 4) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const canContinue = () => {
+    if (currentStep === 1) return selectedType !== null;
+    if (currentStep === 2) return description.trim().length > 0;
+    return true;
+  };
+
+  const handleTakePhoto = async () => {
+    setShowPhotoOptions(false);
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Camera permission is required to take photos.');
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+    if (!result.canceled && result.assets && result.assets[0]) {
+      setPhotos([...photos, { id: Date.now(), uri: result.assets[0].uri }]);
+    }
+  };
+
+  const handleChooseFromLibrary = async () => {
+    setShowPhotoOptions(false);
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Media library permission is required.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 0.8,
+    });
+    if (!result.canceled && result.assets) {
+      const newPhotos = result.assets.map((asset, index) => ({
+        id: Date.now() + index,
+        uri: asset.uri,
+      }));
+      setPhotos([...photos, ...newPhotos]);
+    }
+  };
+
+  const handleRemovePhoto = (photoId) => {
+    setPhotos(photos.filter(p => p.id !== photoId));
+  };
+
+  const handleSubmit = () => {
+    const newReport = {
+      id: Date.now(),
+      type: selectedType,
+      severity,
+      description,
+      actionsTaken,
+      photos: photos.length,
+      notifyFamily,
+      followUpRequired,
+      date: new Date().toLocaleDateString(),
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      patient: PATIENT.name,
+    };
+    setPastReports([newReport, ...pastReports]);
+    resetForm();
+    setShowNewReport(false);
+    Alert.alert('Success', 'Incident report submitted successfully.');
+  };
+
+  const getSeverityColor = (level) => {
+    switch (level) {
+      case 'Low': return '#22c55e';
+      case 'Medium': return '#eab308';
+      case 'High': return '#f97316';
+      case 'Critical': return '#ef4444';
+      default: return COLORS.textSecondary;
+    }
+  };
+
+  const getTypeIcon = (type) => {
+    const found = INCIDENT_TYPES.find(t => t.id === type);
+    return found ? found.icon : 'warning';
+  };
+
+  const getTypeTitle = (type) => {
+    const found = INCIDENT_TYPES.find(t => t.id === type);
+    return found ? found.title : 'Unknown';
+  };
+
+  // Main Incidents Screen
+  const renderMainScreen = () => (
+    <View style={incStyles.container}>
+      <ScrollView style={incStyles.scrollView} contentContainerStyle={incStyles.scrollContent}>
+        {/* Header */}
+        <View style={incStyles.header}>
+          <Text style={incStyles.title}>Incidents</Text>
+          <Text style={incStyles.subtitle}>Report and track incidents for {PATIENT.name}</Text>
+        </View>
+
+        {/* New Incident Report Button */}
+        <TouchableOpacity 
+          style={incStyles.newReportBtn}
+          onPress={() => setShowNewReport(true)}
+        >
+          <View style={incStyles.newReportIconBg}>
+            <Ionicons name="add" size={28} color={COLORS.white} />
+          </View>
+          <View style={incStyles.newReportTextContainer}>
+            <Text style={incStyles.newReportTitle}>New Incident Report</Text>
+            <Text style={incStyles.newReportSubtitle}>Document an incident now</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+
+        {/* Past Reports Section */}
+        <View style={incStyles.pastReportsHeader}>
+          <View style={incStyles.pastReportsHeaderLeft}>
+            <Ionicons name="document-text-outline" size={20} color={COLORS.textSecondary} />
+            <Text style={incStyles.pastReportsTitle}>Past Reports</Text>
+          </View>
+          <View style={incStyles.pastReportsCount}>
+            <Text style={incStyles.pastReportsCountText}>{pastReports.length}</Text>
+          </View>
+        </View>
+
+        {/* Past Reports List or Empty State */}
+        {pastReports.length === 0 ? (
+          <View style={incStyles.emptyState}>
+            <View style={incStyles.emptyIconBg}>
+              <Ionicons name="warning" size={40} color={COLORS.textSecondary} />
+            </View>
+            <Text style={incStyles.emptyTitle}>No incidents reported</Text>
+            <Text style={incStyles.emptySubtitle}>Tap the button above to report a new incident</Text>
+          </View>
+        ) : (
+          <View style={incStyles.pastReportsList}>
+            {pastReports.map((report) => (
+              <View key={report.id} style={incStyles.pastReportCard}>
+                <View style={incStyles.pastReportLeft}>
+                  <View style={[incStyles.typeIconBg, { backgroundColor: 'rgba(239, 68, 68, 0.2)' }]}>
+                    <Ionicons name={getTypeIcon(report.type)} size={20} color={COLORS.critical} />
+                  </View>
+                  <View style={incStyles.pastReportInfo}>
+                    <Text style={incStyles.pastReportType}>{getTypeTitle(report.type)}</Text>
+                    <Text style={incStyles.pastReportDate}>{report.date} • {report.time}</Text>
+                  </View>
+                </View>
+                <View style={[incStyles.severityBadge, { backgroundColor: `${getSeverityColor(report.severity)}30` }]}>
+                  <Text style={[incStyles.severityBadgeText, { color: getSeverityColor(report.severity) }]}>
+                    {report.severity.toUpperCase()}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+      </ScrollView>
+    </View>
+  );
+
+  // Step 1: Incident Type Selection
+  const renderStep1 = () => (
+    <View style={incStyles.stepContainer}>
+      <Text style={incStyles.stepQuestion}>What type of incident occurred?</Text>
+      <ScrollView style={incStyles.typesList} showsVerticalScrollIndicator={false}>
+        {INCIDENT_TYPES.map((type) => (
+          <TouchableOpacity
+            key={type.id}
+            style={[
+              incStyles.typeCard,
+              selectedType === type.id && incStyles.typeCardSelected,
+            ]}
+            onPress={() => setSelectedType(type.id)}
+          >
+            <View style={[
+              incStyles.typeIconContainer,
+              selectedType === type.id && incStyles.typeIconContainerSelected,
+            ]}>
+              <Ionicons 
+                name={type.icon} 
+                size={24} 
+                color={selectedType === type.id ? COLORS.critical : COLORS.textSecondary} 
+              />
+            </View>
+            <View style={incStyles.typeTextContainer}>
+              <Text style={incStyles.typeTitle}>{type.title}</Text>
+              <Text style={incStyles.typeDescription}>{type.description}</Text>
+            </View>
+            {selectedType === type.id && (
+              <Ionicons name="checkmark-circle" size={24} color={COLORS.primary} />
+            )}
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
+  );
+
+  // Step 2: Incident Details
+  const renderStep2 = () => (
+    <KeyboardAvoidingView 
+      style={incStyles.stepContainer} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={100}
+    >
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Severity Level */}
+        <Text style={incStyles.fieldLabel}>Severity Level</Text>
+        <View style={incStyles.severityRow}>
+          {SEVERITY_LEVELS.map((level) => (
+            <TouchableOpacity
+              key={level}
+              style={[
+                incStyles.severityBtn,
+                severity === level && { 
+                  backgroundColor: `${getSeverityColor(level)}30`,
+                  borderColor: getSeverityColor(level),
+                },
+              ]}
+              onPress={() => setSeverity(level)}
+            >
+              <Text style={[
+                incStyles.severityBtnText,
+                severity === level && { color: getSeverityColor(level) },
+              ]}>
+                {level}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* What happened? */}
+        <Text style={incStyles.fieldLabel}>What happened?</Text>
+        <TextInput
+          style={[incStyles.textArea, description && incStyles.textAreaActive]}
+          placeholder="Describe the incident in detail..."
+          placeholderTextColor={COLORS.textMuted}
+          multiline
+          numberOfLines={4}
+          value={description}
+          onChangeText={setDescription}
+        />
+
+        {/* Actions Taken */}
+        <Text style={incStyles.fieldLabel}>Actions Taken</Text>
+        <TextInput
+          style={[incStyles.textArea, actionsTaken && incStyles.textAreaActive]}
+          placeholder="What steps did you take to address this?"
+          placeholderTextColor={COLORS.textMuted}
+          multiline
+          numberOfLines={4}
+          value={actionsTaken}
+          onChangeText={setActionsTaken}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+
+  // Step 3: Add Photos
+  const renderStep3 = () => (
+    <View style={incStyles.stepContainer}>
+      <Text style={incStyles.stepTitle}>Add Photos (Optional)</Text>
+      <Text style={incStyles.stepSubtitle}>Document the incident visually for records.</Text>
+
+      {/* Photo Upload Area */}
+      <TouchableOpacity 
+        style={incStyles.photoUploadArea}
+        onPress={() => setShowPhotoOptions(true)}
+      >
+        <View style={incStyles.photoUploadIconBg}>
+          <Ionicons name="camera" size={32} color={COLORS.textSecondary} />
+        </View>
+        <Text style={incStyles.photoUploadText}>Tap to add photos</Text>
+        <Text style={incStyles.photoUploadHint}>JPG, PNG up to 10MB each</Text>
+      </TouchableOpacity>
+
+      {/* Photos Grid */}
+      {photos.length > 0 && (
+        <View style={incStyles.photosGrid}>
+          {photos.map((photo) => (
+            <View key={photo.id} style={incStyles.photoThumbContainer}>
+              <Image source={{ uri: photo.uri }} style={incStyles.photoThumb} />
+              <TouchableOpacity 
+                style={incStyles.photoRemove}
+                onPress={() => handleRemovePhoto(photo.id)}
+              >
+                <Ionicons name="close" size={16} color={COLORS.white} />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* Photo Options Modal */}
+      <Modal visible={showPhotoOptions} transparent animationType="fade">
+        <TouchableOpacity 
+          style={incStyles.photoOptionsOverlay}
+          activeOpacity={1}
+          onPress={() => setShowPhotoOptions(false)}
+        >
+          <View style={incStyles.photoOptionsModal}>
+            <TouchableOpacity style={incStyles.photoOptionBtn} onPress={handleTakePhoto}>
+              <Ionicons name="camera" size={24} color={COLORS.primary} />
+              <Text style={incStyles.photoOptionText}>Take Photo</Text>
+            </TouchableOpacity>
+            <View style={incStyles.photoOptionDivider} />
+            <TouchableOpacity style={incStyles.photoOptionBtn} onPress={handleChooseFromLibrary}>
+              <Ionicons name="images" size={24} color={COLORS.primary} />
+              <Text style={incStyles.photoOptionText}>Choose from Library</Text>
+            </TouchableOpacity>
+            <View style={incStyles.photoOptionDivider} />
+            <TouchableOpacity 
+              style={incStyles.photoOptionBtn} 
+              onPress={() => setShowPhotoOptions(false)}
+            >
+              <Text style={incStyles.photoOptionCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </View>
+  );
+
+  // Step 4: Review & Submit
+  const renderStep4 = () => (
+    <ScrollView style={incStyles.stepContainer} showsVerticalScrollIndicator={false}>
+      <Text style={incStyles.reviewTitle}>Review & Submit</Text>
+
+      {/* Report Summary Card */}
+      <View style={incStyles.summaryCard}>
+        <View style={incStyles.summaryHeader}>
+          <View style={incStyles.summaryTypeRow}>
+            <View style={[incStyles.summaryIconBg, { backgroundColor: 'rgba(239, 68, 68, 0.2)' }]}>
+              <Ionicons name={getTypeIcon(selectedType)} size={24} color={COLORS.critical} />
+            </View>
+            <Text style={incStyles.summaryType}>{getTypeTitle(selectedType)}</Text>
+          </View>
+          <View style={[incStyles.summarySeverityBadge, { backgroundColor: `${getSeverityColor(severity)}30` }]}>
+            <Text style={[incStyles.summarySeverityText, { color: getSeverityColor(severity) }]}>
+              {severity.toUpperCase()}
+            </Text>
+          </View>
+        </View>
+
+        <Text style={incStyles.summaryLabel}>DESCRIPTION</Text>
+        <Text style={incStyles.summaryText}>{description || 'No description provided'}</Text>
+
+        <Text style={incStyles.summaryLabel}>ACTIONS TAKEN</Text>
+        <Text style={incStyles.summaryText}>{actionsTaken || 'No actions documented'}</Text>
+
+        <Text style={incStyles.summaryLabel}>PHOTOS ({photos.length})</Text>
+        {photos.length > 0 ? (
+          <View style={incStyles.summaryPhotosRow}>
+            {photos.slice(0, 4).map((photo) => (
+              <Image key={photo.id} source={{ uri: photo.uri }} style={incStyles.summaryPhotoThumb} />
+            ))}
+            {photos.length > 4 && (
+              <View style={incStyles.summaryPhotoMore}>
+                <Text style={incStyles.summaryPhotoMoreText}>+{photos.length - 4}</Text>
+              </View>
+            )}
+          </View>
+        ) : (
+          <Text style={incStyles.summaryNoPhotos}>No photos attached</Text>
+        )}
+      </View>
+
+      {/* Notify Family Toggle */}
+      <TouchableOpacity 
+        style={[incStyles.toggleRow, notifyFamily && incStyles.toggleRowActive]}
+        onPress={() => setNotifyFamily(!notifyFamily)}
+      >
+        <View style={incStyles.toggleLeft}>
+          <View style={[incStyles.toggleIconBg, notifyFamily && { backgroundColor: 'rgba(34, 197, 94, 0.3)' }]}>
+            <Ionicons name="shield-checkmark" size={20} color={notifyFamily ? COLORS.primary : COLORS.textSecondary} />
+          </View>
+          <Text style={incStyles.toggleText}>Notify Family Member</Text>
+        </View>
+        <Ionicons 
+          name={notifyFamily ? "checkmark-circle" : "ellipse-outline"} 
+          size={26} 
+          color={notifyFamily ? COLORS.primary : COLORS.textMuted} 
+        />
+      </TouchableOpacity>
+
+      {/* Follow-up Required Toggle */}
+      <TouchableOpacity 
+        style={incStyles.toggleRow}
+        onPress={() => setFollowUpRequired(!followUpRequired)}
+      >
+        <View style={incStyles.toggleLeft}>
+          <View style={incStyles.toggleIconBg}>
+            <Ionicons name="time" size={20} color={COLORS.textSecondary} />
+          </View>
+          <Text style={incStyles.toggleText}>Follow-up Required</Text>
+        </View>
+        <View style={[incStyles.checkbox, followUpRequired && incStyles.checkboxChecked]}>
+          {followUpRequired && <Ionicons name="checkmark" size={16} color={COLORS.white} />}
+        </View>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+
+  // New Incident Report Modal
+  const renderNewReportModal = () => (
+    <Modal visible={showNewReport} animationType="slide">
+      <View style={incStyles.modalContainer}>
+        {/* Modal Header */}
+        <View style={incStyles.modalHeader}>
+          <View style={incStyles.modalHeaderLeft}>
+            <View style={incStyles.modalWarningIcon}>
+              <Ionicons name="warning" size={20} color={COLORS.critical} />
+            </View>
+            <View>
+              <Text style={incStyles.modalTitle}>New Incident Report</Text>
+              <Text style={incStyles.modalStep}>Step {currentStep} of 4</Text>
+            </View>
+          </View>
+          <TouchableOpacity style={incStyles.cancelBtn} onPress={handleCancel}>
+            <Text style={incStyles.cancelBtnText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Progress Bar */}
+        <View style={incStyles.progressBar}>
+          {[1, 2, 3, 4].map((step) => (
+            <View 
+              key={step} 
+              style={[
+                incStyles.progressSegment,
+                step <= currentStep && incStyles.progressSegmentActive,
+              ]} 
+            />
+          ))}
+        </View>
+
+        {/* Step Content */}
+        {currentStep === 1 && renderStep1()}
+        {currentStep === 2 && renderStep2()}
+        {currentStep === 3 && renderStep3()}
+        {currentStep === 4 && renderStep4()}
+
+        {/* Bottom Navigation */}
+        <View style={incStyles.modalFooter}>
+          {currentStep > 1 && (
+            <TouchableOpacity style={incStyles.backBtn} onPress={handleBack}>
+              <Text style={incStyles.backBtnText}>Back</Text>
+            </TouchableOpacity>
+          )}
+          {currentStep < 4 ? (
+            <TouchableOpacity 
+              style={[
+                incStyles.continueBtn,
+                currentStep === 1 && { flex: 1 },
+                !canContinue() && incStyles.continueBtnDisabled,
+              ]} 
+              onPress={handleContinue}
+              disabled={!canContinue()}
+            >
+              <Text style={incStyles.continueBtnText}>Continue</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={incStyles.submitBtn} onPress={handleSubmit}>
+              <Text style={incStyles.submitBtnText}>Submit Incident Report</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+    </Modal>
+  );
+
+  return (
+    <View style={incStyles.container}>
+      <StatusBar style="light" />
+      {renderMainScreen()}
+      {renderNewReportModal()}
+    </View>
+  );
+};
+
+// ============================================
+// INCIDENT STYLES
+// ============================================
+const incStyles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: COLORS.background },
+  scrollView: { flex: 1 },
+  scrollContent: { paddingBottom: 30 },
+  
+  // Header
+  header: { paddingHorizontal: 20, paddingTop: 60, marginBottom: 24 },
+  title: { fontSize: 32, fontWeight: 'bold', color: COLORS.white, marginBottom: 4 },
+  subtitle: { fontSize: 15, color: COLORS.textSecondary },
+  
+  // New Report Button
+  newReportBtn: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#be185d',
+    marginHorizontal: 20, 
+    borderRadius: 20, 
+    padding: 16,
+    marginBottom: 28,
+  },
+  newReportIconBg: { 
+    width: 48, 
+    height: 48, 
+    borderRadius: 14, 
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  newReportTextContainer: { flex: 1 },
+  newReportTitle: { fontSize: 18, fontWeight: '600', color: COLORS.white, marginBottom: 2 },
+  newReportSubtitle: { fontSize: 14, color: 'rgba(255, 255, 255, 0.7)' },
+  
+  // Past Reports Header
+  pastReportsHeader: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between',
+    paddingHorizontal: 20, 
+    marginBottom: 14,
+  },
+  pastReportsHeaderLeft: { flexDirection: 'row', alignItems: 'center' },
+  pastReportsTitle: { fontSize: 17, fontWeight: '600', color: COLORS.white, marginLeft: 8 },
+  pastReportsCount: { 
+    backgroundColor: COLORS.textMuted, 
+    paddingHorizontal: 10, 
+    paddingVertical: 4, 
+    borderRadius: 12,
+  },
+  pastReportsCountText: { fontSize: 14, fontWeight: '600', color: COLORS.white },
+  
+  // Empty State
+  emptyState: { 
+    backgroundColor: COLORS.card, 
+    marginHorizontal: 20, 
+    borderRadius: 20, 
+    paddingVertical: 50, 
+    alignItems: 'center',
+  },
+  emptyIconBg: { 
+    width: 70, 
+    height: 70, 
+    borderRadius: 20, 
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  emptyTitle: { fontSize: 18, fontWeight: '600', color: COLORS.white, marginBottom: 6 },
+  emptySubtitle: { fontSize: 14, color: COLORS.textSecondary },
+  
+  // Past Reports List
+  pastReportsList: { marginHorizontal: 20 },
+  pastReportCard: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between',
+    backgroundColor: COLORS.card, 
+    borderRadius: 16, 
+    padding: 16,
+    marginBottom: 10,
+  },
+  pastReportLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  typeIconBg: { 
+    width: 44, 
+    height: 44, 
+    borderRadius: 12, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  pastReportInfo: { flex: 1 },
+  pastReportType: { fontSize: 16, fontWeight: '600', color: COLORS.white, marginBottom: 2 },
+  pastReportDate: { fontSize: 13, color: COLORS.textSecondary },
+  severityBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
+  severityBadgeText: { fontSize: 11, fontWeight: '700' },
+  
+  // Modal
+  modalContainer: { flex: 1, backgroundColor: COLORS.background, paddingTop: 50 },
+  modalHeader: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between',
+    paddingHorizontal: 20, 
+    marginBottom: 16,
+  },
+  modalHeaderLeft: { flexDirection: 'row', alignItems: 'center' },
+  modalWarningIcon: { 
+    width: 40, 
+    height: 40, 
+    borderRadius: 10, 
+    backgroundColor: 'rgba(239, 68, 68, 0.15)', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  modalTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.white },
+  modalStep: { fontSize: 14, color: COLORS.textSecondary, marginTop: 2 },
+  cancelBtn: { backgroundColor: COLORS.card, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10 },
+  cancelBtnText: { fontSize: 15, fontWeight: '600', color: COLORS.white },
+  
+  // Progress Bar
+  progressBar: { flexDirection: 'row', paddingHorizontal: 20, marginBottom: 24, gap: 6 },
+  progressSegment: { flex: 1, height: 4, backgroundColor: COLORS.cardBorder, borderRadius: 2 },
+  progressSegmentActive: { backgroundColor: '#f43f5e' },
+  
+  // Step Container
+  stepContainer: { flex: 1, paddingHorizontal: 20 },
+  stepQuestion: { fontSize: 22, fontWeight: '600', color: COLORS.white, marginBottom: 20 },
+  stepTitle: { fontSize: 22, fontWeight: '600', color: COLORS.white, marginBottom: 6 },
+  stepSubtitle: { fontSize: 15, color: COLORS.textSecondary, marginBottom: 24 },
+  
+  // Type Cards
+  typesList: { flex: 1 },
+  typeCard: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: COLORS.card, 
+    borderRadius: 16, 
+    padding: 16,
+    marginBottom: 10,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  typeCardSelected: { 
+    backgroundColor: 'rgba(239, 68, 68, 0.1)', 
+    borderColor: COLORS.critical,
+  },
+  typeIconContainer: { 
+    width: 44, 
+    height: 44, 
+    borderRadius: 12, 
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  typeIconContainerSelected: { backgroundColor: 'rgba(239, 68, 68, 0.2)' },
+  typeTextContainer: { flex: 1 },
+  typeTitle: { fontSize: 17, fontWeight: '600', color: COLORS.white, marginBottom: 2 },
+  typeDescription: { fontSize: 14, color: COLORS.textSecondary },
+  
+  // Step 2 - Details
+  fieldLabel: { fontSize: 15, fontWeight: '600', color: COLORS.white, marginBottom: 12, marginTop: 20 },
+  severityRow: { flexDirection: 'row', gap: 10 },
+  severityBtn: { 
+    flex: 1, 
+    paddingVertical: 12, 
+    alignItems: 'center', 
+    backgroundColor: COLORS.card, 
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  severityBtnText: { fontSize: 15, fontWeight: '600', color: COLORS.textSecondary },
+  textArea: { 
+    backgroundColor: COLORS.card, 
+    borderRadius: 16, 
+    padding: 16, 
+    fontSize: 16, 
+    color: COLORS.white, 
+    minHeight: 100,
+    textAlignVertical: 'top',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  textAreaActive: { borderColor: '#f43f5e' },
+  
+  // Step 3 - Photos
+  photoUploadArea: { 
+    borderWidth: 2, 
+    borderStyle: 'dashed', 
+    borderColor: '#f43f5e', 
+    borderRadius: 16, 
+    paddingVertical: 40, 
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  photoUploadIconBg: { 
+    width: 64, 
+    height: 64, 
+    borderRadius: 32, 
+    backgroundColor: COLORS.card, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  photoUploadText: { fontSize: 17, fontWeight: '600', color: COLORS.white, marginBottom: 4 },
+  photoUploadHint: { fontSize: 14, color: COLORS.textSecondary },
+  photosGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  photoThumbContainer: { position: 'relative' },
+  photoThumb: { width: (SCREEN_WIDTH - 60) / 3, height: (SCREEN_WIDTH - 60) / 3, borderRadius: 12 },
+  photoRemove: { 
+    position: 'absolute', 
+    top: 6, 
+    right: 6, 
+    width: 24, 
+    height: 24, 
+    borderRadius: 12, 
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+  },
+  
+  // Photo Options Modal
+  photoOptionsOverlay: { 
+    flex: 1, 
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', 
+    justifyContent: 'flex-end',
+  },
+  photoOptionsModal: { 
+    backgroundColor: COLORS.card, 
+    borderTopLeftRadius: 20, 
+    borderTopRightRadius: 20, 
+    paddingBottom: 34,
+  },
+  photoOptionBtn: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingVertical: 18, 
+    paddingHorizontal: 24,
+    justifyContent: 'center',
+  },
+  photoOptionText: { fontSize: 18, color: COLORS.white, marginLeft: 12 },
+  photoOptionCancelText: { fontSize: 18, fontWeight: '600', color: COLORS.critical },
+  photoOptionDivider: { height: 1, backgroundColor: COLORS.cardBorder },
+  
+  // Step 4 - Review
+  reviewTitle: { fontSize: 22, fontWeight: '600', color: COLORS.white, marginBottom: 20 },
+  summaryCard: { 
+    backgroundColor: COLORS.card, 
+    borderRadius: 20, 
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+  },
+  summaryHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
+  summaryTypeRow: { flexDirection: 'row', alignItems: 'center' },
+  summaryIconBg: { 
+    width: 44, 
+    height: 44, 
+    borderRadius: 12, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  summaryType: { fontSize: 20, fontWeight: '600', color: COLORS.white },
+  summarySeverityBadge: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
+  summarySeverityText: { fontSize: 12, fontWeight: '700' },
+  summaryLabel: { fontSize: 11, fontWeight: '600', color: COLORS.textSecondary, letterSpacing: 0.5, marginBottom: 6, marginTop: 16 },
+  summaryText: { fontSize: 16, color: COLORS.white, lineHeight: 22 },
+  summaryPhotosRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
+  summaryPhotoThumb: { width: 50, height: 50, borderRadius: 25 },
+  summaryPhotoMore: { 
+    width: 50, 
+    height: 50, 
+    borderRadius: 25, 
+    backgroundColor: COLORS.card, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+  },
+  summaryPhotoMoreText: { fontSize: 14, fontWeight: '600', color: COLORS.white },
+  summaryNoPhotos: { fontSize: 14, color: COLORS.textMuted, marginTop: 4 },
+  
+  // Toggles
+  toggleRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between',
+    backgroundColor: COLORS.card, 
+    borderRadius: 16, 
+    padding: 16,
+    marginBottom: 10,
+  },
+  toggleRowActive: { backgroundColor: 'rgba(34, 197, 94, 0.15)' },
+  toggleLeft: { flexDirection: 'row', alignItems: 'center' },
+  toggleIconBg: { 
+    width: 40, 
+    height: 40, 
+    borderRadius: 10, 
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  toggleText: { fontSize: 16, fontWeight: '600', color: COLORS.white },
+  checkbox: { 
+    width: 24, 
+    height: 24, 
+    borderRadius: 6, 
+    borderWidth: 2, 
+    borderColor: COLORS.textMuted, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+  },
+  checkboxChecked: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
+  
+  // Footer Buttons
+  modalFooter: { flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 16, gap: 12 },
+  backBtn: { 
+    flex: 1, 
+    backgroundColor: COLORS.card, 
+    paddingVertical: 16, 
+    borderRadius: 14, 
+    alignItems: 'center',
+  },
+  backBtnText: { fontSize: 17, fontWeight: '600', color: COLORS.white },
+  continueBtn: { 
+    flex: 2, 
+    backgroundColor: '#f43f5e', 
+    paddingVertical: 16, 
+    borderRadius: 14, 
+    alignItems: 'center',
+  },
+  continueBtnDisabled: { backgroundColor: COLORS.cardBorder },
+  continueBtnText: { fontSize: 17, fontWeight: '600', color: COLORS.white },
+  submitBtn: { 
+    flex: 2, 
+    backgroundColor: '#f43f5e', 
+    paddingVertical: 16, 
+    borderRadius: 14, 
+    alignItems: 'center',
+  },
+  submitBtnText: { fontSize: 17, fontWeight: '600', color: COLORS.white },
+});
 const MessageScreen = () => <PlaceholderScreen icon="chatbubble-outline" title="Messages" />;
 const ShiftsScreen = () => <PlaceholderScreen icon="time-outline" title="Shifts" />;
 const MenuScreen = () => <PlaceholderScreen icon="settings-outline" title="Menu" />;
