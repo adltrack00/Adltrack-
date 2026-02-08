@@ -5044,35 +5044,6 @@ const ShiftsTabIcon = ({ focused, color }) => (
 // AI COPILOT STYLES
 // ============================================
 const aiStyles = StyleSheet.create({
-  // Floating Button
-  fab: {
-    position: 'absolute',
-    bottom: 100,
-    right: 20,
-    backgroundColor: COLORS.card,
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-    borderWidth: 1,
-    borderColor: COLORS.cardBorder,
-  },
-  fabIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: 'rgba(34, 197, 94, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fabText: { marginLeft: 10, fontSize: 16, fontWeight: '600', color: COLORS.white },
-
   // Modal Container
   modalOverlay: {
     flex: 1,
