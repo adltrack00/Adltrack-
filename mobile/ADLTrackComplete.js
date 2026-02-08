@@ -2060,6 +2060,19 @@ const CaregiverHomeScreen = () => {
   const [tasks, setTasks] = useState(INITIAL_TASKS);
   const [requests, setRequests] = useState(INITIAL_REQUESTS);
   const [vitals, setVitals] = useState({ bp: { systolic: 120, diastolic: 76 }, heart: 72, temp: 98.6, pain: 1 });
+  
+  // AI Copilot state
+  const [showAICopilot, setShowAICopilot] = useState(false);
+  const [aiMessages, setAiMessages] = useState([
+    {
+      id: 1,
+      text: "Hello! I'm your AI Care Assistant. I'm here to help you provide the best care for David Smith.\n\nI can answer questions about care procedures, help with documentation, and provide guidance on tasks.\n\nHow can I assist you today?",
+      isAI: true,
+    },
+  ]);
+  const [aiInputText, setAiInputText] = useState('');
+  const [aiInputFocused, setAiInputFocused] = useState(false);
+  const [aiIsTyping, setAiIsTyping] = useState(false);
 
   const completedTasks = tasks.filter(t => t.completed || t.cantComplete);
   const completedCount = viewingHistory ? (HISTORY_TASKS[viewingHistory]?.length || 0) : completedTasks.length;
