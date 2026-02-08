@@ -6777,6 +6777,348 @@ const FamilyMenuScreen = ({ onSignOut }) => {
 };
 
 // ============================================
+// FAMILY INCIDENT PHOTO VIEWER MODAL
+// ============================================
+const FamilyPhotoViewerModal = ({ visible, onClose, photos, initialIndex }) => {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex || 0);
+  
+  const goNext = () => {
+    if (currentIndex < photos.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+  
+  const goPrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+  
+  if (!photos || photos.length === 0) return null;
+  
+  return (
+    <Modal visible={visible} animationType="fade" transparent>
+      <View style={familyStyles.photoViewerOverlay}>
+        <SafeAreaView style={{ flex: 1 }}>
+          {/* Header with counter and close */}
+          <View style={familyStyles.photoViewerHeader}>
+            <Text style={familyStyles.photoViewerCounter}>{currentIndex + 1} / {photos.length}</Text>
+            <TouchableOpacity style={familyStyles.photoViewerCloseBtn} onPress={onClose}>
+              <Ionicons name="close" size={24} color={COLORS.white} />
+            </TouchableOpacity>
+          </View>
+          
+          {/* Photo */}
+          <View style={familyStyles.photoViewerContent}>
+            {currentIndex > 0 && (
+              <TouchableOpacity 
+                style={[familyStyles.photoViewerNavBtn, familyStyles.photoViewerNavLeft]} 
+                onPress={goPrev}
+              >
+                <Ionicons name="chevron-back" size={28} color={COLORS.white} />
+              </TouchableOpacity>
+            )}
+            
+            <Image 
+              source={{ uri: photos[currentIndex] }} 
+              style={familyStyles.photoViewerImage}
+              resizeMode="contain"
+            />
+            
+            {currentIndex < photos.length - 1 && (
+              <TouchableOpacity 
+                style={[familyStyles.photoViewerNavBtn, familyStyles.photoViewerNavRight]} 
+                onPress={goNext}
+              >
+                <Ionicons name="chevron-forward" size={28} color={COLORS.white} />
+              </TouchableOpacity>
+            )}
+          </View>
+          
+          {/* Footer */}
+          <View style={familyStyles.photoViewerFooter}>
+            <Text style={familyStyles.photoViewerFilename}>IMG_0{230 - currentIndex}.jpeg</Text>
+            <Text style={familyStyles.photoViewerHint}>Tap outside or press X to close</Text>
+          </View>
+        </SafeAreaView>
+      </View>
+    </Modal>
+  );
+};
+
+// ============================================
+// FAMILY INCIDENT DETAIL SCREEN
+// ============================================
+const FamilyIncidentDetailScreen = ({ incident, onBack }) => {
+  const [showPhotoViewer, setShowPhotoViewer] = useState(false);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  
+  const getIncidentIcon = () => {
+    if (incident.type === 'behavioral') {
+      return { icon: 'fitness', bg: 'rgba(236, 72, 153, 0.25)', color: '#ec4899' };
+    } else if (incident.type === 'fall') {
+      return { icon: 'warning', bg: 'rgba(234, 179, 8, 0.25)', color: '#eab308' };
+    }
+    return { icon: 'alert-circle', bg: 'rgba(239, 68, 68, 0.25)', color: '#ef4444' };
+  };
+  
+  const iconConfig = getIncidentIcon();
+  const isCritical = incident.severity === 'critical';
+  
+  const openPhoto = (index) => {
+    setSelectedPhotoIndex(index);
+    setShowPhotoViewer(true);
+  };
+  
+  return (
+    <SafeAreaView style={familyStyles.incidentContainer}>
+      <ScrollView contentContainerStyle={familyStyles.incidentScrollContent}>
+        {/* Back Button */}
+        <TouchableOpacity style={familyStyles.detailBackBtn} onPress={onBack}>
+          <Ionicons name="chevron-back" size={24} color={COLORS.textSecondary} />
+          <Text style={familyStyles.detailBackText}>Back to Incidents</Text>
+        </TouchableOpacity>
+        
+        {/* Header with Icon and Title */}
+        <View style={familyStyles.detailHeaderRow}>
+          <View style={[familyStyles.detailIconBg, { backgroundColor: iconConfig.bg }]}>
+            <Ionicons name={iconConfig.icon} size={32} color={iconConfig.color} />
+          </View>
+          <View style={familyStyles.detailTitleSection}>
+            <Text style={familyStyles.detailTitle}>{incident.title}</Text>
+            <Text style={familyStyles.detailDateTime}>{incident.dateTime}</Text>
+          </View>
+        </View>
+        
+        {/* Severity and Status Badges */}
+        <View style={familyStyles.badgesRow}>
+          <View style={[
+            familyStyles.statusBadge, 
+            isCritical ? familyStyles.statusBadgeCritical : familyStyles.statusBadgeHigh
+          ]}>
+            <Text style={[
+              familyStyles.statusBadgeText,
+              isCritical ? familyStyles.statusTextCritical : familyStyles.statusTextHigh
+            ]}>
+              {isCritical ? 'Critical Severity' : 'High Severity'}
+            </Text>
+          </View>
+          <View style={familyStyles.statusBadgeOpen}>
+            <Text style={[familyStyles.statusBadgeText, familyStyles.statusTextOpen]}>Open</Text>
+          </View>
+        </View>
+        
+        {/* What Happened */}
+        <View style={familyStyles.detailCard}>
+          <Text style={familyStyles.detailCardLabel}>WHAT HAPPENED</Text>
+          <Text style={familyStyles.detailCardText}>{incident.description}</Text>
+        </View>
+        
+        {/* Actions Taken */}
+        <View style={familyStyles.detailCard}>
+          <Text style={familyStyles.detailCardLabel}>ACTIONS TAKEN</Text>
+          <Text style={familyStyles.detailCardText}>{incident.actionsTaken}</Text>
+        </View>
+        
+        {/* Evidence Photos */}
+        <View style={familyStyles.evidenceCard}>
+          <View style={familyStyles.evidenceHeader}>
+            <Text style={familyStyles.evidenceTitle}>EVIDENCE PHOTOS ({incident.photos.length})</Text>
+            <TouchableOpacity style={familyStyles.evidenceTapView} onPress={() => openPhoto(0)}>
+              <Ionicons name="expand-outline" size={16} color={COLORS.primary} style={familyStyles.evidenceTapIcon} />
+              <Text style={familyStyles.evidenceTapText}>Tap to view</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={familyStyles.evidenceGrid}>
+            {incident.photos.map((photo, index) => (
+              <TouchableOpacity key={index} onPress={() => openPhoto(index)}>
+                <Image source={{ uri: photo }} style={familyStyles.evidencePhoto} resizeMode="cover" />
+                <View style={familyStyles.evidencePhotoZoom}>
+                  <Ionicons name="expand-outline" size={16} color={COLORS.white} />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+        
+        {/* Reported By */}
+        <View style={familyStyles.reportedByCard}>
+          <Text style={familyStyles.reportedByLabel}>REPORTED BY</Text>
+          <View style={familyStyles.reportedByRow}>
+            <Image source={{ uri: incident.reporter.avatar }} style={familyStyles.reportedByAvatar} />
+            <View style={familyStyles.reportedByInfo}>
+              <Text style={familyStyles.reportedByName}>{incident.reporter.name}</Text>
+              {incident.reporter.verified && (
+                <View style={familyStyles.reportedByVerified}>
+                  <Ionicons name="checkmark-circle" size={18} color={COLORS.primary} />
+                  <Text style={familyStyles.reportedByVerifiedText}>Verified</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </View>
+        
+        {/* Notification Banner */}
+        <View style={familyStyles.notificationBanner}>
+          <Ionicons name="shield-checkmark-outline" size={24} color={COLORS.primary} style={familyStyles.notificationIcon} />
+          <Text style={familyStyles.notificationText}>You were notified about this incident when it was reported.</Text>
+        </View>
+      </ScrollView>
+      
+      {/* Photo Viewer Modal */}
+      <FamilyPhotoViewerModal
+        visible={showPhotoViewer}
+        onClose={() => setShowPhotoViewer(false)}
+        photos={incident.photos}
+        initialIndex={selectedPhotoIndex}
+      />
+    </SafeAreaView>
+  );
+};
+
+// ============================================
+// FAMILY INCIDENT LIST SCREEN
+// ============================================
+const FamilyIncidentListScreen = ({ onSelectIncident }) => {
+  const totalIncidents = FAMILY_INCIDENTS.length;
+  const resolvedIncidents = FAMILY_INCIDENTS.filter(i => i.status === 'resolved').length;
+  const openIncidents = FAMILY_INCIDENTS.filter(i => i.status === 'open').length;
+  
+  const getIncidentIcon = (type) => {
+    if (type === 'behavioral') {
+      return { icon: 'fitness', bg: 'rgba(236, 72, 153, 0.25)', color: '#ec4899' };
+    } else if (type === 'fall') {
+      return { icon: 'warning', bg: 'rgba(234, 179, 8, 0.25)', color: '#eab308' };
+    }
+    return { icon: 'alert-circle', bg: 'rgba(239, 68, 68, 0.25)', color: '#ef4444' };
+  };
+  
+  return (
+    <SafeAreaView style={familyStyles.incidentContainer}>
+      <ScrollView contentContainerStyle={familyStyles.incidentScrollContent}>
+        {/* Header */}
+        <View style={familyStyles.incidentHeader}>
+          <Text style={familyStyles.incidentTitle}>Incident Reports</Text>
+          <Text style={familyStyles.incidentSubtitle}>Care incidents reported for {PATIENT.name}</Text>
+        </View>
+        
+        {/* Summary Card */}
+        <View style={familyStyles.summaryCard}>
+          <View style={familyStyles.summaryHeader}>
+            <Text style={familyStyles.summaryTitle}>Summary</Text>
+            <Text style={familyStyles.summaryPeriod}>Last 30 days</Text>
+          </View>
+          <View style={familyStyles.summaryStats}>
+            <View style={familyStyles.summaryStat}>
+              <Text style={familyStyles.summaryStatValue}>{totalIncidents}</Text>
+              <Text style={familyStyles.summaryStatLabel}>Total</Text>
+            </View>
+            <View style={familyStyles.summaryStat}>
+              <Text style={familyStyles.summaryStatValueRed}>{resolvedIncidents}</Text>
+              <Text style={familyStyles.summaryStatLabel}>Resolved</Text>
+            </View>
+            <View style={familyStyles.summaryStat}>
+              <Text style={familyStyles.summaryStatValueGreen}>{openIncidents}</Text>
+              <Text style={familyStyles.summaryStatLabel}>Open</Text>
+            </View>
+          </View>
+        </View>
+        
+        {/* Recent Incidents Header */}
+        <View style={familyStyles.recentHeader}>
+          <Ionicons name="document-text-outline" size={20} color={COLORS.white} style={familyStyles.recentIcon} />
+          <Text style={familyStyles.recentTitle}>Recent Incidents</Text>
+        </View>
+        
+        {/* Incident Cards */}
+        {FAMILY_INCIDENTS.map((incident) => {
+          const iconConfig = getIncidentIcon(incident.type);
+          const isCritical = incident.severity === 'critical';
+          
+          return (
+            <TouchableOpacity 
+              key={incident.id} 
+              style={familyStyles.incidentCard}
+              onPress={() => onSelectIncident(incident)}
+            >
+              <View style={[familyStyles.incidentIconBg, { backgroundColor: iconConfig.bg }]}>
+                <Ionicons name={iconConfig.icon} size={28} color={iconConfig.color} />
+              </View>
+              <View style={familyStyles.incidentInfo}>
+                <View style={familyStyles.incidentCardTitleRow}>
+                  <Text style={familyStyles.incidentCardTitle}>{incident.title}</Text>
+                  <View style={[
+                    familyStyles.severityBadge,
+                    isCritical ? familyStyles.severityBadgeCritical : familyStyles.severityBadgeHigh
+                  ]}>
+                    <Text style={[
+                      familyStyles.severityBadgeText,
+                      isCritical ? familyStyles.severityTextCritical : familyStyles.severityTextHigh
+                    ]}>
+                      {isCritical ? 'CRITICAL' : 'HIGH'}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={familyStyles.incidentCardDesc}>{incident.description}</Text>
+                <Text style={familyStyles.incidentCardTime}>{incident.dateTime}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color={COLORS.textSecondary} />
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+// ============================================
+// FAMILY INCIDENT SCREEN (Main Container)
+// ============================================
+const FamilyIncidentScreen = () => {
+  const [selectedIncident, setSelectedIncident] = useState(null);
+  
+  if (selectedIncident) {
+    return (
+      <FamilyIncidentDetailScreen 
+        incident={selectedIncident} 
+        onBack={() => setSelectedIncident(null)} 
+      />
+    );
+  }
+  
+  return <FamilyIncidentListScreen onSelectIncident={setSelectedIncident} />;
+};
+
+// ============================================
+// FAMILY INCIDENT TAB ICON WITH BADGE
+// ============================================
+const FamilyIncidentTabIcon = ({ focused, color }) => {
+  const incidentCount = FAMILY_INCIDENTS.filter(i => i.status === 'open').length;
+  
+  return (
+    <View style={{ position: 'relative' }}>
+      <Ionicons name={focused ? "warning" : "warning-outline"} size={24} color={color} />
+      {incidentCount > 0 && (
+        <View style={{
+          position: 'absolute',
+          top: -6,
+          right: -10,
+          backgroundColor: '#ef4444',
+          borderRadius: 10,
+          minWidth: 18,
+          height: 18,
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingHorizontal: 4,
+        }}>
+          <Text style={{ color: '#fff', fontSize: 11, fontWeight: 'bold' }}>{incidentCount}</Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
+// ============================================
 // FAMILY DASHBOARD (Complete)
 // ============================================
 const FamilyDashboard = ({ onSignOut }) => {
