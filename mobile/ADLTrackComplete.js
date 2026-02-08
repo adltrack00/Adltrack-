@@ -7149,8 +7149,8 @@ const FamilyDashboard = ({ onSignOut }) => {
       >
         <FamilyTab.Screen name="Home" component={HomeWrapper}
           options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} /> }} />
-        <FamilyTab.Screen name="Incident" component={IncidentScreen}
-          options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "warning" : "warning-outline"} size={24} color={color} /> }} />
+        <FamilyTab.Screen name="Incident" component={FamilyIncidentScreen}
+          options={{ tabBarIcon: ({ focused, color }) => <FamilyIncidentTabIcon focused={focused} color={color} /> }} />
         <FamilyTab.Screen name="Message" component={FamilyMessagesScreen}
           options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "chatbubble" : "chatbubble-outline"} size={24} color={color} /> }} />
         <FamilyTab.Screen name="Alerts" component={FamilyAlertsScreen}
