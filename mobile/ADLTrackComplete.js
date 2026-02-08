@@ -4829,27 +4829,438 @@ const ShiftsTabIcon = ({ focused, color }) => (
   </View>
 );
 
+// ============================================
+// AI COPILOT DATA
+// ============================================
+const AI_RESPONSES = {
+  fall: `I understand this is an urgent situation. Here's what to do for a patient fall:
+
+**Immediate Steps:**
+1. **Stay calm** and assess the situation
+2. **Do not move** the patient unless there's immediate danger
+3. **Check for injuries** - look for bleeding, swelling, or deformity
+4. **Ask about pain** - can they tell you where it hurts?
+
+**If patient is conscious:**
+• Keep them still and comfortable
+• Apply ice to any bumps or bruises
+• Monitor for signs of head injury
+
+**Document immediately:**
+• Time of fall
+• Location and circumstances
+• Any injuries observed
+• Patient's statements
+
+**When to call 911:**
+• Loss of consciousness
+• Severe bleeding
+• Suspected fractures
+• Head injury
+
+Would you like help documenting this incident?`,
+  medication: `Here's guidance on medication management:
+
+**Before administering:**
+• Verify the 5 Rights: Right patient, drug, dose, route, time
+• Check for allergies
+• Review recent vitals if applicable
+
+**Documentation tips:**
+• Record exact time given
+• Note patient's condition
+• Document any side effects
+
+Need help with a specific medication question?`,
+  default: `I'm happy to help! I can assist with:
+
+• **Care procedures** - Step-by-step guidance
+• **Documentation** - Help recording tasks and incidents  
+• **Vital signs** - Recording and interpreting
+• **Communication** - Tips for family updates
+
+What would you like to know more about?`,
+};
+
+// ============================================
+// AI COPILOT STYLES
+// ============================================
+const aiStyles = StyleSheet.create({
+  // Floating Button
+  fab: {
+    position: 'absolute',
+    bottom: 100,
+    right: 20,
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+  },
+  fabIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fabText: { marginLeft: 10, fontSize: 16, fontWeight: '600', color: COLORS.white },
+
+  // Modal Container
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalContainer: {
+    backgroundColor: COLORS.background,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    height: '85%',
+  },
+
+  // Header
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.cardBorder,
+  },
+  headerIconBg: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  headerInfo: { flex: 1 },
+  headerTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.white },
+  headerSubtitle: { fontSize: 14, color: COLORS.textSecondary, marginTop: 2 },
+  closeBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // Messages Area
+  messagesContainer: { flex: 1 },
+  messagesContent: { padding: 20 },
+
+  // Message Bubbles
+  messageRow: { flexDirection: 'row', marginBottom: 16, alignItems: 'flex-end' },
+  messageRowAI: { justifyContent: 'flex-start' },
+  messageRowUser: { justifyContent: 'flex-end' },
+  
+  avatarBg: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  avatarBgAI: { backgroundColor: 'rgba(34, 197, 94, 0.2)' },
+  avatarBgUser: { backgroundColor: COLORS.primary, marginLeft: 10, marginRight: 0 },
+
+  messageBubble: {
+    maxWidth: '75%',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  aiBubble: {
+    backgroundColor: COLORS.card,
+    borderBottomLeftRadius: 6,
+  },
+  userBubble: {
+    backgroundColor: COLORS.primary,
+    borderBottomRightRadius: 6,
+  },
+  messageText: { fontSize: 16, color: COLORS.white, lineHeight: 24 },
+
+  // Typing Indicator
+  typingRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+  typingBubble: {
+    backgroundColor: COLORS.card,
+    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  typingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.textSecondary,
+    marginHorizontal: 3,
+  },
+
+  // Input Area
+  inputContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.cardBorder,
+  },
+  inputRow: { flexDirection: 'row', alignItems: 'center' },
+  textInput: {
+    flex: 1,
+    backgroundColor: COLORS.card,
+    borderRadius: 24,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: COLORS.white,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    marginRight: 12,
+  },
+  textInputActive: { borderColor: COLORS.primary },
+  sendBtn: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    backgroundColor: COLORS.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sendBtnActive: { backgroundColor: COLORS.primary },
+  
+  // Footer
+  footer: {
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  footerText: { fontSize: 13, color: COLORS.textMuted },
+});
+
+// ============================================
+// AI COPILOT COMPONENT
+// ============================================
+const AICopilot = ({ children }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      text: "Hello! I'm your AI Care Assistant. I'm here to help you provide the best care for David Smith.\n\nI can answer questions about care procedures, help with documentation, and provide guidance on tasks.\n\nHow can I assist you today?",
+      isAI: true,
+    },
+  ]);
+  const [inputText, setInputText] = useState('');
+  const [inputFocused, setInputFocused] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+
+  const getAIResponse = (userMessage) => {
+    const lowerMsg = userMessage.toLowerCase();
+    if (lowerMsg.includes('fall') || lowerMsg.includes('fell')) {
+      return AI_RESPONSES.fall;
+    } else if (lowerMsg.includes('medication') || lowerMsg.includes('medicine') || lowerMsg.includes('drug')) {
+      return AI_RESPONSES.medication;
+    }
+    return AI_RESPONSES.default;
+  };
+
+  const handleSend = () => {
+    if (inputText.trim()) {
+      const userMessage = {
+        id: Date.now(),
+        text: inputText.trim(),
+        isAI: false,
+      };
+      setMessages([...messages, userMessage]);
+      const userInput = inputText;
+      setInputText('');
+      setIsTyping(true);
+
+      // Simulate AI response delay
+      setTimeout(() => {
+        const aiResponse = {
+          id: Date.now() + 1,
+          text: getAIResponse(userInput),
+          isAI: true,
+        };
+        setMessages(prev => [...prev, aiResponse]);
+        setIsTyping(false);
+      }, 1500);
+    }
+  };
+
+  const resetChat = () => {
+    setMessages([
+      {
+        id: 1,
+        text: "Hello! I'm your AI Care Assistant. I'm here to help you provide the best care for David Smith.\n\nI can answer questions about care procedures, help with documentation, and provide guidance on tasks.\n\nHow can I assist you today?",
+        isAI: true,
+      },
+    ]);
+  };
+
+  return (
+    <View style={{ flex: 1 }}>
+      {children}
+      
+      {/* Floating Action Button */}
+      <TouchableOpacity 
+        style={aiStyles.fab}
+        onPress={() => setIsVisible(true)}
+      >
+        <View style={aiStyles.fabIcon}>
+          <Ionicons name="hardware-chip" size={24} color={COLORS.primary} />
+        </View>
+        <Text style={aiStyles.fabText}>AI Copilot</Text>
+      </TouchableOpacity>
+
+      {/* AI Chat Modal */}
+      <Modal visible={isVisible} animationType="slide" transparent>
+        <View style={aiStyles.modalOverlay}>
+          <KeyboardAvoidingView 
+            style={aiStyles.modalContainer}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          >
+            {/* Header */}
+            <View style={aiStyles.header}>
+              <View style={aiStyles.headerIconBg}>
+                <Ionicons name="hardware-chip" size={24} color={COLORS.primary} />
+              </View>
+              <View style={aiStyles.headerInfo}>
+                <Text style={aiStyles.headerTitle}>Care Assistant</Text>
+                <Text style={aiStyles.headerSubtitle}>Powered by AI</Text>
+              </View>
+              <TouchableOpacity 
+                style={aiStyles.closeBtn}
+                onPress={() => {
+                  setIsVisible(false);
+                  resetChat();
+                }}
+              >
+                <Ionicons name="close" size={20} color={COLORS.white} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Messages */}
+            <ScrollView 
+              style={aiStyles.messagesContainer}
+              contentContainerStyle={aiStyles.messagesContent}
+              showsVerticalScrollIndicator={false}
+            >
+              {messages.map((message) => (
+                <View 
+                  key={message.id} 
+                  style={[
+                    aiStyles.messageRow,
+                    message.isAI ? aiStyles.messageRowAI : aiStyles.messageRowUser,
+                  ]}
+                >
+                  {message.isAI && (
+                    <View style={[aiStyles.avatarBg, aiStyles.avatarBgAI]}>
+                      <Ionicons name="hardware-chip" size={18} color={COLORS.primary} />
+                    </View>
+                  )}
+                  <View style={[
+                    aiStyles.messageBubble,
+                    message.isAI ? aiStyles.aiBubble : aiStyles.userBubble,
+                  ]}>
+                    <Text style={aiStyles.messageText}>{message.text}</Text>
+                  </View>
+                  {!message.isAI && (
+                    <View style={[aiStyles.avatarBg, aiStyles.avatarBgUser]}>
+                      <Ionicons name="person" size={18} color={COLORS.white} />
+                    </View>
+                  )}
+                </View>
+              ))}
+              
+              {/* Typing Indicator */}
+              {isTyping && (
+                <View style={aiStyles.typingRow}>
+                  <View style={[aiStyles.avatarBg, aiStyles.avatarBgAI]}>
+                    <Ionicons name="hardware-chip" size={18} color={COLORS.primary} />
+                  </View>
+                  <View style={aiStyles.typingBubble}>
+                    <View style={aiStyles.typingDot} />
+                    <View style={aiStyles.typingDot} />
+                    <View style={aiStyles.typingDot} />
+                  </View>
+                </View>
+              )}
+            </ScrollView>
+
+            {/* Input Area */}
+            <View style={aiStyles.inputContainer}>
+              <View style={aiStyles.inputRow}>
+                <TextInput
+                  style={[
+                    aiStyles.textInput,
+                    inputFocused && aiStyles.textInputActive,
+                  ]}
+                  placeholder="Ask about care..."
+                  placeholderTextColor={COLORS.textMuted}
+                  value={inputText}
+                  onChangeText={setInputText}
+                  onFocus={() => setInputFocused(true)}
+                  onBlur={() => setInputFocused(false)}
+                />
+                <TouchableOpacity 
+                  style={[
+                    aiStyles.sendBtn,
+                    inputText.trim() && aiStyles.sendBtnActive,
+                  ]}
+                  onPress={handleSend}
+                >
+                  <Ionicons name="send" size={22} color={COLORS.white} />
+                </TouchableOpacity>
+              </View>
+              <View style={aiStyles.footer}>
+                <Text style={aiStyles.footerText}>AI care guidance • Not medical advice</Text>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
+    </View>
+  );
+};
+
 const CaregiverTabs = () => (
-  <Tab.Navigator
-    screenOptions={{
-      headerShown: false,
-      tabBarStyle: styles.tabBar,
-      tabBarActiveTintColor: COLORS.primary,
-      tabBarInactiveTintColor: COLORS.textSecondary,
-      tabBarLabelStyle: styles.tabBarLabel,
-    }}
-  >
-    <Tab.Screen name="Home" component={CaregiverHomeScreen}
-      options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} /> }} />
-    <Tab.Screen name="Incident" component={IncidentScreen}
-      options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "warning" : "warning-outline"} size={24} color={color} /> }} />
-    <Tab.Screen name="Message" component={MessageScreen}
-      options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "chatbubble" : "chatbubble-outline"} size={24} color={color} /> }} />
-    <Tab.Screen name="Shifts" component={ShiftsScreen}
-      options={{ tabBarIcon: ({ focused, color }) => <ShiftsTabIcon focused={focused} color={color} /> }} />
-    <Tab.Screen name="Menu" component={MenuScreen}
-      options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "settings" : "settings-outline"} size={24} color={color} /> }} />
-  </Tab.Navigator>
+  <AICopilot>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarStyle: styles.tabBar,
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.textSecondary,
+        tabBarLabelStyle: styles.tabBarLabel,
+      }}
+    >
+      <Tab.Screen name="Home" component={CaregiverHomeScreen}
+        options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} /> }} />
+      <Tab.Screen name="Incident" component={IncidentScreen}
+        options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "warning" : "warning-outline"} size={24} color={color} /> }} />
+      <Tab.Screen name="Message" component={MessageScreen}
+        options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "chatbubble" : "chatbubble-outline"} size={24} color={color} /> }} />
+      <Tab.Screen name="Shifts" component={ShiftsScreen}
+        options={{ tabBarIcon: ({ focused, color }) => <ShiftsTabIcon focused={focused} color={color} /> }} />
+      <Tab.Screen name="Menu" component={MenuScreen}
+        options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "settings" : "settings-outline"} size={24} color={color} /> }} />
+    </Tab.Navigator>
+  </AICopilot>
 );
 
 export default function App() {
