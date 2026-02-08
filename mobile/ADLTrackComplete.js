@@ -697,6 +697,8 @@ const SignInScreen = ({ onBack, onSignUp, onSignIn }) => {
 // AUTH CONTEXT
 // ============================================
 const AuthContext = React.createContext(null);
+const SignOutContext = React.createContext(null);
+
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [authScreen, setAuthScreen] = useState('selectType'); // 'selectType', 'signUp', 'signIn'
