@@ -5764,6 +5764,73 @@ const FAMILY_ALERTS = {
 };
 
 // ============================================
+// CARE TIMELINE DATA
+// ============================================
+const CAREGIVER_JULIA = {
+  name: 'Julia Martinez',
+  role: 'Certified Nursing Assistant',
+  avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+  verified: true,
+};
+
+const CARE_TIMELINE_ITEMS = [
+  {
+    id: 1,
+    title: 'Morning Medication',
+    completedAt: '11:10 AM',
+    description: 'Administer prescribed medications with breakfast',
+    note: 'Patient took all medications without issue',
+    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400',
+    caregiver: CAREGIVER_JULIA,
+  },
+  {
+    id: 2,
+    title: 'Breakfast Assistance',
+    completedAt: '11:11 AM',
+    description: 'Assist patient with breakfast meal',
+    note: 'Patient had oatmeal and fruit. Good appetite today.',
+    image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400',
+    caregiver: CAREGIVER_JULIA,
+  },
+  {
+    id: 3,
+    title: 'Lunch Preparation',
+    completedAt: '11:12 AM',
+    description: 'Prepare and serve balanced lunch',
+    note: 'Patient just ate',
+    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400',
+    caregiver: CAREGIVER_JULIA,
+  },
+  {
+    id: 4,
+    title: 'Afternoon Medication',
+    completedAt: '11:13 AM',
+    description: 'Give afternoon dose of Lisinopril with lunch',
+    note: 'Patient is asleep',
+    image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=400',
+    caregiver: CAREGIVER_JULIA,
+  },
+  {
+    id: 5,
+    title: 'Rest Period',
+    completedAt: '11:13 AM',
+    description: 'Ensure patient rests comfortably',
+    note: 'Patient resting peacefully',
+    image: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400',
+    caregiver: CAREGIVER_JULIA,
+  },
+  {
+    id: 6,
+    title: 'Physical Therapy Exercises',
+    completedAt: '11:13 AM',
+    description: 'Guide through prescribed exercises',
+    note: 'Completed all exercises successfully',
+    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400',
+    caregiver: CAREGIVER_JULIA,
+  },
+];
+
+// ============================================
 // FAMILY STYLES
 // ============================================
 const familyStyles = StyleSheet.create({
