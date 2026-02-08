@@ -6131,10 +6131,10 @@ const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
         <View style={familyStyles.progressSection}>
           <View style={familyStyles.progressHeader}>
             <Text style={familyStyles.progressTitle}>Today's Progress</Text>
-            <Text style={familyStyles.progressCount}>0/12</Text>
+            <Text style={familyStyles.progressCount}>{completedTasksCount}/{totalTasks}</Text>
           </View>
           <View style={familyStyles.progressBar}>
-            <View style={[familyStyles.progressFill, { width: '0%' }]} />
+            <View style={[familyStyles.progressFill, { width: `${progressPercent}%` }]} />
           </View>
         </View>
 
@@ -6149,15 +6149,36 @@ const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Empty State */}
-        <View style={familyStyles.emptyCard}>
-          <View style={familyStyles.emptyIconBg}>
-            <Ionicons name="camera-outline" size={40} color={COLORS.textSecondary} />
+        {/* Content based on active tab */}
+        {activeTab === 'requests' ? (
+          /* Empty State for My Requests */
+          <View style={familyStyles.emptyCard}>
+            <View style={familyStyles.emptyIconBg}>
+              <Ionicons name="list-outline" size={40} color={COLORS.textSecondary} />
+            </View>
+            <Text style={familyStyles.emptyTitle}>No requests yet</Text>
+            <Text style={familyStyles.emptySubtitle}>Your care requests will appear here</Text>
           </View>
-          <Text style={familyStyles.emptyTitle}>No updates yet</Text>
-          <Text style={familyStyles.emptySubtitle}>Photos and notes will appear here as tasks are completed</Text>
-        </View>
+        ) : (
+          /* Care Timeline Feed */
+          <View style={familyStyles.timelineContainer}>
+            {CARE_TIMELINE_ITEMS.map((item) => (
+              <CareTimelineCard 
+                key={item.id} 
+                item={item} 
+                onPress={() => handleTimelineItemPress(item)}
+              />
+            ))}
+          </View>
+        )}
       </ScrollView>
+      
+      {/* Timeline Detail Modal */}
+      <CareTimelineDetailModal
+        visible={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+        item={selectedTimelineItem}
+      />
     </SafeAreaView>
   );
 };
