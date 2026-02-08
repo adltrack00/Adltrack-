@@ -5698,11 +5698,54 @@ const CaregiverTabs = () => (
   </Tab.Navigator>
 );
 
+// ============================================
+// FAMILY DASHBOARD (Placeholder)
+// ============================================
+const FamilyDashboard = () => (
+  <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center' }}>
+    <View style={{ backgroundColor: '#fce7f3', width: 100, height: 100, borderRadius: 30, alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+      <Ionicons name="people" size={50} color="#ec4899" />
+    </View>
+    <Text style={{ fontSize: 28, fontWeight: 'bold', color: COLORS.white, marginBottom: 8 }}>Family Dashboard</Text>
+    <Text style={{ fontSize: 16, color: COLORS.textSecondary, textAlign: 'center', paddingHorizontal: 40 }}>Coming Soon - Monitor care & stay connected with your loved ones</Text>
+  </SafeAreaView>
+);
+
+// ============================================
+// AGENCY DASHBOARD (Placeholder)
+// ============================================
+const AgencyDashboard = () => (
+  <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center' }}>
+    <View style={{ backgroundColor: '#e0e7ff', width: 100, height: 100, borderRadius: 30, alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+      <Ionicons name="briefcase" size={50} color="#6366f1" />
+    </View>
+    <Text style={{ fontSize: 28, fontWeight: 'bold', color: COLORS.white, marginBottom: 8 }}>Agency Dashboard</Text>
+    <Text style={{ fontSize: 16, color: COLORS.textSecondary, textAlign: 'center', paddingHorizontal: 40 }}>Coming Soon - Manage staff, compliance & care operations</Text>
+  </SafeAreaView>
+);
+
+// ============================================
+// MAIN APP WITH ROLE-BASED NAVIGATION
+// ============================================
+const MainApp = () => {
+  const { user } = React.useContext(AuthContext);
+  
+  if (user.role === 'family') {
+    return <FamilyDashboard />;
+  }
+  
+  if (user.role === 'agency') {
+    return <AgencyDashboard />;
+  }
+  
+  return <CaregiverTabs />;
+};
+
 export default function App() {
   return (
     <AuthProvider>
       <NavigationContainer>
-        <CaregiverTabs />
+        <MainApp />
       </NavigationContainer>
     </AuthProvider>
   );
