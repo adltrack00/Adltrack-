@@ -5958,10 +5958,139 @@ const familyStyles = StyleSheet.create({
 });
 
 // ============================================
+// CARE TIMELINE DETAIL MODAL
+// ============================================
+const CareTimelineDetailModal = ({ visible, onClose, item }) => {
+  if (!item) return null;
+  
+  return (
+    <Modal visible={visible} animationType="slide" transparent>
+      <View style={familyStyles.detailModalOverlay}>
+        <SafeAreaView style={familyStyles.detailModalContent}>
+          <ScrollView>
+            {/* Header with caregiver info and close button */}
+            <View style={familyStyles.detailModalHeader}>
+              <Image 
+                source={{ uri: item.caregiver.avatar }} 
+                style={familyStyles.detailModalCaregiverAvatar} 
+              />
+              <View style={familyStyles.detailModalHeaderInfo}>
+                <Text style={familyStyles.detailModalCaregiverName}>{item.caregiver.name}</Text>
+                <Text style={familyStyles.detailModalCaregiverRole}>{item.caregiver.role}</Text>
+              </View>
+              <TouchableOpacity style={familyStyles.detailModalCloseBtn} onPress={onClose}>
+                <Ionicons name="close" size={22} color={COLORS.white} />
+              </TouchableOpacity>
+            </View>
+            
+            {/* Title and completion time */}
+            <View style={familyStyles.detailModalTitleSection}>
+              <Text style={familyStyles.detailModalTitle}>{item.title}</Text>
+              <View style={familyStyles.detailModalTimeRow}>
+                <Ionicons name="time-outline" size={18} color={COLORS.textSecondary} />
+                <Text style={familyStyles.detailModalTimeText}>Completed at {item.completedAt}</Text>
+              </View>
+            </View>
+            
+            {/* Task Image */}
+            <Image 
+              source={{ uri: item.image }} 
+              style={familyStyles.detailModalImage}
+              resizeMode="cover"
+            />
+            
+            {/* Task Description */}
+            <View style={familyStyles.detailModalDescSection}>
+              <Text style={familyStyles.detailModalDescLabel}>TASK DESCRIPTION</Text>
+              <Text style={familyStyles.detailModalDescText}>{item.description}</Text>
+            </View>
+            
+            {/* Divider */}
+            <View style={familyStyles.detailModalDivider} />
+            
+            {/* Caregiver Section */}
+            <View style={familyStyles.detailModalCaregiverSection}>
+              <Image 
+                source={{ uri: item.caregiver.avatar }} 
+                style={familyStyles.detailModalCaregiverAvatarLg} 
+              />
+              <View style={familyStyles.detailModalCaregiverInfoLg}>
+                <Text style={familyStyles.detailModalCaregiverNameLg}>{item.caregiver.name}</Text>
+                <Text style={familyStyles.detailModalCaregiverRoleLg}>{item.caregiver.role}</Text>
+                {item.caregiver.verified && (
+                  <View style={familyStyles.detailModalVerifiedRow}>
+                    <Ionicons name="checkmark-circle" size={16} color={COLORS.primary} />
+                    <Text style={familyStyles.detailModalVerifiedText}>Verified</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </View>
+    </Modal>
+  );
+};
+
+// ============================================
+// CARE TIMELINE CARD
+// ============================================
+const CareTimelineCard = ({ item, onPress }) => (
+  <TouchableOpacity style={familyStyles.timelineCard} onPress={onPress} activeOpacity={0.9}>
+    {/* Image with overlay */}
+    <View>
+      <Image 
+        source={{ uri: item.image }} 
+        style={familyStyles.timelineImage}
+        resizeMode="cover"
+      />
+      <View style={familyStyles.timelineImageOverlay}>
+        <Text style={familyStyles.timelineTitle}>{item.title}</Text>
+        <View style={familyStyles.timelineTimeRow}>
+          <Ionicons name="time-outline" size={16} color="rgba(255,255,255,0.8)" />
+          <Text style={familyStyles.timelineTimeText}>Completed at {item.completedAt}</Text>
+        </View>
+      </View>
+    </View>
+    
+    {/* Note and caregiver info */}
+    <View style={familyStyles.timelineNoteSection}>
+      {item.note && (
+        <Text style={familyStyles.timelineNoteText}>"{item.note}"</Text>
+      )}
+      <View style={familyStyles.timelineCaregiverRow}>
+        <Image 
+          source={{ uri: item.caregiver.avatar }} 
+          style={familyStyles.timelineCaregiverAvatar} 
+        />
+        <View style={familyStyles.timelineCaregiverInfo}>
+          <Text style={familyStyles.timelineCaregiverName}>{item.caregiver.name}</Text>
+          <Text style={familyStyles.timelineCaregiverRole}>Caregiver</Text>
+        </View>
+        <View style={familyStyles.timelineDetailBtn}>
+          <Ionicons name="document-text-outline" size={20} color={COLORS.white} />
+        </View>
+      </View>
+    </View>
+  </TouchableOpacity>
+);
+
+// ============================================
 // FAMILY HOME SCREEN
 // ============================================
 const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
-  const [activeTab, setActiveTab] = useState('requests');
+  const [activeTab, setActiveTab] = useState('timeline');
+  const [selectedTimelineItem, setSelectedTimelineItem] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  
+  const handleTimelineItemPress = (item) => {
+    setSelectedTimelineItem(item);
+    setShowDetailModal(true);
+  };
+  
+  const completedTasksCount = CARE_TIMELINE_ITEMS.length;
+  const totalTasks = 12;
+  const progressPercent = (completedTasksCount / totalTasks) * 100;
 
   return (
     <SafeAreaView style={familyStyles.container}>
