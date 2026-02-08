@@ -2716,6 +2716,18 @@ const incStyles = StyleSheet.create({
   photoOptionText: { fontSize: 18, color: COLORS.white, marginLeft: 12 },
   photoOptionCancelText: { fontSize: 18, fontWeight: '600', color: COLORS.critical },
   photoOptionDivider: { height: 1, backgroundColor: COLORS.cardBorder },
+  photosCountText: { fontSize: 15, fontWeight: '600', color: COLORS.primary, marginBottom: 12, marginTop: 20 },
+  addMorePhotosBtn: { 
+    width: (SCREEN_WIDTH - 60) / 3, 
+    height: (SCREEN_WIDTH - 60) / 3, 
+    borderRadius: 12, 
+    backgroundColor: COLORS.card, 
+    borderWidth: 2, 
+    borderStyle: 'dashed', 
+    borderColor: COLORS.textMuted,
+    alignItems: 'center', 
+    justifyContent: 'center',
+  },
   
   // Step 4 - Review
   reviewTitle: { fontSize: 22, fontWeight: '600', color: COLORS.white, marginBottom: 20 },
