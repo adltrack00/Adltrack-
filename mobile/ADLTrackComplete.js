@@ -3338,6 +3338,7 @@ const incStyles = StyleSheet.create({
   },
   submitBtnText: { fontSize: 17, fontWeight: '600', color: COLORS.white },
 });
+
 const MessageScreen = () => <PlaceholderScreen icon="chatbubble-outline" title="Messages" />;
 const ShiftsScreen = () => <PlaceholderScreen icon="time-outline" title="Shifts" />;
 const MenuScreen = () => <PlaceholderScreen icon="settings-outline" title="Menu" />;
