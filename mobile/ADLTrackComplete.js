@@ -245,12 +245,523 @@ const HISTORY_TASKS = {
 const CARE_ACTIVITY_DATES = [10, 13, 14, 15, 16];
 
 // ============================================
+// AUTH STYLES
+// ============================================
+const authStyles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#ffffff' },
+  scrollContent: { flexGrow: 1, paddingHorizontal: 24, paddingBottom: 30 },
+  
+  // Logo
+  logoContainer: { flexDirection: 'row', alignItems: 'center', paddingTop: 20, marginBottom: 20 },
+  logoIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#22c55e', alignItems: 'center', justifyContent: 'center' },
+  logoText: { fontSize: 24, fontWeight: 'bold', color: '#22c55e', marginLeft: 10 },
+  
+  // Header
+  headerDivider: { height: 1, backgroundColor: '#e5e7eb', marginBottom: 30 },
+  title: { fontSize: 32, fontWeight: 'bold', color: '#1f2937', textAlign: 'center', marginBottom: 8 },
+  subtitle: { fontSize: 16, color: '#6b7280', textAlign: 'center', marginBottom: 30 },
+  
+  // Account Type Badge
+  typeBadge: { alignSelf: 'center', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 20, marginBottom: 24 },
+  typeBadgeText: { fontSize: 16, fontWeight: '600' },
+  
+  // Account Cards
+  accountCard: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#ffffff', 
+    borderRadius: 16, 
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+  },
+  accountCardSelected: { borderWidth: 2 },
+  accountIconBg: { width: 64, height: 64, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginRight: 16 },
+  accountInfo: { flex: 1 },
+  accountTitle: { fontSize: 20, fontWeight: '600', color: '#1f2937', marginBottom: 4 },
+  accountSubtitle: { fontSize: 15, color: '#6b7280', lineHeight: 20 },
+  accountArrow: { marginLeft: 8 },
+  
+  // Social Buttons
+  socialBtn: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    backgroundColor: '#ffffff', 
+    borderRadius: 16, 
+    paddingVertical: 18,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  socialBtnText: { fontSize: 17, fontWeight: '600', color: '#1f2937', marginLeft: 12 },
+  googleIcon: { width: 24, height: 24 },
+  
+  // Divider
+  dividerRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 24 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: '#e5e7eb' },
+  dividerText: { marginHorizontal: 16, fontSize: 15, color: '#9ca3af' },
+  
+  // Form
+  inputLabel: { fontSize: 15, fontWeight: '600', color: '#1f2937', marginBottom: 8 },
+  inputContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#f3f4f6', 
+    borderRadius: 16, 
+    paddingHorizontal: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  inputIcon: { marginRight: 12 },
+  textInput: { flex: 1, paddingVertical: 18, fontSize: 16, color: '#1f2937' },
+  eyeBtn: { padding: 8 },
+  
+  // Submit Button
+  submitBtn: { borderRadius: 16, paddingVertical: 18, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', marginTop: 8 },
+  submitBtnText: { fontSize: 18, fontWeight: '600', color: '#ffffff', marginRight: 8 },
+  
+  // Links
+  linkRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
+  linkText: { fontSize: 16, color: '#6b7280' },
+  linkBtn: { fontSize: 16, fontWeight: '600' },
+  
+  // Terms
+  termsText: { fontSize: 14, color: '#9ca3af', textAlign: 'center', marginTop: 24, lineHeight: 20 },
+  termsLink: { textDecorationLine: 'underline' },
+  
+  // Footer
+  footer: { marginTop: 'auto', paddingTop: 20, borderTopWidth: 1, borderTopColor: '#e5e7eb' },
+  footerText: { fontSize: 14, color: '#9ca3af', textAlign: 'center', marginTop: 16 },
+});
+
+// Account type configurations
+const ACCOUNT_TYPES = {
+  caregiver: {
+    title: "I'm a Caregiver",
+    subtitle: 'Manage shifts, tasks & documentation',
+    badgeTitle: 'Caregiver Account',
+    formSubtitle: 'Manage shifts, tasks & care documentation',
+    icon: 'heart',
+    iconBg: '#d1fae5',
+    iconColor: '#10b981',
+    borderColor: '#10b981',
+    buttonColor: '#10b981',
+    badgeBg: '#d1fae5',
+    badgeText: '#10b981',
+  },
+  family: {
+    title: "I'm a Family Member",
+    subtitle: 'Monitor care & stay connected',
+    badgeTitle: 'Family Member Account',
+    formSubtitle: 'Monitor care & stay connected with your loved ones',
+    icon: 'people',
+    iconBg: '#fce7f3',
+    iconColor: '#ec4899',
+    borderColor: '#ec4899',
+    buttonColor: '#ec4899',
+    badgeBg: '#fce7f3',
+    badgeText: '#ec4899',
+  },
+  agency: {
+    title: "I'm an Agency",
+    subtitle: 'Manage staff & compliance',
+    badgeTitle: 'Care Agency Account',
+    formSubtitle: 'Manage staff, compliance & care operations',
+    icon: 'briefcase',
+    iconBg: '#e0e7ff',
+    iconColor: '#6366f1',
+    borderColor: '#6366f1',
+    buttonColor: '#6366f1',
+    badgeBg: '#e0e7ff',
+    badgeText: '#6366f1',
+  },
+};
+
+// ============================================
+// AUTH SCREENS
+// ============================================
+const AccountTypeScreen = ({ onSelectType, onSignIn }) => {
+  const [selectedType, setSelectedType] = useState(null);
+
+  const handleSelect = (type) => {
+    setSelectedType(type);
+    setTimeout(() => onSelectType(type), 200);
+  };
+
+  return (
+    <SafeAreaView style={authStyles.container}>
+      <ScrollView contentContainerStyle={authStyles.scrollContent}>
+        {/* Logo */}
+        <View style={authStyles.logoContainer}>
+          <View style={authStyles.logoIcon}>
+            <Ionicons name="pulse" size={24} color="#ffffff" />
+          </View>
+          <Text style={authStyles.logoText}>Adltrack</Text>
+        </View>
+        
+        <View style={authStyles.headerDivider} />
+        
+        {/* Header */}
+        <Text style={authStyles.title}>Create your account</Text>
+        <Text style={authStyles.subtitle}>Select your account type to get started</Text>
+        
+        {/* Account Type Cards */}
+        {Object.entries(ACCOUNT_TYPES).map(([key, config]) => (
+          <TouchableOpacity
+            key={key}
+            style={[
+              authStyles.accountCard,
+              selectedType === key && { borderColor: config.borderColor },
+            ]}
+            onPress={() => handleSelect(key)}
+          >
+            <View style={[authStyles.accountIconBg, { backgroundColor: config.iconBg }]}>
+              <Ionicons name={config.icon} size={32} color={config.iconColor} />
+            </View>
+            <View style={authStyles.accountInfo}>
+              <Text style={authStyles.accountTitle}>{config.title}</Text>
+              <Text style={authStyles.accountSubtitle}>{config.subtitle}</Text>
+            </View>
+            <Ionicons 
+              name="arrow-forward" 
+              size={24} 
+              color={selectedType === key ? config.iconColor : '#9ca3af'} 
+              style={authStyles.accountArrow}
+            />
+          </TouchableOpacity>
+        ))}
+        
+        {/* Sign In Link */}
+        <View style={authStyles.linkRow}>
+          <Text style={authStyles.linkText}>Already have an account? </Text>
+          <TouchableOpacity onPress={onSignIn}>
+            <Text style={[authStyles.linkBtn, { color: '#10b981' }]}>Sign in</Text>
+          </TouchableOpacity>
+        </View>
+        
+        {/* Footer */}
+        <View style={authStyles.footer}>
+          <Text style={authStyles.footerText}>© 2026 Adltrack. Secure care coordination.</Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const SignUpScreen = ({ accountType, onBack, onSignIn, onCreateAccount }) => {
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  
+  const config = ACCOUNT_TYPES[accountType];
+
+  const handleCreateAccount = () => {
+    if (fullName && email && password) {
+      onCreateAccount(accountType);
+    }
+  };
+
+  return (
+    <SafeAreaView style={authStyles.container}>
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView contentContainerStyle={authStyles.scrollContent} keyboardShouldPersistTaps="handled">
+          {/* Logo */}
+          <View style={authStyles.logoContainer}>
+            <View style={authStyles.logoIcon}>
+              <Ionicons name="pulse" size={24} color="#ffffff" />
+            </View>
+            <Text style={authStyles.logoText}>Adltrack</Text>
+          </View>
+          
+          <View style={authStyles.headerDivider} />
+          
+          {/* Account Type Badge */}
+          <View style={[authStyles.typeBadge, { backgroundColor: config.badgeBg }]}>
+            <Text style={[authStyles.typeBadgeText, { color: config.badgeText }]}>{config.badgeTitle}</Text>
+          </View>
+          
+          {/* Header */}
+          <Text style={authStyles.title}>Create your account</Text>
+          <Text style={authStyles.subtitle}>{config.formSubtitle}</Text>
+          
+          {/* Social Buttons */}
+          <TouchableOpacity style={authStyles.socialBtn}>
+            <Text style={{ fontSize: 20 }}>G</Text>
+            <Text style={authStyles.socialBtnText}>Sign up with Google</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={authStyles.socialBtn}>
+            <Ionicons name="logo-apple" size={24} color="#000000" />
+            <Text style={authStyles.socialBtnText}>Sign up with Apple</Text>
+          </TouchableOpacity>
+          
+          {/* Divider */}
+          <View style={authStyles.dividerRow}>
+            <View style={authStyles.dividerLine} />
+            <Text style={authStyles.dividerText}>or continue with email</Text>
+            <View style={authStyles.dividerLine} />
+          </View>
+          
+          {/* Form */}
+          <Text style={authStyles.inputLabel}>Full Name</Text>
+          <View style={authStyles.inputContainer}>
+            <Ionicons name="person-outline" size={22} color="#9ca3af" style={authStyles.inputIcon} />
+            <TextInput
+              style={authStyles.textInput}
+              placeholder="Enter your full name"
+              placeholderTextColor="#9ca3af"
+              value={fullName}
+              onChangeText={setFullName}
+            />
+          </View>
+          
+          <Text style={authStyles.inputLabel}>Email</Text>
+          <View style={authStyles.inputContainer}>
+            <Ionicons name="mail-outline" size={22} color="#9ca3af" style={authStyles.inputIcon} />
+            <TextInput
+              style={authStyles.textInput}
+              placeholder="Enter your email"
+              placeholderTextColor="#9ca3af"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
+          
+          <Text style={authStyles.inputLabel}>Password</Text>
+          <View style={authStyles.inputContainer}>
+            <Ionicons name="lock-closed-outline" size={22} color="#9ca3af" style={authStyles.inputIcon} />
+            <TextInput
+              style={authStyles.textInput}
+              placeholder="Create a password"
+              placeholderTextColor="#9ca3af"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity style={authStyles.eyeBtn} onPress={() => setShowPassword(!showPassword)}>
+              <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={22} color="#9ca3af" />
+            </TouchableOpacity>
+          </View>
+          
+          {/* Submit Button */}
+          <TouchableOpacity 
+            style={[authStyles.submitBtn, { backgroundColor: config.buttonColor }]}
+            onPress={handleCreateAccount}
+          >
+            <Text style={authStyles.submitBtnText}>Create Account</Text>
+            <Ionicons name="arrow-forward" size={22} color="#ffffff" />
+          </TouchableOpacity>
+          
+          {/* Sign In Link */}
+          <View style={authStyles.linkRow}>
+            <Text style={authStyles.linkText}>Already have an account? </Text>
+            <TouchableOpacity onPress={onSignIn}>
+              <Text style={[authStyles.linkBtn, { color: config.buttonColor }]}>Sign in</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Terms */}
+          <Text style={authStyles.termsText}>
+            By creating an account, you agree to our{' '}
+            <Text style={authStyles.termsLink}>Terms of Service</Text> and{' '}
+            <Text style={authStyles.termsLink}>Privacy Policy</Text>
+          </Text>
+          
+          {/* Footer */}
+          <View style={authStyles.footer}>
+            <Text style={authStyles.footerText}>© 2026 Adltrack. Secure care coordination.</Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
+
+const SignInScreen = ({ onBack, onSignUp, onSignIn }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  return (
+    <SafeAreaView style={authStyles.container}>
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView contentContainerStyle={authStyles.scrollContent} keyboardShouldPersistTaps="handled">
+          {/* Logo */}
+          <View style={authStyles.logoContainer}>
+            <View style={authStyles.logoIcon}>
+              <Ionicons name="pulse" size={24} color="#ffffff" />
+            </View>
+            <Text style={authStyles.logoText}>Adltrack</Text>
+          </View>
+          
+          <View style={authStyles.headerDivider} />
+          
+          {/* Header */}
+          <Text style={authStyles.title}>Welcome back</Text>
+          <Text style={authStyles.subtitle}>Sign in to continue to your account</Text>
+          
+          {/* Social Buttons */}
+          <TouchableOpacity style={authStyles.socialBtn}>
+            <Text style={{ fontSize: 20 }}>G</Text>
+            <Text style={authStyles.socialBtnText}>Sign in with Google</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={authStyles.socialBtn}>
+            <Ionicons name="logo-apple" size={24} color="#000000" />
+            <Text style={authStyles.socialBtnText}>Sign in with Apple</Text>
+          </TouchableOpacity>
+          
+          {/* Divider */}
+          <View style={authStyles.dividerRow}>
+            <View style={authStyles.dividerLine} />
+            <Text style={authStyles.dividerText}>or continue with email</Text>
+            <View style={authStyles.dividerLine} />
+          </View>
+          
+          {/* Form */}
+          <Text style={authStyles.inputLabel}>Email</Text>
+          <View style={authStyles.inputContainer}>
+            <Ionicons name="mail-outline" size={22} color="#9ca3af" style={authStyles.inputIcon} />
+            <TextInput
+              style={authStyles.textInput}
+              placeholder="Enter your email"
+              placeholderTextColor="#9ca3af"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
+          
+          <Text style={authStyles.inputLabel}>Password</Text>
+          <View style={authStyles.inputContainer}>
+            <Ionicons name="lock-closed-outline" size={22} color="#9ca3af" style={authStyles.inputIcon} />
+            <TextInput
+              style={authStyles.textInput}
+              placeholder="Enter your password"
+              placeholderTextColor="#9ca3af"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity style={authStyles.eyeBtn} onPress={() => setShowPassword(!showPassword)}>
+              <Ionicons name={showPassword ? "eye-outline" : "eye-off-outline"} size={22} color="#9ca3af" />
+            </TouchableOpacity>
+          </View>
+          
+          {/* Forgot Password */}
+          <TouchableOpacity style={{ alignSelf: 'flex-end', marginBottom: 20 }}>
+            <Text style={{ color: '#10b981', fontSize: 15, fontWeight: '600' }}>Forgot password?</Text>
+          </TouchableOpacity>
+          
+          {/* Submit Button */}
+          <TouchableOpacity 
+            style={[authStyles.submitBtn, { backgroundColor: '#10b981' }]}
+            onPress={() => onSignIn('caregiver')}
+          >
+            <Text style={authStyles.submitBtnText}>Sign In</Text>
+            <Ionicons name="arrow-forward" size={22} color="#ffffff" />
+          </TouchableOpacity>
+          
+          {/* Sign Up Link */}
+          <View style={authStyles.linkRow}>
+            <Text style={authStyles.linkText}>Don't have an account? </Text>
+            <TouchableOpacity onPress={onSignUp}>
+              <Text style={[authStyles.linkBtn, { color: '#10b981' }]}>Sign up</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {/* Footer */}
+          <View style={authStyles.footer}>
+            <Text style={authStyles.footerText}>© 2026 Adltrack. Secure care coordination.</Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
+
+// ============================================
 // AUTH CONTEXT
 // ============================================
 const AuthContext = React.createContext(null);
 const AuthProvider = ({ children }) => {
-  const [user] = useState({ role: 'caregiver', name: 'Sarah Johnson' });
-  return <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>;
+  const [user, setUser] = useState(null);
+  const [authScreen, setAuthScreen] = useState('selectType'); // 'selectType', 'signUp', 'signIn'
+  const [selectedAccountType, setSelectedAccountType] = useState(null);
+
+  const handleSelectType = (type) => {
+    setSelectedAccountType(type);
+    setAuthScreen('signUp');
+  };
+
+  const handleSignUp = () => {
+    setAuthScreen('selectType');
+  };
+
+  const handleSignIn = () => {
+    setAuthScreen('signIn');
+  };
+
+  const handleCreateAccount = (accountType) => {
+    setUser({ role: accountType, name: 'User' });
+  };
+
+  const handleLogin = (accountType) => {
+    setUser({ role: accountType || 'caregiver', name: 'Sarah Johnson' });
+  };
+
+  const handleSignOut = () => {
+    setUser(null);
+    setAuthScreen('selectType');
+    setSelectedAccountType(null);
+  };
+
+  if (!user) {
+    if (authScreen === 'selectType') {
+      return (
+        <AccountTypeScreen 
+          onSelectType={handleSelectType}
+          onSignIn={handleSignIn}
+        />
+      );
+    } else if (authScreen === 'signUp') {
+      return (
+        <SignUpScreen 
+          accountType={selectedAccountType}
+          onBack={handleSignUp}
+          onSignIn={handleSignIn}
+          onCreateAccount={handleCreateAccount}
+        />
+      );
+    } else if (authScreen === 'signIn') {
+      return (
+        <SignInScreen 
+          onBack={handleSignUp}
+          onSignUp={handleSignUp}
+          onSignIn={handleLogin}
+        />
+      );
+    }
+  }
+
+  return (
+    <AuthContext.Provider value={{ user, signOut: handleSignOut }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 const Tab = createBottomTabNavigator();
