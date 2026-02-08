@@ -5415,7 +5415,7 @@ const MenuScreen = () => {
         </View>
 
         {/* Sign Out */}
-        <TouchableOpacity style={menuStyles.signOutCard}>
+        <TouchableOpacity style={menuStyles.signOutCard} onPress={signOut}>
           <View style={menuStyles.signOutIconBg}>
             <Ionicons name="person-outline" size={24} color="#ef4444" />
           </View>
