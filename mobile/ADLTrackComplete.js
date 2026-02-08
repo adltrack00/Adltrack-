@@ -2663,7 +2663,7 @@ const styles = StyleSheet.create({
   completeTaskBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary, paddingVertical: 18, borderRadius: 14, gap: 10 },
   completeTaskBtnDisabled: { backgroundColor: COLORS.cardBorder },
   completeTaskBtnText: { fontSize: 18, fontWeight: '600', color: COLORS.white },
-  submitReportBtn: { alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.cardBorder, paddingVertical: 18, borderRadius: 14 },
+  submitReportBtn: { alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.confirmBtn, paddingVertical: 18, borderRadius: 14 },
   submitReportBtnDisabled: { backgroundColor: COLORS.cardBorder },
   submitReportBtnText: { fontSize: 18, fontWeight: '600', color: COLORS.white },
   submitReportBtnTextDisabled: { color: COLORS.textMuted },
