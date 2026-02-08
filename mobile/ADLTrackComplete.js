@@ -6075,7 +6075,8 @@ const familyStyles = StyleSheet.create({
   evidenceTapIcon: { marginRight: 6 },
   evidenceTapText: { fontSize: 14, fontWeight: '600', color: COLORS.primary },
   evidenceGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
-  evidencePhoto: { width: '48%', aspectRatio: 1, borderRadius: 12, backgroundColor: COLORS.cardBorder, marginBottom: 10 },
+  evidencePhotoWrapper: { width: '48%', aspectRatio: 1, borderRadius: 12, marginBottom: 10, position: 'relative', overflow: 'hidden' },
+  evidencePhotoImage: { width: '100%', height: '100%', borderRadius: 12, backgroundColor: COLORS.cardBorder },
   evidencePhotoZoom: { position: 'absolute', right: 8, top: 8, width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' },
   
   // Reported By Section
