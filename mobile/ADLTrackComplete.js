@@ -2107,6 +2107,95 @@ const CaregiverHomeScreen = () => {
     setViewingHistory(null);
   };
 
+  // AI Copilot functions
+  const getAIResponse = (userMessage) => {
+    const lowerMsg = userMessage.toLowerCase();
+    if (lowerMsg.includes('fall') || lowerMsg.includes('fell')) {
+      return `I understand this is an urgent situation. Here's what to do for a patient fall:
+
+**Immediate Steps:**
+1. **Stay calm** and assess the situation
+2. **Do not move** the patient unless there's immediate danger
+3. **Check for injuries** - look for bleeding, swelling, or deformity
+4. **Ask about pain** - can they tell you where it hurts?
+
+**If patient is conscious:**
+• Keep them still and comfortable
+• Apply ice to any bumps or bruises
+• Monitor for signs of head injury
+
+**Document immediately:**
+• Time of fall
+• Location and circumstances
+• Any injuries observed
+• Patient's statements
+
+**When to call 911:**
+• Loss of consciousness
+• Severe bleeding
+• Suspected fractures
+• Head injury
+
+Would you like help documenting this incident?`;
+    } else if (lowerMsg.includes('medication') || lowerMsg.includes('medicine') || lowerMsg.includes('drug')) {
+      return `Here's guidance on medication management:
+
+**Before administering:**
+• Verify the 5 Rights: Right patient, drug, dose, route, time
+• Check for allergies
+• Review recent vitals if applicable
+
+**Documentation tips:**
+• Record exact time given
+• Note patient's condition
+• Document any side effects
+
+Need help with a specific medication question?`;
+    }
+    return `I'm happy to help! I can assist with:
+
+• **Care procedures** - Step-by-step guidance
+• **Documentation** - Help recording tasks and incidents  
+• **Vital signs** - Recording and interpreting
+• **Communication** - Tips for family updates
+
+What would you like to know more about?`;
+  };
+
+  const handleAISend = () => {
+    if (aiInputText.trim()) {
+      const userMessage = {
+        id: Date.now(),
+        text: aiInputText.trim(),
+        isAI: false,
+      };
+      setAiMessages([...aiMessages, userMessage]);
+      const userInput = aiInputText;
+      setAiInputText('');
+      setAiIsTyping(true);
+
+      setTimeout(() => {
+        const aiResponse = {
+          id: Date.now() + 1,
+          text: getAIResponse(userInput),
+          isAI: true,
+        };
+        setAiMessages(prev => [...prev, aiResponse]);
+        setAiIsTyping(false);
+      }, 1500);
+    }
+  };
+
+  const resetAIChat = () => {
+    setAiMessages([
+      {
+        id: 1,
+        text: "Hello! I'm your AI Care Assistant. I'm here to help you provide the best care for David Smith.\n\nI can answer questions about care procedures, help with documentation, and provide guidance on tasks.\n\nHow can I assist you today?",
+        isAI: true,
+      },
+    ]);
+  };
+
   const handleStartTask = (task) => {
     setSelectedTask(task);
     setShowTaskDetail(true);
@@ -2126,6 +2215,7 @@ const CaregiverHomeScreen = () => {
         ? { ...t, cantComplete: true, cantCompleteReason: data.reason, ...data }
         : t
     ));
+  };
   };
 
   const handleOpenCareHistory = () => {
