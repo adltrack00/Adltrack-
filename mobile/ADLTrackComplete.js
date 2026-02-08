@@ -5450,28 +5450,26 @@ const AICopilot = ({ children }) => {
 };
 
 const CaregiverTabs = () => (
-  <AICopilot>
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textSecondary,
-        tabBarLabelStyle: styles.tabBarLabel,
-      }}
-    >
-      <Tab.Screen name="Home" component={CaregiverHomeScreen}
-        options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} /> }} />
-      <Tab.Screen name="Incident" component={IncidentScreen}
-        options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "warning" : "warning-outline"} size={24} color={color} /> }} />
-      <Tab.Screen name="Message" component={MessageScreen}
-        options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "chatbubble" : "chatbubble-outline"} size={24} color={color} /> }} />
-      <Tab.Screen name="Shifts" component={ShiftsScreen}
-        options={{ tabBarIcon: ({ focused, color }) => <ShiftsTabIcon focused={focused} color={color} /> }} />
-      <Tab.Screen name="Menu" component={MenuScreen}
-        options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "settings" : "settings-outline"} size={24} color={color} /> }} />
-    </Tab.Navigator>
-  </AICopilot>
+  <Tab.Navigator
+    screenOptions={{
+      headerShown: false,
+      tabBarStyle: styles.tabBar,
+      tabBarActiveTintColor: COLORS.primary,
+      tabBarInactiveTintColor: COLORS.textSecondary,
+      tabBarLabelStyle: styles.tabBarLabel,
+    }}
+  >
+    <Tab.Screen name="Home" component={CaregiverHomeScreen}
+      options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} /> }} />
+    <Tab.Screen name="Incident" component={IncidentScreen}
+      options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "warning" : "warning-outline"} size={24} color={color} /> }} />
+    <Tab.Screen name="Message" component={MessageScreen}
+      options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "chatbubble" : "chatbubble-outline"} size={24} color={color} /> }} />
+    <Tab.Screen name="Shifts" component={ShiftsScreen}
+      options={{ tabBarIcon: ({ focused, color }) => <ShiftsTabIcon focused={focused} color={color} /> }} />
+    <Tab.Screen name="Menu" component={MenuScreen}
+      options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "settings" : "settings-outline"} size={24} color={color} /> }} />
+  </Tab.Navigator>
 );
 
 export default function App() {
