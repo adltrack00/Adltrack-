@@ -58,6 +58,28 @@ Build a mobile app named "ADLTrack" using Expo (React Native) for caregiving coo
 
 ## What's Been Implemented (Latest)
 
+### December 2025 - Family Incident Reports Feature
+- Added `FAMILY_INCIDENTS` mock data with 2 incidents (Behavioral Change, Fall)
+- Created `FamilyIncidentTabIcon` with red notification badge showing open incident count
+- Created `FamilyIncidentListScreen` with:
+  - Header showing "Incident Reports" title
+  - Summary card with Total/Resolved/Open counts  
+  - Recent Incidents list with severity badges
+- Created `FamilyIncidentDetailScreen` with:
+  - Back navigation button
+  - Incident icon and title with date/time
+  - Severity and Status badges (Critical/High, Open)
+  - What Happened section
+  - Actions Taken section
+  - Evidence Photos grid with tap-to-view functionality
+  - Reported By section with verified caregiver
+  - Notification banner
+- Created `FamilyPhotoViewerModal` with:
+  - Full-screen photo display
+  - Photo counter (1/7, 2/7, etc.)
+  - Left/right navigation arrows
+  - Filename and close hint
+
 ### December 2025 - Care Timeline Feature
 - Added `CARE_TIMELINE_ITEMS` mock data with 6 completed tasks
 - Created `CareTimelineCard` component with:
