@@ -2646,7 +2646,8 @@ const styles = StyleSheet.create({
   notesSection: { marginHorizontal: 16, marginBottom: 20 },
   notesLabel: { fontSize: 12, fontWeight: '600', color: COLORS.textSecondary, marginBottom: 12, letterSpacing: 0.5 },
   notesInput: { backgroundColor: COLORS.card, borderRadius: 16, padding: 16, fontSize: 16, color: COLORS.white, minHeight: 100, borderWidth: 2, borderColor: 'transparent' },
-  notesInputCantComplete: { borderColor: COLORS.primary },
+  notesInputComplete: { borderColor: COLORS.primary },
+  notesInputCantComplete: { borderColor: COLORS.confirmBtn },
 
   // Can't Complete Section
   cantCompleteSection: { marginHorizontal: 16, marginBottom: 20 },
