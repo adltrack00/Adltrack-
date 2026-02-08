@@ -3797,7 +3797,397 @@ const MessageScreen = () => {
 
   return selectedConversation ? renderChatDetail() : renderConversationList();
 };
-const ShiftsScreen = () => <PlaceholderScreen icon="time-outline" title="Shifts" />;
+// ============================================
+// SHIFTS DATA
+// ============================================
+const SHIFT_HISTORY = [
+  {
+    id: 1,
+    date: 'Dec 15, 2024',
+    startTime: '8:00 AM',
+    endTime: '4:00 PM',
+    tasksCompleted: 12,
+    totalTasks: 12,
+    status: 'completed',
+  },
+  {
+    id: 2,
+    date: 'Dec 14, 2024',
+    startTime: '8:00 AM',
+    endTime: '4:00 PM',
+    tasksCompleted: 10,
+    totalTasks: 10,
+    status: 'completed',
+  },
+  {
+    id: 3,
+    date: 'Dec 13, 2024',
+    startTime: '8:00 AM',
+    endTime: '12:00 PM',
+    tasksCompleted: 5,
+    totalTasks: 6,
+    status: 'completed',
+  },
+  {
+    id: 4,
+    date: 'Dec 12, 2024',
+    startTime: '12:00 PM',
+    endTime: '8:00 PM',
+    tasksCompleted: 8,
+    totalTasks: 8,
+    status: 'completed',
+  },
+  {
+    id: 5,
+    date: 'Dec 11, 2024',
+    startTime: '8:00 AM',
+    endTime: '4:00 PM',
+    tasksCompleted: 0,
+    totalTasks: 0,
+    status: 'cancelled',
+  },
+];
+
+// ============================================
+// SHIFTS STYLES
+// ============================================
+const shiftStyles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: COLORS.background },
+  scrollContent: { paddingHorizontal: 20, paddingTop: 60, paddingBottom: 30 },
+  
+  // Current Shift Card - Inactive
+  shiftCardInactive: { 
+    backgroundColor: COLORS.card, 
+    borderRadius: 24, 
+    padding: 24,
+    marginBottom: 20,
+  },
+  shiftCardActive: { 
+    backgroundColor: COLORS.primary, 
+    borderRadius: 24, 
+    padding: 24,
+    marginBottom: 20,
+  },
+  shiftCardHeader: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: 20,
+  },
+  shiftCardTitle: { fontSize: 22, fontWeight: 'bold', color: COLORS.white },
+  inactiveBadge: { 
+    backgroundColor: 'transparent', 
+    borderWidth: 1, 
+    borderColor: COLORS.textMuted, 
+    paddingHorizontal: 14, 
+    paddingVertical: 6, 
+    borderRadius: 20,
+  },
+  inactiveBadgeText: { fontSize: 14, color: COLORS.textMuted },
+  activeBadge: { 
+    backgroundColor: 'rgba(255, 255, 255, 0.25)', 
+    paddingHorizontal: 14, 
+    paddingVertical: 6, 
+    borderRadius: 20,
+  },
+  activeBadgeText: { fontSize: 14, fontWeight: '600', color: COLORS.white },
+  
+  // Active Shift Details
+  shiftDetailRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginBottom: 12,
+  },
+  shiftDetailLabel: { fontSize: 16, color: 'rgba(255, 255, 255, 0.7)' },
+  shiftDetailValue: { fontSize: 16, fontWeight: '600', color: COLORS.white },
+  
+  // Buttons
+  startShiftBtn: { 
+    backgroundColor: COLORS.primary, 
+    paddingVertical: 18, 
+    borderRadius: 16, 
+    alignItems: 'center',
+  },
+  startShiftBtnText: { fontSize: 18, fontWeight: '600', color: COLORS.white },
+  endShiftBtn: { 
+    backgroundColor: COLORS.white, 
+    paddingVertical: 18, 
+    borderRadius: 16, 
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  endShiftBtnText: { fontSize: 18, fontWeight: '600', color: '#ef4444' },
+  
+  // Quick Actions
+  quickActionsCard: { 
+    backgroundColor: COLORS.card, 
+    borderRadius: 24, 
+    padding: 24,
+  },
+  quickActionsTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.white, marginBottom: 20 },
+  quickActionItem: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingVertical: 16,
+  },
+  quickActionIcon: { fontSize: 24, marginRight: 16 },
+  quickActionText: { flex: 1, fontSize: 18, color: COLORS.white },
+  
+  // Shift History Screen
+  historyHeader: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingHorizontal: 20, 
+    paddingTop: 60, 
+    paddingBottom: 20,
+  },
+  historyBackBtn: { marginRight: 16 },
+  historyTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.white },
+  
+  // Filter Tabs
+  filterContainer: { 
+    flexDirection: 'row', 
+    paddingHorizontal: 20, 
+    marginBottom: 20,
+  },
+  filterTab: { 
+    paddingHorizontal: 20, 
+    paddingVertical: 12, 
+    borderRadius: 24, 
+    marginRight: 10,
+    backgroundColor: COLORS.card,
+  },
+  filterTabActive: { backgroundColor: COLORS.primary },
+  filterTabText: { fontSize: 15, fontWeight: '600', color: COLORS.textSecondary },
+  filterTabTextActive: { color: COLORS.white },
+  
+  // Shift History List
+  historyList: { paddingHorizontal: 20 },
+  historyCard: { 
+    backgroundColor: COLORS.card, 
+    borderRadius: 16, 
+    padding: 18,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+  },
+  historyCardCancelled: { borderColor: COLORS.textMuted },
+  historyCardHeader: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    marginBottom: 10,
+  },
+  historyDateRow: { flexDirection: 'row', alignItems: 'center' },
+  historyDate: { fontSize: 18, fontWeight: '600', color: COLORS.white, marginLeft: 8 },
+  completedBadge: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: 'rgba(34, 197, 94, 0.15)', 
+    paddingHorizontal: 12, 
+    paddingVertical: 6, 
+    borderRadius: 20,
+  },
+  completedBadgeText: { fontSize: 13, fontWeight: '600', color: COLORS.primary, marginLeft: 4 },
+  cancelledBadge: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+    paddingHorizontal: 12, 
+    paddingVertical: 6, 
+    borderRadius: 20,
+  },
+  cancelledBadgeText: { fontSize: 13, fontWeight: '600', color: COLORS.textSecondary, marginLeft: 4 },
+  historyDetailsRow: { flexDirection: 'row', alignItems: 'center' },
+  historyTime: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginRight: 20,
+  },
+  historyTimeText: { fontSize: 14, color: COLORS.textSecondary, marginLeft: 6 },
+  historyTasks: { flexDirection: 'row', alignItems: 'center' },
+  historyTasksText: { fontSize: 14, color: COLORS.textSecondary, marginLeft: 6 },
+});
+
+// ============================================
+// SHIFTS SCREEN
+// ============================================
+const ShiftsScreen = () => {
+  const [isShiftActive, setIsShiftActive] = useState(false);
+  const [shiftStartTime, setShiftStartTime] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyFilter, setHistoryFilter] = useState('all');
+  const [tasksCompleted, setTasksCompleted] = useState(0);
+
+  const handleStartShift = () => {
+    setIsShiftActive(true);
+    setShiftStartTime(new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
+    setTasksCompleted(0);
+  };
+
+  const handleEndShift = () => {
+    setIsShiftActive(false);
+    setShiftStartTime(null);
+  };
+
+  const getFilteredHistory = () => {
+    if (historyFilter === 'all') return SHIFT_HISTORY;
+    return SHIFT_HISTORY.filter(shift => shift.status === historyFilter);
+  };
+
+  // Shift History View
+  const renderShiftHistory = () => (
+    <SafeAreaView style={shiftStyles.container}>
+      {/* Header */}
+      <View style={shiftStyles.historyHeader}>
+        <TouchableOpacity 
+          style={shiftStyles.historyBackBtn}
+          onPress={() => setShowHistory(false)}
+        >
+          <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+        <Text style={shiftStyles.historyTitle}>Shift History</Text>
+      </View>
+
+      {/* Filter Tabs */}
+      <View style={shiftStyles.filterContainer}>
+        {['all', 'completed', 'cancelled'].map((filter) => (
+          <TouchableOpacity
+            key={filter}
+            style={[
+              shiftStyles.filterTab,
+              historyFilter === filter && shiftStyles.filterTabActive,
+            ]}
+            onPress={() => setHistoryFilter(filter)}
+          >
+            <Text style={[
+              shiftStyles.filterTabText,
+              historyFilter === filter && shiftStyles.filterTabTextActive,
+            ]}>
+              {filter.charAt(0).toUpperCase() + filter.slice(1)}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* History List */}
+      <ScrollView style={shiftStyles.historyList} showsVerticalScrollIndicator={false}>
+        {getFilteredHistory().map((shift) => (
+          <View 
+            key={shift.id} 
+            style={[
+              shiftStyles.historyCard,
+              shift.status === 'cancelled' && shiftStyles.historyCardCancelled,
+            ]}
+          >
+            <View style={shiftStyles.historyCardHeader}>
+              <View style={shiftStyles.historyDateRow}>
+                <Ionicons name="calendar-outline" size={18} color={COLORS.textSecondary} />
+                <Text style={shiftStyles.historyDate}>{shift.date}</Text>
+              </View>
+              {shift.status === 'completed' ? (
+                <View style={shiftStyles.completedBadge}>
+                  <Ionicons name="checkmark-circle" size={16} color={COLORS.primary} />
+                  <Text style={shiftStyles.completedBadgeText}>Completed</Text>
+                </View>
+              ) : (
+                <View style={shiftStyles.cancelledBadge}>
+                  <Ionicons name="close-circle" size={16} color={COLORS.textSecondary} />
+                  <Text style={shiftStyles.cancelledBadgeText}>Cancelled</Text>
+                </View>
+              )}
+            </View>
+            <View style={shiftStyles.historyDetailsRow}>
+              <View style={shiftStyles.historyTime}>
+                <Ionicons name="time-outline" size={16} color={COLORS.textSecondary} />
+                <Text style={shiftStyles.historyTimeText}>
+                  {shift.startTime} - {shift.endTime}
+                </Text>
+              </View>
+              {shift.status === 'completed' && (
+                <View style={shiftStyles.historyTasks}>
+                  <Ionicons name="checkmark-circle" size={16} color={COLORS.primary} />
+                  <Text style={shiftStyles.historyTasksText}>
+                    {shift.tasksCompleted}/{shift.totalTasks} tasks
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
+  );
+
+  // Main Shifts View
+  const renderMainView = () => (
+    <SafeAreaView style={shiftStyles.container}>
+      <ScrollView contentContainerStyle={shiftStyles.scrollContent}>
+        {/* Current Shift Card */}
+        <View style={isShiftActive ? shiftStyles.shiftCardActive : shiftStyles.shiftCardInactive}>
+          <View style={shiftStyles.shiftCardHeader}>
+            <Text style={shiftStyles.shiftCardTitle}>Current Shift</Text>
+            {isShiftActive ? (
+              <View style={shiftStyles.activeBadge}>
+                <Text style={shiftStyles.activeBadgeText}>Active</Text>
+              </View>
+            ) : (
+              <View style={shiftStyles.inactiveBadge}>
+                <Text style={shiftStyles.inactiveBadgeText}>Inactive</Text>
+              </View>
+            )}
+          </View>
+
+          {isShiftActive ? (
+            <>
+              <View style={shiftStyles.shiftDetailRow}>
+                <Text style={shiftStyles.shiftDetailLabel}>Started</Text>
+                <Text style={shiftStyles.shiftDetailValue}>{shiftStartTime}</Text>
+              </View>
+              <View style={shiftStyles.shiftDetailRow}>
+                <Text style={shiftStyles.shiftDetailLabel}>Patient</Text>
+                <Text style={shiftStyles.shiftDetailValue}>{PATIENT.name}</Text>
+              </View>
+              <View style={shiftStyles.shiftDetailRow}>
+                <Text style={shiftStyles.shiftDetailLabel}>Tasks completed</Text>
+                <Text style={shiftStyles.shiftDetailValue}>{tasksCompleted}/12</Text>
+              </View>
+              <TouchableOpacity style={shiftStyles.endShiftBtn} onPress={handleEndShift}>
+                <Text style={shiftStyles.endShiftBtnText}>End Shift</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <TouchableOpacity style={shiftStyles.startShiftBtn} onPress={handleStartShift}>
+              <Text style={shiftStyles.startShiftBtnText}>Start Shift</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Quick Actions */}
+        <View style={shiftStyles.quickActionsCard}>
+          <Text style={shiftStyles.quickActionsTitle}>Quick Actions</Text>
+          
+          <TouchableOpacity style={shiftStyles.quickActionItem}>
+            <Text style={shiftStyles.quickActionIcon}>💰</Text>
+            <Text style={shiftStyles.quickActionText}>View Earnings</Text>
+            <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={shiftStyles.quickActionItem}
+            onPress={() => setShowHistory(true)}
+          >
+            <Text style={shiftStyles.quickActionIcon}>📋</Text>
+            <Text style={shiftStyles.quickActionText}>Shift History</Text>
+            <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+
+  return showHistory ? renderShiftHistory() : renderMainView();
+};
 const MenuScreen = () => <PlaceholderScreen icon="settings-outline" title="Menu" />;
 
 const ShiftsTabIcon = ({ focused, color }) => (
