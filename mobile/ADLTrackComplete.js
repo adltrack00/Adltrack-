@@ -2573,6 +2573,7 @@ const incStyles = StyleSheet.create({
     alignItems: 'center', 
     justifyContent: 'space-between',
     paddingHorizontal: 20, 
+    paddingTop: 10,
     marginBottom: 16,
   },
   modalHeaderLeft: { flexDirection: 'row', alignItems: 'center' },
