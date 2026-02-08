@@ -4188,7 +4188,639 @@ const ShiftsScreen = () => {
 
   return showHistory ? renderShiftHistory() : renderMainView();
 };
-const MenuScreen = () => <PlaceholderScreen icon="settings-outline" title="Menu" />;
+// ============================================
+// MENU DATA
+// ============================================
+const CAREGIVER_PROFILE = {
+  name: 'Julia Martinez',
+  role: 'Certified Nursing Assistant',
+  avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+  email: 'julia.martinez@careagency.com',
+  phone: '(555) 567-8901',
+  rating: 4.9,
+  years: 5,
+  shifts: 234,
+  certifications: ['CNA', 'CPR/First Aid', 'Dementia Care'],
+};
+
+const FAQ_ITEMS = [
+  'How do I complete a task?',
+  'How do I report an incident?',
+  'How do I update patient vitals?',
+  'How do I contact family members?',
+  'How do I end my shift?',
+];
+
+// ============================================
+// MENU STYLES
+// ============================================
+const menuStyles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: COLORS.background },
+  scrollContent: { paddingHorizontal: 20, paddingTop: 60, paddingBottom: 30 },
+  
+  // Profile Card (Main Menu)
+  profileCard: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: COLORS.card, 
+    borderRadius: 20, 
+    padding: 16,
+    marginBottom: 16,
+  },
+  profileAvatar: { width: 70, height: 70, borderRadius: 12, marginRight: 14 },
+  profileInfo: { flex: 1 },
+  profileName: { fontSize: 20, fontWeight: 'bold', color: COLORS.white, marginBottom: 4 },
+  profileRole: { fontSize: 15, color: COLORS.textSecondary },
+  
+  // Menu Items
+  menuCard: { 
+    backgroundColor: COLORS.card, 
+    borderRadius: 20, 
+    padding: 6,
+    marginBottom: 16,
+  },
+  menuItem: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingVertical: 18,
+    paddingHorizontal: 14,
+  },
+  menuIconBg: { 
+    width: 48, 
+    height: 48, 
+    borderRadius: 14, 
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  menuText: { flex: 1, fontSize: 18, color: COLORS.white },
+  
+  // Sign Out Card
+  signOutCard: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: 'rgba(239, 68, 68, 0.15)', 
+    borderRadius: 20, 
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+  },
+  signOutIconBg: { 
+    width: 48, 
+    height: 48, 
+    borderRadius: 14, 
+    backgroundColor: 'rgba(239, 68, 68, 0.2)', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  signOutText: { fontSize: 18, color: '#ef4444' },
+  
+  // Profile Screen
+  profileHeader: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingHorizontal: 20, 
+    paddingTop: 60, 
+    paddingBottom: 20,
+  },
+  backBtn: { marginRight: 16 },
+  headerTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.white },
+  
+  profileAvatarLarge: { 
+    width: 140, 
+    height: 140, 
+    borderRadius: 70, 
+    alignSelf: 'center',
+    borderWidth: 3,
+    borderColor: COLORS.textMuted,
+  },
+  cameraBtn: { 
+    position: 'absolute', 
+    bottom: 0, 
+    right: '50%', 
+    marginRight: -70,
+    width: 44, 
+    height: 44, 
+    borderRadius: 22, 
+    backgroundColor: COLORS.primary, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+  },
+  profileNameLarge: { fontSize: 26, fontWeight: 'bold', color: COLORS.white, textAlign: 'center', marginTop: 16 },
+  profileRoleLarge: { fontSize: 17, color: COLORS.textSecondary, textAlign: 'center', marginTop: 4, marginBottom: 24 },
+  
+  // Stats Row
+  statsRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginBottom: 20,
+    paddingHorizontal: 20,
+  },
+  statCard: { 
+    flex: 1, 
+    backgroundColor: COLORS.card, 
+    borderRadius: 16, 
+    paddingVertical: 18,
+    alignItems: 'center',
+    marginHorizontal: 5,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+  },
+  statValue: { fontSize: 28, fontWeight: 'bold', color: COLORS.white, marginTop: 8 },
+  statLabel: { fontSize: 14, color: COLORS.textSecondary, marginTop: 4 },
+  
+  // Contact Info Card
+  contactCard: { 
+    backgroundColor: COLORS.card, 
+    borderRadius: 20, 
+    padding: 20,
+    marginHorizontal: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+  },
+  contactTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.white, marginBottom: 16 },
+  contactLabel: { fontSize: 12, color: COLORS.textSecondary, letterSpacing: 1, marginBottom: 4 },
+  contactValue: { fontSize: 17, color: COLORS.white, marginBottom: 16 },
+  
+  // Certifications
+  certCard: { 
+    backgroundColor: COLORS.card, 
+    borderRadius: 20, 
+    padding: 20,
+    marginHorizontal: 20,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+  },
+  certTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.white, marginBottom: 16 },
+  certBadgesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  certBadge: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: 'rgba(34, 197, 94, 0.15)', 
+    paddingHorizontal: 14, 
+    paddingVertical: 10, 
+    borderRadius: 20,
+  },
+  certBadgeText: { fontSize: 15, fontWeight: '600', color: COLORS.primary, marginLeft: 6 },
+  
+  // Settings Screen
+  settingsCard: { 
+    backgroundColor: COLORS.card, 
+    borderRadius: 20, 
+    marginHorizontal: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+    overflow: 'hidden',
+  },
+  settingsItem: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+  },
+  settingsItemBorder: { borderBottomWidth: 1, borderBottomColor: COLORS.cardBorder },
+  settingsIconBg: { 
+    width: 40, 
+    height: 40, 
+    borderRadius: 10, 
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  settingsText: { flex: 1, fontSize: 17, color: COLORS.white },
+  settingsValue: { fontSize: 15, color: COLORS.textSecondary, marginRight: 8 },
+  toggleTrack: { 
+    width: 52, 
+    height: 32, 
+    borderRadius: 16, 
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  toggleTrackOn: { backgroundColor: COLORS.primary },
+  toggleTrackOff: { backgroundColor: COLORS.textMuted },
+  toggleThumb: { 
+    width: 26, 
+    height: 26, 
+    borderRadius: 13, 
+    backgroundColor: COLORS.white,
+  },
+  toggleThumbOn: { alignSelf: 'flex-end' },
+  toggleThumbOff: { alignSelf: 'flex-start' },
+  
+  appVersion: { textAlign: 'center', fontSize: 15, color: COLORS.textSecondary, marginTop: 30 },
+  appCopyright: { textAlign: 'center', fontSize: 14, color: COLORS.textMuted, marginTop: 4 },
+  
+  // Support Screen
+  sectionLabel: { 
+    fontSize: 13, 
+    fontWeight: '600', 
+    color: COLORS.textSecondary, 
+    letterSpacing: 1, 
+    marginBottom: 12,
+    marginTop: 10,
+    paddingHorizontal: 20,
+  },
+  supportCard: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: COLORS.card, 
+    borderRadius: 16, 
+    padding: 16,
+    marginHorizontal: 20,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+  },
+  supportIconBg: { 
+    width: 48, 
+    height: 48, 
+    borderRadius: 14, 
+    backgroundColor: 'rgba(255, 255, 255, 0.1)', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  supportInfo: { flex: 1 },
+  supportTitle: { fontSize: 17, fontWeight: '600', color: COLORS.white },
+  supportSubtitle: { fontSize: 14, color: COLORS.textSecondary, marginTop: 2 },
+  supportAction: { fontSize: 15, fontWeight: '600', color: COLORS.primary },
+  
+  faqCard: { 
+    backgroundColor: COLORS.card, 
+    borderRadius: 16, 
+    marginHorizontal: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+    overflow: 'hidden',
+  },
+  faqItem: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between',
+    paddingVertical: 18,
+    paddingHorizontal: 16,
+  },
+  faqItemBorder: { borderBottomWidth: 1, borderBottomColor: COLORS.cardBorder },
+  faqText: { flex: 1, fontSize: 16, color: COLORS.white },
+  
+  resourceCard: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: COLORS.card, 
+    borderRadius: 16, 
+    padding: 16,
+    marginHorizontal: 20,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+  },
+  resourceText: { flex: 1, fontSize: 17, color: COLORS.white, marginLeft: 14 },
+});
+
+// ============================================
+// MENU SCREEN
+// ============================================
+const MenuScreen = () => {
+  const [currentView, setCurrentView] = useState('menu');
+  const [pushNotifications, setPushNotifications] = useState(true);
+  const [darkMode, setDarkMode] = useState(true);
+
+  // Custom Toggle Component
+  const Toggle = ({ value, onToggle }) => (
+    <TouchableOpacity 
+      style={[menuStyles.toggleTrack, value ? menuStyles.toggleTrackOn : menuStyles.toggleTrackOff]}
+      onPress={onToggle}
+    >
+      <View style={[menuStyles.toggleThumb, value ? menuStyles.toggleThumbOn : menuStyles.toggleThumbOff]} />
+    </TouchableOpacity>
+  );
+
+  // Main Menu View
+  const renderMainMenu = () => (
+    <SafeAreaView style={menuStyles.container}>
+      <ScrollView contentContainerStyle={menuStyles.scrollContent}>
+        {/* Profile Card */}
+        <TouchableOpacity 
+          style={menuStyles.profileCard}
+          onPress={() => setCurrentView('profile')}
+        >
+          <Image source={{ uri: CAREGIVER_PROFILE.avatar }} style={menuStyles.profileAvatar} />
+          <View style={menuStyles.profileInfo}>
+            <Text style={menuStyles.profileName}>{CAREGIVER_PROFILE.name}</Text>
+            <Text style={menuStyles.profileRole}>{CAREGIVER_PROFILE.role}</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+
+        {/* Menu Items */}
+        <View style={menuStyles.menuCard}>
+          <TouchableOpacity style={menuStyles.menuItem}>
+            <View style={menuStyles.menuIconBg}>
+              <Ionicons name="trending-up" size={24} color={COLORS.white} />
+            </View>
+            <Text style={menuStyles.menuText}>Earnings</Text>
+            <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={menuStyles.menuCard}>
+          <TouchableOpacity style={menuStyles.menuItem}>
+            <View style={menuStyles.menuIconBg}>
+              <Ionicons name="time-outline" size={24} color={COLORS.white} />
+            </View>
+            <Text style={menuStyles.menuText}>Shift History</Text>
+            <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={menuStyles.menuCard}>
+          <TouchableOpacity 
+            style={menuStyles.menuItem}
+            onPress={() => setCurrentView('settings')}
+          >
+            <View style={menuStyles.menuIconBg}>
+              <Ionicons name="settings-outline" size={24} color={COLORS.white} />
+            </View>
+            <Text style={menuStyles.menuText}>Settings</Text>
+            <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={menuStyles.menuCard}>
+          <TouchableOpacity 
+            style={menuStyles.menuItem}
+            onPress={() => setCurrentView('support')}
+          >
+            <View style={menuStyles.menuIconBg}>
+              <Ionicons name="notifications-outline" size={24} color={COLORS.white} />
+            </View>
+            <Text style={menuStyles.menuText}>Support</Text>
+            <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Sign Out */}
+        <TouchableOpacity style={menuStyles.signOutCard}>
+          <View style={menuStyles.signOutIconBg}>
+            <Ionicons name="person-outline" size={24} color="#ef4444" />
+          </View>
+          <Text style={menuStyles.signOutText}>Sign Out</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
+  );
+
+  // Profile View
+  const renderProfile = () => (
+    <SafeAreaView style={menuStyles.container}>
+      {/* Header */}
+      <View style={menuStyles.profileHeader}>
+        <TouchableOpacity 
+          style={menuStyles.backBtn}
+          onPress={() => setCurrentView('menu')}
+        >
+          <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+        <Text style={menuStyles.headerTitle}>Profile</Text>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Avatar */}
+        <View style={{ alignItems: 'center', marginBottom: 10 }}>
+          <View style={{ position: 'relative' }}>
+            <Image source={{ uri: CAREGIVER_PROFILE.avatar }} style={menuStyles.profileAvatarLarge} />
+            <TouchableOpacity style={menuStyles.cameraBtn}>
+              <Ionicons name="camera" size={22} color={COLORS.white} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <Text style={menuStyles.profileNameLarge}>{CAREGIVER_PROFILE.name}</Text>
+        <Text style={menuStyles.profileRoleLarge}>{CAREGIVER_PROFILE.role}</Text>
+
+        {/* Stats Row */}
+        <View style={menuStyles.statsRow}>
+          <View style={menuStyles.statCard}>
+            <Ionicons name="star" size={24} color="#eab308" />
+            <Text style={menuStyles.statValue}>{CAREGIVER_PROFILE.rating}</Text>
+            <Text style={menuStyles.statLabel}>Rating</Text>
+          </View>
+          <View style={menuStyles.statCard}>
+            <Ionicons name="ribbon" size={24} color="#3b82f6" />
+            <Text style={menuStyles.statValue}>{CAREGIVER_PROFILE.years}</Text>
+            <Text style={menuStyles.statLabel}>Years</Text>
+          </View>
+          <View style={menuStyles.statCard}>
+            <Ionicons name="checkmark-circle" size={24} color={COLORS.primary} />
+            <Text style={menuStyles.statValue}>{CAREGIVER_PROFILE.shifts}</Text>
+            <Text style={menuStyles.statLabel}>Shifts</Text>
+          </View>
+        </View>
+
+        {/* Contact Information */}
+        <View style={menuStyles.contactCard}>
+          <Text style={menuStyles.contactTitle}>Contact Information</Text>
+          <Text style={menuStyles.contactLabel}>EMAIL</Text>
+          <Text style={menuStyles.contactValue}>{CAREGIVER_PROFILE.email}</Text>
+          <Text style={menuStyles.contactLabel}>PHONE</Text>
+          <Text style={[menuStyles.contactValue, { marginBottom: 0 }]}>{CAREGIVER_PROFILE.phone}</Text>
+        </View>
+
+        {/* Certifications */}
+        <View style={menuStyles.certCard}>
+          <Text style={menuStyles.certTitle}>Certifications</Text>
+          <View style={menuStyles.certBadgesRow}>
+            {CAREGIVER_PROFILE.certifications.map((cert, index) => (
+              <View key={index} style={menuStyles.certBadge}>
+                <Ionicons name="checkmark" size={18} color={COLORS.primary} />
+                <Text style={menuStyles.certBadgeText}>{cert}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+
+  // Settings View
+  const renderSettings = () => (
+    <SafeAreaView style={menuStyles.container}>
+      {/* Header */}
+      <View style={menuStyles.profileHeader}>
+        <TouchableOpacity 
+          style={menuStyles.backBtn}
+          onPress={() => setCurrentView('menu')}
+        >
+          <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+        <Text style={menuStyles.headerTitle}>Settings</Text>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Toggles Card */}
+        <View style={menuStyles.settingsCard}>
+          <View style={[menuStyles.settingsItem, menuStyles.settingsItemBorder]}>
+            <View style={menuStyles.settingsIconBg}>
+              <Ionicons name="notifications-outline" size={20} color={COLORS.white} />
+            </View>
+            <Text style={menuStyles.settingsText}>Push Notifications</Text>
+            <Toggle value={pushNotifications} onToggle={() => setPushNotifications(!pushNotifications)} />
+          </View>
+          <View style={menuStyles.settingsItem}>
+            <View style={menuStyles.settingsIconBg}>
+              <Ionicons name="moon-outline" size={20} color={COLORS.white} />
+            </View>
+            <Text style={menuStyles.settingsText}>Dark Mode</Text>
+            <Toggle value={darkMode} onToggle={() => setDarkMode(!darkMode)} />
+          </View>
+        </View>
+
+        {/* Options Card */}
+        <View style={menuStyles.settingsCard}>
+          <TouchableOpacity style={[menuStyles.settingsItem, menuStyles.settingsItemBorder]}>
+            <View style={menuStyles.settingsIconBg}>
+              <Ionicons name="shield-outline" size={20} color={COLORS.white} />
+            </View>
+            <Text style={menuStyles.settingsText}>Privacy & Security</Text>
+            <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+          <TouchableOpacity style={[menuStyles.settingsItem, menuStyles.settingsItemBorder]}>
+            <View style={menuStyles.settingsIconBg}>
+              <Ionicons name="globe-outline" size={20} color={COLORS.white} />
+            </View>
+            <Text style={menuStyles.settingsText}>Language</Text>
+            <Text style={menuStyles.settingsValue}>English</Text>
+            <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={menuStyles.settingsItem}
+            onPress={() => setCurrentView('support')}
+          >
+            <View style={menuStyles.settingsIconBg}>
+              <Ionicons name="help-circle-outline" size={20} color={COLORS.white} />
+            </View>
+            <Text style={menuStyles.settingsText}>Help & Support</Text>
+            <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        <Text style={menuStyles.appVersion}>ADLTrack v1.0.0</Text>
+        <Text style={menuStyles.appCopyright}>© 2026 ADLTrack Inc.</Text>
+      </ScrollView>
+    </SafeAreaView>
+  );
+
+  // Support View
+  const renderSupport = () => (
+    <SafeAreaView style={menuStyles.container}>
+      {/* Header */}
+      <View style={menuStyles.profileHeader}>
+        <TouchableOpacity 
+          style={menuStyles.backBtn}
+          onPress={() => setCurrentView('menu')}
+        >
+          <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+        <Text style={menuStyles.headerTitle}>Help & Support</Text>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Contact Us */}
+        <Text style={menuStyles.sectionLabel}>CONTACT US</Text>
+        
+        <View style={menuStyles.supportCard}>
+          <View style={menuStyles.supportIconBg}>
+            <Ionicons name="chatbubble-outline" size={22} color={COLORS.white} />
+          </View>
+          <View style={menuStyles.supportInfo}>
+            <Text style={menuStyles.supportTitle}>Live Chat</Text>
+            <Text style={menuStyles.supportSubtitle}>Chat with our support team</Text>
+          </View>
+          <Text style={menuStyles.supportAction}>Start Chat</Text>
+        </View>
+
+        <View style={menuStyles.supportCard}>
+          <View style={menuStyles.supportIconBg}>
+            <Ionicons name="call-outline" size={22} color={COLORS.white} />
+          </View>
+          <View style={menuStyles.supportInfo}>
+            <Text style={menuStyles.supportTitle}>Call Support</Text>
+            <Text style={menuStyles.supportSubtitle}>1-888-555-0123</Text>
+          </View>
+          <Text style={menuStyles.supportAction}>Call Now</Text>
+        </View>
+
+        <View style={menuStyles.supportCard}>
+          <View style={menuStyles.supportIconBg}>
+            <Ionicons name="mail-outline" size={22} color={COLORS.white} />
+          </View>
+          <View style={menuStyles.supportInfo}>
+            <Text style={menuStyles.supportTitle}>Email Support</Text>
+            <Text style={menuStyles.supportSubtitle}>support@adltrack.com</Text>
+          </View>
+          <Text style={menuStyles.supportAction}>Send Email</Text>
+        </View>
+
+        {/* FAQ */}
+        <Text style={menuStyles.sectionLabel}>FREQUENTLY ASKED QUESTIONS</Text>
+        
+        <View style={menuStyles.faqCard}>
+          {FAQ_ITEMS.map((item, index) => (
+            <TouchableOpacity 
+              key={index} 
+              style={[
+                menuStyles.faqItem, 
+                index < FAQ_ITEMS.length - 1 && menuStyles.faqItemBorder
+              ]}
+            >
+              <Text style={menuStyles.faqText}>{item}</Text>
+              <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Resources */}
+        <Text style={menuStyles.sectionLabel}>RESOURCES</Text>
+        
+        <TouchableOpacity style={menuStyles.resourceCard}>
+          <Ionicons name="document-text-outline" size={22} color={COLORS.textSecondary} />
+          <Text style={menuStyles.resourceText}>User Guide</Text>
+          <Ionicons name="open-outline" size={20} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={menuStyles.resourceCard}>
+          <Ionicons name="document-text-outline" size={22} color={COLORS.textSecondary} />
+          <Text style={menuStyles.resourceText}>Privacy Policy</Text>
+          <Ionicons name="open-outline" size={20} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={menuStyles.resourceCard}>
+          <Ionicons name="document-text-outline" size={22} color={COLORS.textSecondary} />
+          <Text style={menuStyles.resourceText}>Terms of Service</Text>
+          <Ionicons name="open-outline" size={20} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
+  );
+
+  // Render based on current view
+  switch (currentView) {
+    case 'profile':
+      return renderProfile();
+    case 'settings':
+      return renderSettings();
+    case 'support':
+      return renderSupport();
+    default:
+      return renderMainMenu();
+  }
+};
 
 const ShiftsTabIcon = ({ focused, color }) => (
   <View style={styles.shiftsIconContainer}>
