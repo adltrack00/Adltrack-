@@ -3327,7 +3327,7 @@ const IncidentScreen = () => {
             </TouchableOpacity>
           )}
         </View>
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 
