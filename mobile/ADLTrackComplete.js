@@ -3129,7 +3129,7 @@ const IncidentScreen = () => {
 
   // Step 3: Add Photos
   const renderStep3 = () => (
-    <View style={incStyles.stepContainer}>
+    <ScrollView style={incStyles.stepContainer} showsVerticalScrollIndicator={false}>
       <Text style={incStyles.stepTitle}>Add Photos (Optional)</Text>
       <Text style={incStyles.stepSubtitle}>Document the incident visually for records.</Text>
 
@@ -3147,19 +3147,29 @@ const IncidentScreen = () => {
 
       {/* Photos Grid */}
       {photos.length > 0 && (
-        <View style={incStyles.photosGrid}>
-          {photos.map((photo) => (
-            <View key={photo.id} style={incStyles.photoThumbContainer}>
-              <Image source={{ uri: photo.uri }} style={incStyles.photoThumb} />
-              <TouchableOpacity 
-                style={incStyles.photoRemove}
-                onPress={() => handleRemovePhoto(photo.id)}
-              >
-                <Ionicons name="close" size={16} color={COLORS.white} />
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
+        <>
+          <Text style={incStyles.photosCountText}>{photos.length} photo{photos.length > 1 ? 's' : ''} added</Text>
+          <View style={incStyles.photosGrid}>
+            {photos.map((photo) => (
+              <View key={photo.id} style={incStyles.photoThumbContainer}>
+                <Image source={{ uri: photo.uri }} style={incStyles.photoThumb} />
+                <TouchableOpacity 
+                  style={incStyles.photoRemove}
+                  onPress={() => handleRemovePhoto(photo.id)}
+                >
+                  <Ionicons name="close" size={16} color={COLORS.white} />
+                </TouchableOpacity>
+              </View>
+            ))}
+            {/* Add More Photos Button */}
+            <TouchableOpacity 
+              style={incStyles.addMorePhotosBtn}
+              onPress={() => setShowPhotoOptions(true)}
+            >
+              <Ionicons name="add" size={32} color={COLORS.textSecondary} />
+            </TouchableOpacity>
+          </View>
+        </>
       )}
 
       {/* Photo Options Modal */}
@@ -3189,7 +3199,7 @@ const IncidentScreen = () => {
           </View>
         </TouchableOpacity>
       </Modal>
-    </View>
+    </ScrollView>
   );
 
   // Step 4: Review & Submit
