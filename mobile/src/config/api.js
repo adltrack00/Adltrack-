@@ -1,5 +1,5 @@
 // API Configuration
-export const API_BASE_URL = 'https://adlcare-expo.preview.emergentagent.com/api';
+export const API_BASE_URL = 'https://adl-caregiver.preview.emergentagent.com/api';
 
 export const ENDPOINTS = {
   // Auth
