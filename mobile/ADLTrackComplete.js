@@ -5699,17 +5699,717 @@ const CaregiverTabs = () => (
 );
 
 // ============================================
-// FAMILY DASHBOARD (Placeholder)
+// FAMILY MEMBER DATA
 // ============================================
-const FamilyDashboard = () => (
-  <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center' }}>
-    <View style={{ backgroundColor: '#fce7f3', width: 100, height: 100, borderRadius: 30, alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-      <Ionicons name="people" size={50} color="#ec4899" />
-    </View>
-    <Text style={{ fontSize: 28, fontWeight: 'bold', color: COLORS.white, marginBottom: 8 }}>Family Dashboard</Text>
-    <Text style={{ fontSize: 16, color: COLORS.textSecondary, textAlign: 'center', paddingHorizontal: 40 }}>Coming Soon - Monitor care & stay connected with your loved ones</Text>
-  </SafeAreaView>
-);
+const FAMILY_MEMBER = {
+  name: 'Mary Smith',
+  role: 'Family Guardian',
+  avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200',
+  email: 'mary.smith@email.com',
+  phone: '(555) 234-5678',
+};
+
+const FAMILY_CONVERSATIONS = [
+  {
+    id: 1,
+    name: 'Family Group',
+    role: '',
+    avatar: null,
+    lastMessage: 'Can someone cover Sunday?',
+    time: '10:30 AM',
+    unread: 3,
+    online: false,
+    isGroup: true,
+  },
+  {
+    id: 2,
+    name: 'Julia Martinez',
+    role: 'Caregiver',
+    avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+    lastMessage: 'David had a great morning!',
+    time: '9:32 AM',
+    unread: 0,
+    online: true,
+    isGroup: false,
+  },
+  {
+    id: 3,
+    name: 'Tom Smith',
+    role: 'Brother',
+    avatar: 'https://randomuser.me/api/portraits/men/75.jpg',
+    lastMessage: "I'll bring the puzzle",
+    time: 'Yesterday',
+    unread: 0,
+    online: false,
+    isGroup: false,
+  },
+];
+
+const FAMILY_ALERTS = {
+  upcoming: [
+    { id: 1, title: 'Physical Therapy', time: '10:00 AM Tomorrow', icon: 'pulse', iconBg: '#1e3a5f' },
+    { id: 2, title: 'Doctor Visit', time: 'Dec 20, 2:30 PM', icon: 'calendar', iconBg: '#1e3a5f' },
+    { id: 3, title: 'Medication Refill Due', time: 'Dec 22', icon: 'bandage', iconBg: '#1e3a5f' },
+  ],
+  recent: [
+    { id: 1, title: 'Care Plan Updated', subtitle: 'New evening routine added', time: '2 hours ago', highlight: false },
+    { id: 2, title: 'Medication Schedule Change', subtitle: 'Evening meds moved to 6 PM', time: 'Yesterday', highlight: true },
+    { id: 3, title: 'Caregiver Assignment', subtitle: 'Julia will cover weekend shifts', time: '2 days ago', highlight: false },
+  ],
+};
+
+// ============================================
+// FAMILY STYLES
+// ============================================
+const familyStyles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: COLORS.background },
+  scrollContent: { paddingBottom: 30 },
+  
+  // Header
+  header: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 16 },
+  headerRow: { flexDirection: 'row', alignItems: 'center' },
+  backBtn: { marginRight: 16 },
+  headerTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.white },
+  
+  // Vitals Row
+  vitalsRow: { flexDirection: 'row', marginHorizontal: 16, marginTop: 16, gap: 8 },
+  vitalCard: { flex: 1, backgroundColor: COLORS.card, borderRadius: 16, paddingVertical: 14, paddingHorizontal: 8, alignItems: 'center' },
+  vitalIconBg: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
+  vitalValue: { fontSize: 18, fontWeight: '700', color: COLORS.white, marginBottom: 2 },
+  vitalLabel: { fontSize: 13, color: COLORS.textSecondary },
+  
+  // Progress Section
+  progressSection: { marginHorizontal: 16, marginTop: 24 },
+  progressHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  progressTitle: { fontSize: 18, fontWeight: '600', color: COLORS.white },
+  progressCount: { fontSize: 18, fontWeight: '600', color: COLORS.white },
+  progressBar: { height: 8, backgroundColor: COLORS.card, borderRadius: 4, overflow: 'hidden' },
+  progressFill: { height: '100%', backgroundColor: COLORS.primary, borderRadius: 4 },
+  
+  // Tabs
+  tabsRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 28 },
+  tabBtn: { marginRight: 24 },
+  tabText: { fontSize: 18, fontWeight: '600', color: COLORS.textSecondary },
+  tabTextActive: { color: COLORS.white },
+  tabDivider: { flex: 1, height: 1, backgroundColor: COLORS.cardBorder, marginRight: 16 },
+  
+  // Empty State
+  emptyCard: { backgroundColor: COLORS.card, borderRadius: 24, marginHorizontal: 16, marginTop: 20, paddingVertical: 60, alignItems: 'center' },
+  emptyIconBg: { width: 80, height: 80, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
+  emptyTitle: { fontSize: 20, fontWeight: '600', color: COLORS.white, marginBottom: 8 },
+  emptySubtitle: { fontSize: 15, color: COLORS.textSecondary, textAlign: 'center', paddingHorizontal: 40 },
+  
+  // Alerts
+  sectionLabel: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, marginTop: 20, marginBottom: 12 },
+  sectionIcon: { marginRight: 8 },
+  sectionText: { fontSize: 14, fontWeight: '600', color: COLORS.textSecondary, letterSpacing: 1 },
+  
+  alertCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.card, borderRadius: 16, marginHorizontal: 20, marginBottom: 12, padding: 16 },
+  alertIconBg: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', marginRight: 14 },
+  alertInfo: { flex: 1 },
+  alertTitle: { fontSize: 17, fontWeight: '600', color: COLORS.white },
+  alertTime: { fontSize: 14, color: COLORS.textSecondary, marginTop: 4 },
+  
+  recentAlertCard: { backgroundColor: COLORS.card, borderRadius: 16, marginHorizontal: 20, marginBottom: 12, padding: 16, borderWidth: 1, borderColor: 'transparent' },
+  recentAlertHighlight: { borderColor: '#92400e', backgroundColor: 'rgba(146, 64, 14, 0.2)' },
+  recentAlertTitle: { fontSize: 17, fontWeight: '600', color: COLORS.white, marginBottom: 4 },
+  recentAlertSubtitle: { fontSize: 15, color: COLORS.textSecondary, marginBottom: 4 },
+  recentAlertTime: { fontSize: 13, color: COLORS.textMuted },
+  
+  // Menu
+  menuScrollContent: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 30 },
+  menuCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.card, borderRadius: 20, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: COLORS.cardBorder },
+  menuAvatar: { width: 70, height: 70, borderRadius: 12, marginRight: 14 },
+  menuInfo: { flex: 1 },
+  menuName: { fontSize: 20, fontWeight: '600', color: COLORS.white, marginBottom: 2 },
+  menuRole: { fontSize: 15, color: COLORS.textSecondary },
+  
+  menuIconBg: { width: 52, height: 52, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center', marginRight: 14 },
+  menuText: { flex: 1, fontSize: 18, color: COLORS.white },
+  
+  signOutCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(239, 68, 68, 0.15)', borderRadius: 20, padding: 16, marginTop: 8, borderWidth: 1, borderColor: 'rgba(239, 68, 68, 0.3)' },
+  signOutIconBg: { width: 52, height: 52, borderRadius: 14, backgroundColor: 'rgba(239, 68, 68, 0.2)', alignItems: 'center', justifyContent: 'center', marginRight: 14 },
+  signOutText: { fontSize: 18, color: '#ef4444' },
+  
+  // Profile
+  profileAvatar: { width: 140, height: 140, borderRadius: 70, alignSelf: 'center', borderWidth: 3, borderColor: COLORS.textMuted },
+  profileCameraBtn: { position: 'absolute', bottom: 0, right: '50%', marginRight: -70, width: 44, height: 44, borderRadius: 22, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center' },
+  profileName: { fontSize: 26, fontWeight: 'bold', color: COLORS.white, textAlign: 'center', marginTop: 16 },
+  profileRole: { fontSize: 17, color: COLORS.textSecondary, textAlign: 'center', marginTop: 4, marginBottom: 30 },
+  contactCard: { backgroundColor: COLORS.card, borderRadius: 20, marginHorizontal: 20, padding: 20, borderWidth: 1, borderColor: COLORS.cardBorder },
+  contactTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.white, marginBottom: 16 },
+  contactLabel: { fontSize: 12, color: COLORS.textSecondary, letterSpacing: 1, marginBottom: 4 },
+  contactValue: { fontSize: 17, color: COLORS.white, marginBottom: 16 },
+});
+
+// ============================================
+// FAMILY HOME SCREEN
+// ============================================
+const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
+  const [activeTab, setActiveTab] = useState('requests');
+
+  return (
+    <SafeAreaView style={familyStyles.container}>
+      <ScrollView contentContainerStyle={familyStyles.scrollContent}>
+        {/* Vitals Row */}
+        <View style={familyStyles.vitalsRow}>
+          <TouchableOpacity style={familyStyles.vitalCard} onPress={() => onOpenVitals('bp')}>
+            <View style={[familyStyles.vitalIconBg, { backgroundColor: '#6b1c3b' }]}>
+              <Ionicons name="heart-outline" size={24} color="#ec4899" />
+            </View>
+            <Text style={familyStyles.vitalValue}>{vitals.bp.systolic}/{vitals.bp.diastolic}</Text>
+            <Text style={familyStyles.vitalLabel}>BP</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={familyStyles.vitalCard} onPress={() => onOpenVitals('heart')}>
+            <View style={[familyStyles.vitalIconBg, { backgroundColor: '#5c3d1e' }]}>
+              <Ionicons name="pulse" size={24} color="#f59e0b" />
+            </View>
+            <Text style={familyStyles.vitalValue}>{vitals.heart}</Text>
+            <Text style={familyStyles.vitalLabel}>Heart</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={familyStyles.vitalCard} onPress={() => onOpenVitals('temp')}>
+            <View style={[familyStyles.vitalIconBg, { backgroundColor: '#1e3a5f' }]}>
+              <Ionicons name="thermometer-outline" size={24} color="#3b82f6" />
+            </View>
+            <Text style={familyStyles.vitalValue}>{vitals.temp}°</Text>
+            <Text style={familyStyles.vitalLabel}>Temp</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={familyStyles.vitalCard} onPress={() => onOpenVitals('pain')}>
+            <View style={[familyStyles.vitalIconBg, { backgroundColor: '#4a1d6b' }]}>
+              <Ionicons name="sad-outline" size={24} color="#a855f7" />
+            </View>
+            <Text style={familyStyles.vitalValue}>{vitals.pain}/10</Text>
+            <Text style={familyStyles.vitalLabel}>Pain</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Progress Section */}
+        <View style={familyStyles.progressSection}>
+          <View style={familyStyles.progressHeader}>
+            <Text style={familyStyles.progressTitle}>Today's Progress</Text>
+            <Text style={familyStyles.progressCount}>0/12</Text>
+          </View>
+          <View style={familyStyles.progressBar}>
+            <View style={[familyStyles.progressFill, { width: '0%' }]} />
+          </View>
+        </View>
+
+        {/* Tabs */}
+        <View style={familyStyles.tabsRow}>
+          <TouchableOpacity style={familyStyles.tabBtn} onPress={() => setActiveTab('requests')}>
+            <Text style={[familyStyles.tabText, activeTab === 'requests' && familyStyles.tabTextActive]}>My Requests</Text>
+          </TouchableOpacity>
+          <View style={familyStyles.tabDivider} />
+          <TouchableOpacity style={familyStyles.tabBtn} onPress={() => setActiveTab('timeline')}>
+            <Text style={[familyStyles.tabText, activeTab === 'timeline' && familyStyles.tabTextActive]}>Care Timeline</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Empty State */}
+        <View style={familyStyles.emptyCard}>
+          <View style={familyStyles.emptyIconBg}>
+            <Ionicons name="camera-outline" size={40} color={COLORS.textSecondary} />
+          </View>
+          <Text style={familyStyles.emptyTitle}>No updates yet</Text>
+          <Text style={familyStyles.emptySubtitle}>Photos and notes will appear here as tasks are completed</Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+// ============================================
+// FAMILY VITALS MODAL (View Only)
+// ============================================
+const FamilyVitalsModal = ({ visible, onClose, vitalType, vitals }) => {
+  const [selectedDay, setSelectedDay] = useState(null);
+
+  const getVitalConfig = () => {
+    switch (vitalType) {
+      case 'bp':
+        return {
+          title: 'Blood Pressure',
+          value: `${vitals.bp.systolic}/${vitals.bp.diastolic}`,
+          icon: 'heart-outline',
+          color: '#ec4899',
+          bgColor: '#6b1c3b',
+          chartColor: '#ec4899',
+          chartColor2: '#f59e0b',
+          unit: '',
+          history: [
+            { day: 'Sun', time: '10:30 AM', value: '120/76' },
+            { day: 'Sat', time: '10:35 AM', value: '121/78' },
+            { day: 'Fri', time: '10:20 AM', value: '119/75' },
+            { day: 'Thu', time: '10:30 AM', value: '120/77' },
+            { day: 'Wed', time: '10:45 AM', value: '125/80' },
+          ],
+        };
+      case 'heart':
+        return {
+          title: 'Heart Rate',
+          value: `${vitals.heart} bpm`,
+          icon: 'pulse',
+          color: '#f59e0b',
+          bgColor: '#5c3d1e',
+          chartColor: '#f59e0b',
+          unit: '',
+          history: [
+            { day: 'Sun', time: '10:30 AM', value: '72' },
+            { day: 'Sat', time: '10:35 AM', value: '69' },
+            { day: 'Fri', time: '10:20 AM', value: '71' },
+            { day: 'Thu', time: '10:30 AM', value: '70' },
+            { day: 'Wed', time: '10:45 AM', value: '75' },
+          ],
+        };
+      case 'temp':
+        return {
+          title: 'Temperature',
+          value: `${vitals.temp}°F`,
+          icon: 'thermometer-outline',
+          color: '#3b82f6',
+          bgColor: '#1e3a5f',
+          chartColor: '#3b82f6',
+          unit: '°F',
+          history: [
+            { day: 'Sun', time: '10:30 AM', value: '98.6°F' },
+            { day: 'Sat', time: '10:35 AM', value: '98.4°F' },
+            { day: 'Fri', time: '10:20 AM', value: '98.7°F' },
+            { day: 'Thu', time: '10:30 AM', value: '98.5°F' },
+            { day: 'Wed', time: '10:45 AM', value: '98.2°F' },
+          ],
+        };
+      case 'pain':
+        return {
+          title: 'Pain Level',
+          value: `${vitals.pain}/10`,
+          icon: 'sad-outline',
+          color: '#a855f7',
+          bgColor: '#4a1d6b',
+          chartColor: '#a855f7',
+          unit: '/10',
+          history: [
+            { day: 'Sun', time: '10:30 AM', value: '1/10' },
+            { day: 'Sat', time: '10:35 AM', value: '2/10' },
+            { day: 'Fri', time: '10:20 AM', value: '2/10' },
+            { day: 'Thu', time: '10:30 AM', value: '1/10' },
+            { day: 'Wed', time: '10:45 AM', value: '2/10' },
+          ],
+        };
+      default:
+        return null;
+    }
+  };
+
+  const config = getVitalConfig();
+  if (!config) return null;
+
+  return (
+    <Modal visible={visible} animationType="slide">
+      <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
+        {/* Header */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16 }}>
+          <Text style={{ fontSize: 24, fontWeight: 'bold', color: COLORS.white }}>Vital Signs</Text>
+          <TouchableOpacity onPress={onClose}>
+            <Ionicons name="close" size={28} color={COLORS.white} />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView>
+          {/* Current Reading Card */}
+          <View style={{ backgroundColor: config.bgColor, borderRadius: 24, marginHorizontal: 20, padding: 30, alignItems: 'center', marginBottom: 20 }}>
+            <View style={{ width: 64, height: 64, borderRadius: 16, backgroundColor: `${config.color}30`, alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+              <Ionicons name={config.icon} size={32} color={config.color} />
+            </View>
+            <Text style={{ fontSize: 48, fontWeight: 'bold', color: COLORS.white, marginBottom: 4 }}>{config.value}</Text>
+            <Text style={{ fontSize: 16, color: COLORS.textSecondary }}>Current Reading</Text>
+          </View>
+
+          {/* Chart Placeholder */}
+          <View style={{ backgroundColor: COLORS.card, borderRadius: 20, marginHorizontal: 20, padding: 20, marginBottom: 16 }}>
+            <View style={{ height: 180, justifyContent: 'center', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingHorizontal: 10 }}>
+                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => (
+                  <TouchableOpacity key={day} onPress={() => setSelectedDay(selectedDay === day ? null : day)}>
+                    <View style={{ alignItems: 'center' }}>
+                      <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: config.chartColor, marginBottom: 60 }} />
+                      {vitalType === 'bp' && <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: config.chartColor2, marginBottom: -48 }} />}
+                      <Text style={{ fontSize: 12, color: COLORS.textSecondary }}>{day}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </View>
+          <Text style={{ textAlign: 'center', fontSize: 15, color: COLORS.textSecondary, marginBottom: 20 }}>Weekly trend</Text>
+
+          {/* Recent History */}
+          <Text style={{ fontSize: 14, fontWeight: '600', color: COLORS.textSecondary, letterSpacing: 1, marginLeft: 20, marginBottom: 12 }}>RECENT HISTORY</Text>
+          <View style={{ backgroundColor: COLORS.card, borderRadius: 16, marginHorizontal: 20, overflow: 'hidden' }}>
+            {config.history.map((item, index) => (
+              <View key={index} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 18, borderBottomWidth: index < config.history.length - 1 ? 1 : 0, borderBottomColor: COLORS.cardBorder }}>
+                <Text style={{ fontSize: 16, color: COLORS.white }}>{item.day} at {item.time}</Text>
+                <Text style={{ fontSize: 18, fontWeight: '600', color: COLORS.white }}>{item.value}</Text>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </Modal>
+  );
+};
+
+// ============================================
+// FAMILY MESSAGES SCREEN
+// ============================================
+const FamilyMessagesScreen = () => {
+  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [messages, setMessages] = useState([
+    { id: 1, text: 'Can someone cover Sunday?', time: '10:30 AM', sent: false, isAI: false },
+    { id: 2, text: "I can cover from 2-6 PM!", time: '10:32 AM', sent: true, isAI: false },
+  ]);
+  const [inputText, setInputText] = useState('');
+  const [inputFocused, setInputFocused] = useState(false);
+
+  const handleSendMessage = () => {
+    if (inputText.trim()) {
+      setMessages([...messages, {
+        id: Date.now(),
+        text: inputText.trim(),
+        time: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+        sent: true,
+      }]);
+      setInputText('');
+    }
+  };
+
+  if (selectedConversation) {
+    return (
+      <SafeAreaView style={msgStyles.container}>
+        <View style={msgStyles.chatHeader}>
+          <TouchableOpacity style={msgStyles.backBtn} onPress={() => setSelectedConversation(null)}>
+            <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+          </TouchableOpacity>
+          {selectedConversation.isGroup ? (
+            <View style={[msgStyles.groupAvatar, { width: 48, height: 48, marginRight: 12, backgroundColor: '#7c3aed' }]}>
+              <Ionicons name="people" size={24} color={COLORS.white} />
+            </View>
+          ) : (
+            <Image source={{ uri: selectedConversation.avatar }} style={msgStyles.chatAvatar} />
+          )}
+          <View style={msgStyles.chatHeaderInfo}>
+            <Text style={msgStyles.chatHeaderName}>{selectedConversation.name}{selectedConversation.role ? ` (${selectedConversation.role})` : ''}</Text>
+            {selectedConversation.online && <Text style={msgStyles.chatHeaderStatus}>Online</Text>}
+          </View>
+        </View>
+
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <ScrollView style={msgStyles.messagesContainer} contentContainerStyle={msgStyles.messagesContent}>
+            {messages.map((message) => (
+              <View key={message.id} style={[msgStyles.messageBubble, message.sent ? msgStyles.sentBubble : msgStyles.receivedBubble]}>
+                <Text style={msgStyles.messageText}>{message.text}</Text>
+                {message.sent ? (
+                  <View style={msgStyles.sentMessageTime}>
+                    <Text style={msgStyles.sentTimeText}>{message.time}</Text>
+                    <Ionicons name="checkmark-done" size={16} color="rgba(255,255,255,0.7)" />
+                  </View>
+                ) : (
+                  <Text style={msgStyles.messageTime}>{message.time}</Text>
+                )}
+              </View>
+            ))}
+          </ScrollView>
+
+          <View style={msgStyles.inputContainer}>
+            <TextInput
+              style={[msgStyles.textInput, inputFocused && msgStyles.textInputActive]}
+              placeholder="Type a message..."
+              placeholderTextColor={COLORS.textMuted}
+              value={inputText}
+              onChangeText={setInputText}
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => setInputFocused(false)}
+            />
+            <TouchableOpacity style={[msgStyles.sendBtn, inputText.trim() && msgStyles.sendBtnActive]} onPress={handleSendMessage}>
+              <Ionicons name="send" size={22} color={COLORS.white} />
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={msgStyles.container}>
+      <View style={msgStyles.header}>
+        <TouchableOpacity style={msgStyles.backBtn}>
+          <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+        <Text style={msgStyles.headerTitle}>Messages</Text>
+      </View>
+
+      <View style={msgStyles.searchContainer}>
+        <View style={msgStyles.searchBar}>
+          <Ionicons name="search" size={20} color={COLORS.textMuted} />
+          <Text style={msgStyles.searchPlaceholder}>Search conversations...</Text>
+        </View>
+      </View>
+
+      <ScrollView style={msgStyles.conversationList}>
+        {FAMILY_CONVERSATIONS.map((conv) => (
+          <TouchableOpacity key={conv.id} style={msgStyles.conversationItem} onPress={() => setSelectedConversation(conv)}>
+            <View style={msgStyles.avatarContainer}>
+              {conv.isGroup ? (
+                <View style={[msgStyles.groupAvatar, { backgroundColor: '#7c3aed' }]}>
+                  <Ionicons name="people" size={28} color={COLORS.white} />
+                </View>
+              ) : (
+                <Image source={{ uri: conv.avatar }} style={msgStyles.avatar} />
+              )}
+            </View>
+            <View style={msgStyles.conversationInfo}>
+              <Text style={msgStyles.conversationName}>{conv.name}{conv.role ? ` (${conv.role})` : ''}</Text>
+              <Text style={msgStyles.conversationPreview} numberOfLines={1}>{conv.lastMessage}</Text>
+            </View>
+            <View style={msgStyles.conversationMeta}>
+              <Text style={msgStyles.conversationTime}>{conv.time}</Text>
+              {conv.unread > 0 && (
+                <View style={msgStyles.unreadBadge}>
+                  <Text style={msgStyles.unreadText}>{conv.unread}</Text>
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+// ============================================
+// FAMILY ALERTS SCREEN
+// ============================================
+const FamilyAlertsScreen = () => {
+  return (
+    <SafeAreaView style={familyStyles.container}>
+      <View style={familyStyles.header}>
+        <View style={familyStyles.headerRow}>
+          <TouchableOpacity style={familyStyles.backBtn}>
+            <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+          </TouchableOpacity>
+          <Text style={familyStyles.headerTitle}>Notifications</Text>
+        </View>
+      </View>
+
+      <ScrollView>
+        {/* Upcoming Schedule */}
+        <View style={familyStyles.sectionLabel}>
+          <Ionicons name="calendar-outline" size={18} color={COLORS.textSecondary} style={familyStyles.sectionIcon} />
+          <Text style={familyStyles.sectionText}>UPCOMING SCHEDULE</Text>
+        </View>
+
+        {FAMILY_ALERTS.upcoming.map((item) => (
+          <View key={item.id} style={familyStyles.alertCard}>
+            <View style={[familyStyles.alertIconBg, { backgroundColor: item.iconBg }]}>
+              <Ionicons name={item.icon} size={26} color="#3b82f6" />
+            </View>
+            <View style={familyStyles.alertInfo}>
+              <Text style={familyStyles.alertTitle}>{item.title}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+                <Ionicons name="time-outline" size={14} color={COLORS.textSecondary} />
+                <Text style={[familyStyles.alertTime, { marginLeft: 4 }]}>{item.time}</Text>
+              </View>
+            </View>
+          </View>
+        ))}
+
+        {/* Recent Alerts */}
+        <View style={familyStyles.sectionLabel}>
+          <Ionicons name="notifications-outline" size={18} color={COLORS.textSecondary} style={familyStyles.sectionIcon} />
+          <Text style={familyStyles.sectionText}>RECENT ALERTS</Text>
+        </View>
+
+        {FAMILY_ALERTS.recent.map((item) => (
+          <View key={item.id} style={[familyStyles.recentAlertCard, item.highlight && familyStyles.recentAlertHighlight]}>
+            <Text style={familyStyles.recentAlertTitle}>{item.title}</Text>
+            <Text style={familyStyles.recentAlertSubtitle}>{item.subtitle}</Text>
+            <Text style={familyStyles.recentAlertTime}>{item.time}</Text>
+          </View>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+// ============================================
+// FAMILY MENU SCREEN
+// ============================================
+const FamilyMenuScreen = ({ onSignOut }) => {
+  const [currentView, setCurrentView] = useState('menu');
+  const [showPatientProfile, setShowPatientProfile] = useState(false);
+
+  // Profile View
+  if (currentView === 'profile') {
+    return (
+      <SafeAreaView style={familyStyles.container}>
+        <View style={familyStyles.header}>
+          <View style={familyStyles.headerRow}>
+            <TouchableOpacity style={familyStyles.backBtn} onPress={() => setCurrentView('menu')}>
+              <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+            </TouchableOpacity>
+            <Text style={familyStyles.headerTitle}>Profile</Text>
+          </View>
+        </View>
+
+        <ScrollView>
+          <View style={{ alignItems: 'center', marginTop: 20, marginBottom: 10 }}>
+            <View style={{ position: 'relative' }}>
+              <Image source={{ uri: FAMILY_MEMBER.avatar }} style={familyStyles.profileAvatar} />
+              <TouchableOpacity style={familyStyles.profileCameraBtn}>
+                <Ionicons name="camera" size={22} color={COLORS.white} />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <Text style={familyStyles.profileName}>{FAMILY_MEMBER.name}</Text>
+          <Text style={familyStyles.profileRole}>{FAMILY_MEMBER.role}</Text>
+
+          <View style={familyStyles.contactCard}>
+            <Text style={familyStyles.contactTitle}>Contact Information</Text>
+            <Text style={familyStyles.contactLabel}>EMAIL</Text>
+            <Text style={familyStyles.contactValue}>{FAMILY_MEMBER.email}</Text>
+            <Text style={familyStyles.contactLabel}>PHONE</Text>
+            <Text style={[familyStyles.contactValue, { marginBottom: 0 }]}>{FAMILY_MEMBER.phone}</Text>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={familyStyles.container}>
+      <ScrollView contentContainerStyle={familyStyles.menuScrollContent}>
+        {/* Family Member Profile Card */}
+        <TouchableOpacity style={familyStyles.menuCard} onPress={() => setCurrentView('profile')}>
+          <Image source={{ uri: FAMILY_MEMBER.avatar }} style={familyStyles.menuAvatar} />
+          <View style={familyStyles.menuInfo}>
+            <Text style={familyStyles.menuName}>{FAMILY_MEMBER.name}</Text>
+            <Text style={familyStyles.menuRole}>{FAMILY_MEMBER.role}</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+
+        {/* Patient Profile Card */}
+        <TouchableOpacity style={familyStyles.menuCard} onPress={() => setShowPatientProfile(true)}>
+          <Image source={{ uri: PATIENT.photo }} style={familyStyles.menuAvatar} />
+          <View style={familyStyles.menuInfo}>
+            <Text style={familyStyles.menuName}>{PATIENT.name}</Text>
+            <Text style={familyStyles.menuRole}>View Medical Profile</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+
+        {/* Menu Items */}
+        <TouchableOpacity style={familyStyles.menuCard}>
+          <View style={familyStyles.menuIconBg}>
+            <Ionicons name="heart-outline" size={24} color={COLORS.white} />
+          </View>
+          <Text style={familyStyles.menuText}>Current Caregiver</Text>
+          <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={familyStyles.menuCard}>
+          <View style={familyStyles.menuIconBg}>
+            <Ionicons name="trending-up" size={24} color={COLORS.white} />
+          </View>
+          <Text style={familyStyles.menuText}>Billing</Text>
+          <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={familyStyles.menuCard}>
+          <View style={familyStyles.menuIconBg}>
+            <Ionicons name="settings-outline" size={24} color={COLORS.white} />
+          </View>
+          <Text style={familyStyles.menuText}>Settings</Text>
+          <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={familyStyles.menuCard}>
+          <View style={familyStyles.menuIconBg}>
+            <Ionicons name="notifications-outline" size={24} color={COLORS.white} />
+          </View>
+          <Text style={familyStyles.menuText}>Support</Text>
+          <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+
+        {/* Sign Out */}
+        <TouchableOpacity style={familyStyles.signOutCard} onPress={onSignOut}>
+          <View style={familyStyles.signOutIconBg}>
+            <Ionicons name="person-outline" size={24} color="#ef4444" />
+          </View>
+          <Text style={familyStyles.signOutText}>Sign Out</Text>
+        </TouchableOpacity>
+      </ScrollView>
+
+      {/* Patient Profile Modal */}
+      <PatientProfileModal 
+        visible={showPatientProfile} 
+        onClose={() => setShowPatientProfile(false)}
+        onOpenCareHistory={() => {}}
+      />
+    </SafeAreaView>
+  );
+};
+
+// ============================================
+// FAMILY DASHBOARD (Complete)
+// ============================================
+const FamilyDashboard = ({ onSignOut }) => {
+  const [vitals] = useState({ bp: { systolic: 120, diastolic: 76 }, heart: 72, temp: 98.6, pain: 1 });
+  const [showVitalsModal, setShowVitalsModal] = useState(false);
+  const [selectedVitalType, setSelectedVitalType] = useState(null);
+
+  const FamilyTab = createBottomTabNavigator();
+
+  const openVitals = (type) => {
+    setSelectedVitalType(type);
+    setShowVitalsModal(true);
+  };
+
+  const HomeWrapper = () => <FamilyHomeScreen vitals={vitals} onOpenVitals={openVitals} />;
+  const MenuWrapper = () => <FamilyMenuScreen onSignOut={onSignOut} />;
+
+  return (
+    <>
+      <FamilyTab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarStyle: styles.tabBar,
+          tabBarActiveTintColor: COLORS.primary,
+          tabBarInactiveTintColor: COLORS.textSecondary,
+          tabBarLabelStyle: styles.tabBarLabel,
+        }}
+      >
+        <FamilyTab.Screen name="Home" component={HomeWrapper}
+          options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} /> }} />
+        <FamilyTab.Screen name="Incident" component={IncidentScreen}
+          options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "warning" : "warning-outline"} size={24} color={color} /> }} />
+        <FamilyTab.Screen name="Message" component={FamilyMessagesScreen}
+          options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "chatbubble" : "chatbubble-outline"} size={24} color={color} /> }} />
+        <FamilyTab.Screen name="Alerts" component={FamilyAlertsScreen}
+          options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "notifications" : "notifications-outline"} size={24} color={color} /> }} />
+        <FamilyTab.Screen name="Menu" component={MenuWrapper}
+          options={{ tabBarIcon: ({ focused, color }) => <Ionicons name={focused ? "settings" : "settings-outline"} size={24} color={color} /> }} />
+      </FamilyTab.Navigator>
+
+      <FamilyVitalsModal
+        visible={showVitalsModal}
+        onClose={() => setShowVitalsModal(false)}
+        vitalType={selectedVitalType}
+        vitals={vitals}
+      />
+    </>
+  );
+};
 
 // ============================================
 // AGENCY DASHBOARD (Placeholder)
