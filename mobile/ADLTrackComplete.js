@@ -2566,7 +2566,7 @@ const incStyles = StyleSheet.create({
   severityBadgeText: { fontSize: 11, fontWeight: '700' },
   
   // Modal
-  modalContainer: { flex: 1, backgroundColor: COLORS.background, paddingTop: 50 },
+  modalContainer: { flex: 1, backgroundColor: COLORS.background, paddingTop: 70 },
   modalHeader: { 
     flexDirection: 'row', 
     alignItems: 'center', 
