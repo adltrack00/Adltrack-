@@ -4188,7 +4188,7 @@ const SHIFT_HISTORY = [
 // ============================================
 const shiftStyles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  scrollContent: { paddingHorizontal: 20, paddingTop: 60, paddingBottom: 30 },
+  scrollContent: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 30 },
   
   // Current Shift Card - Inactive
   shiftCardInactive: { 
@@ -4273,8 +4273,8 @@ const shiftStyles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: 'center', 
     paddingHorizontal: 20, 
-    paddingTop: 60, 
-    paddingBottom: 20,
+    paddingTop: 10, 
+    paddingBottom: 16,
   },
   historyBackBtn: { marginRight: 16 },
   historyTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.white },
@@ -4283,7 +4283,7 @@ const shiftStyles = StyleSheet.create({
   filterContainer: { 
     flexDirection: 'row', 
     paddingHorizontal: 20, 
-    marginBottom: 20,
+    marginBottom: 16,
   },
   filterTab: { 
     paddingHorizontal: 20, 
