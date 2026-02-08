@@ -6052,11 +6052,11 @@ const familyStyles = StyleSheet.create({
   detailDateTime: { fontSize: 15, color: COLORS.textSecondary, marginTop: 4 },
   
   // Severity/Status Badges Row
-  badgesRow: { flexDirection: 'row', paddingHorizontal: 20, marginTop: 20, gap: 10 },
-  statusBadge: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 },
+  badgesRow: { flexDirection: 'row', paddingHorizontal: 20, marginTop: 20 },
+  statusBadge: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, marginRight: 10 },
   statusBadgeCritical: { backgroundColor: 'rgba(239, 68, 68, 0.25)' },
   statusBadgeHigh: { backgroundColor: 'rgba(234, 179, 8, 0.25)' },
-  statusBadgeOpen: { backgroundColor: 'rgba(234, 179, 8, 0.25)' },
+  statusBadgeOpen: { backgroundColor: 'rgba(101, 84, 35, 0.8)', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 },
   statusBadgeText: { fontSize: 15, fontWeight: '600' },
   statusTextCritical: { color: '#f87171' },
   statusTextHigh: { color: '#f59e0b' },
@@ -6074,8 +6074,8 @@ const familyStyles = StyleSheet.create({
   evidenceTapView: { flexDirection: 'row', alignItems: 'center' },
   evidenceTapIcon: { marginRight: 6 },
   evidenceTapText: { fontSize: 14, fontWeight: '600', color: COLORS.primary },
-  evidenceGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  evidencePhoto: { width: (SCREEN_WIDTH - 72) / 2, height: 120, borderRadius: 12, backgroundColor: COLORS.cardBorder },
+  evidenceGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  evidencePhoto: { width: '48%', aspectRatio: 1, borderRadius: 12, backgroundColor: COLORS.cardBorder, marginBottom: 10 },
   evidencePhotoZoom: { position: 'absolute', right: 8, top: 8, width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' },
   
   // Reported By Section
