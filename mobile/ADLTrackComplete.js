@@ -3268,66 +3268,72 @@ const IncidentScreen = () => {
   const renderNewReportModal = () => (
     <Modal visible={showNewReport} animationType="slide">
       <SafeAreaView style={incStyles.modalContainer}>
-        {/* Modal Header */}
-        <View style={incStyles.modalHeader}>
-          <View style={incStyles.modalHeaderLeft}>
-            <View style={incStyles.modalWarningIcon}>
-              <Ionicons name="warning" size={20} color={COLORS.critical} />
+        <KeyboardAvoidingView 
+          style={{ flex: 1 }} 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={0}
+        >
+          {/* Modal Header */}
+          <View style={incStyles.modalHeader}>
+            <View style={incStyles.modalHeaderLeft}>
+              <View style={incStyles.modalWarningIcon}>
+                <Ionicons name="warning" size={20} color={COLORS.critical} />
+              </View>
+              <View>
+                <Text style={incStyles.modalTitle}>New Incident Report</Text>
+                <Text style={incStyles.modalStep}>Step {currentStep} of 4</Text>
+              </View>
             </View>
-            <View>
-              <Text style={incStyles.modalTitle}>New Incident Report</Text>
-              <Text style={incStyles.modalStep}>Step {currentStep} of 4</Text>
-            </View>
+            <TouchableOpacity style={incStyles.cancelBtn} onPress={handleCancel}>
+              <Text style={incStyles.cancelBtnText}>Cancel</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={incStyles.cancelBtn} onPress={handleCancel}>
-            <Text style={incStyles.cancelBtnText}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
 
-        {/* Progress Bar */}
-        <View style={incStyles.progressBar}>
-          {[1, 2, 3, 4].map((step) => (
-            <View 
-              key={step} 
-              style={[
-                incStyles.progressSegment,
-                step <= currentStep && incStyles.progressSegmentActive,
-              ]} 
-            />
-          ))}
-        </View>
+          {/* Progress Bar */}
+          <View style={incStyles.progressBar}>
+            {[1, 2, 3, 4].map((step) => (
+              <View 
+                key={step} 
+                style={[
+                  incStyles.progressSegment,
+                  step <= currentStep && incStyles.progressSegmentActive,
+                ]} 
+              />
+            ))}
+          </View>
 
-        {/* Step Content */}
-        {currentStep === 1 && renderStep1()}
-        {currentStep === 2 && renderStep2()}
-        {currentStep === 3 && renderStep3()}
-        {currentStep === 4 && renderStep4()}
+          {/* Step Content */}
+          {currentStep === 1 && renderStep1()}
+          {currentStep === 2 && renderStep2()}
+          {currentStep === 3 && renderStep3()}
+          {currentStep === 4 && renderStep4()}
 
-        {/* Bottom Navigation */}
-        <View style={incStyles.modalFooter}>
-          {currentStep > 1 && (
-            <TouchableOpacity style={incStyles.backBtn} onPress={handleBack}>
-              <Text style={incStyles.backBtnText}>Back</Text>
-            </TouchableOpacity>
-          )}
-          {currentStep < 4 ? (
-            <TouchableOpacity 
-              style={[
-                incStyles.continueBtn,
-                currentStep === 1 && { flex: 1 },
-                !canContinue() && incStyles.continueBtnDisabled,
-              ]} 
-              onPress={handleContinue}
-              disabled={!canContinue()}
-            >
-              <Text style={incStyles.continueBtnText}>Continue</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity style={incStyles.submitBtn} onPress={handleSubmit}>
-              <Text style={incStyles.submitBtnText}>Submit Incident Report</Text>
-            </TouchableOpacity>
-          )}
-        </View>
+          {/* Bottom Navigation */}
+          <View style={incStyles.modalFooter}>
+            {currentStep > 1 && (
+              <TouchableOpacity style={incStyles.backBtn} onPress={handleBack}>
+                <Text style={incStyles.backBtnText}>Back</Text>
+              </TouchableOpacity>
+            )}
+            {currentStep < 4 ? (
+              <TouchableOpacity 
+                style={[
+                  incStyles.continueBtn,
+                  currentStep === 1 && { flex: 1 },
+                  !canContinue() && incStyles.continueBtnDisabled,
+                ]} 
+                onPress={handleContinue}
+                disabled={!canContinue()}
+              >
+                <Text style={incStyles.continueBtnText}>Continue</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={incStyles.submitBtn} onPress={handleSubmit}>
+                <Text style={incStyles.submitBtnText}>Submit Incident Report</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </Modal>
   );
