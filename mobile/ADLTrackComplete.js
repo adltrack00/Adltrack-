@@ -5831,6 +5831,53 @@ const CARE_TIMELINE_ITEMS = [
 ];
 
 // ============================================
+// FAMILY INCIDENT REPORTS DATA
+// ============================================
+const FAMILY_INCIDENTS = [
+  {
+    id: 1,
+    title: 'Behavioral Change',
+    type: 'behavioral',
+    severity: 'critical',
+    status: 'open',
+    description: 'The patient refused food',
+    actionsTaken: 'I tried but to no avail',
+    dateTime: 'Feb 8, 2026 at 12:02 PM',
+    reporter: CAREGIVER_JULIA,
+    photos: [
+      'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400',
+      'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=400',
+      'https://images.unsplash.com/photo-1568702846914-96b305d2uj40?w=400',
+      'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=400',
+      'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=400',
+      'https://images.unsplash.com/photo-1607082350899-7e105aa886ae?w=400',
+      'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400',
+    ],
+  },
+  {
+    id: 2,
+    title: 'Fall',
+    type: 'fall',
+    severity: 'high',
+    status: 'open',
+    description: 'The patient fell in the siting room',
+    actionsTaken: 'I picked him up and. Called 911',
+    dateTime: 'Feb 8, 2026 at 12:00 PM',
+    reporter: CAREGIVER_JULIA,
+    photos: [
+      'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400',
+      'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?w=400',
+      'https://images.unsplash.com/photo-1568702846914-96b305d2uj40?w=400',
+      'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=400',
+      'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=400',
+      'https://images.unsplash.com/photo-1607082350899-7e105aa886ae?w=400',
+      'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400',
+      'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=400',
+    ],
+  },
+];
+
+// ============================================
 // FAMILY STYLES
 // ============================================
 const familyStyles = StyleSheet.create({
