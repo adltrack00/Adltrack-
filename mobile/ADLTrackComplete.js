@@ -3377,7 +3377,426 @@ const IncidentScreen = () => {
   );
 };
 
-const MessageScreen = () => <PlaceholderScreen icon="chatbubble-outline" title="Messages" />;
+// ============================================
+// MESSAGES DATA
+// ============================================
+const CONVERSATIONS = [
+  {
+    id: 1,
+    name: 'Mary Smith',
+    role: 'POA',
+    avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+    lastMessage: 'Thank you for the update!',
+    time: '2:30 PM',
+    unread: 0,
+    online: true,
+    isGroup: false,
+  },
+  {
+    id: 2,
+    name: 'Sarah Johnson',
+    role: 'Supervisor',
+    avatar: 'https://randomuser.me/api/portraits/women/65.jpg',
+    lastMessage: 'Please submit your timesheet',
+    time: '1:15 PM',
+    unread: 1,
+    online: true,
+    isGroup: false,
+  },
+  {
+    id: 3,
+    name: 'Michael Chen',
+    role: 'Weekend Caregiver',
+    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+    lastMessage: 'Handoff notes are ready',
+    time: 'Yesterday',
+    unread: 0,
+    online: false,
+    isGroup: false,
+  },
+  {
+    id: 4,
+    name: 'Care Team Handoff',
+    role: '',
+    avatar: null,
+    lastMessage: 'Weekend schedule updated',
+    time: 'Yesterday',
+    unread: 2,
+    online: false,
+    isGroup: true,
+  },
+];
+
+const INITIAL_MESSAGES = [
+  {
+    id: 1,
+    text: 'Hi! How is everything going with Dad today?',
+    time: '9:30 AM',
+    sent: false,
+    hasPhoto: false,
+  },
+  {
+    id: 2,
+    text: 'Great! He had a wonderful breakfast and we just finished his morning walk.',
+    time: '9:32 AM',
+    sent: true,
+    hasPhoto: false,
+  },
+  {
+    id: 3,
+    text: "That's wonderful to hear! Did he take his medication?",
+    time: '9:33 AM',
+    sent: false,
+    hasPhoto: false,
+  },
+  {
+    id: 4,
+    text: "Yes, all medications given on time. I've uploaded the photo evidence.",
+    time: '9:35 AM',
+    sent: true,
+    hasPhoto: true,
+  },
+  {
+    id: 5,
+    text: 'Thank you for the update!',
+    time: '9:36 AM',
+    sent: false,
+    hasPhoto: false,
+  },
+];
+
+// ============================================
+// MESSAGE STYLES
+// ============================================
+const msgStyles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: COLORS.background },
+  
+  // Header
+  header: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingHorizontal: 20, 
+    paddingTop: 60, 
+    paddingBottom: 20,
+  },
+  backBtn: { marginRight: 16 },
+  headerTitle: { fontSize: 28, fontWeight: 'bold', color: COLORS.white },
+  
+  // Search Bar
+  searchContainer: { paddingHorizontal: 20, marginBottom: 20 },
+  searchBar: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: COLORS.card, 
+    borderRadius: 16, 
+    paddingHorizontal: 16, 
+    paddingVertical: 14,
+  },
+  searchPlaceholder: { fontSize: 16, color: COLORS.textMuted, marginLeft: 12 },
+  
+  // Conversation List
+  conversationList: { flex: 1 },
+  conversationItem: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingHorizontal: 20, 
+    paddingVertical: 16,
+  },
+  avatarContainer: { position: 'relative', marginRight: 14 },
+  avatar: { width: 56, height: 56, borderRadius: 28 },
+  groupAvatar: { 
+    width: 56, 
+    height: 56, 
+    borderRadius: 28, 
+    backgroundColor: '#7c3aed', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+  },
+  conversationInfo: { flex: 1 },
+  conversationName: { fontSize: 18, fontWeight: '600', color: COLORS.white, marginBottom: 4 },
+  conversationPreview: { fontSize: 15, color: COLORS.textSecondary },
+  conversationMeta: { alignItems: 'flex-end' },
+  conversationTime: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 6 },
+  unreadBadge: { 
+    backgroundColor: COLORS.primary, 
+    width: 24, 
+    height: 24, 
+    borderRadius: 12, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+  },
+  unreadText: { fontSize: 13, fontWeight: '600', color: COLORS.white },
+  
+  // Chat Header
+  chatHeader: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingHorizontal: 20, 
+    paddingTop: 60, 
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.cardBorder,
+  },
+  chatAvatar: { width: 48, height: 48, borderRadius: 24, marginRight: 12 },
+  chatHeaderInfo: { flex: 1 },
+  chatHeaderName: { fontSize: 20, fontWeight: '600', color: COLORS.white },
+  chatHeaderStatus: { fontSize: 14, color: COLORS.primary, marginTop: 2 },
+  
+  // Messages Area
+  messagesContainer: { flex: 1 },
+  messagesContent: { paddingHorizontal: 20, paddingVertical: 16 },
+  
+  // Message Bubbles
+  messageBubble: { 
+    maxWidth: '80%', 
+    borderRadius: 20, 
+    paddingHorizontal: 16, 
+    paddingVertical: 12, 
+    marginBottom: 12,
+  },
+  receivedBubble: { 
+    backgroundColor: COLORS.card, 
+    alignSelf: 'flex-start',
+    borderBottomLeftRadius: 6,
+  },
+  sentBubble: { 
+    backgroundColor: COLORS.primary, 
+    alignSelf: 'flex-end',
+    borderBottomRightRadius: 6,
+  },
+  messageText: { fontSize: 16, color: COLORS.white, lineHeight: 22 },
+  messageTime: { fontSize: 12, color: COLORS.textSecondary, marginTop: 6, alignSelf: 'flex-end' },
+  sentMessageTime: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    alignSelf: 'flex-end', 
+    marginTop: 6,
+  },
+  sentTimeText: { fontSize: 12, color: 'rgba(255, 255, 255, 0.7)', marginRight: 4 },
+  
+  // Photo Attachment
+  photoAttachment: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: 'rgba(0, 0, 0, 0.2)', 
+    borderRadius: 12, 
+    paddingHorizontal: 14, 
+    paddingVertical: 10,
+    marginBottom: 10,
+  },
+  photoAttachmentText: { fontSize: 15, color: COLORS.white, marginLeft: 10 },
+  
+  // Input Area
+  inputContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingHorizontal: 20, 
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.cardBorder,
+  },
+  textInput: { 
+    flex: 1, 
+    backgroundColor: COLORS.card, 
+    borderRadius: 24, 
+    paddingHorizontal: 20, 
+    paddingVertical: 14, 
+    fontSize: 16, 
+    color: COLORS.white,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    marginRight: 12,
+  },
+  textInputActive: { borderColor: COLORS.primary },
+  sendBtn: { 
+    width: 52, 
+    height: 52, 
+    borderRadius: 14, 
+    backgroundColor: COLORS.card, 
+    alignItems: 'center', 
+    justifyContent: 'center',
+  },
+  sendBtnActive: { backgroundColor: COLORS.primary },
+});
+
+// ============================================
+// MESSAGE SCREEN
+// ============================================
+const MessageScreen = () => {
+  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [messages, setMessages] = useState(INITIAL_MESSAGES);
+  const [inputText, setInputText] = useState('');
+  const [inputFocused, setInputFocused] = useState(false);
+  const [searchText, setSearchText] = useState('');
+
+  const handleSendMessage = () => {
+    if (inputText.trim()) {
+      const newMessage = {
+        id: Date.now(),
+        text: inputText.trim(),
+        time: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+        sent: true,
+        hasPhoto: false,
+      };
+      setMessages([...messages, newMessage]);
+      setInputText('');
+    }
+  };
+
+  // Conversation List View
+  const renderConversationList = () => (
+    <SafeAreaView style={msgStyles.container}>
+      {/* Header */}
+      <View style={msgStyles.header}>
+        <TouchableOpacity style={msgStyles.backBtn}>
+          <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+        <Text style={msgStyles.headerTitle}>Messages</Text>
+      </View>
+
+      {/* Search Bar */}
+      <View style={msgStyles.searchContainer}>
+        <View style={msgStyles.searchBar}>
+          <Ionicons name="search" size={20} color={COLORS.textMuted} />
+          <Text style={msgStyles.searchPlaceholder}>Search conversations...</Text>
+        </View>
+      </View>
+
+      {/* Conversation List */}
+      <ScrollView style={msgStyles.conversationList} showsVerticalScrollIndicator={false}>
+        {CONVERSATIONS.map((conversation) => (
+          <TouchableOpacity 
+            key={conversation.id} 
+            style={msgStyles.conversationItem}
+            onPress={() => setSelectedConversation(conversation)}
+          >
+            <View style={msgStyles.avatarContainer}>
+              {conversation.isGroup ? (
+                <View style={msgStyles.groupAvatar}>
+                  <Ionicons name="people" size={28} color={COLORS.white} />
+                </View>
+              ) : (
+                <Image source={{ uri: conversation.avatar }} style={msgStyles.avatar} />
+              )}
+            </View>
+            <View style={msgStyles.conversationInfo}>
+              <Text style={msgStyles.conversationName}>
+                {conversation.name}{conversation.role ? ` (${conversation.role})` : ''}
+              </Text>
+              <Text style={msgStyles.conversationPreview} numberOfLines={1}>
+                {conversation.lastMessage}
+              </Text>
+            </View>
+            <View style={msgStyles.conversationMeta}>
+              <Text style={msgStyles.conversationTime}>{conversation.time}</Text>
+              {conversation.unread > 0 && (
+                <View style={msgStyles.unreadBadge}>
+                  <Text style={msgStyles.unreadText}>{conversation.unread}</Text>
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
+  );
+
+  // Chat Detail View
+  const renderChatDetail = () => (
+    <SafeAreaView style={msgStyles.container}>
+      {/* Chat Header */}
+      <View style={msgStyles.chatHeader}>
+        <TouchableOpacity 
+          style={msgStyles.backBtn}
+          onPress={() => setSelectedConversation(null)}
+        >
+          <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+        {selectedConversation.isGroup ? (
+          <View style={[msgStyles.groupAvatar, { width: 48, height: 48, marginRight: 12 }]}>
+            <Ionicons name="people" size={24} color={COLORS.white} />
+          </View>
+        ) : (
+          <Image source={{ uri: selectedConversation.avatar }} style={msgStyles.chatAvatar} />
+        )}
+        <View style={msgStyles.chatHeaderInfo}>
+          <Text style={msgStyles.chatHeaderName}>
+            {selectedConversation.name}{selectedConversation.role ? ` (${selectedConversation.role})` : ''}
+          </Text>
+          {selectedConversation.online && (
+            <Text style={msgStyles.chatHeaderStatus}>Online</Text>
+          )}
+        </View>
+      </View>
+
+      {/* Messages */}
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
+      >
+        <ScrollView 
+          style={msgStyles.messagesContainer}
+          contentContainerStyle={msgStyles.messagesContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {messages.map((message) => (
+            <View 
+              key={message.id} 
+              style={[
+                msgStyles.messageBubble,
+                message.sent ? msgStyles.sentBubble : msgStyles.receivedBubble,
+              ]}
+            >
+              {message.hasPhoto && (
+                <View style={msgStyles.photoAttachment}>
+                  <Ionicons name="image-outline" size={20} color={COLORS.white} />
+                  <Text style={msgStyles.photoAttachmentText}>Photo attached</Text>
+                </View>
+              )}
+              <Text style={msgStyles.messageText}>{message.text}</Text>
+              {message.sent ? (
+                <View style={msgStyles.sentMessageTime}>
+                  <Text style={msgStyles.sentTimeText}>{message.time}</Text>
+                  <Ionicons name="checkmark-done" size={16} color="rgba(255, 255, 255, 0.7)" />
+                </View>
+              ) : (
+                <Text style={msgStyles.messageTime}>{message.time}</Text>
+              )}
+            </View>
+          ))}
+        </ScrollView>
+
+        {/* Input Area */}
+        <View style={msgStyles.inputContainer}>
+          <TextInput
+            style={[
+              msgStyles.textInput,
+              inputFocused && msgStyles.textInputActive,
+            ]}
+            placeholder="Type a message..."
+            placeholderTextColor={COLORS.textMuted}
+            value={inputText}
+            onChangeText={setInputText}
+            onFocus={() => setInputFocused(true)}
+            onBlur={() => setInputFocused(false)}
+          />
+          <TouchableOpacity 
+            style={[
+              msgStyles.sendBtn,
+              inputText.trim() && msgStyles.sendBtnActive,
+            ]}
+            onPress={handleSendMessage}
+          >
+            <Ionicons name="send" size={22} color={COLORS.white} />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+
+  return selectedConversation ? renderChatDetail() : renderConversationList();
+};
 const ShiftsScreen = () => <PlaceholderScreen icon="time-outline" title="Shifts" />;
 const MenuScreen = () => <PlaceholderScreen icon="settings-outline" title="Menu" />;
 
