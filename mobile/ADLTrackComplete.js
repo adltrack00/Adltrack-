@@ -5338,6 +5338,7 @@ const MenuScreen = () => {
   const [currentView, setCurrentView] = useState('menu');
   const [pushNotifications, setPushNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(true);
+  const signOut = React.useContext(SignOutContext);
 
   // Custom Toggle Component
   const Toggle = ({ value, onToggle }) => (
