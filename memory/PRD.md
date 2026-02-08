@@ -1,202 +1,105 @@
-# ADLTrack - Product Requirements Document
-
-## Overview
-ADLTrack is a caregiving coordination platform that connects caregivers, families, and agencies. It provides a beautiful, human-centered interface for managing care tasks, tracking vitals, documenting incidents, and communicating between all parties involved in patient care.
+# ADLTrack Mobile App - Product Requirements Document
 
 ## Original Problem Statement
-Build a comprehensive caregiving dashboard application with:
-- Separate views for Caregivers, Family Members, and Agencies
-- Real-time task management and care documentation
-- AI-powered copilot for assistance
-- Incident reporting system
-- Vitals tracking and care history
+Build a mobile app named "ADLTrack" using Expo (React Native) for caregiving coordination with three user roles: Caregiver, Family Member, and Agency. The app should be a high-fidelity, pixel-perfect replica of an existing web application, implemented screen-by-screen based on user-provided screenshots.
 
-## Mobile App Development (Expo/React Native)
-The user requested an **exact replica** of the web application as a mobile app using Expo (React Native) for testing via Expo Snack.
+## Tech Stack
+- **Framework:** Expo (React Native)
+- **Styling:** StyleSheet API
+- **Navigation:** React Navigation (Stack + Bottom Tabs)
+- **State Management:** React useState, useContext
+- **Development File:** Single monolithic file `/app/mobile/ADLTrackComplete.js` for Expo Snack testing
 
-### Phase 1 & 2 Completed (December 2025)
-✅ **Caregiver Dashboard** - Full high-fidelity replica
-✅ **Family Dashboard** - Full high-fidelity replica
+## User Personas
+1. **Caregiver** - Manages shifts, tasks, documentation, vitals tracking
+2. **Family Member** - Monitors care, views updates, stays connected
+3. **Agency** - Manages staff and compliance (Phase 3)
 
-#### Features Implemented in Mobile App:
+## Phases
 
-**Authentication:**
-- Role-based login (Caregiver/Family)
-- Demo credentials auto-fill
-- Secure password toggle
+### Phase 1: Auth Flow + Caregiver Dashboard ✅ COMPLETED
+- Account type selection screen
+- Role-specific sign-up screens
+- Universal sign-in screen
+- Caregiver Dashboard with:
+  - Home screen with patient info, vitals, tasks
+  - Task management with completion flow
+  - Incident reporting (4-step wizard)
+  - Messaging system
+  - Shifts management
+  - Menu (Profile, Settings, Support)
+  - AI Copilot (FAB on Home screen)
 
-**Caregiver Dashboard:**
-- Shift progress card with stats
-- Patient card with profile access
-- Quick actions (Vitals, Incident, Message, AI Help)
-- Current vitals summary (horizontal scroll)
-- Priority tasks section
-- Family requests (proposed tasks) with Accept/Decline
-- Full task list with completion workflow
-- Patient Profile Modal (4 tabs: Overview, Medical, History, Contacts)
-  - Complete allergies, medications, conditions
-  - Calendar for historical data
-  - Emergency contacts
-- Vitals Modal with Current/History tabs and Add Vital form
-- Task Completion Modal with photo upload and notes
-- Multi-step Incident Report form (4 steps)
-- Messages tab with real-time chat UI
-- AI Copilot with quick prompts
-- Profile/Settings tab
+### Phase 2: Family Dashboard 🔄 IN PROGRESS
+- ✅ Home screen with vitals display
+- ✅ Progress tracking section
+- ✅ Tabs (My Requests / Care Timeline)
+- ✅ **Care Timeline Feed** - JUST COMPLETED
+  - Scrollable feed of completed care tasks
+  - Task cards with images, titles, completion time, caregiver info
+  - Detail modal on tap with full task information
+- ✅ View-only Vitals modals
+- ✅ Messages screen
+- ✅ Alerts/Notifications screen
+- ✅ Menu with Sign Out
 
-**Family Dashboard:**
-- Patient overview card with caregiver on duty
-- Quick actions
-- Today's progress card
-- Current vitals display
-- Full care timeline with task photos/notes
-- Request Task Modal
-- Updates tab with care activity feed
-- Incidents tab with detail view
-- Messages with caregiver
-- Profile with patient info
+### Phase 3: Agency Dashboard ⏳ NOT STARTED
+- Placeholder screen exists
+- Full implementation pending
 
-## Target Users
-1. **Caregivers**: Professional caregivers who need to manage shifts, complete tasks, document care activities
-2. **Family Members**: Family guardians who want visibility into their loved one's care
-3. **Agencies**: Healthcare agencies managing multiple caregivers and patients
+## What's Been Implemented (Latest)
 
-## Core Features
+### December 2025 - Care Timeline Feature
+- Added `CARE_TIMELINE_ITEMS` mock data with 6 completed tasks
+- Created `CareTimelineCard` component with:
+  - Task image with title/time overlay
+  - Note section showing caregiver's observation
+  - Caregiver info row with avatar
+  - Detail button
+- Created `CareTimelineDetailModal` with:
+  - Caregiver header with avatar and role
+  - Task title and completion time
+  - Full-size task image
+  - Task description section
+  - Caregiver verification status
+- Updated `FamilyHomeScreen` to:
+  - Show timeline feed when "Care Timeline" tab is active
+  - Show dynamic progress count (6/12 tasks)
+  - Handle tap on timeline cards to open detail modal
 
-### Authentication (MOCK)
-- Mock sign-in/sign-up flow that simulates real authentication
-- Role selection (Caregiver, Family, Agency)
-- Direct navigation to dashboards without real authentication
-
-### Caregiver Dashboard
-- Start/End shift functionality
-- Patient overview with vitals display (BP, Heart Rate, Temp, Pain)
-- Task management (Today's tasks, Requests from family)
-- Task completion with photo evidence and notes
-- **Incident Reporting** - Now as a dedicated tab in bottom navigation
-- AI Copilot for care guidance
-- Profile and settings management
-
-### Family Dashboard
-- Care timeline with photos and notes from caregiver
-- Vitals monitoring
-- Request system for asking caregiver to do tasks
-- Incident viewing (see reports from caregiver)
-- Patient profile access
-
-### Agency Dashboard (Enterprise)
-- Multi-patient overview
-- Staff management
-- Compliance tracking
-
-### Bottom Navigation Structure
-**Caregiver**: Home | Incident | Message | Shifts | Menu
-**Family**: Home | Incident | Message | Alerts | Menu
-
-**Tab Styling:**
-- Active tab: GREEN (#25D366) for all tabs except Incident
-- Active Incident tab: RED/ROSE (#f43f5e)
-- Inactive tabs: Gray/muted color
-- Incident tab on Family dashboard shows notification badge with count
-
-### Design System
-- Primary color: #25D366 (Green)
-- Accent color for incidents: Rose/Pink (#f43f5e)
-- Dark/Light mode support
-- Font: Manrope
-- Rounded corners: 2xl/3xl for cards
-- Tailwind CSS + Shadcn/UI components
-
-## Technical Stack
-- **Frontend**: React, Tailwind CSS, Shadcn/UI, Lucide Icons, Framer Motion
-- **Backend**: FastAPI (Python)
-- **Database**: MongoDB (planned, currently mock data)
-- **AI Integration**: Gemini via emergentintegrations
-
-## What's Been Implemented (As of Jan 2026)
-
-### Completed Features
-- ✅ Landing page with marketing content
-- ✅ Role selection and mock authentication flow
-- ✅ Caregiver Dashboard with full task management
-- ✅ Family Dashboard with care timeline
-- ✅ Dark/Light mode theming (ThemeContext)
-- ✅ Vitals display and tracking UI
-- ✅ Patient profile modal with care history calendar
-- ✅ AI Copilot chat interface (connected to Gemini backend)
-- ✅ Task completion with photo evidence
-- ✅ **Incident Reporting as Bottom Navigation Tab** (Jan 20, 2026)
-  - Moved from floating action button to dedicated nav tab
-  - Implemented on BOTH Caregiver and Family dashboards
-  - New IncidentReportPage component for Caregivers (create + history)
-  - New IncidentViewPage component for Family (view reports from caregiver)
-  - Tab styling: Plain when inactive, RED/ROSE when active (other tabs turn green)
-  - Family dashboard shows notification badge with incident count
-  - Multi-step incident creation form for caregivers
-  - Detailed incident view with caregiver attribution for family
-
-### Backend Endpoints
-- `POST /api/copilot/chat` - AI copilot (working)
-- `GET /health` - Health check endpoint
-- Auth and data endpoints exist but not connected to frontend
-
-## Pending/Future Work
+## Prioritized Backlog
 
 ### P0 - High Priority
-- [ ] Backend Implementation & MongoDB Integration
-- [ ] Connect frontend to real API endpoints
-- [ ] Real authentication (JWT + Google OAuth)
+- Complete any remaining Family Dashboard features per user feedback
+- Begin Phase 3 Agency Dashboard implementation
 
 ### P1 - Medium Priority
-- [x] Settings page refactor (profile card clickable) ✅ DONE Jan 29, 2026
-- [x] Dead code cleanup ✅ DONE Jan 29, 2026
-  - Removed: AuthCallback.jsx, IncidentReportModal.jsx, IncidentViewModal.jsx, IncidentModal.jsx
-  - Kept: RoleSwitcher.jsx (used by EnterpriseDashboard)
-- [ ] ESLint cleanup
+- Connect AI Copilot to live backend API (`/api/copilot/chat`)
+- Integrate AsyncStorage for persistent auth sessions
 
-### P2 - Low Priority / Future
-- [ ] Real-time notifications for family
-- [ ] Advanced AI features (contextual chat)
-- [ ] Caregiver reputation scoring
-- [ ] Pattern detection in care data
+### P2 - Technical Debt (CRITICAL)
+- Refactor monolithic file into proper folder structure:
+  - `/src/screens/` - Individual screen components
+  - `/src/components/` - Reusable UI components
+  - `/src/navigation/` - Navigation configuration
+  - `/src/styles/` - Shared style constants
+  - `/src/data/` - Mock data and constants
 
-## Known Issues
-- Application runs on mock data (mockData.js)
-- Authentication is simulated, not real
-- Some lint warnings present
+## Known Issues & Patterns
 
-## Recent Updates (Jan 29, 2026)
-- ✅ Verified desktop layout fixes for Landing, Role Selection, and Auth pages
-- ✅ Settings page profile card is now clickable and navigates to Profile page
-- ✅ Deleted dead code files:
-  - AuthCallback.jsx (not imported anywhere)
-  - IncidentReportModal.jsx (replaced by IncidentReportPage.jsx)
-  - IncidentViewModal.jsx (replaced by IncidentViewPage.jsx)
-  - IncidentModal.jsx (legacy, unused)
-- ✅ Build verified - no errors
-- ✅ Created Mobile Agent Handoff document at /app/memory/MOBILE_AGENT_HANDOFF.md
+### Recurring Hoisting Errors
+Due to single-file architecture, `StyleSheet` objects must be defined BEFORE components that use them. This has caused errors with `incStyles` and `aiStyles` in the past.
 
-## File Structure Reference
-```
-/app/frontend/src/
-├── components/
-│   ├── CaregiverDashboard.jsx    # Main caregiver view
-│   ├── FamilyDashboard.jsx       # Main family view
-│   ├── IncidentReportPage.jsx    # Incident tab for Caregivers
-│   ├── IncidentViewPage.jsx      # Incident tab for Family
-│   ├── AICopilot.jsx             # Chat interface
-│   ├── PatientProfileModal.jsx   # Patient details + calendar
-│   ├── VitalsModal.jsx           # Vitals detailed view
-│   ├── LandingPage.jsx           # Marketing landing page
-│   ├── AuthPage.jsx              # Sign-in/Sign-up form
-│   ├── RoleSelectionPage.jsx     # Role selection
-│   ├── EnterpriseDashboard.jsx   # Agency dashboard
-│   ├── RoleSwitcher.jsx          # Role switching (used by Enterprise)
-│   └── pages/                    # Sub-pages (Profile, Settings, etc.)
-├── context/
-│   ├── ThemeContext.jsx          # Dark/Light mode
-│   └── AuthContext.jsx           # Mock auth state
-├── services/
-│   └── mockData.js               # All mock data
-└── App.js                        # Main routing
-```
+### File Size
+Current file is ~7,500 lines. Growing larger with each feature.
+
+## Key API Endpoints (Future Integration)
+- `/api/copilot/chat` - AI Assistant endpoint
+
+## Testing Method
+User tests on real device via Expo Go using Expo Snack. Agent provides complete updated code for copy/paste testing.
+
+## Notes
+- All data is currently MOCKED
+- Authentication is mocked (any credentials work)
+- 3rd party integration planned: Gemini API via Emergent LLM Key
