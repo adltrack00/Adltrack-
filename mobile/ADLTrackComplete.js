@@ -2878,11 +2878,20 @@ const IncidentScreen = () => {
     }
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
+      allowsEditing: false,
       quality: 0.8,
     });
     if (!result.canceled && result.assets && result.assets[0]) {
       setPhotos([...photos, { id: Date.now(), uri: result.assets[0].uri }]);
+      // Ask if user wants to take another photo
+      Alert.alert(
+        'Photo Added',
+        'Would you like to take another photo?',
+        [
+          { text: 'No', style: 'cancel' },
+          { text: 'Yes', onPress: () => handleTakePhoto() },
+        ]
+      );
     }
   };
 
