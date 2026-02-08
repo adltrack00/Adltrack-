@@ -2491,13 +2491,121 @@ What would you like to know more about?`;
         <View style={{ height: 20 }} />
       </ScrollView>
 
-      {/* Calendar FAB */}
+      {/* AI Copilot FAB */}
       <TouchableOpacity 
         style={styles.calendarFab} 
-        onPress={() => setShowCareHistory(true)}
+        onPress={() => setShowAICopilot(true)}
       >
-        <Ionicons name="calendar-outline" size={24} color={COLORS.white} />
+        <Ionicons name="hardware-chip-outline" size={24} color={COLORS.white} />
       </TouchableOpacity>
+
+      {/* AI Copilot Modal */}
+      <Modal visible={showAICopilot} animationType="slide" transparent>
+        <View style={aiStyles.modalOverlay}>
+          <KeyboardAvoidingView 
+            style={aiStyles.modalContainer}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          >
+            {/* Header */}
+            <View style={aiStyles.header}>
+              <View style={aiStyles.headerIconBg}>
+                <Ionicons name="hardware-chip" size={24} color={COLORS.primary} />
+              </View>
+              <View style={aiStyles.headerInfo}>
+                <Text style={aiStyles.headerTitle}>Care Assistant</Text>
+                <Text style={aiStyles.headerSubtitle}>Powered by AI</Text>
+              </View>
+              <TouchableOpacity 
+                style={aiStyles.closeBtn}
+                onPress={() => {
+                  setShowAICopilot(false);
+                  resetAIChat();
+                }}
+              >
+                <Ionicons name="close" size={20} color={COLORS.white} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Messages */}
+            <ScrollView 
+              style={aiStyles.messagesContainer}
+              contentContainerStyle={aiStyles.messagesContent}
+              showsVerticalScrollIndicator={false}
+            >
+              {aiMessages.map((message) => (
+                <View 
+                  key={message.id} 
+                  style={[
+                    aiStyles.messageRow,
+                    message.isAI ? aiStyles.messageRowAI : aiStyles.messageRowUser,
+                  ]}
+                >
+                  {message.isAI && (
+                    <View style={[aiStyles.avatarBg, aiStyles.avatarBgAI]}>
+                      <Ionicons name="hardware-chip" size={18} color={COLORS.primary} />
+                    </View>
+                  )}
+                  <View style={[
+                    aiStyles.messageBubble,
+                    message.isAI ? aiStyles.aiBubble : aiStyles.userBubble,
+                  ]}>
+                    <Text style={aiStyles.messageText}>{message.text}</Text>
+                  </View>
+                  {!message.isAI && (
+                    <View style={[aiStyles.avatarBg, aiStyles.avatarBgUser]}>
+                      <Ionicons name="person" size={18} color={COLORS.white} />
+                    </View>
+                  )}
+                </View>
+              ))}
+              
+              {/* Typing Indicator */}
+              {aiIsTyping && (
+                <View style={aiStyles.typingRow}>
+                  <View style={[aiStyles.avatarBg, aiStyles.avatarBgAI]}>
+                    <Ionicons name="hardware-chip" size={18} color={COLORS.primary} />
+                  </View>
+                  <View style={aiStyles.typingBubble}>
+                    <View style={aiStyles.typingDot} />
+                    <View style={aiStyles.typingDot} />
+                    <View style={aiStyles.typingDot} />
+                  </View>
+                </View>
+              )}
+            </ScrollView>
+
+            {/* Input Area */}
+            <View style={aiStyles.inputContainer}>
+              <View style={aiStyles.inputRow}>
+                <TextInput
+                  style={[
+                    aiStyles.textInput,
+                    aiInputFocused && aiStyles.textInputActive,
+                  ]}
+                  placeholder="Ask about care..."
+                  placeholderTextColor={COLORS.textMuted}
+                  value={aiInputText}
+                  onChangeText={setAiInputText}
+                  onFocus={() => setAiInputFocused(true)}
+                  onBlur={() => setAiInputFocused(false)}
+                />
+                <TouchableOpacity 
+                  style={[
+                    aiStyles.sendBtn,
+                    aiInputText.trim() && aiStyles.sendBtnActive,
+                  ]}
+                  onPress={handleAISend}
+                >
+                  <Ionicons name="send" size={22} color={COLORS.white} />
+                </TouchableOpacity>
+              </View>
+              <View style={aiStyles.footer}>
+                <Text style={aiStyles.footerText}>AI care guidance • Not medical advice</Text>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
 
       {/* Modals */}
       <PatientProfileModal 
