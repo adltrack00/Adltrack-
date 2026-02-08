@@ -34,10 +34,19 @@ Build a mobile app named "ADLTrack" using Expo (React Native) for caregiving coo
 - ✅ Home screen with vitals display
 - ✅ Progress tracking section
 - ✅ Tabs (My Requests / Care Timeline)
-- ✅ **Care Timeline Feed** - JUST COMPLETED
+- ✅ **Care Timeline Feed** - COMPLETED
   - Scrollable feed of completed care tasks
   - Task cards with images, titles, completion time, caregiver info
   - Detail modal on tap with full task information
+- ✅ **Family Incident Reports** - JUST COMPLETED
+  - Red badge on Incident tab showing open incident count (2)
+  - Incident Reports List with summary card (Total/Resolved/Open)
+  - Recent Incidents list with severity badges (CRITICAL/HIGH)
+  - Incident Detail screen with What Happened, Actions Taken sections
+  - Evidence Photos grid with zoom icons
+  - Full-screen Photo Viewer with navigation arrows and counter
+  - Reported By section with verified caregiver info
+  - Notification banner about being notified
 - ✅ View-only Vitals modals
 - ✅ Messages screen
 - ✅ Alerts/Notifications screen
