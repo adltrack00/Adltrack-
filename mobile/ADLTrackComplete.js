@@ -3061,62 +3061,61 @@ const IncidentScreen = () => {
 
   // Step 2: Incident Details
   const renderStep2 = () => (
-    <KeyboardAvoidingView 
+    <ScrollView 
       style={incStyles.stepContainer} 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={100}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 20 }}
+      keyboardShouldPersistTaps="handled"
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Severity Level */}
-        <Text style={incStyles.fieldLabel}>Severity Level</Text>
-        <View style={incStyles.severityRow}>
-          {SEVERITY_LEVELS.map((level) => (
-            <TouchableOpacity
-              key={level}
-              style={[
-                incStyles.severityBtn,
-                severity === level && { 
-                  backgroundColor: `${getSeverityColor(level)}30`,
-                  borderColor: getSeverityColor(level),
-                },
-              ]}
-              onPress={() => setSeverity(level)}
-            >
-              <Text style={[
-                incStyles.severityBtnText,
-                severity === level && { color: getSeverityColor(level) },
-              ]}>
-                {level}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+      {/* Severity Level */}
+      <Text style={incStyles.fieldLabel}>Severity Level</Text>
+      <View style={incStyles.severityRow}>
+        {SEVERITY_LEVELS.map((level) => (
+          <TouchableOpacity
+            key={level}
+            style={[
+              incStyles.severityBtn,
+              severity === level && { 
+                backgroundColor: `${getSeverityColor(level)}30`,
+                borderColor: getSeverityColor(level),
+              },
+            ]}
+            onPress={() => setSeverity(level)}
+          >
+            <Text style={[
+              incStyles.severityBtnText,
+              severity === level && { color: getSeverityColor(level) },
+            ]}>
+              {level}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
-        {/* What happened? */}
-        <Text style={incStyles.fieldLabel}>What happened?</Text>
-        <TextInput
-          style={[incStyles.textArea, description && incStyles.textAreaActive]}
-          placeholder="Describe the incident in detail..."
-          placeholderTextColor={COLORS.textMuted}
-          multiline
-          numberOfLines={4}
-          value={description}
-          onChangeText={setDescription}
-        />
+      {/* What happened? */}
+      <Text style={incStyles.fieldLabel}>What happened?</Text>
+      <TextInput
+        style={[incStyles.textArea, description && incStyles.textAreaActive]}
+        placeholder="Describe the incident in detail..."
+        placeholderTextColor={COLORS.textMuted}
+        multiline
+        numberOfLines={4}
+        value={description}
+        onChangeText={setDescription}
+      />
 
-        {/* Actions Taken */}
-        <Text style={incStyles.fieldLabel}>Actions Taken</Text>
-        <TextInput
-          style={[incStyles.textArea, actionsTaken && incStyles.textAreaActive]}
-          placeholder="What steps did you take to address this?"
-          placeholderTextColor={COLORS.textMuted}
-          multiline
-          numberOfLines={4}
-          value={actionsTaken}
-          onChangeText={setActionsTaken}
-        />
-      </ScrollView>
-    </KeyboardAvoidingView>
+      {/* Actions Taken */}
+      <Text style={incStyles.fieldLabel}>Actions Taken</Text>
+      <TextInput
+        style={[incStyles.textArea, actionsTaken && incStyles.textAreaActive]}
+        placeholder="What steps did you take to address this?"
+        placeholderTextColor={COLORS.textMuted}
+        multiline
+        numberOfLines={4}
+        value={actionsTaken}
+        onChangeText={setActionsTaken}
+      />
+    </ScrollView>
   );
 
   // Step 3: Add Photos
