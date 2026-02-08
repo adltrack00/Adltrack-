@@ -2810,7 +2810,7 @@ const incStyles = StyleSheet.create({
   scrollContent: { paddingBottom: 30 },
   
   // Header
-  header: { paddingHorizontal: 20, paddingTop: 60, marginBottom: 24 },
+  header: { paddingHorizontal: 20, paddingTop: 10, marginBottom: 20 },
   title: { fontSize: 32, fontWeight: 'bold', color: COLORS.white, marginBottom: 4 },
   subtitle: { fontSize: 15, color: COLORS.textSecondary },
   
