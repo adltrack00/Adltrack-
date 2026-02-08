@@ -4551,7 +4551,7 @@ const FAQ_ITEMS = [
 // ============================================
 const menuStyles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  scrollContent: { paddingHorizontal: 20, paddingTop: 60, paddingBottom: 30 },
+  scrollContent: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 30 },
   
   // Profile Card (Main Menu)
   profileCard: { 
@@ -4617,8 +4617,8 @@ const menuStyles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: 'center', 
     paddingHorizontal: 20, 
-    paddingTop: 60, 
-    paddingBottom: 20,
+    paddingTop: 10, 
+    paddingBottom: 16,
   },
   backBtn: { marginRight: 16 },
   headerTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.white },
