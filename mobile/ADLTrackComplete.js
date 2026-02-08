@@ -3266,7 +3266,7 @@ const IncidentScreen = () => {
   // New Incident Report Modal
   const renderNewReportModal = () => (
     <Modal visible={showNewReport} animationType="slide">
-      <View style={incStyles.modalContainer}>
+      <SafeAreaView style={incStyles.modalContainer}>
         {/* Modal Header */}
         <View style={incStyles.modalHeader}>
           <View style={incStyles.modalHeaderLeft}>
