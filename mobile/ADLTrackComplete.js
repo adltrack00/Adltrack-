@@ -6931,8 +6931,12 @@ const FamilyIncidentDetailScreen = ({ incident, onBack }) => {
           </View>
           <View style={familyStyles.evidenceGrid}>
             {incident.photos.map((photo, index) => (
-              <TouchableOpacity key={index} onPress={() => openPhoto(index)}>
-                <Image source={{ uri: photo }} style={familyStyles.evidencePhoto} resizeMode="cover" />
+              <TouchableOpacity 
+                key={index} 
+                onPress={() => openPhoto(index)}
+                style={familyStyles.evidencePhotoWrapper}
+              >
+                <Image source={{ uri: photo }} style={familyStyles.evidencePhotoImage} resizeMode="cover" />
                 <View style={familyStyles.evidencePhotoZoom}>
                   <Ionicons name="expand-outline" size={16} color={COLORS.white} />
                 </View>
