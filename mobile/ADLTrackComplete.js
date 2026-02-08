@@ -2384,7 +2384,7 @@ const CaregiverHomeScreen = () => {
           )}
         </View>
 
-        <View style={{ height: 100 }} />
+        <View style={{ height: 20 }} />
       </ScrollView>
 
       {/* Calendar FAB */}
