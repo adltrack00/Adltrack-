@@ -2341,7 +2341,6 @@ What would you like to know more about?`;
         : t
     ));
   };
-  };
 
   const handleOpenCareHistory = () => {
     setShowPatientProfile(false);
