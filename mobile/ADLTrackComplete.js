@@ -1614,7 +1614,8 @@ const TaskDetailModal = ({ visible, onClose, task, onComplete, onCantComplete })
             <TextInput
               style={[
                 styles.notesInput,
-                mode === 'cantComplete' && styles.notesInputCantComplete,
+                notesFocused && mode === 'complete' && styles.notesInputComplete,
+                notesFocused && mode === 'cantComplete' && styles.notesInputCantComplete,
               ]}
               placeholder="Add any relevant notes here..."
               placeholderTextColor={COLORS.textMuted}
@@ -1622,6 +1623,8 @@ const TaskDetailModal = ({ visible, onClose, task, onComplete, onCantComplete })
               numberOfLines={4}
               value={notes}
               onChangeText={setNotes}
+              onFocus={() => setNotesFocused(true)}
+              onBlur={() => setNotesFocused(false)}
               textAlignVertical="top"
             />
           </View>
