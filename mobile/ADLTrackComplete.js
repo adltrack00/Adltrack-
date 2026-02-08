@@ -1439,6 +1439,7 @@ const TaskDetailModal = ({ visible, onClose, task, onComplete, onCantComplete })
   const [notes, setNotes] = useState('');
   const [photo, setPhoto] = useState(null);
   const [selectedReason, setSelectedReason] = useState(null);
+  const [notesFocused, setNotesFocused] = useState(false);
 
   const handleTakePhoto = async () => {
     // Request camera permissions
