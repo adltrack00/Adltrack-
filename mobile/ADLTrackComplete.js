@@ -6002,6 +6002,110 @@ const familyStyles = StyleSheet.create({
   detailModalCaregiverRoleLg: { fontSize: 15, color: COLORS.textSecondary },
   detailModalVerifiedRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   detailModalVerifiedText: { fontSize: 14, color: COLORS.primary, marginLeft: 4 },
+  
+  // Family Incident Report Styles
+  incidentContainer: { flex: 1, backgroundColor: COLORS.background },
+  incidentScrollContent: { paddingBottom: 30 },
+  incidentHeader: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8 },
+  incidentTitle: { fontSize: 28, fontWeight: 'bold', color: COLORS.white },
+  incidentSubtitle: { fontSize: 15, color: COLORS.textSecondary, marginTop: 4 },
+  
+  // Summary Card
+  summaryCard: { backgroundColor: COLORS.card, borderRadius: 20, marginHorizontal: 20, marginTop: 20, padding: 20 },
+  summaryHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  summaryTitle: { fontSize: 20, fontWeight: '600', color: COLORS.white },
+  summaryPeriod: { fontSize: 14, color: COLORS.textSecondary },
+  summaryStats: { flexDirection: 'row', justifyContent: 'space-around' },
+  summaryStat: { alignItems: 'center' },
+  summaryStatValue: { fontSize: 28, fontWeight: 'bold', color: COLORS.white },
+  summaryStatValueGreen: { fontSize: 28, fontWeight: 'bold', color: '#22c55e' },
+  summaryStatValueRed: { fontSize: 28, fontWeight: 'bold', color: '#ef4444' },
+  summaryStatLabel: { fontSize: 14, color: COLORS.textSecondary, marginTop: 4 },
+  
+  // Recent Incidents Section
+  recentHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, marginTop: 28, marginBottom: 16 },
+  recentIcon: { marginRight: 10 },
+  recentTitle: { fontSize: 18, fontWeight: '600', color: COLORS.white },
+  
+  // Incident Card
+  incidentCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.card, borderRadius: 16, marginHorizontal: 20, marginBottom: 12, padding: 16 },
+  incidentIconBg: { width: 56, height: 56, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginRight: 14 },
+  incidentInfo: { flex: 1 },
+  incidentCardTitleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
+  incidentCardTitle: { fontSize: 18, fontWeight: '600', color: COLORS.white, marginRight: 8 },
+  severityBadge: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 6 },
+  severityBadgeCritical: { backgroundColor: 'rgba(239, 68, 68, 0.25)' },
+  severityBadgeHigh: { backgroundColor: 'rgba(234, 179, 8, 0.25)' },
+  severityBadgeText: { fontSize: 11, fontWeight: '700', letterSpacing: 0.5 },
+  severityTextCritical: { color: '#ef4444' },
+  severityTextHigh: { color: '#eab308' },
+  incidentCardDesc: { fontSize: 15, color: COLORS.textSecondary, marginBottom: 4 },
+  incidentCardTime: { fontSize: 13, color: COLORS.textMuted },
+  
+  // Incident Detail Screen
+  detailBackBtn: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 16 },
+  detailBackText: { fontSize: 17, color: COLORS.textSecondary, marginLeft: 6 },
+  detailHeaderRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, marginTop: 20 },
+  detailIconBg: { width: 64, height: 64, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginRight: 16 },
+  detailTitleSection: {},
+  detailTitle: { fontSize: 26, fontWeight: 'bold', color: COLORS.white },
+  detailDateTime: { fontSize: 15, color: COLORS.textSecondary, marginTop: 4 },
+  
+  // Severity/Status Badges Row
+  badgesRow: { flexDirection: 'row', paddingHorizontal: 20, marginTop: 20, gap: 10 },
+  statusBadge: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8 },
+  statusBadgeCritical: { backgroundColor: 'rgba(239, 68, 68, 0.25)' },
+  statusBadgeHigh: { backgroundColor: 'rgba(234, 179, 8, 0.25)' },
+  statusBadgeOpen: { backgroundColor: 'rgba(234, 179, 8, 0.25)' },
+  statusBadgeText: { fontSize: 15, fontWeight: '600' },
+  statusTextCritical: { color: '#f87171' },
+  statusTextHigh: { color: '#f59e0b' },
+  statusTextOpen: { color: '#eab308' },
+  
+  // Detail Cards
+  detailCard: { backgroundColor: COLORS.card, borderRadius: 16, marginHorizontal: 20, marginTop: 20, padding: 16 },
+  detailCardLabel: { fontSize: 13, fontWeight: '600', color: COLORS.textSecondary, letterSpacing: 1, marginBottom: 8 },
+  detailCardText: { fontSize: 17, color: COLORS.white, lineHeight: 24 },
+  
+  // Evidence Photos Section
+  evidenceCard: { backgroundColor: COLORS.card, borderRadius: 16, marginHorizontal: 20, marginTop: 20, padding: 16 },
+  evidenceHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  evidenceTitle: { fontSize: 13, fontWeight: '600', color: COLORS.textSecondary, letterSpacing: 1 },
+  evidenceTapView: { flexDirection: 'row', alignItems: 'center' },
+  evidenceTapIcon: { marginRight: 6 },
+  evidenceTapText: { fontSize: 14, fontWeight: '600', color: COLORS.primary },
+  evidenceGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  evidencePhoto: { width: (SCREEN_WIDTH - 72) / 2, height: 120, borderRadius: 12, backgroundColor: COLORS.cardBorder },
+  evidencePhotoZoom: { position: 'absolute', right: 8, top: 8, width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' },
+  
+  // Reported By Section
+  reportedByCard: { backgroundColor: COLORS.card, borderRadius: 16, marginHorizontal: 20, marginTop: 20, padding: 16 },
+  reportedByLabel: { fontSize: 13, fontWeight: '600', color: COLORS.textSecondary, letterSpacing: 1, marginBottom: 12 },
+  reportedByRow: { flexDirection: 'row', alignItems: 'center' },
+  reportedByAvatar: { width: 64, height: 64, borderRadius: 12, marginRight: 14 },
+  reportedByInfo: { flex: 1 },
+  reportedByName: { fontSize: 20, fontWeight: '600', color: COLORS.white },
+  reportedByVerified: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  reportedByVerifiedText: { fontSize: 15, color: COLORS.primary, marginLeft: 6 },
+  
+  // Notification Banner
+  notificationBanner: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(34, 197, 94, 0.15)', borderRadius: 16, marginHorizontal: 20, marginTop: 20, marginBottom: 30, padding: 16, borderWidth: 1, borderColor: 'rgba(34, 197, 94, 0.3)' },
+  notificationIcon: { marginRight: 12 },
+  notificationText: { flex: 1, fontSize: 15, color: COLORS.white, lineHeight: 22 },
+  
+  // Photo Viewer Modal
+  photoViewerOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.95)' },
+  photoViewerHeader: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingTop: 50, paddingHorizontal: 20, paddingBottom: 10 },
+  photoViewerCounter: { fontSize: 17, color: COLORS.white, fontWeight: '600' },
+  photoViewerCloseBtn: { position: 'absolute', right: 20, top: 50, width: 44, height: 44, borderRadius: 22, backgroundColor: COLORS.cardBorder, alignItems: 'center', justifyContent: 'center' },
+  photoViewerContent: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  photoViewerImage: { width: SCREEN_WIDTH - 40, height: SCREEN_WIDTH, borderRadius: 16 },
+  photoViewerNavBtn: { position: 'absolute', width: 50, height: 50, borderRadius: 25, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' },
+  photoViewerNavLeft: { left: 10 },
+  photoViewerNavRight: { right: 10 },
+  photoViewerFooter: { paddingVertical: 20, alignItems: 'center' },
+  photoViewerFilename: { fontSize: 15, color: COLORS.white, fontWeight: '500' },
+  photoViewerHint: { fontSize: 14, color: COLORS.textSecondary, marginTop: 4 },
 });
 
 // ============================================
