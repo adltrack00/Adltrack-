@@ -3811,14 +3811,14 @@ const msgStyles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: 'center', 
     paddingHorizontal: 20, 
-    paddingTop: 60, 
-    paddingBottom: 20,
+    paddingTop: 10, 
+    paddingBottom: 16,
   },
   backBtn: { marginRight: 16 },
   headerTitle: { fontSize: 28, fontWeight: 'bold', color: COLORS.white },
   
   // Search Bar
-  searchContainer: { paddingHorizontal: 20, marginBottom: 20 },
+  searchContainer: { paddingHorizontal: 20, marginBottom: 16 },
   searchBar: { 
     flexDirection: 'row', 
     alignItems: 'center', 
@@ -3867,7 +3867,7 @@ const msgStyles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: 'center', 
     paddingHorizontal: 20, 
-    paddingTop: 60, 
+    paddingTop: 10, 
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.cardBorder,
