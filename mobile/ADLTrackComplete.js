@@ -5724,12 +5724,62 @@ const AgencyDashboard = () => (
   </SafeAreaView>
 );
 
-// ============================================
-// MAIN APP WITH ROLE-BASED NAVIGATION
-// ============================================
-const MainApp = () => {
-  const { user } = React.useContext(AuthContext);
-  
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [authScreen, setAuthScreen] = useState('selectType');
+  const [selectedAccountType, setSelectedAccountType] = useState(null);
+
+  const handleSelectType = (type) => {
+    setSelectedAccountType(type);
+    setAuthScreen('signUp');
+  };
+
+  const handleSignUp = () => {
+    setAuthScreen('selectType');
+  };
+
+  const handleSignIn = () => {
+    setAuthScreen('signIn');
+  };
+
+  const handleCreateAccount = (accountType) => {
+    setUser({ role: accountType, name: 'User' });
+  };
+
+  const handleLogin = (accountType) => {
+    setUser({ role: accountType || 'caregiver', name: 'Sarah Johnson' });
+  };
+
+  // Show auth screens if not logged in
+  if (!user) {
+    if (authScreen === 'selectType') {
+      return (
+        <AccountTypeScreen 
+          onSelectType={handleSelectType}
+          onSignIn={handleSignIn}
+        />
+      );
+    } else if (authScreen === 'signUp') {
+      return (
+        <SignUpScreen 
+          accountType={selectedAccountType}
+          onBack={handleSignUp}
+          onSignIn={handleSignIn}
+          onCreateAccount={handleCreateAccount}
+        />
+      );
+    } else if (authScreen === 'signIn') {
+      return (
+        <SignInScreen 
+          onBack={handleSignUp}
+          onSignUp={handleSignUp}
+          onSignIn={handleLogin}
+        />
+      );
+    }
+  }
+
+  // Show role-specific dashboard
   if (user.role === 'family') {
     return <FamilyDashboard />;
   }
@@ -5738,16 +5788,11 @@ const MainApp = () => {
     return <AgencyDashboard />;
   }
   
-  return <CaregiverTabs />;
-};
-
-export default function App() {
+  // Default to Caregiver dashboard
   return (
-    <AuthProvider>
-      <NavigationContainer>
-        <MainApp />
-      </NavigationContainer>
-    </AuthProvider>
+    <NavigationContainer>
+      <CaregiverTabs />
+    </NavigationContainer>
   );
 }
 
