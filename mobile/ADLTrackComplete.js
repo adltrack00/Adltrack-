@@ -6479,9 +6479,19 @@ export default function App() {
     }
   }
 
+  const handleSignOut = () => {
+    setUser(null);
+    setAuthScreen('selectType');
+    setSelectedAccountType(null);
+  };
+
   // Show role-specific dashboard
   if (user.role === 'family') {
-    return <FamilyDashboard />;
+    return (
+      <NavigationContainer>
+        <FamilyDashboard onSignOut={handleSignOut} />
+      </NavigationContainer>
+    );
   }
   
   if (user.role === 'agency') {
@@ -6491,7 +6501,7 @@ export default function App() {
   // Default to Caregiver dashboard
   return (
     <NavigationContainer>
-      <CaregiverTabs />
+      <CaregiverTabs onSignOut={handleSignOut} />
     </NavigationContainer>
   );
 }
