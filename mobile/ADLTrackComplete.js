@@ -3025,25 +3025,28 @@ What would you like to know more about?`;
   };
 
   const handleAcceptRequest = (request) => {
+    // Update shared data to mark request as accepted
+    if (sharedData) {
+      sharedData.updateRequestStatus(request.id, 'accepted', 'Request accepted and added to tasks');
+    }
+    
+    // Add request as a new task
     const newTask = {
-      id: request.id,
+      id: Date.now(),
       title: request.title,
       time: request.time,
-      priority: 'standard',
+      priority: request.priority || 'standard',
       requiresPhoto: false,
       fromRequest: true,
+      description: request.details || '',
     };
     setTasks([...tasks, newTask]);
-    setRequests(requests.filter(r => r.id !== request.id));
-    if (requests.length === 1) {
-      setActiveTab('tasks');
-    }
   };
 
   const handleDeclineRequest = (requestId, reason) => {
-    setRequests(requests.filter(r => r.id !== requestId));
-    if (requests.length === 1) {
-      setActiveTab('tasks');
+    // Update shared data to mark request as declined with reason
+    if (sharedData) {
+      sharedData.updateRequestStatus(requestId, 'declined', reason);
     }
   };
 
