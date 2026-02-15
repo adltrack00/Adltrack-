@@ -6296,6 +6296,8 @@ const NewRequestModal = ({ visible, onClose, onSubmit }) => {
   const [title, setTitle] = useState('');
   const [details, setDetails] = useState('');
   const [priority, setPriority] = useState('standard');
+  const [titleFocused, setTitleFocused] = useState(false);
+  const [detailsFocused, setDetailsFocused] = useState(false);
   
   const handleSubmit = () => {
     if (title.trim()) {
@@ -6333,20 +6335,30 @@ const NewRequestModal = ({ visible, onClose, onSubmit }) => {
           <ScrollView showsVerticalScrollIndicator={false}>
             <Text style={familyStyles.newRequestLabel}>What do you need?</Text>
             <TextInput
-              style={familyStyles.newRequestInput}
+              style={[
+                familyStyles.newRequestInput,
+                titleFocused && familyStyles.newRequestInputFocused
+              ]}
               placeholder="e.g., Extra blanket, Call me back"
               placeholderTextColor={COLORS.textMuted}
               value={title}
               onChangeText={setTitle}
+              onFocus={() => setTitleFocused(true)}
+              onBlur={() => setTitleFocused(false)}
             />
             
             <Text style={familyStyles.newRequestLabel}>Additional details (optional)</Text>
             <TextInput
-              style={familyStyles.newRequestTextArea}
+              style={[
+                familyStyles.newRequestTextArea,
+                detailsFocused && familyStyles.newRequestInputFocused
+              ]}
               placeholder="Any specific instructions..."
               placeholderTextColor={COLORS.textMuted}
               value={details}
               onChangeText={setDetails}
+              onFocus={() => setDetailsFocused(true)}
+              onBlur={() => setDetailsFocused(false)}
               multiline
               numberOfLines={4}
             />
