@@ -7,8 +7,22 @@ Build a mobile app named "ADLTrack" using Expo (React Native) for caregiving coo
 - **Framework:** Expo (React Native)
 - **Styling:** StyleSheet API
 - **Navigation:** React Navigation (Stack + Bottom Tabs)
-- **State Management:** React useState, useContext
+- **State Management:** React useState, useContext (AuthContext, SignOutContext, **SharedDataContext**)
 - **Development File:** Single monolithic file `/app/mobile/ADLTrackComplete.js` for Expo Snack testing
+
+## Data Sharing Architecture (NEW)
+The app now uses a **SharedDataContext** to connect Caregiver and Family dashboards:
+
+### SharedDataContext provides:
+- `sharedTasks` - Tasks completed by caregivers (with photos, notes)
+- `sharedRequests` - Requests from family members (with status: pending/accepted/declined)
+- `sharedIncidents` - Incident reports from caregivers
+
+### Data Flow:
+1. **Caregiver completes a task** → `addCompletedTask()` → Appears in Family's Care Timeline
+2. **Family creates a request** → `addFamilyRequest()` → Appears in Caregiver's Requests tab (with badge)
+3. **Caregiver accepts/declines request** → `updateRequestStatus()` → Family sees updated status + reason
+4. **Caregiver creates incident report** → `addIncidentReport()` → Appears in Family's Incident Reports (with badge)
 
 ## User Personas
 1. **Caregiver** - Manages shifts, tasks, documentation, vitals tracking
