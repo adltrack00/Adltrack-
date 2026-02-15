@@ -6659,30 +6659,19 @@ const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
   };
   
   const handleSubmitRequest = (request) => {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const hour12 = hours % 12 || 12;
-    const timeStr = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
-    
-    const newRequest = {
-      id: Date.now(),
-      title: request.title,
-      details: request.details,
-      priority: request.priority,
-      status: 'pending',
-      time: timeStr,
-      declineReason: null,
-    };
-    
-    setFamilyRequests([newRequest, ...familyRequests]);
+    // Add to shared data so Caregiver can see it
+    if (sharedData) {
+      sharedData.addFamilyRequest({
+        title: request.title,
+        details: request.details,
+        priority: request.priority,
+      });
+    }
   };
   
-  const completedTasksCount = CARE_TIMELINE_ITEMS.length;
+  const completedTasksCount = completedTasks.length;
   const totalTasks = 12;
-  const progressPercent = (completedTasksCount / totalTasks) * 100;
-  const requestCount = familyRequests.length;
+  const progressPercent = Math.min((completedTasksCount / totalTasks) * 100, 100);
 
   return (
     <SafeAreaView style={familyStyles.container}>
