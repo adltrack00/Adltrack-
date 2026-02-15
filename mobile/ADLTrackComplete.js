@@ -6115,10 +6115,10 @@ const familyStyles = StyleSheet.create({
   addRequestBtn: { borderWidth: 2, borderColor: COLORS.textMuted, borderStyle: 'dashed', borderRadius: 16, marginHorizontal: 16, marginTop: 16, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
   addRequestText: { fontSize: 17, color: COLORS.textSecondary, marginLeft: 8 },
   
-  requestEmptyCard: { backgroundColor: COLORS.card, borderRadius: 24, marginHorizontal: 16, marginTop: 16, paddingVertical: 50, paddingHorizontal: 20, alignItems: 'center' },
-  requestEmptyIconBg: { width: 80, height: 80, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
-  requestEmptyTitle: { fontSize: 20, fontWeight: '600', color: COLORS.white, marginBottom: 8 },
-  requestEmptySubtitle: { fontSize: 15, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 22 },
+  requestEmptyCard: { backgroundColor: COLORS.card, borderRadius: 24, marginHorizontal: 16, marginTop: 20, paddingVertical: 60, paddingHorizontal: 30, alignItems: 'center' },
+  requestEmptyIconBg: { width: 100, height: 100, borderRadius: 24, backgroundColor: 'rgba(60,60,60,0.6)', alignItems: 'center', justifyContent: 'center', marginBottom: 24 },
+  requestEmptyTitle: { fontSize: 22, fontWeight: '600', color: COLORS.white, marginBottom: 12 },
+  requestEmptySubtitle: { fontSize: 16, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 24 },
   
   // Request Card
   requestCard: { backgroundColor: COLORS.card, borderRadius: 16, marginHorizontal: 16, marginTop: 12, padding: 16 },
