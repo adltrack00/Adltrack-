@@ -47,6 +47,16 @@ Build a mobile app named "ADLTrack" using Expo (React Native) for caregiving coo
   - Full-screen Photo Viewer with navigation arrows and counter
   - Reported By section with verified caregiver info
   - Notification banner about being notified
+- ✅ **Family Member Requests** - JUST COMPLETED
+  - My Requests tab with red badge count
+  - "+ Add New Request" dashed button
+  - Empty state with sparkle icon ("No requests yet")
+  - New Request Modal with form fields (What do you need?, Additional details, Priority)
+  - Priority selector (Standard/High/Urgent) with color states
+  - Request cards showing priority badge (HIGH/URGENT/STANDARD)
+  - Request status badge (Pending/Accepted/Declined)
+  - Decline reason display for declined requests
+  - Calendar FAB in bottom-right corner
 - ✅ View-only Vitals modals
 - ✅ Messages screen
 - ✅ Alerts/Notifications screen
