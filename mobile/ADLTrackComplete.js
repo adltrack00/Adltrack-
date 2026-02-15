@@ -7608,9 +7608,14 @@ const FamilyIncidentDetailScreen = ({ incident, onBack }) => {
 // FAMILY INCIDENT LIST SCREEN
 // ============================================
 const FamilyIncidentListScreen = ({ onSelectIncident }) => {
-  const totalIncidents = FAMILY_INCIDENTS.length;
-  const resolvedIncidents = FAMILY_INCIDENTS.filter(i => i.status === 'resolved').length;
-  const openIncidents = FAMILY_INCIDENTS.filter(i => i.status === 'open').length;
+  const sharedData = React.useContext(SharedDataContext);
+  
+  // Use shared incidents from context
+  const incidents = sharedData?.sharedIncidents || [];
+  
+  const totalIncidents = incidents.length;
+  const resolvedIncidents = incidents.filter(i => i.status === 'resolved').length;
+  const openIncidents = incidents.filter(i => i.status === 'open').length;
   
   const getIncidentIcon = (type) => {
     if (type === 'behavioral') {
@@ -7652,11 +7657,22 @@ const FamilyIncidentListScreen = ({ onSelectIncident }) => {
           </View>
         </View>
         
-        {/* Recent Incidents Header */}
-        <View style={familyStyles.recentHeader}>
-          <Ionicons name="document-text-outline" size={20} color={COLORS.white} style={familyStyles.recentIcon} />
-          <Text style={familyStyles.recentTitle}>Recent Incidents</Text>
-        </View>
+        {incidents.length === 0 ? (
+          /* Empty Incidents State */
+          <View style={[familyStyles.requestEmptyCard, { marginTop: 30 }]}>
+            <View style={familyStyles.requestEmptyIconBg}>
+              <Ionicons name="shield-checkmark" size={48} color={COLORS.primary} />
+            </View>
+            <Text style={familyStyles.requestEmptyTitle}>No incidents reported</Text>
+            <Text style={familyStyles.requestEmptySubtitle}>When caregivers report incidents, they will appear here with photos and details</Text>
+          </View>
+        ) : (
+          <>
+            {/* Recent Incidents Header */}
+            <View style={familyStyles.recentHeader}>
+              <Ionicons name="document-text-outline" size={20} color={COLORS.white} style={familyStyles.recentIcon} />
+              <Text style={familyStyles.recentTitle}>Recent Incidents</Text>
+            </View>
         
         {/* Incident Cards */}
         {FAMILY_INCIDENTS.map((incident) => {
