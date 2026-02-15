@@ -5861,6 +5861,36 @@ const ShiftsTabIcon = ({ focused, color }) => (
   </View>
 );
 
+// ============================================
+// CAREGIVER REQUESTS TAB ICON WITH BADGE
+// ============================================
+const CaregiverRequestsTabIcon = ({ focused, color }) => {
+  const sharedData = React.useContext(SharedDataContext);
+  const pendingCount = sharedData?.getPendingRequestsCount() || 0;
+  
+  return (
+    <View style={{ position: 'relative' }}>
+      <Ionicons name={focused ? "list" : "list-outline"} size={24} color={color} />
+      {pendingCount > 0 && (
+        <View style={{
+          position: 'absolute',
+          top: -6,
+          right: -10,
+          backgroundColor: '#ef4444',
+          borderRadius: 10,
+          minWidth: 18,
+          height: 18,
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingHorizontal: 4,
+        }}>
+          <Text style={{ color: '#fff', fontSize: 11, fontWeight: 'bold' }}>{pendingCount}</Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
 const CaregiverTabs = ({ onSignOut }) => (
   <SignOutContext.Provider value={onSignOut}>
     <Tab.Navigator
