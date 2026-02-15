@@ -699,6 +699,154 @@ const SignInScreen = ({ onBack, onSignUp, onSignIn }) => {
 const AuthContext = React.createContext(null);
 const SignOutContext = React.createContext(null);
 
+// ============================================
+// SHARED DATA CONTEXT (Connects Caregiver & Family Dashboards)
+// ============================================
+const SharedDataContext = React.createContext(null);
+
+const SharedDataProvider = ({ children }) => {
+  // Shared Tasks (completed by caregivers, viewed by family)
+  const [sharedTasks, setSharedTasks] = useState([]);
+  
+  // Shared Requests (created by family, managed by caregivers)
+  const [sharedRequests, setSharedRequests] = useState([]);
+  
+  // Shared Incidents (created by caregivers, viewed by family)
+  const [sharedIncidents, setSharedIncidents] = useState([]);
+  
+  // Add a completed task (called by caregiver when completing a task)
+  const addCompletedTask = (task) => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const hour12 = hours % 12 || 12;
+    const timeStr = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+    
+    const newTask = {
+      id: Date.now(),
+      title: task.title,
+      description: task.description || '',
+      note: task.note || '',
+      completedAt: timeStr,
+      image: task.image || null,
+      photos: task.photos || [],
+      caregiver: {
+        name: 'Julia Martinez',
+        role: 'Certified Nursing Assistant',
+        avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+        verified: true,
+      },
+    };
+    
+    setSharedTasks(prev => [newTask, ...prev]);
+    return newTask;
+  };
+  
+  // Add a family request (called by family member)
+  const addFamilyRequest = (request) => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const hour12 = hours % 12 || 12;
+    const timeStr = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+    
+    const newRequest = {
+      id: Date.now(),
+      title: request.title,
+      details: request.details || '',
+      priority: request.priority || 'standard',
+      status: 'pending',
+      time: timeStr,
+      declineReason: null,
+      acceptedNote: null,
+      familyMember: {
+        name: 'Robert Smith',
+        relation: 'Son',
+      },
+    };
+    
+    setSharedRequests(prev => [newRequest, ...prev]);
+    return newRequest;
+  };
+  
+  // Update request status (called by caregiver)
+  const updateRequestStatus = (requestId, status, reason = null) => {
+    setSharedRequests(prev => prev.map(req => 
+      req.id === requestId 
+        ? { 
+            ...req, 
+            status, 
+            declineReason: status === 'declined' ? reason : null,
+            acceptedNote: status === 'accepted' ? reason : null,
+          }
+        : req
+    ));
+  };
+  
+  // Add an incident report (called by caregiver)
+  const addIncidentReport = (incident) => {
+    const now = new Date();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[now.getMonth()];
+    const day = now.getDate();
+    const year = now.getFullYear();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const hour12 = hours % 12 || 12;
+    const dateTimeStr = `${month} ${day}, ${year} at ${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+    
+    const newIncident = {
+      id: Date.now(),
+      title: incident.title || incident.type,
+      type: incident.type || 'other',
+      severity: incident.severity || 'high',
+      status: 'open',
+      description: incident.description || '',
+      actionsTaken: incident.actionsTaken || '',
+      dateTime: dateTimeStr,
+      photos: incident.photos || [],
+      reporter: {
+        name: 'Julia Martinez',
+        role: 'Certified Nursing Assistant',
+        avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+        verified: true,
+      },
+    };
+    
+    setSharedIncidents(prev => [newIncident, ...prev]);
+    return newIncident;
+  };
+  
+  // Get pending requests count (for caregiver badge)
+  const getPendingRequestsCount = () => {
+    return sharedRequests.filter(r => r.status === 'pending').length;
+  };
+  
+  // Get open incidents count (for family badge)
+  const getOpenIncidentsCount = () => {
+    return sharedIncidents.filter(i => i.status === 'open').length;
+  };
+  
+  return (
+    <SharedDataContext.Provider value={{
+      sharedTasks,
+      sharedRequests,
+      sharedIncidents,
+      addCompletedTask,
+      addFamilyRequest,
+      updateRequestStatus,
+      addIncidentReport,
+      getPendingRequestsCount,
+      getOpenIncidentsCount,
+    }}>
+      {children}
+    </SharedDataContext.Provider>
+  );
+};
+
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [authScreen, setAuthScreen] = useState('selectType'); // 'selectType', 'signUp', 'signIn'
