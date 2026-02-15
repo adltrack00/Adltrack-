@@ -7674,42 +7674,44 @@ const FamilyIncidentListScreen = ({ onSelectIncident }) => {
               <Text style={familyStyles.recentTitle}>Recent Incidents</Text>
             </View>
         
-        {/* Incident Cards */}
-        {FAMILY_INCIDENTS.map((incident) => {
-          const iconConfig = getIncidentIcon(incident.type);
-          const isCritical = incident.severity === 'critical';
-          
-          return (
-            <TouchableOpacity 
-              key={incident.id} 
-              style={familyStyles.incidentCard}
-              onPress={() => onSelectIncident(incident)}
-            >
-              <View style={[familyStyles.incidentIconBg, { backgroundColor: iconConfig.bg }]}>
-                <Ionicons name={iconConfig.icon} size={28} color={iconConfig.color} />
-              </View>
-              <View style={familyStyles.incidentInfo}>
-                <View style={familyStyles.incidentCardTitleRow}>
-                  <Text style={familyStyles.incidentCardTitle}>{incident.title}</Text>
-                  <View style={[
-                    familyStyles.severityBadge,
-                    isCritical ? familyStyles.severityBadgeCritical : familyStyles.severityBadgeHigh
-                  ]}>
-                    <Text style={[
-                      familyStyles.severityBadgeText,
-                      isCritical ? familyStyles.severityTextCritical : familyStyles.severityTextHigh
-                    ]}>
-                      {isCritical ? 'CRITICAL' : 'HIGH'}
-                    </Text>
+            {/* Incident Cards */}
+            {incidents.map((incident) => {
+              const iconConfig = getIncidentIcon(incident.type);
+              const isCritical = incident.severity === 'critical';
+              
+              return (
+                <TouchableOpacity 
+                  key={incident.id} 
+                  style={familyStyles.incidentCard}
+                  onPress={() => onSelectIncident(incident)}
+                >
+                  <View style={[familyStyles.incidentIconBg, { backgroundColor: iconConfig.bg }]}>
+                    <Ionicons name={iconConfig.icon} size={28} color={iconConfig.color} />
                   </View>
-                </View>
-                <Text style={familyStyles.incidentCardDesc}>{incident.description}</Text>
-                <Text style={familyStyles.incidentCardTime}>{incident.dateTime}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={24} color={COLORS.textSecondary} />
-            </TouchableOpacity>
-          );
-        })}
+                  <View style={familyStyles.incidentInfo}>
+                    <View style={familyStyles.incidentCardTitleRow}>
+                      <Text style={familyStyles.incidentCardTitle}>{incident.title}</Text>
+                      <View style={[
+                        familyStyles.severityBadge,
+                        isCritical ? familyStyles.severityBadgeCritical : familyStyles.severityBadgeHigh
+                      ]}>
+                        <Text style={[
+                          familyStyles.severityBadgeText,
+                          isCritical ? familyStyles.severityTextCritical : familyStyles.severityTextHigh
+                        ]}>
+                          {isCritical ? 'CRITICAL' : 'HIGH'}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={familyStyles.incidentCardDesc}>{incident.description}</Text>
+                    <Text style={familyStyles.incidentCardTime}>{incident.dateTime}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={24} color={COLORS.textSecondary} />
+                </TouchableOpacity>
+              );
+            })}
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
