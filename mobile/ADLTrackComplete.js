@@ -3949,6 +3949,21 @@ const IncidentScreen = () => {
   };
 
   const handleSubmit = () => {
+    const typeObj = INCIDENT_TYPES.find(t => t.id === selectedType);
+    const typeName = typeObj ? typeObj.title : selectedType;
+    
+    // Add to shared data so Family can see it
+    if (sharedData) {
+      sharedData.addIncidentReport({
+        title: typeName,
+        type: selectedType,
+        severity: severity.toLowerCase(),
+        description,
+        actionsTaken,
+        photos: photos, // Use actual photo URIs
+      });
+    }
+    
     const newReport = {
       id: Date.now(),
       type: selectedType,
@@ -3965,7 +3980,7 @@ const IncidentScreen = () => {
     setPastReports([newReport, ...pastReports]);
     resetForm();
     setShowNewReport(false);
-    Alert.alert('Success', 'Incident report submitted successfully.');
+    Alert.alert('Success', 'Incident report submitted successfully. Family has been notified.');
   };
 
   const getSeverityColor = (level) => {
