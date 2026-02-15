@@ -6493,14 +6493,7 @@ const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
         {/* Tabs */}
         <View style={familyStyles.tabsRow}>
           <TouchableOpacity style={familyStyles.tabBtn} onPress={() => setActiveTab('requests')}>
-            <View style={{ position: 'relative' }}>
-              <Text style={[familyStyles.tabText, activeTab === 'requests' && familyStyles.tabTextActive]}>My Requests</Text>
-              {requestCount > 0 && (
-                <View style={familyStyles.requestTabBadge}>
-                  <Text style={familyStyles.requestTabBadgeText}>{requestCount}</Text>
-                </View>
-              )}
-            </View>
+            <Text style={[familyStyles.tabText, activeTab === 'requests' && familyStyles.tabTextActive]}>My Requests</Text>
           </TouchableOpacity>
           <View style={familyStyles.tabDivider} />
           <TouchableOpacity style={familyStyles.tabBtn} onPress={() => setActiveTab('timeline')}>
