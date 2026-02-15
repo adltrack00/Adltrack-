@@ -7833,9 +7833,11 @@ export default function App() {
   // Show role-specific dashboard
   if (user.role === 'family') {
     return (
-      <NavigationContainer>
-        <FamilyDashboard onSignOut={handleSignOut} />
-      </NavigationContainer>
+      <SharedDataProvider>
+        <NavigationContainer>
+          <FamilyDashboard onSignOut={handleSignOut} />
+        </NavigationContainer>
+      </SharedDataProvider>
     );
   }
   
@@ -7845,9 +7847,11 @@ export default function App() {
   
   // Default to Caregiver dashboard
   return (
-    <NavigationContainer>
-      <CaregiverTabs onSignOut={handleSignOut} />
-    </NavigationContainer>
+    <SharedDataProvider>
+      <NavigationContainer>
+        <CaregiverTabs onSignOut={handleSignOut} />
+      </NavigationContainer>
+    </SharedDataProvider>
   );
 }
 
