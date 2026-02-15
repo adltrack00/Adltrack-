@@ -6413,9 +6413,47 @@ const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
   const [showNewRequestModal, setShowNewRequestModal] = useState(false);
   const [familyRequests, setFamilyRequests] = useState([]);
   
+  // AI Copilot state
+  const [showAICopilot, setShowAICopilot] = useState(false);
+  const [aiMessages, setAiMessages] = useState([
+    {
+      id: 1,
+      isAI: true,
+      text: "Hello! I'm your AI Care Assistant. I'm here to help you stay informed about your loved one's care.\n\nI can answer questions about care activities, explain procedures, and help you communicate with caregivers.\n\nHow can I assist you today?",
+    },
+  ]);
+  const [aiInputText, setAiInputText] = useState('');
+  const [aiInputFocused, setAiInputFocused] = useState(false);
+  const [aiTyping, setAiTyping] = useState(false);
+  
   const handleTimelineItemPress = (item) => {
     setSelectedTimelineItem(item);
     setShowDetailModal(true);
+  };
+  
+  const handleSendAiMessage = () => {
+    if (!aiInputText.trim()) return;
+    
+    const userMessage = {
+      id: Date.now(),
+      isAI: false,
+      text: aiInputText.trim(),
+    };
+    
+    setAiMessages([...aiMessages, userMessage]);
+    setAiInputText('');
+    setAiTyping(true);
+    
+    // Simulate AI response
+    setTimeout(() => {
+      const aiResponse = {
+        id: Date.now() + 1,
+        isAI: true,
+        text: "I understand your question. Based on the care records, I can help you with information about your loved one's daily activities, medications, and any incidents that have been reported.\n\nIs there something specific you'd like to know about?",
+      };
+      setAiMessages(prev => [...prev, aiResponse]);
+      setAiTyping(false);
+    }, 1500);
   };
   
   const handleSubmitRequest = (request) => {
