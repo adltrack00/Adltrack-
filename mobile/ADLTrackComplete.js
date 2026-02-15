@@ -3850,6 +3850,7 @@ const incStyles = StyleSheet.create({
 // INCIDENT SCREEN
 // ============================================
 const IncidentScreen = () => {
+  const sharedData = React.useContext(SharedDataContext);
   const [showNewReport, setShowNewReport] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedType, setSelectedType] = useState(null);
