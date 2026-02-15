@@ -6808,13 +6808,24 @@ const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
         ) : (
           /* Care Timeline Feed */
           <View style={familyStyles.timelineContainer}>
-            {CARE_TIMELINE_ITEMS.map((item) => (
-              <CareTimelineCard 
-                key={item.id} 
-                item={item} 
-                onPress={() => handleTimelineItemPress(item)}
-              />
-            ))}
+            {completedTasks.length === 0 ? (
+              /* Empty Timeline State */
+              <View style={familyStyles.requestEmptyCard}>
+                <View style={familyStyles.requestEmptyIconBg}>
+                  <Ionicons name="time" size={48} color={COLORS.textSecondary} />
+                </View>
+                <Text style={familyStyles.requestEmptyTitle}>No care updates yet</Text>
+                <Text style={familyStyles.requestEmptySubtitle}>Tasks completed by caregivers will appear here with photos and notes</Text>
+              </View>
+            ) : (
+              completedTasks.map((item) => (
+                <CareTimelineCard 
+                  key={item.id} 
+                  item={item} 
+                  onPress={() => handleTimelineItemPress(item)}
+                />
+              ))
+            )}
           </View>
         )}
       </ScrollView>
