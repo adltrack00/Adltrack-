@@ -6407,7 +6407,7 @@ const NewRequestModal = ({ visible, onClose, onSubmit }) => {
 // FAMILY HOME SCREEN
 // ============================================
 const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
-  const [activeTab, setActiveTab] = useState('requests');
+  const [activeTab, setActiveTab] = useState('timeline');
   const [selectedTimelineItem, setSelectedTimelineItem] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showNewRequestModal, setShowNewRequestModal] = useState(false);
