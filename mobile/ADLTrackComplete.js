@@ -7739,7 +7739,8 @@ const FamilyIncidentScreen = () => {
 // FAMILY INCIDENT TAB ICON WITH BADGE
 // ============================================
 const FamilyIncidentTabIcon = ({ focused, color }) => {
-  const incidentCount = FAMILY_INCIDENTS.filter(i => i.status === 'open').length;
+  const sharedData = React.useContext(SharedDataContext);
+  const incidentCount = sharedData?.getOpenIncidentsCount() || 0;
   
   return (
     <View style={{ position: 'relative' }}>
