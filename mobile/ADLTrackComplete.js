@@ -6603,11 +6603,17 @@ const NewRequestModal = ({ visible, onClose, onSubmit }) => {
 // FAMILY HOME SCREEN
 // ============================================
 const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
+  const sharedData = React.useContext(SharedDataContext);
   const [activeTab, setActiveTab] = useState('timeline');
   const [selectedTimelineItem, setSelectedTimelineItem] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showNewRequestModal, setShowNewRequestModal] = useState(false);
-  const [familyRequests, setFamilyRequests] = useState([]);
+  
+  // Use shared requests from context
+  const familyRequests = sharedData?.sharedRequests || [];
+  
+  // Use shared completed tasks from context
+  const completedTasks = sharedData?.sharedTasks || [];
   
   // AI Copilot state
   const [showAICopilot, setShowAICopilot] = useState(false);
