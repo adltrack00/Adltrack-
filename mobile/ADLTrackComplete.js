@@ -2832,6 +2832,7 @@ const aiStyles = StyleSheet.create({
 // CAREGIVER HOME SCREEN
 // ============================================
 const CaregiverHomeScreen = () => {
+  const sharedData = React.useContext(SharedDataContext);
   const [activeTab, setActiveTab] = useState('tasks');
   const [expandedTask, setExpandedTask] = useState(null);
   const [showPatientProfile, setShowPatientProfile] = useState(false);
@@ -2844,8 +2845,10 @@ const CaregiverHomeScreen = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [viewingHistory, setViewingHistory] = useState(null);
   const [tasks, setTasks] = useState(INITIAL_TASKS);
-  const [requests, setRequests] = useState(INITIAL_REQUESTS);
   const [vitals, setVitals] = useState({ bp: { systolic: 120, diastolic: 76 }, heart: 72, temp: 98.6, pain: 1 });
+  
+  // Use shared requests from context (requests from family members)
+  const requests = sharedData?.sharedRequests || [];
   
   // AI Copilot state
   const [showAICopilot, setShowAICopilot] = useState(false);
