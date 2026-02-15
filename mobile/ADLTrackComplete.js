@@ -6568,7 +6568,7 @@ const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
               /* Empty State */
               <View style={familyStyles.requestEmptyCard}>
                 <View style={familyStyles.requestEmptyIconBg}>
-                  <Ionicons name="sparkles-outline" size={40} color={COLORS.textSecondary} />
+                  <Ionicons name="sparkles" size={48} color={COLORS.textSecondary} />
                 </View>
                 <Text style={familyStyles.requestEmptyTitle}>No requests yet</Text>
                 <Text style={familyStyles.requestEmptySubtitle}>Tap the button above to request tasks for the caregiver</Text>
