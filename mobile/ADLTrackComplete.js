@@ -6107,6 +6107,66 @@ const familyStyles = StyleSheet.create({
   photoViewerFooter: { paddingVertical: 20, alignItems: 'center' },
   photoViewerFilename: { fontSize: 15, color: COLORS.white, fontWeight: '500' },
   photoViewerHint: { fontSize: 14, color: COLORS.textSecondary, marginTop: 4 },
+  
+  // Family Request Styles
+  requestTabBadge: { position: 'absolute', top: -8, right: -12, backgroundColor: '#ef4444', borderRadius: 10, minWidth: 20, height: 20, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5 },
+  requestTabBadgeText: { color: '#fff', fontSize: 12, fontWeight: 'bold' },
+  
+  addRequestBtn: { borderWidth: 2, borderColor: COLORS.textMuted, borderStyle: 'dashed', borderRadius: 16, marginHorizontal: 16, marginTop: 16, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+  addRequestText: { fontSize: 17, color: COLORS.textSecondary, marginLeft: 8 },
+  
+  requestEmptyCard: { backgroundColor: COLORS.card, borderRadius: 24, marginHorizontal: 16, marginTop: 16, paddingVertical: 50, paddingHorizontal: 20, alignItems: 'center' },
+  requestEmptyIconBg: { width: 80, height: 80, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
+  requestEmptyTitle: { fontSize: 20, fontWeight: '600', color: COLORS.white, marginBottom: 8 },
+  requestEmptySubtitle: { fontSize: 15, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 22 },
+  
+  // Request Card
+  requestCard: { backgroundColor: COLORS.card, borderRadius: 16, marginHorizontal: 16, marginTop: 12, padding: 16 },
+  requestCardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  requestPriorityBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, marginRight: 8 },
+  requestPriorityHigh: { backgroundColor: 'rgba(234, 179, 8, 0.25)' },
+  requestPriorityUrgent: { backgroundColor: 'rgba(239, 68, 68, 0.25)' },
+  requestPriorityStandard: { backgroundColor: 'rgba(59, 130, 246, 0.25)' },
+  requestPriorityText: { fontSize: 11, fontWeight: '700', letterSpacing: 0.5 },
+  requestPriorityTextHigh: { color: '#eab308' },
+  requestPriorityTextUrgent: { color: '#ef4444' },
+  requestPriorityTextStandard: { color: '#3b82f6' },
+  requestStatusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6, borderWidth: 1 },
+  requestStatusPending: { borderColor: '#f59e0b', backgroundColor: 'transparent' },
+  requestStatusAccepted: { borderColor: '#22c55e', backgroundColor: 'transparent' },
+  requestStatusDeclined: { borderColor: '#ef4444', backgroundColor: 'transparent' },
+  requestStatusText: { fontSize: 11, fontWeight: '600' },
+  requestStatusTextPending: { color: '#f59e0b' },
+  requestStatusTextAccepted: { color: '#22c55e' },
+  requestStatusTextDeclined: { color: '#ef4444' },
+  requestCardTime: { fontSize: 13, color: COLORS.textMuted, marginLeft: 'auto' },
+  requestCardTitle: { fontSize: 18, fontWeight: '600', color: COLORS.white, marginBottom: 4 },
+  requestCardDetails: { fontSize: 15, color: COLORS.textSecondary },
+  requestDeclineReason: { fontSize: 14, color: '#f87171', marginTop: 8, fontStyle: 'italic' },
+  
+  // New Request Modal
+  newRequestModalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  newRequestModalContent: { backgroundColor: COLORS.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 8, paddingBottom: 30, maxHeight: '85%' },
+  newRequestModalHandle: { width: 40, height: 4, backgroundColor: COLORS.textMuted, borderRadius: 2, alignSelf: 'center', marginBottom: 16 },
+  newRequestModalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20 },
+  newRequestModalTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.white },
+  newRequestModalCloseBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  newRequestLabel: { fontSize: 16, color: COLORS.white, marginBottom: 10, paddingHorizontal: 20 },
+  newRequestInput: { backgroundColor: COLORS.cardBorder, borderRadius: 12, marginHorizontal: 20, paddingHorizontal: 16, paddingVertical: 16, fontSize: 16, color: COLORS.white, marginBottom: 20 },
+  newRequestTextArea: { backgroundColor: COLORS.cardBorder, borderRadius: 12, marginHorizontal: 20, paddingHorizontal: 16, paddingVertical: 16, fontSize: 16, color: COLORS.white, marginBottom: 20, minHeight: 100, textAlignVertical: 'top' },
+  newRequestPriorityRow: { flexDirection: 'row', paddingHorizontal: 20, marginBottom: 24 },
+  newRequestPriorityBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: COLORS.cardBorder, alignItems: 'center', marginRight: 10 },
+  newRequestPriorityBtnLast: { marginRight: 0 },
+  newRequestPriorityBtnSelected: { backgroundColor: COLORS.primary },
+  newRequestPriorityBtnHigh: { backgroundColor: '#f59e0b' },
+  newRequestPriorityBtnUrgent: { backgroundColor: '#ef4444' },
+  newRequestPriorityBtnText: { fontSize: 16, fontWeight: '600', color: COLORS.textSecondary },
+  newRequestPriorityBtnTextSelected: { color: COLORS.white },
+  newRequestSubmitBtn: { backgroundColor: COLORS.primary, borderRadius: 16, marginHorizontal: 20, paddingVertical: 18, alignItems: 'center' },
+  newRequestSubmitText: { fontSize: 18, fontWeight: '600', color: COLORS.white },
+  
+  // Calendar FAB
+  calendarFab: { position: 'absolute', bottom: 20, right: 20, width: 56, height: 56, borderRadius: 16, backgroundColor: COLORS.cardBorder, alignItems: 'center', justifyContent: 'center' },
 });
 
 // ============================================
