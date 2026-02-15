@@ -6290,19 +6290,159 @@ const CareTimelineCard = ({ item, onPress }) => (
 // ============================================
 // FAMILY HOME SCREEN
 // ============================================
+// NEW REQUEST MODAL
+// ============================================
+const NewRequestModal = ({ visible, onClose, onSubmit }) => {
+  const [title, setTitle] = useState('');
+  const [details, setDetails] = useState('');
+  const [priority, setPriority] = useState('standard');
+  
+  const handleSubmit = () => {
+    if (title.trim()) {
+      onSubmit({
+        title: title.trim(),
+        details: details.trim(),
+        priority,
+      });
+      setTitle('');
+      setDetails('');
+      setPriority('standard');
+      onClose();
+    }
+  };
+  
+  return (
+    <Modal visible={visible} animationType="slide" transparent>
+      <KeyboardAvoidingView 
+        style={familyStyles.newRequestModalOverlay} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <TouchableOpacity style={{ flex: 1 }} onPress={onClose} activeOpacity={1} />
+        <View style={familyStyles.newRequestModalContent}>
+          <View style={familyStyles.newRequestModalHandle} />
+          
+          {/* Header */}
+          <View style={familyStyles.newRequestModalHeader}>
+            <Text style={familyStyles.newRequestModalTitle}>New Request</Text>
+            <TouchableOpacity style={familyStyles.newRequestModalCloseBtn} onPress={onClose}>
+              <Ionicons name="close" size={28} color={COLORS.textSecondary} />
+            </TouchableOpacity>
+          </View>
+          
+          {/* Form */}
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <Text style={familyStyles.newRequestLabel}>What do you need?</Text>
+            <TextInput
+              style={familyStyles.newRequestInput}
+              placeholder="e.g., Extra blanket, Call me back"
+              placeholderTextColor={COLORS.textMuted}
+              value={title}
+              onChangeText={setTitle}
+            />
+            
+            <Text style={familyStyles.newRequestLabel}>Additional details (optional)</Text>
+            <TextInput
+              style={familyStyles.newRequestTextArea}
+              placeholder="Any specific instructions..."
+              placeholderTextColor={COLORS.textMuted}
+              value={details}
+              onChangeText={setDetails}
+              multiline
+              numberOfLines={4}
+            />
+            
+            <Text style={familyStyles.newRequestLabel}>Priority</Text>
+            <View style={familyStyles.newRequestPriorityRow}>
+              <TouchableOpacity 
+                style={[
+                  familyStyles.newRequestPriorityBtn,
+                  priority === 'standard' && familyStyles.newRequestPriorityBtnSelected
+                ]}
+                onPress={() => setPriority('standard')}
+              >
+                <Text style={[
+                  familyStyles.newRequestPriorityBtnText,
+                  priority === 'standard' && familyStyles.newRequestPriorityBtnTextSelected
+                ]}>Standard</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[
+                  familyStyles.newRequestPriorityBtn,
+                  priority === 'high' && familyStyles.newRequestPriorityBtnHigh
+                ]}
+                onPress={() => setPriority('high')}
+              >
+                <Text style={[
+                  familyStyles.newRequestPriorityBtnText,
+                  priority === 'high' && familyStyles.newRequestPriorityBtnTextSelected
+                ]}>High</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[
+                  familyStyles.newRequestPriorityBtn,
+                  familyStyles.newRequestPriorityBtnLast,
+                  priority === 'urgent' && familyStyles.newRequestPriorityBtnUrgent
+                ]}
+                onPress={() => setPriority('urgent')}
+              >
+                <Text style={[
+                  familyStyles.newRequestPriorityBtnText,
+                  priority === 'urgent' && familyStyles.newRequestPriorityBtnTextSelected
+                ]}>Urgent</Text>
+              </TouchableOpacity>
+            </View>
+            
+            {/* Submit Button */}
+            <TouchableOpacity style={familyStyles.newRequestSubmitBtn} onPress={handleSubmit}>
+              <Text style={familyStyles.newRequestSubmitText}>Send Request</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+};
+
+// ============================================
+// FAMILY HOME SCREEN
+// ============================================
 const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
-  const [activeTab, setActiveTab] = useState('timeline');
+  const [activeTab, setActiveTab] = useState('requests');
   const [selectedTimelineItem, setSelectedTimelineItem] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showNewRequestModal, setShowNewRequestModal] = useState(false);
+  const [familyRequests, setFamilyRequests] = useState([]);
   
   const handleTimelineItemPress = (item) => {
     setSelectedTimelineItem(item);
     setShowDetailModal(true);
   };
   
+  const handleSubmitRequest = (request) => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const hour12 = hours % 12 || 12;
+    const timeStr = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+    
+    const newRequest = {
+      id: Date.now(),
+      title: request.title,
+      details: request.details,
+      priority: request.priority,
+      status: 'pending',
+      time: timeStr,
+      declineReason: null,
+    };
+    
+    setFamilyRequests([newRequest, ...familyRequests]);
+  };
+  
   const completedTasksCount = CARE_TIMELINE_ITEMS.length;
   const totalTasks = 12;
   const progressPercent = (completedTasksCount / totalTasks) * 100;
+  const requestCount = familyRequests.length;
 
   return (
     <SafeAreaView style={familyStyles.container}>
@@ -6343,17 +6483,24 @@ const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
         <View style={familyStyles.progressSection}>
           <View style={familyStyles.progressHeader}>
             <Text style={familyStyles.progressTitle}>Today's Progress</Text>
-            <Text style={familyStyles.progressCount}>{completedTasksCount}/{totalTasks}</Text>
+            <Text style={familyStyles.progressCount}>0/{totalTasks}</Text>
           </View>
           <View style={familyStyles.progressBar}>
-            <View style={[familyStyles.progressFill, { width: `${progressPercent}%` }]} />
+            <View style={[familyStyles.progressFill, { width: '0%' }]} />
           </View>
         </View>
 
         {/* Tabs */}
         <View style={familyStyles.tabsRow}>
           <TouchableOpacity style={familyStyles.tabBtn} onPress={() => setActiveTab('requests')}>
-            <Text style={[familyStyles.tabText, activeTab === 'requests' && familyStyles.tabTextActive]}>My Requests</Text>
+            <View style={{ position: 'relative' }}>
+              <Text style={[familyStyles.tabText, activeTab === 'requests' && familyStyles.tabTextActive]}>My Requests</Text>
+              {requestCount > 0 && (
+                <View style={familyStyles.requestTabBadge}>
+                  <Text style={familyStyles.requestTabBadgeText}>{requestCount}</Text>
+                </View>
+              )}
+            </View>
           </TouchableOpacity>
           <View style={familyStyles.tabDivider} />
           <TouchableOpacity style={familyStyles.tabBtn} onPress={() => setActiveTab('timeline')}>
@@ -6363,14 +6510,79 @@ const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
 
         {/* Content based on active tab */}
         {activeTab === 'requests' ? (
-          /* Empty State for My Requests */
-          <View style={familyStyles.emptyCard}>
-            <View style={familyStyles.emptyIconBg}>
-              <Ionicons name="list-outline" size={40} color={COLORS.textSecondary} />
-            </View>
-            <Text style={familyStyles.emptyTitle}>No requests yet</Text>
-            <Text style={familyStyles.emptySubtitle}>Your care requests will appear here</Text>
-          </View>
+          <>
+            {/* Add New Request Button */}
+            <TouchableOpacity 
+              style={familyStyles.addRequestBtn} 
+              onPress={() => setShowNewRequestModal(true)}
+            >
+              <Ionicons name="add" size={24} color={COLORS.textSecondary} />
+              <Text style={familyStyles.addRequestText}>Add New Request</Text>
+            </TouchableOpacity>
+            
+            {familyRequests.length === 0 ? (
+              /* Empty State */
+              <View style={familyStyles.requestEmptyCard}>
+                <View style={familyStyles.requestEmptyIconBg}>
+                  <Ionicons name="sparkles-outline" size={40} color={COLORS.textSecondary} />
+                </View>
+                <Text style={familyStyles.requestEmptyTitle}>No requests yet</Text>
+                <Text style={familyStyles.requestEmptySubtitle}>Tap the button above to request tasks for the caregiver</Text>
+              </View>
+            ) : (
+              /* Request Cards */
+              familyRequests.map((request) => (
+                <View key={request.id} style={familyStyles.requestCard}>
+                  <View style={familyStyles.requestCardHeader}>
+                    {/* Priority Badge */}
+                    <View style={[
+                      familyStyles.requestPriorityBadge,
+                      request.priority === 'high' && familyStyles.requestPriorityHigh,
+                      request.priority === 'urgent' && familyStyles.requestPriorityUrgent,
+                      request.priority === 'standard' && familyStyles.requestPriorityStandard,
+                    ]}>
+                      <Text style={[
+                        familyStyles.requestPriorityText,
+                        request.priority === 'high' && familyStyles.requestPriorityTextHigh,
+                        request.priority === 'urgent' && familyStyles.requestPriorityTextUrgent,
+                        request.priority === 'standard' && familyStyles.requestPriorityTextStandard,
+                      ]}>
+                        {request.priority.toUpperCase()}
+                      </Text>
+                    </View>
+                    
+                    {/* Status Badge */}
+                    <View style={[
+                      familyStyles.requestStatusBadge,
+                      request.status === 'pending' && familyStyles.requestStatusPending,
+                      request.status === 'accepted' && familyStyles.requestStatusAccepted,
+                      request.status === 'declined' && familyStyles.requestStatusDeclined,
+                    ]}>
+                      <Text style={[
+                        familyStyles.requestStatusText,
+                        request.status === 'pending' && familyStyles.requestStatusTextPending,
+                        request.status === 'accepted' && familyStyles.requestStatusTextAccepted,
+                        request.status === 'declined' && familyStyles.requestStatusTextDeclined,
+                      ]}>
+                        {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                      </Text>
+                    </View>
+                    
+                    {/* Time */}
+                    <Text style={familyStyles.requestCardTime}>{request.time}</Text>
+                  </View>
+                  
+                  <Text style={familyStyles.requestCardTitle}>{request.title}</Text>
+                  {request.details && (
+                    <Text style={familyStyles.requestCardDetails}>{request.details}</Text>
+                  )}
+                  {request.status === 'declined' && request.declineReason && (
+                    <Text style={familyStyles.requestDeclineReason}>Reason: {request.declineReason}</Text>
+                  )}
+                </View>
+              ))
+            )}
+          </>
         ) : (
           /* Care Timeline Feed */
           <View style={familyStyles.timelineContainer}>
@@ -6385,11 +6597,23 @@ const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
         )}
       </ScrollView>
       
+      {/* Calendar FAB */}
+      <TouchableOpacity style={familyStyles.calendarFab}>
+        <Ionicons name="calendar-outline" size={26} color={COLORS.white} />
+      </TouchableOpacity>
+      
       {/* Timeline Detail Modal */}
       <CareTimelineDetailModal
         visible={showDetailModal}
         onClose={() => setShowDetailModal(false)}
         item={selectedTimelineItem}
+      />
+      
+      {/* New Request Modal */}
+      <NewRequestModal
+        visible={showNewRequestModal}
+        onClose={() => setShowNewRequestModal(false)}
+        onSubmit={handleSubmitRequest}
       />
     </SafeAreaView>
   );
