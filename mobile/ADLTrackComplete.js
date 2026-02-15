@@ -2991,6 +2991,19 @@ What would you like to know more about?`;
   };
 
   const handleCompleteTask = (taskId, data) => {
+    const task = tasks.find(t => t.id === taskId);
+    
+    // Add to shared data so Family can see it
+    if (sharedData && task) {
+      sharedData.addCompletedTask({
+        title: task.title,
+        description: task.description || '',
+        note: data.note || '',
+        image: data.photo || null,
+        photos: data.photos || [],
+      });
+    }
+    
     setTasks(tasks.map(t => 
       t.id === taskId 
         ? { ...t, completed: true, ...data }
