@@ -3412,7 +3412,7 @@ What would you like to know more about?`;
             <Text style={styles.progressCount}>{completedCount}/{totalCount}</Text>
           </View>
           <View style={styles.progressBarBg}>
-            <View style={[styles.progressBarFill, { width: viewingHistory ? '100%' : '0%' }]} />
+            <View style={[styles.progressBarFill, { width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%` }]} />
           </View>
         </View>
 
