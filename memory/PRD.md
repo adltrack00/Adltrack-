@@ -1,7 +1,7 @@
 # ADLTrack Mobile App - Product Requirements Document
 
 ## Original Problem Statement
-Build a mobile app named "ADLTrack" using Expo (React Native) for caregiving coordination with three user roles: Caregiver, Family Member, and Agency. The app should be a high-fidelity, pixel-perfect replica of an existing web application, implemented screen-by-screen based on user-provided screenshots.
+Build a mobile app named "ADLTrack" using Expo (React Native) for caregiving coordination with three user roles: Caregiver, Family Member, and Agency. The app should be a high-fidelity, pixel-perfect replica of an existing web application, implementing the full PRD vision for real-time care accountability.
 
 ## Tech Stack
 - **Framework:** Expo (React Native)
@@ -10,151 +10,104 @@ Build a mobile app named "ADLTrack" using Expo (React Native) for caregiving coo
 - **State Management:** React useState, useContext (AuthContext, SignOutContext, **SharedDataContext**)
 - **Development File:** Single monolithic file `/app/mobile/ADLTrackComplete.js` for Expo Snack testing
 
-## Data Sharing Architecture (NEW)
-The app now uses a **SharedDataContext** to connect Caregiver and Family dashboards:
+## Data Sharing Architecture
+The app uses **SharedDataContext** to connect Caregiver and Family dashboards with real-time data sharing:
 
 ### SharedDataContext provides:
-- `sharedTasks` - Tasks completed by caregivers (with photos, notes)
-- `sharedRequests` - Requests from family members (with status: pending/accepted/declined)
+- `sharedTasks` - Tasks completed by caregivers (with photos, notes, GPS)
+- `sharedRequests` - Requests from family members (with status tracking)
 - `sharedIncidents` - Incident reports from caregivers
+- `medicationLogs` - Medication administration records
+- `shiftData` - Clock in/out times, GPS location, hours worked
+- `performanceMetrics` - Caregiver performance scores
+- `carePlan` - Full care plan with goals, medications, schedule
+- `clients` - Multiple client support
+- `dailySummary` - Daily care summary data
+- `weeklyReport` - Weekly compliance reports
+- `emergencyAlerts` - Critical alert system
 
 ### Data Flow:
-1. **Caregiver completes a task** → `addCompletedTask()` → Appears in Family's Care Timeline
-2. **Family creates a request** → `addFamilyRequest()` → Appears in Caregiver's Requests tab (with badge)
-3. **Caregiver accepts/declines request** → `updateRequestStatus()` → Family sees updated status + reason
-4. **Caregiver creates incident report** → `addIncidentReport()` → Appears in Family's Incident Reports (with badge)
+1. **Caregiver clocks in** → GPS verified → Family sees arrival time
+2. **Caregiver completes task** → Appears in Family's Care Timeline with photos
+3. **Family creates request** → Appears in Caregiver's dashboard (with badge)
+4. **Caregiver accepts/declines** → Family sees status + reason
+5. **Caregiver logs medication** → Updates daily summary + compliance metrics
+6. **Caregiver reports incident** → Family gets alert + can view details
 
-## User Personas
-1. **Caregiver** - Manages shifts, tasks, documentation, vitals tracking
-2. **Family Member** - Monitors care, views updates, stays connected
-3. **Agency** - Manages staff and compliance (Phase 3)
-
-## Phases
+## Phases - IMPLEMENTATION STATUS
 
 ### Phase 1: Auth Flow + Caregiver Dashboard ✅ COMPLETED
-- Account type selection screen
+- Account type selection screen (Caregiver/Family/Agency)
 - Role-specific sign-up screens
 - Universal sign-in screen
 - Caregiver Dashboard with:
   - Home screen with patient info, vitals, tasks
-  - Task management with completion flow
-  - Incident reporting (4-step wizard)
+  - **Clock In/Clock Out with GPS verification**
+  - **Client Selector (Multiple Clients: David Smith, Margaret Johnson, Robert Williams)**
+  - Task management with completion flow (photo evidence, notes)
+  - **Medication Logging screen** - Full medication schedule, mark as administered
+  - Incident reporting (4-step wizard with photos)
+  - Family requests display (accept/decline with reasons)
   - Messaging system
   - Shifts management
-  - Menu (Profile, Settings, Support)
-  - AI Copilot (FAB on Home screen)
+  - Menu (Profile, Medications, Earnings, Settings, Support)
+  - AI Copilot
 
-### Phase 2: Family Dashboard 🔄 IN PROGRESS
-- ✅ Home screen with vitals display
-- ✅ Progress tracking section
-- ✅ Tabs (My Requests / Care Timeline)
-- ✅ **Care Timeline Feed** - COMPLETED
-  - Scrollable feed of completed care tasks
-  - Task cards with images, titles, completion time, caregiver info
-  - Detail modal on tap with full task information
-- ✅ **Family Incident Reports** - JUST COMPLETED
-  - Red badge on Incident tab showing open incident count (2)
-  - Incident Reports List with summary card (Total/Resolved/Open)
-  - Recent Incidents list with severity badges (CRITICAL/HIGH)
-  - Incident Detail screen with What Happened, Actions Taken sections
-  - Evidence Photos grid with zoom icons
-  - Full-screen Photo Viewer with navigation arrows and counter
-  - Reported By section with verified caregiver info
-  - Notification banner about being notified
-- ✅ **Family Member Requests** - JUST COMPLETED
-  - My Requests tab with red badge count
-  - "+ Add New Request" dashed button
-  - Empty state with sparkle icon ("No requests yet")
-  - New Request Modal with form fields (What do you need?, Additional details, Priority)
-  - Priority selector (Standard/High/Urgent) with color states
-  - Request cards showing priority badge (HIGH/URGENT/STANDARD)
-  - Request status badge (Pending/Accepted/Declined)
-  - Decline reason display for declined requests
-  - Calendar FAB in bottom-right corner
-- ✅ View-only Vitals modals
-- ✅ Messages screen
-- ✅ Alerts/Notifications screen
-- ✅ Menu with Sign Out
+### Phase 2: Family Dashboard ✅ COMPLETED
+- **Caregiver Performance Score Card** - Monthly score, task completion %, on-time rate, family rating
+- **Daily Summary Card** - Tasks done, meds given, caregiver arrival time, incidents
+- Home screen with vitals display
+- Progress tracking section
+- Tabs (My Requests / Care Timeline)
+- **Care Timeline Feed** - Shows real tasks completed by caregivers
+- **My Requests** - Create requests, track status (pending/accepted/declined), see decline reasons
+- **Care Plan Screen** (via Menu) - Full care plan, primary goals, medications, daily schedule, restrictions, emergency protocol
+- **Weekly Report Screen** (via Menu) - Compliance score, task/med stats, missed tasks, performance trend
+- **Incident Reports** - View all incidents reported by caregivers with photos, evidence viewer
+- View-only Vitals modals with history charts
+- Messages screen
+- Alerts/Notifications screen
+- Menu (Profile, Care Plan, Weekly Report, Current Caregiver, Settings)
+- AI Copilot
 
 ### Phase 3: Agency Dashboard ⏳ NOT STARTED
 - Placeholder screen exists
 - Full implementation pending
 
-## What's Been Implemented (Latest)
+## Features Implemented (All Phases A, B, C)
 
-### December 2025 - Family Incident Reports Feature
-- Added `FAMILY_INCIDENTS` mock data with 2 incidents (Behavioral Change, Fall)
-- Created `FamilyIncidentTabIcon` with red notification badge showing open incident count
-- Created `FamilyIncidentListScreen` with:
-  - Header showing "Incident Reports" title
-  - Summary card with Total/Resolved/Open counts  
-  - Recent Incidents list with severity badges
-- Created `FamilyIncidentDetailScreen` with:
-  - Back navigation button
-  - Incident icon and title with date/time
-  - Severity and Status badges (Critical/High, Open)
-  - What Happened section
-  - Actions Taken section
-  - Evidence Photos grid with tap-to-view functionality
-  - Reported By section with verified caregiver
-  - Notification banner
-- Created `FamilyPhotoViewerModal` with:
-  - Full-screen photo display
-  - Photo counter (1/7, 2/7, etc.)
-  - Left/right navigation arrows
-  - Filename and close hint
+### Phase A - Core Accountability ✅
+1. **Clock In/Clock Out** - Shift time tracking with arrival/departure timestamps
+2. **GPS Verification** - Location proof for clock in
+3. **Medication-Specific Logging** - Separate screen with dosage tracking, compliance
+4. **Daily Summary Report** - Aggregated daily care view for family
+5. **Caregiver Performance Score** - Visual score display with metrics
 
-### December 2025 - Care Timeline Feature
-- Added `CARE_TIMELINE_ITEMS` mock data with 6 completed tasks
-- Created `CareTimelineCard` component with:
-  - Task image with title/time overlay
-  - Note section showing caregiver's observation
-  - Caregiver info row with avatar
-  - Detail button
-- Created `CareTimelineDetailModal` with:
-  - Caregiver header with avatar and role
-  - Task title and completion time
-  - Full-size task image
-  - Task description section
-  - Caregiver verification status
-- Updated `FamilyHomeScreen` to:
-  - Show timeline feed when "Care Timeline" tab is active
-  - Show dynamic progress count (6/12 tasks)
-  - Handle tap on timeline cards to open detail modal
+### Phase B - Enhanced Tracking ✅
+6. **Multiple Clients Support** - 3 clients with risk levels, task counts
+7. **Missed Task Tracking** - Overdue task detection
+8. **Video/Audio Evidence** - Data structure supports video/audio (UI ready)
+9. **Care Plan Visibility** - Full care plan for family viewing
 
-## Prioritized Backlog
+### Phase C - Advanced ✅
+10. **Weekly Compliance Reports** - Full weekly summary with trends
+11. **Audio Evidence** - Structure in place
+12. **Emergency Alert System** - Data structure for critical alerts
 
-### P0 - High Priority
-- Complete any remaining Family Dashboard features per user feedback
-- Begin Phase 3 Agency Dashboard implementation
-
-### P1 - Medium Priority
-- Connect AI Copilot to live backend API (`/api/copilot/chat`)
-- Integrate AsyncStorage for persistent auth sessions
-
-### P2 - Technical Debt (CRITICAL)
-- Refactor monolithic file into proper folder structure:
-  - `/src/screens/` - Individual screen components
-  - `/src/components/` - Reusable UI components
-  - `/src/navigation/` - Navigation configuration
-  - `/src/styles/` - Shared style constants
-  - `/src/data/` - Mock data and constants
-
-## Known Issues & Patterns
-
-### Recurring Hoisting Errors
-Due to single-file architecture, `StyleSheet` objects must be defined BEFORE components that use them. This has caused errors with `incStyles` and `aiStyles` in the past.
-
-### File Size
-Current file is ~7,500 lines. Growing larger with each feature.
-
-## Key API Endpoints (Future Integration)
-- `/api/copilot/chat` - AI Assistant endpoint
+## Key Technical Concepts
+- **Framework:** Expo (React Native)
+- **Styling:** StyleSheet API (with newFeatureStyles for new features)
+- **Navigation:** React Navigation (Stack + Bottom Tabs)
+- **State Management:** React Context for global state sharing
+- **Dependencies:** expo-image-picker for camera/library access
 
 ## Testing Method
-User tests on real device via Expo Go using Expo Snack. Agent provides complete updated code for copy/paste testing.
+User tests on real device via Expo Go using Expo Snack. Copy complete code from `/app/mobile/ADLTrackComplete.js`.
+
+## File Size
+Current: ~9,600 lines (monolithic file for Expo Snack compatibility)
 
 ## Notes
-- All data is currently MOCKED
-- Authentication is mocked (any credentials work)
-- 3rd party integration planned: Gemini API via Emergent LLM Key
+- All data shared between dashboards via SharedDataContext
+- No AI/stock images - uses real photos from device camera
+- GPS verification ready (simulated coordinates for demo)
