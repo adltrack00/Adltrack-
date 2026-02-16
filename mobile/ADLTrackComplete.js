@@ -7977,6 +7977,171 @@ const FamilyPhotoViewerModal = ({ visible, onClose, photos, initialIndex }) => {
 };
 
 // ============================================
+// FAMILY CARE PLAN SCREEN
+// ============================================
+const FamilyCarePlanScreen = ({ onBack }) => {
+  const sharedData = React.useContext(SharedDataContext);
+  const carePlan = sharedData?.carePlan || {};
+  
+  return (
+    <SafeAreaView style={newFeatureStyles.carePlanContainer}>
+      <ScrollView contentContainerStyle={newFeatureStyles.carePlanScrollContent}>
+        {/* Back Button */}
+        <TouchableOpacity style={familyStyles.detailBackBtn} onPress={onBack}>
+          <Ionicons name="chevron-back" size={24} color={COLORS.textSecondary} />
+          <Text style={familyStyles.detailBackText}>Back</Text>
+        </TouchableOpacity>
+        
+        {/* Header */}
+        <View style={newFeatureStyles.carePlanHeader}>
+          <Text style={newFeatureStyles.carePlanTitle}>Care Plan</Text>
+          <Text style={newFeatureStyles.carePlanSubtitle}>For {carePlan.clientName || PATIENT.name}</Text>
+        </View>
+        
+        {/* Primary Goals */}
+        <View style={newFeatureStyles.carePlanSection}>
+          <Text style={newFeatureStyles.carePlanSectionTitle}>PRIMARY GOALS</Text>
+          {(carePlan.primaryGoals || []).map((goal, idx) => (
+            <View key={idx} style={newFeatureStyles.carePlanGoal}>
+              <Ionicons name="checkmark-circle" size={20} color={COLORS.primary} />
+              <Text style={newFeatureStyles.carePlanGoalText}>{goal}</Text>
+            </View>
+          ))}
+        </View>
+        
+        {/* Medications */}
+        <View style={newFeatureStyles.carePlanSection}>
+          <Text style={newFeatureStyles.carePlanSectionTitle}>MEDICATIONS</Text>
+          {(carePlan.medications || []).map((med, idx) => (
+            <View key={idx} style={newFeatureStyles.carePlanMedRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={newFeatureStyles.carePlanMedName}>{med.name} ({med.dosage})</Text>
+                <Text style={newFeatureStyles.carePlanMedDetails}>{med.frequency} - {med.purpose}</Text>
+              </View>
+              <Text style={newFeatureStyles.carePlanMedTime}>{med.time}</Text>
+            </View>
+          ))}
+        </View>
+        
+        {/* Daily Schedule */}
+        <View style={newFeatureStyles.carePlanSection}>
+          <Text style={newFeatureStyles.carePlanSectionTitle}>DAILY SCHEDULE</Text>
+          {(carePlan.adlSchedule || []).map((item, idx) => (
+            <View key={idx} style={newFeatureStyles.carePlanMedRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={newFeatureStyles.carePlanMedName}>{item.task}</Text>
+                <Text style={newFeatureStyles.carePlanMedDetails}>{item.required ? 'Required' : 'Optional'} - {item.type}</Text>
+              </View>
+              <Text style={newFeatureStyles.carePlanMedTime}>{item.time}</Text>
+            </View>
+          ))}
+        </View>
+        
+        {/* Restrictions */}
+        <View style={newFeatureStyles.carePlanSection}>
+          <Text style={newFeatureStyles.carePlanSectionTitle}>DIETARY RESTRICTIONS</Text>
+          {(carePlan.restrictions || []).map((restriction, idx) => (
+            <View key={idx} style={newFeatureStyles.carePlanRestriction}>
+              <Ionicons name="alert-circle" size={18} color="#f87171" />
+              <Text style={newFeatureStyles.carePlanRestrictionText}>{restriction}</Text>
+            </View>
+          ))}
+        </View>
+        
+        {/* Emergency Protocol */}
+        <View style={newFeatureStyles.carePlanSection}>
+          <Text style={newFeatureStyles.carePlanSectionTitle}>EMERGENCY PROTOCOL</Text>
+          <View style={newFeatureStyles.carePlanEmergency}>
+            <Text style={newFeatureStyles.carePlanEmergencyText}>{carePlan.emergencyProtocol || 'Call 911 for emergencies.'}</Text>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+// ============================================
+// FAMILY WEEKLY REPORT SCREEN
+// ============================================
+const FamilyWeeklyReportScreen = ({ onBack }) => {
+  const sharedData = React.useContext(SharedDataContext);
+  const weeklyReport = sharedData?.weeklyReport || {};
+  
+  return (
+    <SafeAreaView style={newFeatureStyles.carePlanContainer}>
+      <ScrollView contentContainerStyle={newFeatureStyles.carePlanScrollContent}>
+        {/* Back Button */}
+        <TouchableOpacity style={familyStyles.detailBackBtn} onPress={onBack}>
+          <Ionicons name="chevron-back" size={24} color={COLORS.textSecondary} />
+          <Text style={familyStyles.detailBackText}>Back</Text>
+        </TouchableOpacity>
+        
+        {/* Header */}
+        <View style={newFeatureStyles.carePlanHeader}>
+          <Text style={newFeatureStyles.carePlanTitle}>Weekly Report</Text>
+          <Text style={newFeatureStyles.carePlanSubtitle}>{weeklyReport.weekOf || 'This Week'}</Text>
+        </View>
+        
+        {/* Weekly Score Card */}
+        <View style={newFeatureStyles.weeklyCard}>
+          <View style={newFeatureStyles.weeklyHeader}>
+            <Text style={newFeatureStyles.weeklyTitle}>Overall Compliance</Text>
+          </View>
+          <View style={newFeatureStyles.weeklyScoreRow}>
+            <View style={newFeatureStyles.weeklyScoreCircle}>
+              <Text style={newFeatureStyles.weeklyScoreValue}>{weeklyReport.overallCompliance || 94}%</Text>
+            </View>
+          </View>
+          <View style={newFeatureStyles.weeklyStatsRow}>
+            <View style={newFeatureStyles.weeklyStat}>
+              <Text style={newFeatureStyles.weeklyStatValue}>{weeklyReport.taskCompletion?.completed || 78}/{weeklyReport.taskCompletion?.total || 84}</Text>
+              <Text style={newFeatureStyles.weeklyStatLabel}>Tasks</Text>
+            </View>
+            <View style={newFeatureStyles.weeklyStat}>
+              <Text style={newFeatureStyles.weeklyStatValue}>{weeklyReport.medicationAdherence?.onTime || 26}/{weeklyReport.medicationAdherence?.total || 28}</Text>
+              <Text style={newFeatureStyles.weeklyStatLabel}>Meds On Time</Text>
+            </View>
+            <View style={newFeatureStyles.weeklyStat}>
+              <Text style={newFeatureStyles.weeklyStatValue}>{weeklyReport.incidents || 1}</Text>
+              <Text style={newFeatureStyles.weeklyStatLabel}>Incidents</Text>
+            </View>
+          </View>
+          
+          {/* Missed Tasks */}
+          {weeklyReport.missedTasks && weeklyReport.missedTasks.length > 0 && (
+            <View style={newFeatureStyles.weeklyMissedSection}>
+              <Text style={newFeatureStyles.weeklyMissedTitle}>Missed Tasks This Week</Text>
+              {weeklyReport.missedTasks.map((task, idx) => (
+                <Text key={idx} style={newFeatureStyles.weeklyMissedItem}>• {task}</Text>
+              ))}
+            </View>
+          )}
+        </View>
+        
+        {/* Caregiver Notes */}
+        <View style={newFeatureStyles.carePlanSection}>
+          <Text style={newFeatureStyles.carePlanSectionTitle}>CAREGIVER NOTES</Text>
+          <Text style={[newFeatureStyles.carePlanGoalText, { marginLeft: 0 }]}>{weeklyReport.caregiverNotes || 'No notes this week.'}</Text>
+        </View>
+        
+        {/* Performance Trend */}
+        <View style={newFeatureStyles.carePlanSection}>
+          <Text style={newFeatureStyles.carePlanSectionTitle}>PERFORMANCE TREND</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons 
+              name={weeklyReport.performanceTrend === 'improving' ? 'trending-up' : weeklyReport.performanceTrend === 'declining' ? 'trending-down' : 'remove'} 
+              size={24} 
+              color={weeklyReport.performanceTrend === 'improving' ? COLORS.primary : weeklyReport.performanceTrend === 'declining' ? '#ef4444' : COLORS.textSecondary} 
+            />
+            <Text style={[newFeatureStyles.carePlanGoalText, { marginLeft: 8, textTransform: 'capitalize' }]}>{weeklyReport.performanceTrend || 'Stable'}</Text>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+// ============================================
 // FAMILY INCIDENT DETAIL SCREEN
 // ============================================
 const FamilyIncidentDetailScreen = ({ incident, onBack }) => {
