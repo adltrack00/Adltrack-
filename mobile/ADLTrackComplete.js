@@ -1131,24 +1131,6 @@ const SharedDataProvider = ({ children }) => {
     </SharedDataContext.Provider>
   );
 };
-  };
-  
-  return (
-    <SharedDataContext.Provider value={{
-      sharedTasks,
-      sharedRequests,
-      sharedIncidents,
-      addCompletedTask,
-      addFamilyRequest,
-      updateRequestStatus,
-      addIncidentReport,
-      getPendingRequestsCount,
-      getOpenIncidentsCount,
-    }}>
-      {children}
-    </SharedDataContext.Provider>
-  );
-};
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
