@@ -1,135 +1,146 @@
 <analysis>**original_problem_statement:**
-The user wants to build a mobile app named ADLTrack using Expo (React Native). The app is for caregiving coordination and will have three user roles: Caregiver, Family Member, and Agency. The primary directive is to build a high-fidelity, pixel-perfect replica of an existing web application by implementing features screen-by-screen based on user-provided screenshots. Phase 1 is the Auth flow and Caregiver Dashboard. Phase 2 is the Family Dashboard. Phase 3 is the Agency Dashboard. The app will feature an AI Copilot powered by the Gemini API, accessed via the existing backend using the Emergent LLM Key. All other features are to use mock data initially.
+The user wants to build a mobile app named ADLTrack using Expo (React Native). The app is for caregiving coordination and has multiple user roles. Initially, the goal was to replicate an existing web app from screenshots. The project has evolved, and the user has now provided a comprehensive Product Requirements Document (PRD) detailing a much larger vision. The app should be a real-time care accountability infrastructure connecting Caregivers, Families, Agencies, and eventually, Doctors and Medicaid Caseworkers.
 
 **PRODUCT REQUIREMENTS:**
--   **Phase 1:** Build Auth flow + Caregiver Dashboard (as an exact replica).
--   **Phase 2:** Build Family Member Dashboard (as an exact replica).
--   **Phase 3:** Build Agency Dashboard.
--   **Features:** Vitals tracking, task management, incident reporting, messaging, shift management, and an AI chat assistant.
--   **Tech:** Expo (React Native), with all code consolidated into a single file () for testing on Expo Snack.
--   **Testing:** User will test on a real device via Expo Go (using Expo Snack) after each screen/feature is built.
+A comprehensive PRD has been provided by the user and is stored in . Key requirements for the mobile app portion (Caregiver & Family dashboards) include:
+*   **Caregiver App:**
+    *   Clock in/out and client selection.
+    *   Log ADL tasks, medication, vitals, and incidents with evidence (photos/video).
+    *   View care plans and daily schedules.
+    *   Manage requests from family members.
+*   **Family App:**
+    *   Real-time care timeline of completed tasks.
+    *   View incident reports, vitals trends, and medication logs.
+    *   Submit requests to caregivers.
+    *   View caregiver performance scores and weekly/daily summaries.
+*   **Shared Data:** All data (tasks, incidents, requests) must be shared in real-time between the Caregiver and Family apps.
+*   **Technology:** Continue building within the single Expo (React Native) file () for user testing on Expo Snack, maintaining the existing design style.
 
 **User's preferred language**: English
 
 **what currently exists?**
-A single, massive Expo (React Native) application file located at . The file now contains a nearly complete application with mocked data, including:
-1.  **Full Authentication Flow:** Account type selection (Caregiver, Family, Agency), role-specific sign-up screens, and a universal sign-in screen.
-2.  **Complete Caregiver Dashboard:** Includes Home, Requests, a full Task Management flow, Vitals tracking modals, a comprehensive 4-step Incident Report wizard, Messaging, Shifts, a multi-screen Menu, and an AI Copilot integrated into the Home screen's floating action button.
-3.  **Family Member Dashboard:** A substantial implementation including a Home screen (missing the care timeline), Vitals modals (view-only), Messages, Alerts, and a Menu with a working Sign Out function.
-4.  **Placeholder Agency Dashboard:** A basic screen that appears upon signing in as an Agency user.
+A single, massive Expo (React Native) application file (, now over 9,600 lines) containing:
+1.  **Full Authentication Flow:** Role-based sign-up/sign-in for Caregiver, Family, and Agency roles.
+2.  **Caregiver & Family Dashboards:** Extensive UI for both roles is implemented with mock data.
+3.  **Shared Data Context:** A  has been created to enable real-time data sharing between the Caregiver and Family views. This context holds shared state for tasks, requests, and incidents.
+4.  **New PRD Features (Initial Implementation):** The agent just added UI components for features from the new PRD, including a Clock In/Out and Client Selector card on the Caregiver home screen, and Performance Score displays on the Family home screen.
 
 **Last working item**:
--   **Last item agent was working:** The agent was about to begin implementing the user's latest request: to build out the Care Timeline feed on the **Family Dashboard Home Screen**. This involves displaying a list of completed care tasks (from caregivers) and implementing a detail modal that appears when a task card is tapped.
+-   **Last item agent was working:** The agent had just finished a large feature integration based on the new PRD. However, the user immediately responded with a UI refactoring request. The agent was about to start moving the newly added Clock In / Clock Out and Client Switch tabs from the Caregiver home dashboard to the Shifts page.
 -   **Status:** NOT STARTED
 -   **Agent Testing Done:** N
 -   **Which testing method agent to use?** Manual testing by user via Expo Snack. The agent must provide the complete, updated code from .
 -   **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: The mobile app is not yet a complete, high-fidelity replica of the web application.** (Priority: P0)
+-   **Issue 1: Incorrect location of Clock In/Out and Client Switch UI.** (Priority: P0)
 
 **Issues Detail:**
--   **Issue 1: Incomplete Replica of Web Application**
-    -   **Attempted fixes:** The agent is correctly following the build from screenshot - verifies workflow. This is the core requirement.
+-   **Issue 1: Incorrect UI location for Caregiver features.**
+    -   **Attempted fixes:** None. This is a new request from the user.
     -   **Next debug checklist:**
-        1.  Implement the **Care Timeline** feed on the Family Dashboard Home screen as requested.
-        2.  Ensure tapping a timeline item opens a detail modal.
-        3.  Present the updated  file to the user for testing on Expo Snack.
-        4.  Await user feedback or the next set of screenshots for the next feature.
-    -   **Why fix this issue and what will be achieved with the fix?** Completing this is the primary goal of the project. Adhering to the iterative process is crucial for user trust and project progress.
-    -   **Status:** IN PROGRESS
-    -   **Is recurring issue?** Y (The project is inherently a work-in-progress until all phases are complete).
+        1.  Open .
+        2.  Locate the  component.
+        3.  Cut the JSX code for the Clock In/Out card and the Client Selector.
+        4.  Revert the  layout to its previous state before these elements were added.
+        5.  Locate the  component (or the component rendered for the Shifts tab).
+        6.  Delete the existing content within the .
+        7.  Paste the Clock In/Out and Client Selector JSX into the .
+        8.  Ensure all associated state and logic (e.g.,  state, modals) are moved or correctly referenced in the new location.
+        9.  Verify styles are correctly applied.
+    -   **Why fix this issue and what will be achieved with the fix?** This is a direct user request to correct the UI layout and navigation flow to match their vision.
+    -   **Status:** NOT STARTED
+    -   **Is recurring issue?** N
     -   **Should Test frontend/backend/both after fix?** Frontend (via user testing on Expo Snack).
     -   **Blocked on other issue:** None.
 
 **In progress Task List**:
--   **Task 1: Implement Care Timeline on Family Dashboard.** (Priority: P0)
-    -   **Where to resume:** In , locate the  component and modify its home screen view to include a scrollable feed of caregiver tasks.
-    -   **What will be achieved with this?** This will complete a key feature of the Family Dashboard, bringing it closer to the final vision for Phase 2.
-    -   **Status:** NOT STARTED
+-   **Task 1: Fully integrate features from the new PRD into the mobile app.** (Priority: P1)
+    -   **Where to resume:** After completing the P0 UI refactor, the agent must continue implementing and refining the features outlined in the new PRD (). This includes wiring up the newly added screens (Care Plan, Weekly Report) and ensuring the  correctly handles all data flows.
+    -   **What will be achieved with this?** The mobile app will align with the comprehensive product vision, transforming it from a simple logger into an interconnected care platform.
+    -   **Status:** IN PROGRESS
     -   **Should Test frontend/backend/both after fix?** Frontend.
-    -   **Blocked on something:** None.
+    -   **Blocked on something:** Blocked on **Issue 1**.
 
 **Upcoming and Future Tasks**
--   **Upcoming Tasks (Phase 2 - P0):**
-    -   Complete any remaining screens or features for the Family Dashboard based on user feedback.
 -   **Upcoming Tasks (Phase 3 - P1):**
-    -   Build the Agency Dashboard (replicating all its screens using the same screenshot-driven process).
--   **Future Tasks (P2 - Technical Debt):**
-    -   Connect the AI Copilot UI to the live backend API ().
-    -   Integrate  for persistent authentication sessions across app restarts.
-    -   **CRITICAL REFACTOR:** Break down the monolithic  file into a proper, scalable project structure (e.g., , , , ).
+    *   Build the Agency Dashboard (Web App - this is a new requirement from the PRD).
+-   **Future Tasks (P2 - Technical Debt & Expansion):**
+    *   Connect the AI Copilot UI to the live backend API ().
+    *   Integrate  for persistent authentication sessions.
+    *   Build the Caseworker and Doctor dashboards (Web Apps).
+    *   Integrate with Epic via FHIR APIs.
+    *   **CRITICAL REFACTOR:** Break down the monolithic  file into a proper, scalable project structure (e.g., , , ).
 
 **Completed work in this session**
--   **Incident Report Feature:** A complete 4-step wizard for creating new incident reports, including camera access for adding multiple photos.
--   **Messages Feature:** Implemented conversation list and chat detail screens.
--   **Shifts Feature:** Built the main shifts screen (active/inactive states) and the shift history screen.
--   **Menu Feature:** Created the main menu and its sub-screens (Profile, Settings, Support).
--   **AI Copilot Integration:** Implemented an initial AI Copilot as a global FAB, then refactored it to replace the existing calendar FAB on the Home screen per the user's request.
--   **Full Authentication Flow:** Built the entire auth system from scratch, including account type selection, role-specific sign-up forms, and a sign-in screen, which now properly routes users to their respective dashboards.
--   **Family Dashboard (Phase 2):** Implemented the initial structure and most screens (Home, Vitals, Messages, Alerts, Menu).
--   **Numerous Bug Fixes:**
-    -   Resolved multiple hoisting errors by moving  definitions (, ) before the components that use them.
-    -   Fixed a critical syntax error caused by an extra closing brace ().
-    -   Corrected UI layout issues on multiple screens by implementing  and adjusting  to prevent content from being obscured by the device's status bar/notch.
-    -   Solved keyboard overlay issues using .
+-   **Shared Data Architecture:** Implemented a  to enable real-time data flow between Caregivers and Family members for tasks, requests, and incidents.
+-   **Data-Driven UI:** Refactored the Family Care Timeline, Incident Reports, and Caregiver request list to consume data from the new  instead of static mock data.
+-   **New Feature Integration (from PRD):**
+    *   Added UI for Caregiver Clock In/Out and a Client Selector modal.
+    *   Added UI for Family Performance Score, Daily Summary, Weekly Report, and Care Plan visibility.
+-   **Family Dashboard Features & Fixes:**
+    *   Implemented a complete My Requests flow, including a new request modal and empty state.
+    *   Implemented the Family Incident Reports feature, showing reports from caregivers.
+    *   Fixed numerous UI bugs including missing badges, incorrect layouts, input field styling on focus, and converted the calendar FAB to an AI Copilot FAB.
+-   **PRD Update:** The user provided a complete product vision, which was formalized and saved as .
 
 **Earlier issues found/mentioned but not fixed**
--   None. All user-reported issues from this session were addressed. The major outstanding item is the planned refactoring of the monolithic file.
+-   The critical technical debt of the monolithic  file remains. The file's size and complexity make development increasingly difficult and error-prone.
 
 **Known issue recurrence from previous fork**
--   **Hoisting Errors:** Due to the single-file architecture,  variables (like  objects) being used before their definition is a recurring problem. This happened twice in this session (, ) and was the cause of code error messages in Expo Snack. The fix is always to move the definition *before* the component that uses it.
+-   **Hoisting Errors:** Due to the single-file architecture,  variables (like  objects) being used before their definition is a constant risk. With the file now exceeding 9600 lines, this is more likely than ever.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
 -   **Framework:** Expo (React Native)
--   **Styling:**  API (with a recurring hoisting issue pattern).
+-   **Architecture:** Monolithic single-file development.
+-   **State Management:** React  and  (, , and the new ).
 -   **Navigation:** React Navigation (, , ).
--   **State Management:** React ,  (, ).
--   **Dependencies:**  for camera/library access.
--   **UI:**  for handling device notches,  for keyboard management.
--   **Development Method:** Monolithic single-file development driven by user-provided screenshots for high-fidelity replication.
+-   **Styling:**  API.
 
 **key DB schema**
--   N/A. The mobile app exclusively uses mock data for all UI elements.
+-   N/A. The mobile app exclusively uses mock data managed within React Context.
 
 **changes in tech stack**
--   No new libraries were added, but React Context (, ) was introduced to manage application-wide state for authentication and sign-out functionality.
+-    was introduced using React Context to manage application-wide shared state, a significant architectural shift from using purely local component state and static mock data.
 
 **All files of reference**
--   : The only file that should be modified.
+-   : The only file that should be modified for the mobile app.
+-   : The source of truth for all new feature requirements.
 
 **Areas that need refactoring**:
--   The entire  file is a massive technical debt. It MUST be refactored into a scalable, modular folder structure (screens, components, navigation, etc.) after the user approves the core functionality of Phase 2 and 3. The current approach is unsustainable and prone to errors like hoisting.
+-   The entire  file is unsustainable and represents a massive technical debt. It MUST be broken down into a modular folder structure (screens, components, navigation, etc.) as soon as the user gives a green light for a stabilization/refactoring phase.
 
 **key api endpoints**
--   : To be used in the future for integrating the AI Assistant.
+-   : Planned for future integration of the AI Assistant.
 
 **Critical Info for New Agent**
--   **Workflow is King:** The user's trust is built on the established workflow: **obtain screenshots, build an exact replica, present for verification, and repeat.** Do not deviate.
--   **Beware the Monolith:** The single-file structure is the source of recurring bugs, specifically **hoisting errors**. If the app fails with a generic code error in Expo Snack, the most likely cause is a  or other  being defined *after* the component that uses it. Check the order of definitions first.
--   **User is the QA:** The user provides specific, actionable feedback. Implement their requests precisely. They are the source of truth for all UI and functionality.
+-   **TOP PRIORITY:** The user's immediate request is a UI refactor. You must move the Clock In/Out and Client Selector components from the  to the . Do not proceed with any other task until this is done.
+-   **The PRD is the new Bible:** All new development must follow the requirements outlined in . The project scope has significantly expanded beyond simple screenshot replication.
+-   **The Monolith is Dangerous:** The app is one giant file. Be extremely careful. Define all styles and constants *before* the components that use them to avoid hoisting errors. Use the search tool to navigate the file.
+-   **SharedDataContext is Key:** Understand the . All new features involving data shared between Caregivers and Family Members must use this context.
 
 **documents and test reports created in this job**
 -    (overwritten multiple times)
+-    (created and updated)
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **PENDING (Implied):** User wants the Family Home Screen updated to show a care timeline feed with a detail modal.
-2.  **COMPLETED:** User asked to fix alignment on Messages and Shift History pages due to excessive top spacing.
-3.  **COMPLETED:** User reported a syntax error (This is what it shows pls fix) which was caused by an extra .
-4.  **COMPLETED:** User reported a code error, which was caused by a hoisting issue with .
-5.  **COMPLETED:** User requested to convert the calendar FAB into the AI Copilot button and delete the separate AI FAB.
-6.  **COMPLETED:** User requested the full Menu, Profile, Settings, and Support screens be built.
-7.  **COMPLETED:** User requested the full Shifts feature be built.
-8.  **COMPLETED:** User requested the full Messages feature be built.
-9.  **COMPLETED:** User requested multi-photo camera capture for Incident Reports.
-10. **COMPLETED:** User reported the keyboard was covering buttons on the Incident Report form.
+1.  **PENDING:** User wants to move the Clock In/Out and Client Switch tabs from the caregiver dashboard to the Shifts tab, revert the dashboard to its old look, and delete the current content of the Shifts tab.
+2.  **COMPLETED:** User provided a comprehensive Product Vision and PRD, asking the agent to create a formal PRD and a technical architecture document.
+3.  **COMPLETED:** User asked the agent to integrate all three phases from the new vision into the existing mobile app.
+4.  **COMPLETED:** User requested a significant architectural change: make all data dynamic and shared between Caregiver and Family dashboards instead of using AI-generated images and mock data.
+5.  **COMPLETED:** User requested fixes: make Care Timeline the default tab on the Family dashboard, add a green border to focused inputs in the request modal, and improve the No requests yet UI.
+6.  **COMPLETED:** User requested fixes: remove the notification badge from the Family Requests tab, change the calendar FAB to an AI Copilot, and revert the No Request Yet design to a previous version.
+7.  **COMPLETED:** User provided screenshots and requested the implementation of the Family Member Requests feature.
+8.  **COMPLETED:** User provided screenshots of UI bugs (styling on Open badge, image grid layout) and requested fixes.
+9.  **COMPLETED:** User provided screenshots and requested the implementation of the Family Incident Reports feature, where family members can view incidents reported by caregivers.
+10. **COMPLETED:** User requested the agent to continue implementing the Care Timeline on the Family Dashboard based on previously provided screenshots.
 
 **Project Health Check:**
--   **Broken:** The project is functionally incomplete. The Family Dashboard needs finishing, and Phase 3 (Agency Dashboard) has not been started.
--   **Mocked:** All application data, authentication, and API calls are currently mocked within the frontend code.
+-   **Broken:** The project is functionally incomplete against the new PRD. Phase 3 (Agency Dashboard) and other web dashboards have not been started.
+-   **Mocked:** All application data, authentication, and API calls are currently mocked within the frontend code's React Context.
 
 **3rd Party Integrations**
 -   **Gemini API:** Planned for the future to power the AI Copilot. Will use the **Emergent LLM Key**.
@@ -146,4 +157,4 @@ A single, massive Expo (React Native) application file located at . The file now
 -   N/A (Authentication is mocked; signing up with any mock credential works).
 
 **What agent forgot to execute**
--   The agent did not forget to execute any direct user requests. However, the recurring nature of hoisting errors indicates a lack of anticipation of this specific problem pattern, even though it was fixed each time it occurred. The next agent should be proactive in checking for this.</analysis>
+-   The agent has not yet executed the user's most recent and highest-priority request: to refactor the UI by moving the Clock In/Out and Client Selector components.</analysis>
