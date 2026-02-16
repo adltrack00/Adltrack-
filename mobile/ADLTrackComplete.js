@@ -6850,6 +6850,25 @@ const familyStyles = StyleSheet.create({
   
   // Calendar FAB
   calendarFab: { position: 'absolute', bottom: 20, right: 20, width: 56, height: 56, borderRadius: 16, backgroundColor: COLORS.cardBorder, alignItems: 'center', justifyContent: 'center' },
+  
+  // Caregiver Profile Styles (for Family Members)
+  caregiverProfileAvatar: { width: 120, height: 120, borderRadius: 60, borderWidth: 4, borderColor: COLORS.primary },
+  caregiverProfileName: { fontSize: 26, fontWeight: 'bold', color: COLORS.white, textAlign: 'center', marginTop: 16 },
+  caregiverProfileRole: { fontSize: 16, color: COLORS.textSecondary, textAlign: 'center', marginTop: 4 },
+  caregiverStatsRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 20, paddingHorizontal: 20 },
+  caregiverStatItem: { alignItems: 'center', paddingHorizontal: 20 },
+  caregiverStatIconBg: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
+  caregiverStatValue: { fontSize: 22, fontWeight: 'bold', color: COLORS.white },
+  caregiverStatLabel: { fontSize: 13, color: COLORS.textSecondary, marginTop: 4 },
+  caregiverSection: { backgroundColor: COLORS.card, borderRadius: 20, marginHorizontal: 16, marginTop: 20, padding: 20 },
+  caregiverSectionTitle: { fontSize: 16, fontWeight: '600', color: COLORS.white, marginBottom: 12 },
+  certificationsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  certificationBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(37, 211, 102, 0.15)', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
+  certificationText: { fontSize: 14, color: COLORS.primary, marginLeft: 6, fontWeight: '500' },
+  caregiverContactRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  caregiverContactText: { fontSize: 16, color: COLORS.white, marginLeft: 12 },
+  contactCaregiverBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary, borderRadius: 16, marginHorizontal: 16, marginTop: 20, paddingVertical: 16 },
+  contactCaregiverBtnText: { fontSize: 18, fontWeight: '600', color: COLORS.white, marginLeft: 10 },
 });
 
 // ============================================
