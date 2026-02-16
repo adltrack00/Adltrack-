@@ -5922,10 +5922,118 @@ const menuStyles = StyleSheet.create({
 // MENU SCREEN
 // ============================================
 const MenuScreen = () => {
+  const sharedData = React.useContext(SharedDataContext);
   const [currentView, setCurrentView] = useState('menu');
   const [pushNotifications, setPushNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(true);
+  const [showMedications, setShowMedications] = useState(false);
   const signOut = React.useContext(SignOutContext);
+
+  // Medication Screen
+  if (showMedications) {
+    const medications = sharedData?.carePlan?.medications || [];
+    const givenToday = sharedData?.medicationLogs?.length || 0;
+    
+    const handleGiveMedication = (med) => {
+      if (sharedData) {
+        sharedData.addMedicationLog({
+          name: med.name,
+          dosage: med.dosage,
+          scheduledTime: med.time,
+          status: 'administered',
+          notes: '',
+        });
+      }
+      Alert.alert('Medication Logged', `${med.name} has been logged as administered.`);
+    };
+    
+    return (
+      <SafeAreaView style={newFeatureStyles.medContainer}>
+        <ScrollView contentContainerStyle={newFeatureStyles.medScrollContent}>
+          {/* Back Button */}
+          <TouchableOpacity style={familyStyles.detailBackBtn} onPress={() => setShowMedications(false)}>
+            <Ionicons name="chevron-back" size={24} color={COLORS.textSecondary} />
+            <Text style={familyStyles.detailBackText}>Back</Text>
+          </TouchableOpacity>
+          
+          {/* Header */}
+          <View style={newFeatureStyles.medHeader}>
+            <Text style={newFeatureStyles.medTitle}>Medications</Text>
+            <Text style={newFeatureStyles.medSubtitle}>For {PATIENT.name}</Text>
+          </View>
+          
+          {/* Summary Card */}
+          <View style={newFeatureStyles.medSummaryCard}>
+            <View style={newFeatureStyles.medSummaryRow}>
+              <View style={newFeatureStyles.medSummaryStat}>
+                <Text style={newFeatureStyles.medSummaryValue}>{medications.length}</Text>
+                <Text style={newFeatureStyles.medSummaryLabel}>Total Meds</Text>
+              </View>
+              <View style={newFeatureStyles.medSummaryStat}>
+                <Text style={newFeatureStyles.medSummaryValueGreen}>{givenToday}</Text>
+                <Text style={newFeatureStyles.medSummaryLabel}>Given Today</Text>
+              </View>
+              <View style={newFeatureStyles.medSummaryStat}>
+                <Text style={newFeatureStyles.medSummaryValue}>{medications.length - givenToday}</Text>
+                <Text style={newFeatureStyles.medSummaryLabel}>Remaining</Text>
+              </View>
+            </View>
+          </View>
+          
+          {/* Medication Schedule Header */}
+          <View style={newFeatureStyles.medScheduleHeader}>
+            <Ionicons name="medical" size={20} color={COLORS.primary} />
+            <Text style={newFeatureStyles.medScheduleTitle}>Today's Schedule</Text>
+          </View>
+          
+          {/* Medication Cards */}
+          {medications.map((med, idx) => {
+            const isGiven = sharedData?.medicationLogs?.some(log => log.medicationName === med.name);
+            
+            return (
+              <View key={idx} style={newFeatureStyles.medCard}>
+                <View style={newFeatureStyles.medCardHeader}>
+                  <View style={newFeatureStyles.medCardLeft}>
+                    <View style={newFeatureStyles.medIconBg}>
+                      <Ionicons name="medical" size={24} color="#3b82f6" />
+                    </View>
+                    <View style={newFeatureStyles.medCardInfo}>
+                      <Text style={newFeatureStyles.medCardName}>{med.name}</Text>
+                      <Text style={newFeatureStyles.medCardDosage}>{med.dosage} - {med.frequency}</Text>
+                      <View style={newFeatureStyles.medCardTime}>
+                        <Ionicons name="time-outline" size={14} color={COLORS.textMuted} />
+                        <Text style={newFeatureStyles.medCardTimeText}>{med.time}</Text>
+                      </View>
+                    </View>
+                  </View>
+                  <View style={[
+                    newFeatureStyles.medCardStatus,
+                    isGiven ? newFeatureStyles.medStatusGiven : newFeatureStyles.medStatusPending
+                  ]}>
+                    <Text style={[
+                      newFeatureStyles.medStatusText,
+                      { color: isGiven ? '#22c55e' : '#eab308' }
+                    ]}>
+                      {isGiven ? 'Given' : 'Pending'}
+                    </Text>
+                  </View>
+                </View>
+                
+                {!isGiven && (
+                  <TouchableOpacity 
+                    style={newFeatureStyles.medGiveBtn}
+                    onPress={() => handleGiveMedication(med)}
+                  >
+                    <Text style={newFeatureStyles.medGiveBtnText}>Mark as Administered</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            );
+          })}
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   // Custom Toggle Component
   const Toggle = ({ value, onToggle }) => (
