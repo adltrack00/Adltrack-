@@ -3386,66 +3386,6 @@ What would you like to know more about?`;
           </TouchableOpacity>
         </View>
 
-        {/* Clock In/Out Card */}
-        <View style={newFeatureStyles.clockCard}>
-          <View style={newFeatureStyles.clockHeader}>
-            <Text style={newFeatureStyles.clockTitle}>Shift Status</Text>
-            <View style={newFeatureStyles.clockStatus}>
-              <View style={[newFeatureStyles.clockStatusDot, { backgroundColor: sharedData?.shiftData?.isClockedIn ? COLORS.primary : '#ef4444' }]} />
-              <Text style={newFeatureStyles.clockStatusText}>
-                {sharedData?.shiftData?.isClockedIn ? 'On Shift' : 'Off Shift'}
-              </Text>
-            </View>
-          </View>
-          <View style={newFeatureStyles.clockTimeRow}>
-            <View style={newFeatureStyles.clockTimeItem}>
-              <Text style={newFeatureStyles.clockTimeLabel}>Clock In</Text>
-              <Text style={newFeatureStyles.clockTimeValue}>{sharedData?.shiftData?.clockInTime || '--:--'}</Text>
-            </View>
-            <View style={newFeatureStyles.clockTimeItem}>
-              <Text style={newFeatureStyles.clockTimeLabel}>Clock Out</Text>
-              <Text style={newFeatureStyles.clockTimeValue}>{sharedData?.shiftData?.clockOutTime || '--:--'}</Text>
-            </View>
-            <View style={newFeatureStyles.clockTimeItem}>
-              <Text style={newFeatureStyles.clockTimeLabel}>Weekly Hours</Text>
-              <Text style={newFeatureStyles.clockTimeValue}>{sharedData?.shiftData?.weeklyHours || 0}h</Text>
-            </View>
-          </View>
-          <TouchableOpacity 
-            style={[newFeatureStyles.clockBtn, sharedData?.shiftData?.isClockedIn ? newFeatureStyles.clockBtnOut : newFeatureStyles.clockBtnIn]}
-            onPress={() => {
-              if (sharedData?.shiftData?.isClockedIn) {
-                sharedData.clockOut();
-                Alert.alert('Clocked Out', 'You have successfully clocked out.');
-              } else {
-                sharedData.clockIn({ lat: 40.7128, lng: -74.0060 });
-                Alert.alert('Clocked In', 'You have successfully clocked in. GPS location verified.');
-              }
-            }}
-          >
-            <Text style={newFeatureStyles.clockBtnText}>
-              {sharedData?.shiftData?.isClockedIn ? 'Clock Out' : 'Clock In'}
-            </Text>
-          </TouchableOpacity>
-          <View style={newFeatureStyles.clockGpsRow}>
-            <Ionicons name="location" size={16} color={COLORS.primary} />
-            <Text style={newFeatureStyles.clockGpsText}>GPS verification enabled</Text>
-          </View>
-        </View>
-
-        {/* Client Selector */}
-        <TouchableOpacity style={newFeatureStyles.clientSelector} onPress={() => setShowClientList(true)}>
-          <View style={newFeatureStyles.clientSelectorHeader}>
-            <View>
-              <Text style={newFeatureStyles.clientSelectorTitle}>ACTIVE CLIENT</Text>
-              <Text style={newFeatureStyles.clientSelectorName}>{sharedData?.clients?.find(c => c.id === sharedData?.activeClientId)?.name || PATIENT.name}</Text>
-            </View>
-            <View style={newFeatureStyles.clientSelectorChevron}>
-              <Ionicons name="chevron-down" size={24} color={COLORS.textSecondary} />
-            </View>
-          </View>
-        </TouchableOpacity>
-
         {/* Viewing History Banner */}
         {viewingHistory && (
           <View style={styles.historyBanner}>
