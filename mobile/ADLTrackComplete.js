@@ -7792,6 +7792,18 @@ const FamilyAlertsScreen = () => {
 const FamilyMenuScreen = ({ onSignOut }) => {
   const [currentView, setCurrentView] = useState('menu');
   const [showPatientProfile, setShowPatientProfile] = useState(false);
+  const [showCarePlan, setShowCarePlan] = useState(false);
+  const [showWeeklyReport, setShowWeeklyReport] = useState(false);
+
+  // Care Plan View
+  if (showCarePlan) {
+    return <FamilyCarePlanScreen onBack={() => setShowCarePlan(false)} />;
+  }
+  
+  // Weekly Report View
+  if (showWeeklyReport) {
+    return <FamilyWeeklyReportScreen onBack={() => setShowWeeklyReport(false)} />;
+  }
 
   // Profile View
   if (currentView === 'profile') {
