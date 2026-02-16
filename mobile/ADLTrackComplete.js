@@ -714,7 +714,139 @@ const SharedDataProvider = ({ children }) => {
   // Shared Incidents (created by caregivers, viewed by family)
   const [sharedIncidents, setSharedIncidents] = useState([]);
   
-  // Add a completed task (called by caregiver when completing a task)
+  // Medication Logs (separate from tasks for compliance tracking)
+  const [medicationLogs, setMedicationLogs] = useState([]);
+  
+  // Shift/Clock Data
+  const [shiftData, setShiftData] = useState({
+    isClockedIn: false,
+    clockInTime: null,
+    clockOutTime: null,
+    location: null,
+    totalHoursToday: 0,
+    weeklyHours: 32.5,
+  });
+  
+  // Caregiver Performance Metrics
+  const [performanceMetrics, setPerformanceMetrics] = useState({
+    taskCompletionRate: 94,
+    onTimeRate: 98,
+    medicationAccuracy: 100,
+    incidentFrequency: 0.5,
+    familyRating: 4.8,
+    monthlyScore: 96,
+    punctualityScore: 97,
+  });
+  
+  // Care Plan
+  const [carePlan, setCarePlan] = useState({
+    id: 1,
+    clientName: 'David Smith',
+    startDate: 'Jan 15, 2026',
+    reviewDate: 'Apr 15, 2026',
+    primaryGoals: [
+      'Maintain independence in daily activities',
+      'Manage chronic conditions effectively',
+      'Prevent falls and injuries',
+      'Ensure medication compliance',
+    ],
+    adlSchedule: [
+      { time: '7:00 AM', task: 'Morning Medication', type: 'medication', required: true },
+      { time: '7:30 AM', task: 'Breakfast Assistance', type: 'adl', required: true },
+      { time: '8:30 AM', task: 'Personal Hygiene', type: 'adl', required: true },
+      { time: '10:00 AM', task: 'Physical Therapy Exercises', type: 'exercise', required: true },
+      { time: '12:00 PM', task: 'Lunch & Midday Medication', type: 'medication', required: true },
+      { time: '2:00 PM', task: 'Vital Signs Check', type: 'vitals', required: true },
+      { time: '3:00 PM', task: 'Afternoon Activity', type: 'adl', required: false },
+      { time: '5:00 PM', task: 'Dinner Preparation', type: 'adl', required: true },
+      { time: '6:00 PM', task: 'Evening Medication', type: 'medication', required: true },
+      { time: '8:00 PM', task: 'Bedtime Routine', type: 'adl', required: true },
+    ],
+    medications: [
+      { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', time: '7:00 AM', purpose: 'Blood Pressure' },
+      { name: 'Metformin', dosage: '500mg', frequency: 'Twice daily', time: '7:00 AM, 6:00 PM', purpose: 'Diabetes' },
+      { name: 'Aspirin', dosage: '81mg', frequency: 'Once daily', time: '7:00 AM', purpose: 'Heart Health' },
+      { name: 'Vitamin D', dosage: '1000 IU', frequency: 'Once daily', time: '12:00 PM', purpose: 'Bone Health' },
+    ],
+    restrictions: [
+      'Low sodium diet',
+      'No grapefruit (medication interaction)',
+      'Limited sugar intake',
+    ],
+    emergencyProtocol: 'Call 911 for chest pain, difficulty breathing, or falls with injury. Notify family immediately.',
+  });
+  
+  // Multiple Clients (for caregiver)
+  const [clients, setClients] = useState([
+    { 
+      id: 1, 
+      name: 'David Smith', 
+      age: 78, 
+      condition: 'Diabetes, Hypertension',
+      address: '123 Oak Street',
+      active: true,
+      riskLevel: 'moderate',
+      tasksToday: 8,
+      tasksCompleted: 3,
+    },
+    { 
+      id: 2, 
+      name: 'Margaret Johnson', 
+      age: 82, 
+      condition: 'Alzheimer\'s, Mobility Issues',
+      address: '456 Maple Avenue',
+      active: false,
+      riskLevel: 'high',
+      tasksToday: 10,
+      tasksCompleted: 0,
+    },
+    { 
+      id: 3, 
+      name: 'Robert Williams', 
+      age: 71, 
+      condition: 'Post-stroke Recovery',
+      address: '789 Pine Road',
+      active: false,
+      riskLevel: 'low',
+      tasksToday: 6,
+      tasksCompleted: 0,
+    },
+  ]);
+  
+  const [activeClientId, setActiveClientId] = useState(1);
+  
+  // Daily Summary Data
+  const [dailySummary, setDailySummary] = useState({
+    date: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+    tasksCompleted: 0,
+    totalTasks: 12,
+    medicationsGiven: 0,
+    totalMedications: 4,
+    vitalsRecorded: 0,
+    incidentsReported: 0,
+    caregiverArrival: null,
+    caregiverDeparture: null,
+    highlights: [],
+    concerns: [],
+  });
+  
+  // Weekly Report Data
+  const [weeklyReport, setWeeklyReport] = useState({
+    weekOf: 'Dec 9 - Dec 15, 2025',
+    overallCompliance: 94,
+    taskCompletion: { completed: 78, total: 84 },
+    medicationAdherence: { onTime: 26, total: 28 },
+    vitalsRecorded: 14,
+    incidents: 1,
+    missedTasks: ['Physical Therapy - Dec 11', 'Afternoon Activity - Dec 13'],
+    performanceTrend: 'improving',
+    caregiverNotes: 'Patient showing good progress with mobility exercises.',
+  });
+  
+  // Emergency Alerts
+  const [emergencyAlerts, setEmergencyAlerts] = useState([]);
+  
+  // Add a completed task
   const addCompletedTask = (task) => {
     const now = new Date();
     const hours = now.getHours();
@@ -729,8 +861,13 @@ const SharedDataProvider = ({ children }) => {
       description: task.description || '',
       note: task.note || '',
       completedAt: timeStr,
+      completedTimestamp: now.toISOString(),
       image: task.image || null,
       photos: task.photos || [],
+      video: task.video || null,
+      audio: task.audio || null,
+      gpsLocation: task.gpsLocation || null,
+      gpsVerified: task.gpsVerified || false,
       caregiver: {
         name: 'Julia Martinez',
         role: 'Certified Nursing Assistant',
@@ -740,10 +877,95 @@ const SharedDataProvider = ({ children }) => {
     };
     
     setSharedTasks(prev => [newTask, ...prev]);
+    
+    // Update daily summary
+    setDailySummary(prev => ({
+      ...prev,
+      tasksCompleted: prev.tasksCompleted + 1,
+      highlights: [...prev.highlights, `${task.title} completed at ${timeStr}`],
+    }));
+    
     return newTask;
   };
   
-  // Add a family request (called by family member)
+  // Add medication log
+  const addMedicationLog = (medication) => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const hour12 = hours % 12 || 12;
+    const timeStr = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+    
+    const newLog = {
+      id: Date.now(),
+      medicationName: medication.name,
+      dosage: medication.dosage,
+      scheduledTime: medication.scheduledTime,
+      actualTime: timeStr,
+      status: medication.status || 'administered',
+      notes: medication.notes || '',
+      photo: medication.photo || null,
+      gpsVerified: medication.gpsVerified || false,
+      caregiver: 'Julia Martinez',
+    };
+    
+    setMedicationLogs(prev => [newLog, ...prev]);
+    
+    // Update daily summary
+    setDailySummary(prev => ({
+      ...prev,
+      medicationsGiven: prev.medicationsGiven + 1,
+    }));
+    
+    return newLog;
+  };
+  
+  // Clock In/Out
+  const clockIn = (location) => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const hour12 = hours % 12 || 12;
+    const timeStr = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+    
+    setShiftData(prev => ({
+      ...prev,
+      isClockedIn: true,
+      clockInTime: timeStr,
+      clockInTimestamp: now.toISOString(),
+      location: location,
+    }));
+    
+    setDailySummary(prev => ({
+      ...prev,
+      caregiverArrival: timeStr,
+    }));
+  };
+  
+  const clockOut = () => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const hour12 = hours % 12 || 12;
+    const timeStr = `${hour12}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+    
+    setShiftData(prev => ({
+      ...prev,
+      isClockedIn: false,
+      clockOutTime: timeStr,
+      clockOutTimestamp: now.toISOString(),
+    }));
+    
+    setDailySummary(prev => ({
+      ...prev,
+      caregiverDeparture: timeStr,
+    }));
+  };
+  
+  // Add a family request
   const addFamilyRequest = (request) => {
     const now = new Date();
     const hours = now.getHours();
@@ -771,7 +993,7 @@ const SharedDataProvider = ({ children }) => {
     return newRequest;
   };
   
-  // Update request status (called by caregiver)
+  // Update request status
   const updateRequestStatus = (requestId, status, reason = null) => {
     setSharedRequests(prev => prev.map(req => 
       req.id === requestId 
@@ -785,7 +1007,7 @@ const SharedDataProvider = ({ children }) => {
     ));
   };
   
-  // Add an incident report (called by caregiver)
+  // Add an incident report
   const addIncidentReport = (incident) => {
     const now = new Date();
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -808,6 +1030,7 @@ const SharedDataProvider = ({ children }) => {
       actionsTaken: incident.actionsTaken || '',
       dateTime: dateTimeStr,
       photos: incident.photos || [],
+      video: incident.video || null,
       reporter: {
         name: 'Julia Martinez',
         role: 'Certified Nursing Assistant',
@@ -817,17 +1040,97 @@ const SharedDataProvider = ({ children }) => {
     };
     
     setSharedIncidents(prev => [newIncident, ...prev]);
+    
+    // Update daily summary
+    setDailySummary(prev => ({
+      ...prev,
+      incidentsReported: prev.incidentsReported + 1,
+      concerns: [...prev.concerns, `${incident.type} incident reported`],
+    }));
+    
+    // Create emergency alert if critical
+    if (incident.severity === 'critical') {
+      addEmergencyAlert({
+        type: 'incident',
+        title: `Critical Incident: ${incident.title}`,
+        message: incident.description,
+      });
+    }
+    
     return newIncident;
   };
   
-  // Get pending requests count (for caregiver badge)
-  const getPendingRequestsCount = () => {
-    return sharedRequests.filter(r => r.status === 'pending').length;
+  // Add emergency alert
+  const addEmergencyAlert = (alert) => {
+    const newAlert = {
+      id: Date.now(),
+      ...alert,
+      timestamp: new Date().toISOString(),
+      acknowledged: false,
+    };
+    setEmergencyAlerts(prev => [newAlert, ...prev]);
   };
   
-  // Get open incidents count (for family badge)
-  const getOpenIncidentsCount = () => {
-    return sharedIncidents.filter(i => i.status === 'open').length;
+  // Acknowledge emergency alert
+  const acknowledgeAlert = (alertId) => {
+    setEmergencyAlerts(prev => prev.map(alert =>
+      alert.id === alertId ? { ...alert, acknowledged: true } : alert
+    ));
+  };
+  
+  // Get counts
+  const getPendingRequestsCount = () => sharedRequests.filter(r => r.status === 'pending').length;
+  const getOpenIncidentsCount = () => sharedIncidents.filter(i => i.status === 'open').length;
+  const getUnacknowledgedAlertsCount = () => emergencyAlerts.filter(a => !a.acknowledged).length;
+  
+  // Get missed tasks (tasks that should have been done by now)
+  const getMissedTasks = () => {
+    const now = new Date();
+    const currentHour = now.getHours();
+    return carePlan.adlSchedule.filter(task => {
+      const taskHour = parseInt(task.time.split(':')[0]);
+      const isPM = task.time.includes('PM');
+      const taskHour24 = isPM && taskHour !== 12 ? taskHour + 12 : taskHour;
+      return taskHour24 < currentHour && task.required;
+    });
+  };
+  
+  return (
+    <SharedDataContext.Provider value={{
+      // Data
+      sharedTasks,
+      sharedRequests,
+      sharedIncidents,
+      medicationLogs,
+      shiftData,
+      performanceMetrics,
+      carePlan,
+      clients,
+      activeClientId,
+      dailySummary,
+      weeklyReport,
+      emergencyAlerts,
+      // Actions
+      addCompletedTask,
+      addMedicationLog,
+      clockIn,
+      clockOut,
+      addFamilyRequest,
+      updateRequestStatus,
+      addIncidentReport,
+      addEmergencyAlert,
+      acknowledgeAlert,
+      setActiveClientId,
+      // Getters
+      getPendingRequestsCount,
+      getOpenIncidentsCount,
+      getUnacknowledgedAlertsCount,
+      getMissedTasks,
+    }}>
+      {children}
+    </SharedDataContext.Provider>
+  );
+};
   };
   
   return (
