@@ -7783,10 +7783,160 @@ const FamilyAlertsScreen = () => {
 // FAMILY MENU SCREEN
 // ============================================
 const FamilyMenuScreen = ({ onSignOut }) => {
+  const sharedData = React.useContext(SharedDataContext);
   const [currentView, setCurrentView] = useState('menu');
   const [showPatientProfile, setShowPatientProfile] = useState(false);
   const [showCarePlan, setShowCarePlan] = useState(false);
   const [showWeeklyReport, setShowWeeklyReport] = useState(false);
+  const [showCurrentCaregiver, setShowCurrentCaregiver] = useState(false);
+
+  // Get daily summary data for caregiver profile
+  const completedTasksCount = sharedData?.sharedTasks?.length || 0;
+  const totalTasks = 12;
+
+  // Current Caregiver Profile View
+  if (showCurrentCaregiver) {
+    return (
+      <SafeAreaView style={familyStyles.container}>
+        {/* Header */}
+        <View style={familyStyles.header}>
+          <View style={familyStyles.headerRow}>
+            <TouchableOpacity style={familyStyles.backBtn} onPress={() => setShowCurrentCaregiver(false)}>
+              <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+            </TouchableOpacity>
+            <Text style={familyStyles.headerTitle}>Current Caregiver</Text>
+          </View>
+        </View>
+
+        <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
+          {/* Caregiver Profile Header */}
+          <View style={{ alignItems: 'center', marginTop: 20, marginBottom: 16 }}>
+            <Image source={{ uri: CAREGIVER_PROFILE.avatar }} style={familyStyles.caregiverProfileAvatar} />
+            <Text style={familyStyles.caregiverProfileName}>{CAREGIVER_PROFILE.name}</Text>
+            <Text style={familyStyles.caregiverProfileRole}>{CAREGIVER_PROFILE.role}</Text>
+            
+            {/* Stats Row */}
+            <View style={familyStyles.caregiverStatsRow}>
+              <View style={familyStyles.caregiverStatItem}>
+                <View style={familyStyles.caregiverStatIconBg}>
+                  <Ionicons name="star" size={18} color="#f59e0b" />
+                </View>
+                <Text style={familyStyles.caregiverStatValue}>{CAREGIVER_PROFILE.rating}</Text>
+                <Text style={familyStyles.caregiverStatLabel}>Rating</Text>
+              </View>
+              <View style={familyStyles.caregiverStatItem}>
+                <View style={familyStyles.caregiverStatIconBg}>
+                  <Ionicons name="time-outline" size={18} color={COLORS.primary} />
+                </View>
+                <Text style={familyStyles.caregiverStatValue}>{CAREGIVER_PROFILE.years}</Text>
+                <Text style={familyStyles.caregiverStatLabel}>Years</Text>
+              </View>
+              <View style={familyStyles.caregiverStatItem}>
+                <View style={familyStyles.caregiverStatIconBg}>
+                  <Ionicons name="calendar-outline" size={18} color="#3b82f6" />
+                </View>
+                <Text style={familyStyles.caregiverStatValue}>{CAREGIVER_PROFILE.shifts}</Text>
+                <Text style={familyStyles.caregiverStatLabel}>Shifts</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Certifications */}
+          <View style={familyStyles.caregiverSection}>
+            <Text style={familyStyles.caregiverSectionTitle}>Certifications</Text>
+            <View style={familyStyles.certificationsRow}>
+              {CAREGIVER_PROFILE.certifications.map((cert, idx) => (
+                <View key={idx} style={familyStyles.certificationBadge}>
+                  <Ionicons name="shield-checkmark" size={14} color={COLORS.primary} />
+                  <Text style={familyStyles.certificationText}>{cert}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          {/* Contact Information */}
+          <View style={familyStyles.caregiverSection}>
+            <Text style={familyStyles.caregiverSectionTitle}>Contact Information</Text>
+            <View style={familyStyles.caregiverContactRow}>
+              <Ionicons name="mail-outline" size={20} color={COLORS.textSecondary} />
+              <Text style={familyStyles.caregiverContactText}>{CAREGIVER_PROFILE.email}</Text>
+            </View>
+            <View style={familyStyles.caregiverContactRow}>
+              <Ionicons name="call-outline" size={20} color={COLORS.textSecondary} />
+              <Text style={familyStyles.caregiverContactText}>{CAREGIVER_PROFILE.phone}</Text>
+            </View>
+          </View>
+
+          {/* Performance Card */}
+          <View style={[newFeatureStyles.perfCard, { marginTop: 16 }]}>
+            <View style={newFeatureStyles.perfHeader}>
+              <Text style={newFeatureStyles.perfTitle}>Caregiver Performance</Text>
+              <View style={newFeatureStyles.perfScoreBadge}>
+                <Ionicons name="star" size={18} color={COLORS.primary} />
+                <Text style={newFeatureStyles.perfScoreText}>{sharedData?.performanceMetrics?.monthlyScore || 96}%</Text>
+              </View>
+            </View>
+            <View style={newFeatureStyles.perfMetricsRow}>
+              <View style={newFeatureStyles.perfMetric}>
+                <Text style={newFeatureStyles.perfMetricValue}>{sharedData?.performanceMetrics?.taskCompletionRate || 94}%</Text>
+                <Text style={newFeatureStyles.perfMetricLabel}>Tasks{'\n'}Completed</Text>
+              </View>
+              <View style={newFeatureStyles.perfDivider} />
+              <View style={newFeatureStyles.perfMetric}>
+                <Text style={newFeatureStyles.perfMetricValue}>{sharedData?.performanceMetrics?.onTimeRate || 98}%</Text>
+                <Text style={newFeatureStyles.perfMetricLabel}>On-Time{'\n'}Rate</Text>
+              </View>
+              <View style={newFeatureStyles.perfDivider} />
+              <View style={newFeatureStyles.perfMetric}>
+                <Text style={newFeatureStyles.perfMetricValue}>{sharedData?.performanceMetrics?.familyRating || 4.8}</Text>
+                <Text style={newFeatureStyles.perfMetricLabel}>Family{'\n'}Rating</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Today's Summary Card */}
+          <View style={[newFeatureStyles.summaryCard, { marginTop: 16 }]}>
+            <View style={newFeatureStyles.summaryHeader}>
+              <Text style={newFeatureStyles.summaryTitle}>Today's Summary</Text>
+              <Text style={newFeatureStyles.summaryDate}>{sharedData?.dailySummary?.date || new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</Text>
+            </View>
+            <View style={newFeatureStyles.summaryGrid}>
+              <View style={newFeatureStyles.summaryGridItem}>
+                <View style={newFeatureStyles.summaryGridCard}>
+                  <Text style={newFeatureStyles.summaryGridValue}>{sharedData?.dailySummary?.tasksCompleted || completedTasksCount}/{sharedData?.dailySummary?.totalTasks || totalTasks}</Text>
+                  <Text style={newFeatureStyles.summaryGridLabel}>Tasks Done</Text>
+                </View>
+              </View>
+              <View style={newFeatureStyles.summaryGridItem}>
+                <View style={newFeatureStyles.summaryGridCard}>
+                  <Text style={newFeatureStyles.summaryGridValue}>{sharedData?.dailySummary?.medicationsGiven || 0}/{sharedData?.dailySummary?.totalMedications || 4}</Text>
+                  <Text style={newFeatureStyles.summaryGridLabel}>Meds Given</Text>
+                </View>
+              </View>
+              <View style={newFeatureStyles.summaryGridItem}>
+                <View style={newFeatureStyles.summaryGridCard}>
+                  <Text style={newFeatureStyles.summaryGridValue}>{sharedData?.dailySummary?.caregiverArrival || '--:--'}</Text>
+                  <Text style={newFeatureStyles.summaryGridLabel}>Arrived At</Text>
+                </View>
+              </View>
+              <View style={newFeatureStyles.summaryGridItem}>
+                <View style={newFeatureStyles.summaryGridCard}>
+                  <Text style={newFeatureStyles.summaryGridValue}>{sharedData?.dailySummary?.incidentsReported || 0}</Text>
+                  <Text style={newFeatureStyles.summaryGridLabel}>Incidents</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Contact Caregiver Button */}
+          <TouchableOpacity style={familyStyles.contactCaregiverBtn}>
+            <Ionicons name="chatbubble-outline" size={20} color={COLORS.white} />
+            <Text style={familyStyles.contactCaregiverBtnText}>Message Caregiver</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   // Care Plan View
   if (showCarePlan) {
