@@ -6064,6 +6064,16 @@ const MenuScreen = () => {
 
         {/* Menu Items */}
         <View style={menuStyles.menuCard}>
+          <TouchableOpacity style={menuStyles.menuItem} onPress={() => setShowMedications(true)}>
+            <View style={[menuStyles.menuIconBg, { backgroundColor: '#3b82f6' }]}>
+              <Ionicons name="medical" size={24} color={COLORS.white} />
+            </View>
+            <Text style={menuStyles.menuText}>Medications</Text>
+            <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={menuStyles.menuCard}>
           <TouchableOpacity style={menuStyles.menuItem}>
             <View style={menuStyles.menuIconBg}>
               <Ionicons name="trending-up" size={24} color={COLORS.white} />
