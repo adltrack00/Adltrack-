@@ -7230,10 +7230,10 @@ const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
         <View style={familyStyles.progressSection}>
           <View style={familyStyles.progressHeader}>
             <Text style={familyStyles.progressTitle}>Today's Progress</Text>
-            <Text style={familyStyles.progressCount}>0/{totalTasks}</Text>
+            <Text style={familyStyles.progressCount}>{completedTasksCount}/{totalTasks}</Text>
           </View>
           <View style={familyStyles.progressBar}>
-            <View style={[familyStyles.progressFill, { width: '0%' }]} />
+            <View style={[familyStyles.progressFill, { width: `${totalTasks > 0 ? (completedTasksCount / totalTasks) * 100 : 0}%` }]} />
           </View>
         </View>
 
