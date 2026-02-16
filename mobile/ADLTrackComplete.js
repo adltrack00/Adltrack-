@@ -3738,64 +3738,6 @@ What would you like to know more about?`;
         onComplete={handleCompleteTask}
         onCantComplete={handleCantCompleteTask}
       />
-      
-      {/* Client List Modal */}
-      <Modal visible={showClientList} animationType="slide" transparent>
-        <View style={newFeatureStyles.clientListModal}>
-          <SafeAreaView style={newFeatureStyles.clientListContent}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <Text style={newFeatureStyles.clientListTitle}>Your Clients</Text>
-              <TouchableOpacity onPress={() => setShowClientList(false)}>
-                <Ionicons name="close" size={28} color={COLORS.white} />
-              </TouchableOpacity>
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {(sharedData?.clients || []).map((client) => (
-                <TouchableOpacity 
-                  key={client.id}
-                  style={[
-                    newFeatureStyles.clientCard,
-                    client.id === sharedData?.activeClientId && newFeatureStyles.clientCardActive
-                  ]}
-                  onPress={() => {
-                    sharedData?.setActiveClientId(client.id);
-                    setShowClientList(false);
-                  }}
-                >
-                  <View style={newFeatureStyles.clientAvatar}>
-                    <Ionicons name="person" size={28} color={COLORS.textSecondary} />
-                  </View>
-                  <View style={newFeatureStyles.clientInfo}>
-                    <Text style={newFeatureStyles.clientName}>{client.name}</Text>
-                    <Text style={newFeatureStyles.clientCondition}>{client.condition}</Text>
-                    <View style={newFeatureStyles.clientTasksRow}>
-                      <Text style={newFeatureStyles.clientTasksText}>
-                        {client.tasksCompleted}/{client.tasksToday} tasks today
-                      </Text>
-                      <View style={[
-                        newFeatureStyles.clientRiskBadge,
-                        client.riskLevel === 'low' && newFeatureStyles.clientRiskLow,
-                        client.riskLevel === 'moderate' && newFeatureStyles.clientRiskModerate,
-                        client.riskLevel === 'high' && newFeatureStyles.clientRiskHigh,
-                      ]}>
-                        <Text style={[
-                          newFeatureStyles.clientRiskText,
-                          { color: client.riskLevel === 'low' ? '#22c55e' : client.riskLevel === 'moderate' ? '#eab308' : '#ef4444' }
-                        ]}>
-                          {client.riskLevel.toUpperCase()}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                  {client.id === sharedData?.activeClientId && (
-                    <Ionicons name="checkmark-circle" size={24} color={COLORS.primary} />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </SafeAreaView>
-        </View>
-      </Modal>
     </View>
   );
 };
