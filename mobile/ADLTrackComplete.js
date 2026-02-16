@@ -7110,6 +7110,78 @@ const FamilyHomeScreen = ({ vitals, onOpenVitals }) => {
   return (
     <SafeAreaView style={familyStyles.container}>
       <ScrollView contentContainerStyle={familyStyles.scrollContent}>
+        {/* Caregiver Performance Score Card */}
+        <View style={newFeatureStyles.perfCard}>
+          <View style={newFeatureStyles.perfHeader}>
+            <Text style={newFeatureStyles.perfTitle}>Caregiver Performance</Text>
+            <View style={newFeatureStyles.perfScoreBadge}>
+              <Ionicons name="star" size={18} color={COLORS.primary} />
+              <Text style={newFeatureStyles.perfScoreText}>{sharedData?.performanceMetrics?.monthlyScore || 96}%</Text>
+            </View>
+          </View>
+          <View style={newFeatureStyles.perfMetricsRow}>
+            <View style={newFeatureStyles.perfMetric}>
+              <Text style={newFeatureStyles.perfMetricValue}>{sharedData?.performanceMetrics?.taskCompletionRate || 94}%</Text>
+              <Text style={newFeatureStyles.perfMetricLabel}>Tasks{'\n'}Completed</Text>
+            </View>
+            <View style={newFeatureStyles.perfDivider} />
+            <View style={newFeatureStyles.perfMetric}>
+              <Text style={newFeatureStyles.perfMetricValue}>{sharedData?.performanceMetrics?.onTimeRate || 98}%</Text>
+              <Text style={newFeatureStyles.perfMetricLabel}>On-Time{'\n'}Rate</Text>
+            </View>
+            <View style={newFeatureStyles.perfDivider} />
+            <View style={newFeatureStyles.perfMetric}>
+              <Text style={newFeatureStyles.perfMetricValue}>{sharedData?.performanceMetrics?.familyRating || 4.8}</Text>
+              <Text style={newFeatureStyles.perfMetricLabel}>Family{'\n'}Rating</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Daily Summary Card */}
+        <View style={newFeatureStyles.summaryCard}>
+          <View style={newFeatureStyles.summaryHeader}>
+            <Text style={newFeatureStyles.summaryTitle}>Today's Summary</Text>
+            <Text style={newFeatureStyles.summaryDate}>{sharedData?.dailySummary?.date || 'Today'}</Text>
+          </View>
+          <View style={newFeatureStyles.summaryGrid}>
+            <View style={newFeatureStyles.summaryGridItem}>
+              <View style={newFeatureStyles.summaryGridCard}>
+                <Text style={newFeatureStyles.summaryGridValue}>{sharedData?.dailySummary?.tasksCompleted || completedTasksCount}/{sharedData?.dailySummary?.totalTasks || totalTasks}</Text>
+                <Text style={newFeatureStyles.summaryGridLabel}>Tasks Done</Text>
+              </View>
+            </View>
+            <View style={newFeatureStyles.summaryGridItem}>
+              <View style={newFeatureStyles.summaryGridCard}>
+                <Text style={newFeatureStyles.summaryGridValue}>{sharedData?.dailySummary?.medicationsGiven || 0}/{sharedData?.dailySummary?.totalMedications || 4}</Text>
+                <Text style={newFeatureStyles.summaryGridLabel}>Meds Given</Text>
+              </View>
+            </View>
+            <View style={newFeatureStyles.summaryGridItem}>
+              <View style={newFeatureStyles.summaryGridCard}>
+                <Text style={newFeatureStyles.summaryGridValue}>{sharedData?.dailySummary?.caregiverArrival || '--:--'}</Text>
+                <Text style={newFeatureStyles.summaryGridLabel}>Arrived At</Text>
+              </View>
+            </View>
+            <View style={newFeatureStyles.summaryGridItem}>
+              <View style={newFeatureStyles.summaryGridCard}>
+                <Text style={newFeatureStyles.summaryGridValue}>{sharedData?.dailySummary?.incidentsReported || 0}</Text>
+                <Text style={newFeatureStyles.summaryGridLabel}>Incidents</Text>
+              </View>
+            </View>
+          </View>
+          {(sharedData?.dailySummary?.highlights?.length > 0) && (
+            <View style={newFeatureStyles.summaryHighlights}>
+              <Text style={newFeatureStyles.summaryHighlightTitle}>Recent Updates</Text>
+              {sharedData?.dailySummary?.highlights?.slice(0, 3).map((highlight, idx) => (
+                <View key={idx} style={newFeatureStyles.summaryHighlightItem}>
+                  <Ionicons name="checkmark-circle" size={16} color={COLORS.primary} />
+                  <Text style={newFeatureStyles.summaryHighlightText}>{highlight}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+
         {/* Vitals Row */}
         <View style={familyStyles.vitalsRow}>
           <TouchableOpacity style={familyStyles.vitalCard} onPress={() => onOpenVitals('bp')}>
