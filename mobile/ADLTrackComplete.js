@@ -8026,7 +8026,7 @@ const FamilyMenuScreen = ({ onSignOut }) => {
           <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={familyStyles.menuCard}>
+        <TouchableOpacity style={familyStyles.menuCard} onPress={() => setShowCurrentCaregiver(true)}>
           <View style={familyStyles.menuIconBg}>
             <Ionicons name="heart-outline" size={24} color={COLORS.white} />
           </View>
