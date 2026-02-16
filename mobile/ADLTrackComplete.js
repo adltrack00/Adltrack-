@@ -7867,6 +7867,22 @@ const FamilyMenuScreen = ({ onSignOut }) => {
         </TouchableOpacity>
 
         {/* Menu Items */}
+        <TouchableOpacity style={familyStyles.menuCard} onPress={() => setShowCarePlan(true)}>
+          <View style={[familyStyles.menuIconBg, { backgroundColor: COLORS.primary }]}>
+            <Ionicons name="clipboard-outline" size={24} color={COLORS.white} />
+          </View>
+          <Text style={familyStyles.menuText}>Care Plan</Text>
+          <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={familyStyles.menuCard} onPress={() => setShowWeeklyReport(true)}>
+          <View style={[familyStyles.menuIconBg, { backgroundColor: '#f59e0b' }]}>
+            <Ionicons name="bar-chart-outline" size={24} color={COLORS.white} />
+          </View>
+          <Text style={familyStyles.menuText}>Weekly Report</Text>
+          <Ionicons name="chevron-forward" size={22} color={COLORS.textSecondary} />
+        </TouchableOpacity>
+
         <TouchableOpacity style={familyStyles.menuCard}>
           <View style={familyStyles.menuIconBg}>
             <Ionicons name="heart-outline" size={24} color={COLORS.white} />
