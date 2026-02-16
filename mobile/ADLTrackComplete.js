@@ -5428,7 +5428,7 @@ const ShiftsScreen = () => {
     <SafeAreaView style={shiftStyles.container}>
       <ScrollView contentContainerStyle={shiftStyles.scrollContent}>
         {/* Shift Status Card */}
-        <View style={newFeatureStyles.clockCard}>
+        <View style={[newFeatureStyles.clockCard, { marginHorizontal: 0, marginTop: 0 }]}>
           <View style={newFeatureStyles.clockHeader}>
             <Text style={newFeatureStyles.clockTitle}>Shift Status</Text>
             <View style={newFeatureStyles.clockStatus}>
