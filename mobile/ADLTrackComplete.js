@@ -5329,22 +5329,10 @@ const shiftStyles = StyleSheet.create({
 // SHIFTS SCREEN
 // ============================================
 const ShiftsScreen = () => {
-  const [isShiftActive, setIsShiftActive] = useState(false);
-  const [shiftStartTime, setShiftStartTime] = useState(null);
+  const sharedData = React.useContext(SharedDataContext);
+  const [showClientList, setShowClientList] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [historyFilter, setHistoryFilter] = useState('all');
-  const [tasksCompleted, setTasksCompleted] = useState(0);
-
-  const handleStartShift = () => {
-    setIsShiftActive(true);
-    setShiftStartTime(new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }));
-    setTasksCompleted(0);
-  };
-
-  const handleEndShift = () => {
-    setIsShiftActive(false);
-    setShiftStartTime(null);
-  };
 
   const getFilteredHistory = () => {
     if (historyFilter === 'all') return SHIFT_HISTORY;
@@ -5439,45 +5427,65 @@ const ShiftsScreen = () => {
   const renderMainView = () => (
     <SafeAreaView style={shiftStyles.container}>
       <ScrollView contentContainerStyle={shiftStyles.scrollContent}>
-        {/* Current Shift Card */}
-        <View style={isShiftActive ? shiftStyles.shiftCardActive : shiftStyles.shiftCardInactive}>
-          <View style={shiftStyles.shiftCardHeader}>
-            <Text style={shiftStyles.shiftCardTitle}>Current Shift</Text>
-            {isShiftActive ? (
-              <View style={shiftStyles.activeBadge}>
-                <Text style={shiftStyles.activeBadgeText}>Active</Text>
-              </View>
-            ) : (
-              <View style={shiftStyles.inactiveBadge}>
-                <Text style={shiftStyles.inactiveBadgeText}>Inactive</Text>
-              </View>
-            )}
+        {/* Shift Status Card */}
+        <View style={newFeatureStyles.clockCard}>
+          <View style={newFeatureStyles.clockHeader}>
+            <Text style={newFeatureStyles.clockTitle}>Shift Status</Text>
+            <View style={newFeatureStyles.clockStatus}>
+              <View style={[newFeatureStyles.clockStatusDot, { backgroundColor: sharedData?.shiftData?.isClockedIn ? COLORS.primary : '#ef4444' }]} />
+              <Text style={newFeatureStyles.clockStatusText}>
+                {sharedData?.shiftData?.isClockedIn ? 'On Shift' : 'Off Shift'}
+              </Text>
+            </View>
           </View>
-
-          {isShiftActive ? (
-            <>
-              <View style={shiftStyles.shiftDetailRow}>
-                <Text style={shiftStyles.shiftDetailLabel}>Started</Text>
-                <Text style={shiftStyles.shiftDetailValue}>{shiftStartTime}</Text>
-              </View>
-              <View style={shiftStyles.shiftDetailRow}>
-                <Text style={shiftStyles.shiftDetailLabel}>Patient</Text>
-                <Text style={shiftStyles.shiftDetailValue}>{PATIENT.name}</Text>
-              </View>
-              <View style={shiftStyles.shiftDetailRow}>
-                <Text style={shiftStyles.shiftDetailLabel}>Tasks completed</Text>
-                <Text style={shiftStyles.shiftDetailValue}>{tasksCompleted}/12</Text>
-              </View>
-              <TouchableOpacity style={shiftStyles.endShiftBtn} onPress={handleEndShift}>
-                <Text style={shiftStyles.endShiftBtnText}>End Shift</Text>
-              </TouchableOpacity>
-            </>
-          ) : (
-            <TouchableOpacity style={shiftStyles.startShiftBtn} onPress={handleStartShift}>
-              <Text style={shiftStyles.startShiftBtnText}>Start Shift</Text>
-            </TouchableOpacity>
-          )}
+          <View style={newFeatureStyles.clockTimeRow}>
+            <View style={newFeatureStyles.clockTimeItem}>
+              <Text style={newFeatureStyles.clockTimeLabel}>Clock In</Text>
+              <Text style={newFeatureStyles.clockTimeValue}>{sharedData?.shiftData?.clockInTime || '--:--'}</Text>
+            </View>
+            <View style={newFeatureStyles.clockTimeItem}>
+              <Text style={newFeatureStyles.clockTimeLabel}>Clock Out</Text>
+              <Text style={newFeatureStyles.clockTimeValue}>{sharedData?.shiftData?.clockOutTime || '--:--'}</Text>
+            </View>
+            <View style={newFeatureStyles.clockTimeItem}>
+              <Text style={newFeatureStyles.clockTimeLabel}>Weekly Hours</Text>
+              <Text style={newFeatureStyles.clockTimeValue}>{sharedData?.shiftData?.weeklyHours || 0}h</Text>
+            </View>
+          </View>
+          <TouchableOpacity 
+            style={[newFeatureStyles.clockBtn, sharedData?.shiftData?.isClockedIn ? newFeatureStyles.clockBtnOut : newFeatureStyles.clockBtnIn]}
+            onPress={() => {
+              if (sharedData?.shiftData?.isClockedIn) {
+                sharedData.clockOut();
+                Alert.alert('Clocked Out', 'You have successfully clocked out.');
+              } else {
+                sharedData.clockIn({ lat: 40.7128, lng: -74.0060 });
+                Alert.alert('Clocked In', 'You have successfully clocked in. GPS location verified.');
+              }
+            }}
+          >
+            <Text style={newFeatureStyles.clockBtnText}>
+              {sharedData?.shiftData?.isClockedIn ? 'Clock Out' : 'Clock In'}
+            </Text>
+          </TouchableOpacity>
+          <View style={newFeatureStyles.clockGpsRow}>
+            <Ionicons name="location" size={16} color={COLORS.primary} />
+            <Text style={newFeatureStyles.clockGpsText}>GPS verification enabled</Text>
+          </View>
         </View>
+
+        {/* Active Client Selector */}
+        <TouchableOpacity style={newFeatureStyles.clientSelector} onPress={() => setShowClientList(true)}>
+          <View style={newFeatureStyles.clientSelectorHeader}>
+            <View>
+              <Text style={newFeatureStyles.clientSelectorTitle}>ACTIVE CLIENT</Text>
+              <Text style={newFeatureStyles.clientSelectorName}>{sharedData?.clients?.find(c => c.id === sharedData?.activeClientId)?.name || PATIENT.name}</Text>
+            </View>
+            <View style={newFeatureStyles.clientSelectorChevron}>
+              <Ionicons name="chevron-down" size={24} color={COLORS.textSecondary} />
+            </View>
+          </View>
+        </TouchableOpacity>
 
         {/* Quick Actions */}
         <View style={shiftStyles.quickActionsCard}>
@@ -5499,6 +5507,64 @@ const ShiftsScreen = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Client List Modal */}
+      <Modal visible={showClientList} animationType="slide" transparent>
+        <View style={newFeatureStyles.clientListModal}>
+          <SafeAreaView style={newFeatureStyles.clientListContent}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <Text style={newFeatureStyles.clientListTitle}>Your Clients</Text>
+              <TouchableOpacity onPress={() => setShowClientList(false)}>
+                <Ionicons name="close" size={28} color={COLORS.white} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {(sharedData?.clients || []).map((client) => (
+                <TouchableOpacity 
+                  key={client.id}
+                  style={[
+                    newFeatureStyles.clientCard,
+                    client.id === sharedData?.activeClientId && newFeatureStyles.clientCardActive
+                  ]}
+                  onPress={() => {
+                    sharedData?.setActiveClientId(client.id);
+                    setShowClientList(false);
+                  }}
+                >
+                  <View style={newFeatureStyles.clientAvatar}>
+                    <Ionicons name="person" size={28} color={COLORS.textSecondary} />
+                  </View>
+                  <View style={newFeatureStyles.clientInfo}>
+                    <Text style={newFeatureStyles.clientName}>{client.name}</Text>
+                    <Text style={newFeatureStyles.clientCondition}>{client.condition}</Text>
+                    <View style={newFeatureStyles.clientTasksRow}>
+                      <Text style={newFeatureStyles.clientTasksText}>
+                        {client.tasksCompleted}/{client.tasksToday} tasks today
+                      </Text>
+                      <View style={[
+                        newFeatureStyles.clientRiskBadge,
+                        client.riskLevel === 'low' && newFeatureStyles.clientRiskLow,
+                        client.riskLevel === 'moderate' && newFeatureStyles.clientRiskModerate,
+                        client.riskLevel === 'high' && newFeatureStyles.clientRiskHigh,
+                      ]}>
+                        <Text style={[
+                          newFeatureStyles.clientRiskText,
+                          { color: client.riskLevel === 'low' ? '#22c55e' : client.riskLevel === 'moderate' ? '#eab308' : '#ef4444' }
+                        ]}>
+                          {client.riskLevel.toUpperCase()}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                  {client.id === sharedData?.activeClientId && (
+                    <Ionicons name="checkmark-circle" size={24} color={COLORS.primary} />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </SafeAreaView>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 
