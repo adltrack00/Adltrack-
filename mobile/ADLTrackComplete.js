@@ -5475,7 +5475,7 @@ const ShiftsScreen = () => {
         </View>
 
         {/* Active Client Selector */}
-        <TouchableOpacity style={newFeatureStyles.clientSelector} onPress={() => setShowClientList(true)}>
+        <TouchableOpacity style={[newFeatureStyles.clientSelector, { marginHorizontal: 0, marginTop: 16 }]} onPress={() => setShowClientList(true)}>
           <View style={newFeatureStyles.clientSelectorHeader}>
             <View>
               <Text style={newFeatureStyles.clientSelectorTitle}>ACTIVE CLIENT</Text>
@@ -5488,7 +5488,7 @@ const ShiftsScreen = () => {
         </TouchableOpacity>
 
         {/* Quick Actions */}
-        <View style={shiftStyles.quickActionsCard}>
+        <View style={[shiftStyles.quickActionsCard, { marginTop: 16 }]}>
           <Text style={shiftStyles.quickActionsTitle}>Quick Actions</Text>
           
           <TouchableOpacity style={shiftStyles.quickActionItem}>
