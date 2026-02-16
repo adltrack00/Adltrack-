@@ -48,8 +48,9 @@ Build a mobile app named "ADLTrack" using Expo (React Native) for caregiving coo
 - [x] Family Dashboard with Care Timeline, Incident Reports, My Requests
 - [x] SharedDataContext for real-time data sharing
 - [x] AI Copilot FAB on both dashboards
-- [x] Performance Score display for Family
 - [x] **UI Refactor: Moved Clock In/Out and Client Selector to Shifts tab**
+- [x] **UI Refactor: Moved Caregiver Performance + Today's Summary to "Current Caregiver" profile in Family Menu**
+- [x] **Created comprehensive Current Caregiver profile with photo, stats, certifications, contact info, and performance metrics**
 
 ### In Progress
 - [ ] Wire up Care Plan and Weekly Report screens with data
