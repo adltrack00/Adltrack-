@@ -3131,9 +3131,10 @@ const CaregiverHomeScreen = () => {
   const [viewingHistory, setViewingHistory] = useState(null);
   const [tasks, setTasks] = useState(INITIAL_TASKS);
   const [vitals, setVitals] = useState({ bp: { systolic: 120, diastolic: 76 }, heart: 72, temp: 98.6, pain: 1 });
+  const [showClientList, setShowClientList] = useState(false);
   
   // Use shared requests from context (requests from family members)
-  const requests = sharedData?.sharedRequests || [];
+  const requests = sharedData?.sharedRequests?.filter(r => r.status === 'pending') || [];
   
   // AI Copilot state
   const [showAICopilot, setShowAICopilot] = useState(false);
