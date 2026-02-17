@@ -4668,7 +4668,7 @@ const IncidentScreen = () => {
               </View>
               <View>
                 <Text style={incStyles.modalTitle}>New Incident Report</Text>
-                <Text style={incStyles.modalStep}>Step {currentStep} of 4</Text>
+                <Text style={incStyles.modalStep}>Step {currentStep} of 5</Text>
               </View>
             </View>
             <TouchableOpacity style={incStyles.cancelBtn} onPress={handleCancel}>
@@ -4678,7 +4678,7 @@ const IncidentScreen = () => {
 
           {/* Progress Bar */}
           <View style={incStyles.progressBar}>
-            {[1, 2, 3, 4].map((step) => (
+            {[1, 2, 3, 4, 5].map((step) => (
               <View 
                 key={step} 
                 style={[
@@ -4694,6 +4694,7 @@ const IncidentScreen = () => {
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
           {currentStep === 4 && renderStep4()}
+          {currentStep === 5 && renderStep5()}
 
           {/* Bottom Navigation */}
           <View style={incStyles.modalFooter}>
