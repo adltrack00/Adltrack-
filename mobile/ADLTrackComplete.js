@@ -4571,8 +4571,8 @@ const IncidentScreen = () => {
     </ScrollView>
   );
 
-  // Step 4: Review & Submit
-  const renderStep4 = () => (
+  // Step 5: Review & Submit
+  const renderStep5 = () => (
     <ScrollView style={incStyles.stepContainer} showsVerticalScrollIndicator={false}>
       <Text style={incStyles.reviewTitle}>Review & Submit</Text>
 
