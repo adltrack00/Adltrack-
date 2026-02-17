@@ -4457,8 +4457,49 @@ const IncidentScreen = () => {
     </ScrollView>
   );
 
-  // Step 3: Add Photos
+  // Step 3: Witness Information
   const renderStep3 = () => (
+    <ScrollView style={incStyles.stepContainer} showsVerticalScrollIndicator={false}>
+      <Text style={incStyles.stepTitle}>Witness Information</Text>
+      <Text style={incStyles.stepSubtitle}>Document any witnesses present during the incident for legal and record-keeping purposes.</Text>
+
+      <Text style={incStyles.fieldLabel}>Witness Name(s)</Text>
+      <TextInput
+        style={incStyles.textArea}
+        placeholder="Enter the names of any witnesses present..."
+        placeholderTextColor={COLORS.textMuted}
+        multiline
+        numberOfLines={4}
+        value={witnesses}
+        onChangeText={setWitnesses}
+        textAlignVertical="top"
+      />
+      
+      <View style={incStyles.witnessNote}>
+        <Ionicons name="information-circle" size={20} color={COLORS.textSecondary} />
+        <Text style={incStyles.witnessNoteText}>
+          Include full names and their relationship to the patient if applicable (e.g., "John Smith - Family Visitor", "Jane Doe - Nurse on duty")
+        </Text>
+      </View>
+
+      <View style={incStyles.witnessCheckRow}>
+        <TouchableOpacity 
+          style={incStyles.witnessCheckbox}
+          onPress={() => setWitnesses(witnesses ? witnesses : 'No witnesses present')}
+        >
+          <Ionicons 
+            name={witnesses === 'No witnesses present' ? "checkbox" : "square-outline"} 
+            size={24} 
+            color={witnesses === 'No witnesses present' ? COLORS.primary : COLORS.textSecondary} 
+          />
+          <Text style={incStyles.witnessCheckText}>No witnesses were present</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
+
+  // Step 4: Add Photos
+  const renderStep4 = () => (
     <ScrollView style={incStyles.stepContainer} showsVerticalScrollIndicator={false}>
       <Text style={incStyles.stepTitle}>Add Photos (Optional)</Text>
       <Text style={incStyles.stepSubtitle}>Document the incident visually for records.</Text>
