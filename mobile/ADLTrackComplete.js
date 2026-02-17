@@ -4466,11 +4466,9 @@ const IncidentScreen = () => {
         style={incStyles.photoUploadArea}
         onPress={() => setShowPhotoOptions(true)}
       >
-        <View style={incStyles.photoUploadIconBg}>
-          <Ionicons name="camera" size={32} color={COLORS.textSecondary} />
-        </View>
-        <Text style={incStyles.photoUploadText}>Tap to add photos</Text>
-        <Text style={incStyles.photoUploadHint}>JPG, PNG up to 10MB each</Text>
+        <Ionicons name="camera" size={40} color={COLORS.textMuted} />
+        <Text style={incStyles.photoUploadText}>Tap to add photo</Text>
+        <Text style={incStyles.photoUploadHint}>Take a photo for documentation</Text>
       </TouchableOpacity>
 
       {/* Photos Grid */}
