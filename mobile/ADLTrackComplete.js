@@ -4142,6 +4142,7 @@ const IncidentScreen = () => {
   const [severity, setSeverity] = useState('High');
   const [description, setDescription] = useState('');
   const [actionsTaken, setActionsTaken] = useState('');
+  const [witnesses, setWitnesses] = useState('');
   const [photos, setPhotos] = useState([]);
   const [notifyFamily, setNotifyFamily] = useState(true);
   const [followUpRequired, setFollowUpRequired] = useState(false);
@@ -4154,6 +4155,7 @@ const IncidentScreen = () => {
     setSeverity('High');
     setDescription('');
     setActionsTaken('');
+    setWitnesses('');
     setPhotos([]);
     setNotifyFamily(true);
     setFollowUpRequired(false);
