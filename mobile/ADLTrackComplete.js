@@ -4598,6 +4598,9 @@ const IncidentScreen = () => {
         <Text style={incStyles.summaryLabel}>ACTIONS TAKEN</Text>
         <Text style={incStyles.summaryText}>{actionsTaken || 'No actions documented'}</Text>
 
+        <Text style={incStyles.summaryLabel}>WITNESSES</Text>
+        <Text style={incStyles.summaryText}>{witnesses || 'No witnesses documented'}</Text>
+
         <Text style={incStyles.summaryLabel}>PHOTOS ({photos.length})</Text>
         {photos.length > 0 ? (
           <View style={incStyles.summaryPhotosRow}>
