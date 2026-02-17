@@ -4703,7 +4703,7 @@ const IncidentScreen = () => {
                 <Text style={incStyles.backBtnText}>Back</Text>
               </TouchableOpacity>
             )}
-            {currentStep < 4 ? (
+            {currentStep < 5 ? (
               <TouchableOpacity 
                 style={[
                   incStyles.continueBtn,
