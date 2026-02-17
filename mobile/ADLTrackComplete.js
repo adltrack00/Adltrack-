@@ -4173,7 +4173,7 @@ const IncidentScreen = () => {
   };
 
   const handleContinue = () => {
-    if (currentStep < 4) {
+    if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
     }
   };
