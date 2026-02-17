@@ -4029,7 +4029,21 @@ const incStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   
-  // Step 4 - Review
+  // Step 3 - Witness
+  witnessNote: { 
+    flexDirection: 'row', 
+    backgroundColor: 'rgba(59, 130, 246, 0.15)', 
+    borderRadius: 12, 
+    padding: 14, 
+    marginTop: 16,
+    alignItems: 'flex-start',
+  },
+  witnessNoteText: { fontSize: 14, color: COLORS.textSecondary, marginLeft: 10, flex: 1, lineHeight: 20 },
+  witnessCheckRow: { marginTop: 20 },
+  witnessCheckbox: { flexDirection: 'row', alignItems: 'center' },
+  witnessCheckText: { fontSize: 16, color: COLORS.white, marginLeft: 10 },
+  
+  // Step 5 - Review
   reviewTitle: { fontSize: 22, fontWeight: '600', color: COLORS.white, marginBottom: 20 },
   summaryCard: { 
     backgroundColor: COLORS.card, 
