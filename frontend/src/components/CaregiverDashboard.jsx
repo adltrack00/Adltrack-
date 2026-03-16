@@ -17,7 +17,7 @@ import { AccountsPage } from './pages/AccountsPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { SupportPage } from './pages/SupportPage';
 import { ChatPage } from './pages/ChatPage';
-import { CAREGIVER_PROFILE } from '../services/mockData';
+import { CAREGIVER_PROFILE, SHIFT_HISTORY, CARE_PLAN } from '../services/mockData';
 import { useTheme } from '../context/ThemeContext';
 
 export const CaregiverDashboard = ({ 
@@ -53,6 +53,9 @@ export const CaregiverDashboard = ({
   // Historical date viewing
   const [viewingDate, setViewingDate] = useState(null);
   const [historicalTasks, setHistoricalTasks] = useState([]);
+  const [historyFilter, setHistoryFilter] = useState('all');
+  const [showShiftHistory, setShowShiftHistory] = useState(false);
+  const [medLogs, setMedLogs] = useState([]);
 
   const today = new Date(2026, 0, 17); // Jan 17, 2026
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
@@ -132,6 +135,87 @@ export const CaregiverDashboard = ({
   }
   if (activePage === 'chat') {
     return <ChatPage onBack={() => setActivePage(null)} role={UserRole.CAREGIVER} />;
+  }
+
+  // Medications sub-screen
+  if (activePage === 'medications') {
+    const medications = CARE_PLAN.medications || [];
+    
+    return (
+      <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
+        <div className="flex-1 overflow-y-auto pb-6">
+          <div className="px-5 pt-5">
+            <button onClick={() => setActivePage(null)} className="flex items-center gap-1 text-stone-400 mb-4">
+              <ChevronRight className="w-5 h-5 rotate-180" />
+              <span className="text-sm font-medium">Back</span>
+            </button>
+            <h1 className="text-2xl font-bold text-white mb-1">Medications</h1>
+            <p className="text-stone-400 text-sm mb-6">For {patient?.name}</p>
+          </div>
+
+          {/* Summary Card */}
+          <div className="px-5 mb-5">
+            <div className="bg-[#1c1c1e] rounded-2xl p-5">
+              <div className="grid grid-cols-3 text-center">
+                <div>
+                  <p className="text-2xl font-bold text-white">{medications.length}</p>
+                  <p className="text-stone-500 text-xs">Total Meds</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-[#25D366]">{medLogs.length}</p>
+                  <p className="text-stone-500 text-xs">Given Today</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-white">{medications.length - medLogs.length}</p>
+                  <p className="text-stone-500 text-xs">Remaining</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Schedule Header */}
+          <div className="px-5 mb-3 flex items-center gap-2">
+            <Heart className="w-5 h-5 text-[#25D366]" />
+            <span className="text-white font-semibold">Today&apos;s Schedule</span>
+          </div>
+
+          {/* Medication Cards */}
+          <div className="px-5 space-y-3">
+            {medications.map((med, idx) => {
+              const isGiven = medLogs.includes(med.name);
+              return (
+                <div key={idx} className="bg-[#1c1c1e] rounded-2xl p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Heart className="w-6 h-6 text-[#3b82f6]" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-white font-semibold">{med.name}</p>
+                      <p className="text-stone-400 text-xs">{med.dosage} - {med.frequency}</p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <Clock className="w-3.5 h-3.5 text-stone-600" />
+                        <span className="text-stone-600 text-xs">{med.time}</span>
+                      </div>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${isGiven ? 'bg-[#25D366]/20 text-[#25D366]' : 'bg-amber-500/20 text-amber-400'}`}>
+                      {isGiven ? 'Given' : 'Pending'}
+                    </span>
+                  </div>
+                  {!isGiven && (
+                    <button 
+                      onClick={() => setMedLogs(prev => [...prev, med.name])}
+                      className="w-full mt-3 py-3 bg-[#25D366] text-white font-semibold rounded-xl hover:bg-[#20bd5a] transition-colors text-sm"
+                    >
+                      Mark as Administered
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Render Home Content
@@ -418,120 +502,187 @@ export const CaregiverDashboard = ({
   };
 
   // Render Shift Tab
+  const filteredHistory = historyFilter === 'all' ? SHIFT_HISTORY : SHIFT_HISTORY.filter(s => s.status === historyFilter);
+
   const renderShiftContent = () => (
-    <div className="flex-1 overflow-y-auto bg-stone-950 p-6 space-y-4 pb-24">
-      {/* Shift Status Card */}
-      <div className={`rounded-3xl p-6 border ${isShiftActive ? 'bg-[#25D366] border-[#20bd5a]' : 'bg-stone-900 border-stone-800'}`}>
-        <div className="flex items-center justify-between mb-5">
-          <h3 className={`font-bold text-lg ${isShiftActive ? 'text-white' : 'text-white'}`}>Current Shift</h3>
-          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-            isShiftActive ? 'bg-white/20 text-white' : 'bg-stone-800 text-stone-400'
-          }`}>
-            {isShiftActive ? 'Active' : 'Inactive'}
-          </span>
-        </div>
-        
-        {isShiftActive && (
-          <div className="space-y-3 mb-5">
-            <div className="flex justify-between">
-              <span className="text-white/70">Started</span>
-              <span className="font-semibold text-white">{shiftStartTime}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/70">Patient</span>
-              <span className="font-semibold text-white">{patient?.name}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-white/70">Tasks completed</span>
-              <span className="font-semibold text-white">{completedCount}/{todayTasks.length}</span>
-            </div>
-          </div>
-        )}
-
-        <button
-          onClick={isShiftActive ? handleEndShift : handleStartShift}
-          className={`w-full py-4 rounded-2xl font-bold transition-all ${
-            isShiftActive 
-              ? 'bg-white text-rose-600 hover:bg-stone-100' 
-              : 'bg-[#25D366] text-white hover:bg-[#20bd5a]'
-          }`}
-        >
-          {isShiftActive ? 'End Shift' : 'Start Shift'}
-        </button>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="bg-stone-900 border border-stone-800 rounded-3xl p-5">
-        <h3 className="font-bold text-white mb-4">Quick Actions</h3>
-        {[
-          { label: 'View Earnings', action: () => setActivePage('earnings'), icon: '💰' },
-          { label: 'Shift History', action: () => setActivePage('history'), icon: '📋' },
-        ].map((item, idx) => (
-          <button
-            key={idx}
-            onClick={item.action}
-            className="w-full flex items-center justify-between p-4 hover:bg-stone-800 rounded-2xl transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-xl">{item.icon}</span>
-              <span className="font-medium text-white">{item.label}</span>
-            </div>
-            <ChevronRight className="w-5 h-5 text-stone-500" />
+    <div className="flex-1 overflow-y-auto bg-black p-5 space-y-4 pb-24">
+      {showShiftHistory ? (
+        <>
+          {/* Shift History View */}
+          <button onClick={() => setShowShiftHistory(false)} className="flex items-center gap-1 text-stone-400 mb-2">
+            <ChevronRight className="w-5 h-5 rotate-180" />
+            <span className="text-sm font-medium">Back</span>
           </button>
-        ))}
-      </div>
+          <h2 className="text-xl font-bold text-white mb-4">Shift History</h2>
+          
+          <div className="flex gap-2 mb-4">
+            {['all', 'completed', 'cancelled'].map((f) => (
+              <button key={f} onClick={() => setHistoryFilter(f)}
+                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                  historyFilter === f ? 'bg-[#25D366] text-white' : 'bg-[#1c1c1e] text-stone-400'
+                }`}
+              >
+                {f.charAt(0).toUpperCase() + f.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          <div className="space-y-3">
+            {filteredHistory.map((shift) => (
+              <div key={shift.id} className="bg-[#1c1c1e] rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-white font-semibold">{shift.date}</p>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    shift.status === 'completed' ? 'bg-[#25D366]/20 text-[#25D366]' : 'bg-rose-500/20 text-rose-400'
+                  }`}>
+                    {shift.status === 'completed' ? 'Completed' : 'Cancelled'}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4 text-stone-500" />
+                    <span className="text-stone-400">{shift.startTime} - {shift.endTime}</span>
+                  </div>
+                  {shift.status === 'completed' && (
+                    <div className="flex items-center gap-1">
+                      <CheckCircle className="w-4 h-4 text-[#25D366]" />
+                      <span className="text-stone-400">{shift.tasksCompleted}/{shift.totalTasks} tasks</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Shift Status Card */}
+          <div className={`rounded-3xl p-6 ${isShiftActive ? 'bg-[#25D366]' : 'bg-[#1c1c1e]'}`}>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="font-bold text-lg text-white">Current Shift</h3>
+              <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                isShiftActive ? 'bg-white/20 text-white' : 'bg-stone-800 text-stone-400'
+              }`}>
+                {isShiftActive ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+            
+            {isShiftActive && (
+              <div className="space-y-3 mb-5">
+                <div className="flex justify-between">
+                  <span className="text-white/70">Started</span>
+                  <span className="font-semibold text-white">{shiftStartTime}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white/70">Patient</span>
+                  <span className="font-semibold text-white">{patient?.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white/70">Tasks completed</span>
+                  <span className="font-semibold text-white">{completedCount}/{todayTasks.length}</span>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={isShiftActive ? handleEndShift : handleStartShift}
+              className={`w-full py-4 rounded-2xl font-bold transition-all ${
+                isShiftActive 
+                  ? 'bg-white text-rose-600 hover:bg-stone-100' 
+                  : 'bg-[#25D366] text-white hover:bg-[#20bd5a]'
+              }`}
+            >
+              {isShiftActive ? 'End Shift' : 'Start Shift'}
+            </button>
+          </div>
+
+          {/* Active Client */}
+          {isShiftActive && (
+            <div className="bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-3">
+              <img src={patient?.photo || ''} alt={patient?.name} className="w-12 h-12 rounded-xl object-cover" />
+              <div className="flex-1">
+                <p className="text-xs text-stone-500 font-semibold uppercase tracking-wider">Active Client</p>
+                <p className="text-white font-semibold">{patient?.name}</p>
+              </div>
+              <span className="px-3 py-1 bg-[#25D366]/20 text-[#25D366] rounded-full text-xs font-semibold">Active</span>
+            </div>
+          )}
+
+          {/* Quick Actions */}
+          <div className="bg-[#1c1c1e] rounded-2xl p-4">
+            <h3 className="font-bold text-white mb-3 text-sm uppercase tracking-wider text-stone-500">Quick Actions</h3>
+            {[
+              { label: 'View Earnings', icon: Activity, color: '#25D366', bgColor: 'bg-[#25D366]/20', action: () => setActivePage('earnings') },
+              { label: 'Shift History', icon: Clock, color: '#f59e0b', bgColor: 'bg-amber-500/20', action: () => setShowShiftHistory(true) },
+            ].map((item, idx) => (
+              <button
+                key={idx}
+                onClick={item.action}
+                className="w-full flex items-center justify-between p-3 hover:bg-stone-800 rounded-xl transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 ${item.bgColor} rounded-xl flex items-center justify-center`}>
+                    <item.icon className="w-5 h-5" style={{ color: item.color }} />
+                  </div>
+                  <span className="font-medium text-white">{item.label}</span>
+                </div>
+                <ChevronRight className="w-5 h-5 text-stone-600" />
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 
   // Render Settings Tab
   const renderSettingsContent = () => (
-    <div className={`flex-1 overflow-y-auto ${bg} p-6 space-y-3 pb-24`}>
-      {/* Profile Card - Clickable to open profile */}
+    <div className="flex-1 overflow-y-auto bg-black p-5 space-y-3 pb-24">
+      {/* Profile Card */}
       <button 
         onClick={() => setActivePage('profile')}
-        className={`w-full ${bgCard} border ${border} rounded-3xl p-5 ${bgCardHover} transition-colors text-left`}
+        className="w-full bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-4 hover:bg-[#2c2c2e] transition-colors text-left"
       >
-        <div className="flex items-center gap-4">
-          <img 
-            src={CAREGIVER_PROFILE.photo}
-            alt="Profile"
-            className="w-16 h-16 rounded-2xl object-cover"
-          />
-          <div className="flex-1">
-            <h3 className={`font-bold ${text}`}>Julia Martinez</h3>
-            <p className={`${textSecondary} text-sm`}>Certified Nursing Assistant</p>
-          </div>
-          <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
+        <img 
+          src={CAREGIVER_PROFILE.photo}
+          alt="Profile"
+          className="w-16 h-16 rounded-2xl object-cover"
+        />
+        <div className="flex-1">
+          <h3 className="font-bold text-white text-lg">Julia Martinez</h3>
+          <p className="text-stone-400 text-sm">Certified Nursing Assistant</p>
         </div>
+        <ChevronRight className="w-5 h-5 text-stone-600" />
       </button>
 
-      {/* Menu Items */}
+      {/* Menu Items with colored icons */}
       {[
-        { label: 'Earnings', icon: Activity, action: () => setActivePage('earnings') },
-        { label: 'Shift History', icon: Clock, action: () => setActivePage('history') },
-        { label: 'Settings', icon: Settings, action: () => setActivePage('settings') },
-        { label: 'Support', icon: Bell, action: () => setActivePage('support') },
+        { label: 'Medications', icon: Heart, color: '#3b82f6', bgColor: 'bg-blue-500/20', action: () => setActivePage('medications') },
+        { label: 'Earnings', icon: Activity, color: '#25D366', bgColor: 'bg-[#25D366]/20', action: () => setActivePage('earnings') },
+        { label: 'Shift History', icon: Clock, color: '#f59e0b', bgColor: 'bg-amber-500/20', action: () => setActivePage('history') },
+        { label: 'Settings', icon: Settings, color: '#8b5cf6', bgColor: 'bg-purple-500/20', action: () => setActivePage('settings') },
+        { label: 'Support', icon: Bell, color: '#06b6d4', bgColor: 'bg-cyan-500/20', action: () => setActivePage('support') },
       ].map((item, idx) => (
         <button
           key={idx}
           onClick={item.action}
-          className={`w-full flex items-center gap-4 p-4 ${bgCard} border ${border} rounded-2xl ${bgCardHover} transition-colors`}
+          className="w-full bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-4 hover:bg-[#2c2c2e] transition-colors"
         >
-          <div className={`w-11 h-11 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-100'} rounded-xl flex items-center justify-center`}>
-            <item.icon className={`w-5 h-5 ${textMuted}`} />
+          <div className={`w-12 h-12 ${item.bgColor} rounded-xl flex items-center justify-center`}>
+            <item.icon className="w-5 h-5" style={{ color: item.color }} />
           </div>
-          <span className={`font-medium ${text} flex-1 text-left`}>{item.label}</span>
-          <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
+          <span className="font-medium text-white flex-1 text-left">{item.label}</span>
+          <ChevronRight className="w-5 h-5 text-stone-600" />
         </button>
       ))}
 
-      {/* Sign Out Button */}
+      {/* Sign Out */}
       <button
         onClick={onSignOut}
-        className="w-full flex items-center gap-4 p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl hover:bg-rose-500/20 transition-colors mt-4"
+        className="w-full bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 flex items-center gap-4 hover:bg-rose-500/20 transition-colors mt-2"
         data-testid="menu-sign-out-btn"
       >
-        <div className="w-11 h-11 bg-rose-500/20 rounded-xl flex items-center justify-center">
+        <div className="w-12 h-12 bg-rose-500/20 rounded-xl flex items-center justify-center">
           <User className="w-5 h-5 text-rose-400" />
         </div>
         <span className="font-medium text-rose-400 flex-1 text-left">Sign Out</span>

@@ -320,3 +320,158 @@ export const DECLINE_REASONS = [
   'Need More Information',
   'Other'
 ];
+
+// Caregiver conversations (for Message tab)
+export const CONVERSATIONS = [
+  {
+    id: 1,
+    name: 'Mary Smith',
+    role: 'POA',
+    avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+    lastMessage: 'Thank you for the update!',
+    time: '2:30 PM',
+    unread: 0,
+    online: true,
+    isGroup: false,
+  },
+  {
+    id: 2,
+    name: 'Sarah Johnson',
+    role: 'Supervisor',
+    avatar: 'https://randomuser.me/api/portraits/women/65.jpg',
+    lastMessage: 'Please submit your timesheet',
+    time: '1:15 PM',
+    unread: 1,
+    online: true,
+    isGroup: false,
+  },
+  {
+    id: 3,
+    name: 'Michael Chen',
+    role: 'Weekend Caregiver',
+    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+    lastMessage: 'Handoff notes are ready',
+    time: 'Yesterday',
+    unread: 0,
+    online: false,
+    isGroup: false,
+  },
+  {
+    id: 4,
+    name: 'Care Team Handoff',
+    role: '',
+    avatar: null,
+    lastMessage: 'Weekend schedule updated',
+    time: 'Yesterday',
+    unread: 2,
+    online: false,
+    isGroup: true,
+  },
+];
+
+// Family conversations
+export const FAMILY_CONVERSATIONS = [
+  {
+    id: 1,
+    name: 'Family Group',
+    role: '',
+    avatar: null,
+    lastMessage: 'Can someone cover Sunday?',
+    time: '10:30 AM',
+    unread: 3,
+    online: false,
+    isGroup: true,
+  },
+  {
+    id: 2,
+    name: 'Julia Martinez',
+    role: 'Caregiver',
+    avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+    lastMessage: 'David had a great morning!',
+    time: '9:32 AM',
+    unread: 0,
+    online: true,
+    isGroup: false,
+  },
+  {
+    id: 3,
+    name: 'Tom Smith',
+    role: 'Brother',
+    avatar: 'https://randomuser.me/api/portraits/men/75.jpg',
+    lastMessage: "I'll bring the puzzle",
+    time: 'Yesterday',
+    unread: 0,
+    online: false,
+    isGroup: false,
+  },
+];
+
+// Shift history
+export const SHIFT_HISTORY = [
+  { id: 1, date: 'Dec 15, 2024', startTime: '8:00 AM', endTime: '4:00 PM', tasksCompleted: 12, totalTasks: 12, status: 'completed' },
+  { id: 2, date: 'Dec 14, 2024', startTime: '8:00 AM', endTime: '4:00 PM', tasksCompleted: 10, totalTasks: 10, status: 'completed' },
+  { id: 3, date: 'Dec 13, 2024', startTime: '8:00 AM', endTime: '12:00 PM', tasksCompleted: 5, totalTasks: 6, status: 'completed' },
+  { id: 4, date: 'Dec 12, 2024', startTime: '12:00 PM', endTime: '8:00 PM', tasksCompleted: 8, totalTasks: 8, status: 'completed' },
+  { id: 5, date: 'Dec 11, 2024', startTime: '8:00 AM', endTime: '4:00 PM', tasksCompleted: 0, totalTasks: 0, status: 'cancelled' },
+];
+
+// Family alerts
+export const FAMILY_ALERTS = {
+  upcoming: [
+    { id: 1, title: 'Physical Therapy', time: '10:00 AM Tomorrow', icon: 'pulse' },
+    { id: 2, title: 'Doctor Visit', time: 'Dec 20, 2:30 PM', icon: 'calendar' },
+    { id: 3, title: 'Medication Refill Due', time: 'Dec 22', icon: 'pill' },
+  ],
+  recent: [
+    { id: 1, title: 'Care Plan Updated', subtitle: 'New evening routine added', time: '2 hours ago', highlight: false },
+    { id: 2, title: 'Medication Schedule Change', subtitle: 'Evening meds moved to 6 PM', time: 'Yesterday', highlight: true },
+    { id: 3, title: 'Caregiver Assignment', subtitle: 'Julia will cover weekend shifts', time: '2 days ago', highlight: false },
+  ],
+};
+
+// Care plan data
+export const CARE_PLAN = {
+  goals: [
+    'Maintain blood pressure below 140/90',
+    'Complete daily physical therapy exercises',
+    'Ensure medication compliance',
+    'Monitor blood glucose levels',
+  ],
+  medications: [
+    { name: 'Metformin', dosage: '500mg', frequency: 'Twice daily', time: '8:00 AM, 6:00 PM', condition: 'Diabetes' },
+    { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', time: '8:00 AM', condition: 'Hypertension' },
+    { name: 'Aspirin', dosage: '81mg', frequency: 'Once daily', time: '8:00 AM', condition: 'Heart Health' },
+  ],
+  dailySchedule: [
+    { time: '7:00 AM', activity: 'Wake Up & Morning Routine' },
+    { time: '8:00 AM', activity: 'Breakfast & Morning Medications' },
+    { time: '10:00 AM', activity: 'Physical Therapy / Walk' },
+    { time: '12:00 PM', activity: 'Lunch' },
+    { time: '2:00 PM', activity: 'Rest Period' },
+    { time: '4:00 PM', activity: 'Afternoon Activities' },
+    { time: '6:00 PM', activity: 'Dinner & Evening Medications' },
+    { time: '8:00 PM', activity: 'Evening Routine & Bed' },
+  ],
+  dietaryRestrictions: ['Low sodium', 'Diabetic diet', 'No shellfish (allergy)'],
+  emergencyProtocol: 'Call 911 immediately. Notify Mary Smith (POA) at (555) 234-5678. Patient is Full Code.',
+};
+
+// Weekly report data
+export const WEEKLY_REPORT = {
+  overallCompliance: 87,
+  tasksCompleted: 78,
+  totalTasks: 90,
+  medsOnTime: 95,
+  incidents: 1,
+  missedTasks: 12,
+  caregiverNotes: 'David had a good week overall. He was more alert during morning activities. Physical therapy sessions went well. One minor incident on Tuesday when he felt dizzy after standing up too quickly.',
+  performanceTrend: [
+    { day: 'Mon', score: 90 },
+    { day: 'Tue', score: 85 },
+    { day: 'Wed', score: 88 },
+    { day: 'Thu', score: 82 },
+    { day: 'Fri', score: 92 },
+    { day: 'Sat', score: 85 },
+    { day: 'Sun', score: 88 },
+  ],
+};
