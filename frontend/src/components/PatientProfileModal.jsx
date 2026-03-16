@@ -191,7 +191,7 @@ export const PatientProfileModal = ({
         </div>
 
         {/* Content */}
-        <div className="px-4 py-4 space-y-3">
+        <div className="px-4 py-4 space-y-4">
           {/* Care History Card - Green */}
           <button
             onClick={() => setShowCalendar(true)}
