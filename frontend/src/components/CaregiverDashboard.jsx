@@ -213,83 +213,82 @@ export const CaregiverDashboard = ({
     // Online State - Dashboard
     return (
       <div className={`flex-1 overflow-y-auto ${bg} pb-20`}>
-        {/* Patient Header with Photo - Vitals overlapping from middle */}
-        <div className="relative">
-          {/* Photo Container */}
-          <div className="relative h-44 overflow-hidden">
+        {/* Patient Card - Large rounded card with photo background */}
+        <div className="px-4 pt-4">
+          <button 
+            onClick={() => setShowPatientProfile(true)}
+            className="relative w-full h-72 rounded-3xl overflow-hidden"
+          >
             {/* Patient Photo Background */}
             <img 
               src={patient?.photo || 'https://via.placeholder.com/400'} 
               alt={patient?.name}
               className="absolute inset-0 w-full h-full object-cover object-center"
             />
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent" />
+            {/* Subtle gradient overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             
-            {/* Patient Info - positioned above vitals */}
-            <button 
-              onClick={() => setShowPatientProfile(true)}
-              className="absolute bottom-12 left-0 right-0 px-5 flex items-center justify-between"
-            >
+            {/* Patient Info - positioned at bottom left */}
+            <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
               <div>
-                <h2 className="text-lg font-bold text-white drop-shadow-md">{patient?.name || 'Patient'}</h2>
-                <p className="text-white/90 text-xs font-medium drop-shadow-md">{patient?.age} years old</p>
+                <h2 className="text-3xl font-bold text-white drop-shadow-lg">{patient?.name || 'Patient'}</h2>
+                <p className="text-white/80 text-base font-medium drop-shadow-md mt-1">{patient?.age} years old</p>
               </div>
-              <ChevronRight className="w-5 h-5 text-white/70" />
-            </button>
-          </div>
-
-          {/* Vitals Row - Overlapping from middle of photo */}
-          <div className="px-5 -mt-6 relative z-10">
-            <div className="grid grid-cols-4 gap-2">
-              {/* BP Card */}
-              <button 
-                onClick={() => setShowVitals(true)}
-                className={`${bgCard} border ${border} rounded-2xl p-3 ${bgCardHover} transition-colors`}
-              >
-                <div className="w-9 h-9 bg-rose-500/20 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                  <Heart className="w-4 h-4 text-rose-400" />
-                </div>
-                <p className={`text-base font-bold ${text} text-center`}>{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
-                <p className={`text-[10px] ${textSecondary} font-medium mt-0.5 text-center`}>BP</p>
-              </button>
-
-              {/* HR Card */}
-              <button 
-                onClick={() => setShowVitals(true)}
-                className={`${bgCard} border ${border} rounded-2xl p-3 ${bgCardHover} transition-colors`}
-              >
-                <div className="w-9 h-9 bg-orange-500/20 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                  <Activity className="w-4 h-4 text-orange-400" />
-                </div>
-                <p className={`text-base font-bold ${text} text-center`}>{latestHR ? latestHR.value : '--'}</p>
-                <p className={`text-[10px] ${textSecondary} font-medium mt-0.5 text-center`}>Heart</p>
-              </button>
-
-              {/* Temp Card */}
-              <button 
-                onClick={() => setShowVitals(true)}
-                className={`${bgCard} border ${border} rounded-2xl p-3 ${bgCardHover} transition-colors`}
-              >
-                <div className="w-9 h-9 bg-blue-500/20 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                  <Thermometer className="w-4 h-4 text-blue-400" />
-                </div>
-                <p className={`text-base font-bold ${text} text-center`}>{latestTemp ? `${latestTemp.value}°` : '--'}</p>
-                <p className={`text-[10px] ${textSecondary} font-medium mt-0.5 text-center`}>Temp</p>
-              </button>
-
-              {/* Pain Card */}
-              <button 
-                onClick={() => setShowVitals(true)}
-                className={`${bgCard} border ${border} rounded-2xl p-3 ${bgCardHover} transition-colors`}
-              >
-                <div className="w-9 h-9 bg-purple-500/20 rounded-xl flex items-center justify-center mb-2 mx-auto">
-                  <Frown className="w-4 h-4 text-purple-400" />
-                </div>
-                <p className={`text-base font-bold ${text} text-center`}>{latestPain ? `${latestPain.value}/10` : '--'}</p>
-                <p className={`text-[10px] ${textSecondary} font-medium mt-0.5 text-center`}>Pain</p>
-              </button>
+              <ChevronRight className="w-7 h-7 text-white/70" />
             </div>
+          </button>
+        </div>
+
+        {/* Vitals Grid - 4 dark cards with colored icons */}
+        <div className="px-4 mt-4">
+          <div className="grid grid-cols-4 gap-3">
+            {/* BP Card */}
+            <button 
+              onClick={() => setShowVitals(true)}
+              className="bg-[#1c1c1e] rounded-2xl p-4 hover:bg-[#2c2c2e] transition-colors"
+            >
+              <div className="w-12 h-12 bg-[#be185d] rounded-2xl flex items-center justify-center mb-3 mx-auto">
+                <Heart className="w-6 h-6 text-pink-300" />
+              </div>
+              <p className="text-xl font-bold text-white text-center">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
+              <p className="text-sm text-stone-400 font-medium mt-1 text-center">BP</p>
+            </button>
+
+            {/* Heart Card */}
+            <button 
+              onClick={() => setShowVitals(true)}
+              className="bg-[#1c1c1e] rounded-2xl p-4 hover:bg-[#2c2c2e] transition-colors"
+            >
+              <div className="w-12 h-12 bg-[#9a3412] rounded-2xl flex items-center justify-center mb-3 mx-auto">
+                <Activity className="w-6 h-6 text-orange-300" />
+              </div>
+              <p className="text-xl font-bold text-white text-center">{latestHR ? latestHR.value : '--'}</p>
+              <p className="text-sm text-stone-400 font-medium mt-1 text-center">Heart</p>
+            </button>
+
+            {/* Temp Card */}
+            <button 
+              onClick={() => setShowVitals(true)}
+              className="bg-[#1c1c1e] rounded-2xl p-4 hover:bg-[#2c2c2e] transition-colors"
+            >
+              <div className="w-12 h-12 bg-[#1d4ed8] rounded-2xl flex items-center justify-center mb-3 mx-auto">
+                <Thermometer className="w-6 h-6 text-blue-300" />
+              </div>
+              <p className="text-xl font-bold text-white text-center">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
+              <p className="text-sm text-stone-400 font-medium mt-1 text-center">Temp</p>
+            </button>
+
+            {/* Pain Card */}
+            <button 
+              onClick={() => setShowVitals(true)}
+              className="bg-[#1c1c1e] rounded-2xl p-4 hover:bg-[#2c2c2e] transition-colors"
+            >
+              <div className="w-12 h-12 bg-[#7c3aed] rounded-2xl flex items-center justify-center mb-3 mx-auto">
+                <Frown className="w-6 h-6 text-purple-300" />
+              </div>
+              <p className="text-xl font-bold text-white text-center">{latestPain ? `${latestPain.value}/10` : '--'}</p>
+              <p className="text-sm text-stone-400 font-medium mt-1 text-center">Pain</p>
+            </button>
           </div>
         </div>
 
