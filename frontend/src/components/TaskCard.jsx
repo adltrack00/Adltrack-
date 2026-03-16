@@ -16,13 +16,14 @@ export const TaskCard = ({
   const isMissed = task.status === TaskStatus.MISSED;
   const hasPhoto = !!task.evidenceUrl;
 
-  // Priority stripe colors (these stay the same in both themes)
+  // Priority stripe colors - matching mobile app exactly
+  // Red = Medication/Critical, Blue = Nutrition/Standard, Green = Others/Quality of Life
   const priorityStripe = {
-    [Priority.CRITICAL]: 'bg-rose-500',
-    [Priority.HIGH]: 'bg-orange-500',
-    [Priority.STANDARD]: 'bg-blue-500',
-    [Priority.LOW]: 'bg-stone-400',
-    [Priority.QUALITY_OF_LIFE]: 'bg-[#25D366]'
+    [Priority.CRITICAL]: 'bg-rose-500',      // Red for medications
+    [Priority.HIGH]: 'bg-rose-500',          // Red 
+    [Priority.STANDARD]: 'bg-blue-500',      // Blue for nutrition/standard
+    [Priority.LOW]: 'bg-[#25D366]',          // Green for others
+    [Priority.QUALITY_OF_LIFE]: 'bg-[#25D366]' // Green
   };
 
   const stripe = isCompleted ? 'bg-[#25D366]' : (priorityStripe[task.priority] || priorityStripe[Priority.STANDARD]);

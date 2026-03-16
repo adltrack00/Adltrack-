@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Home, MessageSquare, Clock, Settings, Bot, User, Heart, Activity, Thermometer,
+  Home, MessageSquare, Clock, Settings, Cpu, User, Heart, Activity, Thermometer,
   MapPin, Play, ChevronRight, Bell, CheckCircle, Sparkles, Frown, AlertTriangle
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
@@ -547,18 +547,17 @@ export const CaregiverDashboard = ({
       {activeTab === 'shift' && renderShiftContent()}
       {activeTab === 'settings' && renderSettingsContent()}
 
-      {/* Floating Action Button - Copilot Only */}
+      {/* Floating Action Button - Copilot - Chip Icon like mobile */}
       {activeTab === 'home' && isShiftActive && (
         <div className="fixed bottom-24 right-5 z-40">
-          {/* Copilot Button */}
           <button
             onClick={() => setShowCopilot(true)}
-            className={`w-9 h-9 rounded-xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 ${
-              isDarkMode ? 'bg-stone-800' : 'bg-white'
+            className={`w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 ${
+              isDarkMode ? 'bg-stone-800' : 'bg-stone-100'
             }`}
             data-testid="copilot-btn"
           >
-            <Bot className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-stone-900'}`} />
+            <Cpu className={`w-6 h-6 ${isDarkMode ? 'text-[#25D366]' : 'text-[#25D366]'}`} />
           </button>
         </div>
       )}
