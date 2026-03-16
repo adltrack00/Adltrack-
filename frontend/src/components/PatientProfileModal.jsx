@@ -143,7 +143,7 @@ export const PatientProfileModal = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with Photo */}
-        <div className="relative h-48">
+        <div className="relative h-[38vh]">
           {patient.photo ? (
             <>
               <img 
