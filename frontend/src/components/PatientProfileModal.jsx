@@ -142,8 +142,8 @@ export const PatientProfileModal = ({
         className="flex-1 overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header with Photo - Full width, taller */}
-        <div className="relative h-80">
+        {/* Header with Photo */}
+        <div className="relative h-60">
           {patient.photo ? (
             <>
               <img 
