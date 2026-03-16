@@ -1,712 +1,741 @@
 import React, { useState } from 'react';
 import { 
-  Home, MessageSquare, Bell, Menu, Bot, Heart, Thermometer, Activity,
-  ChevronRight, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X, 
-  AlertTriangle, Star, Shield, Phone, Mail, ArrowLeft, Calendar, ChevronDown
+  Activity, MessageSquare, Bell, Settings, Bot, Heart, Thermometer, 
+  ChevronRight, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X, AlertTriangle, Home
 } from 'lucide-react';
-import { TaskStatus } from '../types';
-import { CAREGIVER_PROFILE, CARE_IMAGES } from '../services/mockData';
+import { TaskStatus, UserRole } from '../types';
+import { PatientProfileModal } from './PatientProfileModal';
+import { VitalsModal } from './VitalsModal';
+import { AICopilot } from './AICopilot';
+import { IncidentViewPage } from './IncidentViewPage';
+import { ProfilePage } from './pages/ProfilePage';
+import { SettingsPage } from './pages/SettingsPage';
+import { AccountsPage } from './pages/AccountsPage';
+import { HistoryPage } from './pages/HistoryPage';
+import { SupportPage } from './pages/SupportPage';
+import { ChatPage } from './pages/ChatPage';
+import { UpdatesPage } from './pages/UpdatesPage';
+import { CaregiverPage } from './pages/CaregiverPage';
+import { CARE_IMAGES, CAREGIVER_PROFILE } from '../services/mockData';
 import { useTheme } from '../context/ThemeContext';
 
-// ============================================
-// COLORS - Exact match from mobile app
-// ============================================
-const COLORS = {
-  background: '#000000',
-  card: '#1c1c1e',
-  cardBorder: '#3a3a3c',
-  primary: '#25D366',
-  white: '#ffffff',
-  textPrimary: '#ffffff',
-  textSecondary: '#8e8e93',
-  textMuted: '#636366',
-  critical: '#ef4444',
-  standard: '#3b82f6',
-  low: '#22c55e',
-  completed: '#f59e0b',
-  vitalBP: '#be185d',
-  vitalBPBg: 'rgba(190, 24, 93, 0.25)',
-  vitalHeart: '#ea580c',
-  vitalHeartBg: 'rgba(234, 88, 12, 0.25)',
-  vitalTemp: '#3b82f6',
-  vitalTempBg: 'rgba(59, 130, 246, 0.25)',
-  vitalPain: '#a855f7',
-  vitalPainBg: 'rgba(168, 85, 247, 0.25)',
-};
-
-// ============================================
-// MOCK DATA
-// ============================================
-const PATIENT = {
-  name: 'David Smith',
-  age: 78,
-  photo: 'https://customer-assets.emergentagent.com/job_adlcare-expo/artifacts/0kd0031g_IMG_9932.jpeg',
-};
-
-const FAMILY_MEMBER = {
-  name: 'Mary Smith',
-  relation: 'Daughter',
-  email: 'mary.smith@email.com',
-};
-
-const CAREGIVER = {
-  name: 'Julia Martinez',
-  role: 'Certified Nursing Assistant',
-  avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Julia',
-  rating: '4.9',
-  years: '5',
-  shifts: '234',
-  certifications: ['CNA', 'CPR/First Aid', 'Dementia Care'],
-  email: 'julia.martinez@adltrack.com',
-  phone: '(555) 123-4567',
-};
-
-const COMPLETED_TASKS = [
-  { id: 1, title: 'Morning Medication', time: '8:00 AM', category: 'Medication', icon: '💊', completedAt: '8:05 AM', hasPhoto: true, photo: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400' },
-  { id: 2, title: 'Breakfast Assistance', time: '8:30 AM', category: 'Nutrition', icon: '🍳', completedAt: '8:45 AM', hasPhoto: true, photo: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=400' },
-  { id: 3, title: 'Morning Hygiene', time: '9:00 AM', category: 'Personal Care', icon: '🚿', completedAt: '9:20 AM', hasPhoto: false },
-];
-
-const INCIDENT_TYPES = [
-  { id: 'fall', label: 'Fall', icon: '🚨', color: '#ef4444' },
-  { id: 'injury', label: 'Injury', icon: '🩹', color: '#f59e0b' },
-  { id: 'behavior', label: 'Behavioral', icon: '😤', color: '#8b5cf6' },
-  { id: 'medical', label: 'Medical', icon: '🏥', color: '#3b82f6' },
-  { id: 'medication', label: 'Medication Error', icon: '💊', color: '#ec4899' },
-  { id: 'other', label: 'Other', icon: '📝', color: '#6b7280' },
-];
-
-// ============================================
-// NEW REQUEST MODAL
-// ============================================
-const NewRequestModal = ({ visible, onClose, onSubmit }) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState('standard');
-
-  const handleSubmit = () => {
-    if (title.trim()) {
-      onSubmit({ title, description, priority });
-      setTitle('');
-      setDescription('');
-      setPriority('standard');
-      onClose();
-    }
-  };
-
-  if (!visible) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ backgroundColor: 'rgba(0,0,0,0.8)' }}>
-      <div className="w-full max-w-md rounded-t-3xl p-6" style={{ backgroundColor: COLORS.card, maxHeight: '90vh', overflowY: 'auto' }}>
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold" style={{ color: COLORS.white }}>New Request</h2>
-          <button onClick={onClose} className="p-2 rounded-full" style={{ backgroundColor: COLORS.cardBorder }}>
-            <X size={20} color={COLORS.white} />
-          </button>
-        </div>
-
-        {/* Title Input */}
-        <div className="mb-4">
-          <label className="text-sm font-semibold mb-2 block" style={{ color: COLORS.textSecondary }}>REQUEST TITLE</label>
-          <input
-            type="text"
-            className="w-full p-4 rounded-xl"
-            style={{ backgroundColor: COLORS.cardBorder, color: COLORS.white, border: 'none' }}
-            placeholder="What do you need?"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-
-        {/* Description Input */}
-        <div className="mb-4">
-          <label className="text-sm font-semibold mb-2 block" style={{ color: COLORS.textSecondary }}>DESCRIPTION</label>
-          <textarea
-            className="w-full p-4 rounded-xl"
-            style={{ backgroundColor: COLORS.cardBorder, color: COLORS.white, border: 'none', resize: 'none' }}
-            placeholder="Provide more details..."
-            rows={4}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-
-        {/* Priority Selection */}
-        <div className="mb-6">
-          <label className="text-sm font-semibold mb-2 block" style={{ color: COLORS.textSecondary }}>PRIORITY</label>
-          <div className="flex gap-2">
-            {[
-              { value: 'low', label: 'Low', color: COLORS.low },
-              { value: 'standard', label: 'Standard', color: COLORS.standard },
-              { value: 'critical', label: 'Critical', color: COLORS.critical },
-            ].map((p) => (
-              <button
-                key={p.value}
-                className="flex-1 py-3 rounded-xl font-semibold transition-all"
-                style={{
-                  backgroundColor: priority === p.value ? `${p.color}30` : COLORS.cardBorder,
-                  color: priority === p.value ? p.color : COLORS.white,
-                  borderWidth: priority === p.value ? 2 : 0,
-                  borderColor: p.color,
-                }}
-                onClick={() => setPriority(p.value)}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <button
-          className="w-full py-4 rounded-2xl font-semibold"
-          style={{ backgroundColor: title.trim() ? COLORS.primary : COLORS.cardBorder, color: COLORS.white }}
-          onClick={handleSubmit}
-          disabled={!title.trim()}
-        >
-          Submit Request
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// ============================================
-// CURRENT CAREGIVER SCREEN
-// ============================================
-const CurrentCaregiverScreen = ({ onBack, performanceMetrics, dailySummary }) => {
-  return (
-    <div className="h-full overflow-y-auto" style={{ backgroundColor: COLORS.background }}>
-      {/* Header */}
-      <div className="p-4 flex items-center gap-4 border-b" style={{ borderColor: COLORS.cardBorder }}>
-        <button className="p-2 rounded-full" style={{ backgroundColor: COLORS.cardBorder }} onClick={onBack}>
-          <ArrowLeft size={24} color={COLORS.white} />
-        </button>
-        <h1 className="text-xl font-bold" style={{ color: COLORS.white }}>Current Caregiver</h1>
-      </div>
-
-      <div className="p-4">
-        {/* Caregiver Profile Header */}
-        <div className="text-center mb-6">
-          <img
-            src={CAREGIVER.avatar}
-            alt={CAREGIVER.name}
-            className="w-28 h-28 rounded-full mx-auto mb-4 border-4"
-            style={{ borderColor: COLORS.primary }}
-          />
-          <h2 className="text-2xl font-bold" style={{ color: COLORS.white }}>{CAREGIVER.name}</h2>
-          <p style={{ color: COLORS.textSecondary }}>{CAREGIVER.role}</p>
-
-          {/* Stats Row */}
-          <div className="flex justify-center gap-8 mt-5">
-            <div className="text-center">
-              <div className="w-11 h-11 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
-                <Star size={18} color="#f59e0b" />
-              </div>
-              <p className="text-xl font-bold" style={{ color: COLORS.white }}>{CAREGIVER.rating}</p>
-              <p className="text-xs" style={{ color: COLORS.textSecondary }}>Rating</p>
-            </div>
-            <div className="text-center">
-              <div className="w-11 h-11 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
-                <Clock size={18} color={COLORS.primary} />
-              </div>
-              <p className="text-xl font-bold" style={{ color: COLORS.white }}>{CAREGIVER.years}</p>
-              <p className="text-xs" style={{ color: COLORS.textSecondary }}>Years</p>
-            </div>
-            <div className="text-center">
-              <div className="w-11 h-11 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
-                <Calendar size={18} color="#3b82f6" />
-              </div>
-              <p className="text-xl font-bold" style={{ color: COLORS.white }}>{CAREGIVER.shifts}</p>
-              <p className="text-xs" style={{ color: COLORS.textSecondary }}>Shifts</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Certifications */}
-        <div className="p-5 rounded-3xl mb-4" style={{ backgroundColor: COLORS.card }}>
-          <h3 className="font-semibold mb-3" style={{ color: COLORS.white }}>Certifications</h3>
-          <div className="flex flex-wrap gap-2">
-            {CAREGIVER.certifications.map((cert, idx) => (
-              <span key={idx} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ backgroundColor: 'rgba(37, 211, 102, 0.15)' }}>
-                <Shield size={14} color={COLORS.primary} />
-                <span className="text-sm font-medium" style={{ color: COLORS.primary }}>{cert}</span>
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Contact Information */}
-        <div className="p-5 rounded-3xl mb-4" style={{ backgroundColor: COLORS.card }}>
-          <h3 className="font-semibold mb-3" style={{ color: COLORS.white }}>Contact Information</h3>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Mail size={20} color={COLORS.textSecondary} />
-              <span style={{ color: COLORS.white }}>{CAREGIVER.email}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Phone size={20} color={COLORS.textSecondary} />
-              <span style={{ color: COLORS.white }}>{CAREGIVER.phone}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Performance Card */}
-        <div className="p-5 rounded-3xl mb-4" style={{ backgroundColor: COLORS.card }}>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold" style={{ color: COLORS.white }}>Caregiver Performance</h3>
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full" style={{ backgroundColor: 'rgba(37, 211, 102, 0.15)' }}>
-              <Star size={16} color={COLORS.primary} />
-              <span className="font-bold" style={{ color: COLORS.primary }}>{performanceMetrics?.monthlyScore || 96}%</span>
-            </div>
-          </div>
-          <div className="flex justify-between">
-            <div className="text-center">
-              <p className="text-2xl font-bold" style={{ color: COLORS.white }}>{performanceMetrics?.taskCompletionRate || 94}%</p>
-              <p className="text-xs" style={{ color: COLORS.textSecondary }}>Tasks{'\n'}Completed</p>
-            </div>
-            <div className="h-12 w-px" style={{ backgroundColor: COLORS.cardBorder }} />
-            <div className="text-center">
-              <p className="text-2xl font-bold" style={{ color: COLORS.white }}>{performanceMetrics?.onTimeRate || 98}%</p>
-              <p className="text-xs" style={{ color: COLORS.textSecondary }}>On-Time{'\n'}Rate</p>
-            </div>
-            <div className="h-12 w-px" style={{ backgroundColor: COLORS.cardBorder }} />
-            <div className="text-center">
-              <p className="text-2xl font-bold" style={{ color: COLORS.white }}>{performanceMetrics?.familyRating || 4.8}</p>
-              <p className="text-xs" style={{ color: COLORS.textSecondary }}>Family{'\n'}Rating</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Today's Summary Card */}
-        <div className="p-5 rounded-3xl mb-4" style={{ backgroundColor: COLORS.card }}>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold" style={{ color: COLORS.white }}>Today's Summary</h3>
-            <span className="text-sm" style={{ color: COLORS.textSecondary }}>{dailySummary?.date || new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 rounded-xl text-center" style={{ backgroundColor: COLORS.cardBorder }}>
-              <p className="text-xl font-bold" style={{ color: COLORS.white }}>{dailySummary?.tasksCompleted || 3}/{dailySummary?.totalTasks || 12}</p>
-              <p className="text-xs" style={{ color: COLORS.textSecondary }}>Tasks Done</p>
-            </div>
-            <div className="p-3 rounded-xl text-center" style={{ backgroundColor: COLORS.cardBorder }}>
-              <p className="text-xl font-bold" style={{ color: COLORS.white }}>{dailySummary?.medicationsGiven || 2}/{dailySummary?.totalMedications || 4}</p>
-              <p className="text-xs" style={{ color: COLORS.textSecondary }}>Meds Given</p>
-            </div>
-            <div className="p-3 rounded-xl text-center" style={{ backgroundColor: COLORS.cardBorder }}>
-              <p className="text-xl font-bold" style={{ color: COLORS.white }}>{dailySummary?.caregiverArrival || '7:58 AM'}</p>
-              <p className="text-xs" style={{ color: COLORS.textSecondary }}>Arrived At</p>
-            </div>
-            <div className="p-3 rounded-xl text-center" style={{ backgroundColor: COLORS.cardBorder }}>
-              <p className="text-xl font-bold" style={{ color: COLORS.white }}>{dailySummary?.incidentsReported || 0}</p>
-              <p className="text-xs" style={{ color: COLORS.textSecondary }}>Incidents</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Message Caregiver Button */}
-        <button className="w-full py-4 rounded-2xl flex items-center justify-center gap-3" style={{ backgroundColor: COLORS.primary }}>
-          <MessageSquare size={20} color={COLORS.white} />
-          <span className="font-semibold" style={{ color: COLORS.white }}>Message Caregiver</span>
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// ============================================
-// MENU SCREEN
-// ============================================
-const FamilyMenuScreen = ({ onSignOut, showCurrentCaregiver, setShowCurrentCaregiver, performanceMetrics, dailySummary }) => {
-  if (showCurrentCaregiver) {
-    return (
-      <CurrentCaregiverScreen 
-        onBack={() => setShowCurrentCaregiver(false)}
-        performanceMetrics={performanceMetrics}
-        dailySummary={dailySummary}
-      />
-    );
-  }
-
-  return (
-    <div className="h-full overflow-y-auto" style={{ backgroundColor: COLORS.background }}>
-      {/* Profile Header */}
-      <div className="text-center py-6 px-4">
-        <div className="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center border-4" style={{ backgroundColor: COLORS.cardBorder, borderColor: COLORS.primary }}>
-          <User size={48} color={COLORS.textSecondary} />
-        </div>
-        <h2 className="text-2xl font-bold" style={{ color: COLORS.white }}>{FAMILY_MEMBER.name}</h2>
-        <p style={{ color: COLORS.textSecondary }}>{FAMILY_MEMBER.relation} of {PATIENT.name}</p>
-      </div>
-
-      {/* Menu Items */}
-      <div className="px-4 space-y-3">
-        {/* Current Caregiver - Special Item */}
-        <button 
-          className="w-full p-4 rounded-2xl flex items-center gap-4"
-          style={{ backgroundColor: COLORS.card }}
-          onClick={() => setShowCurrentCaregiver(true)}
-        >
-          <div className="w-11 h-11 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)' }}>
-            <Heart size={24} color={COLORS.critical} />
-          </div>
-          <span className="flex-1 text-left font-medium" style={{ color: COLORS.white }}>Current Caregiver</span>
-          <ChevronRight size={22} color={COLORS.textSecondary} />
-        </button>
-
-        {/* Other Menu Items */}
-        {[
-          { icon: <User size={24} />, label: 'Patient Profile', color: COLORS.primary },
-          { icon: <Bell size={24} />, label: 'Notifications', color: '#f59e0b' },
-          { icon: <Shield size={24} />, label: 'Privacy & Security', color: '#3b82f6' },
-          { icon: <MessageSquare size={24} />, label: 'Help & Support', color: '#8b5cf6' },
-        ].map((item, idx) => (
-          <button 
-            key={idx}
-            className="w-full p-4 rounded-2xl flex items-center gap-4"
-            style={{ backgroundColor: COLORS.card }}
-          >
-            <div className="w-11 h-11 rounded-full flex items-center justify-center" style={{ backgroundColor: `${item.color}20` }}>
-              {React.cloneElement(item.icon, { color: item.color })}
-            </div>
-            <span className="flex-1 text-left font-medium" style={{ color: COLORS.white }}>{item.label}</span>
-            <ChevronRight size={22} color={COLORS.textSecondary} />
-          </button>
-        ))}
-
-        {/* Sign Out */}
-        <button 
-          className="w-full p-4 rounded-2xl flex items-center gap-4 mt-6"
-          style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)' }}
-          onClick={onSignOut}
-        >
-          <div className="w-11 h-11 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)' }}>
-            <ArrowLeft size={24} color={COLORS.critical} />
-          </div>
-          <span className="flex-1 text-left font-medium" style={{ color: COLORS.critical }}>Sign Out</span>
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// ============================================
-// MAIN FAMILY DASHBOARD COMPONENT
-// ============================================
 export const FamilyDashboard = ({ 
   onBack, 
   onSignOut,
   onRoleSwitch,
   currentRole,
-  tasks: propTasks = [],
-  patient: propPatient,
-  vitalsData: propVitalsData,
-  incidents: propIncidents = [],
+  tasks = [],
+  patient,
+  vitalsData,
+  incidents = [],
+  onAddRequest
 }) => {
+  const { isDarkMode, bg, bgCard, bgCardHover, border, text, textSecondary, textMuted, bgNav, bgInput } = useTheme();
   const [activeTab, setActiveTab] = useState('home');
   const [activeTaskTab, setActiveTaskTab] = useState('timeline');
-  const [completedTasks, setCompletedTasks] = useState(COMPLETED_TASKS);
-  const [sharedIncidents, setSharedIncidents] = useState([]);
-  const [myRequests, setMyRequests] = useState([]);
+  const [showPatientProfile, setShowPatientProfile] = useState(false);
+  const [showVitals, setShowVitals] = useState(false);
+  const [showCopilot, setShowCopilot] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
-  const [showCurrentCaregiver, setShowCurrentCaregiver] = useState(false);
-  const [vitals] = useState({ bp: { systolic: 120, diastolic: 76 }, heart: 72, temp: 98.6, pain: 1 });
-  
-  // Performance metrics for caregiver profile
-  const performanceMetrics = { monthlyScore: 96, taskCompletionRate: 94, onTimeRate: 98, familyRating: 4.8 };
-  const dailySummary = { 
-    date: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
-    tasksCompleted: completedTasks.length, 
-    totalTasks: 12, 
-    medicationsGiven: 2, 
-    totalMedications: 4, 
-    caregiverArrival: '7:58 AM', 
-    incidentsReported: sharedIncidents.length 
+  const [activePage, setActivePage] = useState(null);
+  const [newRequest, setNewRequest] = useState({ title: '', description: '', priority: 'standard' });
+  const [myRequests, setMyRequests] = useState([]);
+  const [selectedTask, setSelectedTask] = useState(null); // For image detail modal
+
+  // Historical date viewing
+  const [viewingDate, setViewingDate] = useState(null);
+  const [historicalTasks, setHistoricalTasks] = useState([]);
+
+  const today = new Date(2026, 0, 17); // Jan 17, 2026
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                      'July', 'August', 'September', 'October', 'November', 'December'];
+
+  const formatDateHeader = (date) => {
+    if (!date) return '';
+    const isToday = date.toDateString() === today.toDateString();
+    if (isToday) return 'Today';
+    return `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
   };
 
-  const totalTasks = 12;
-  const progressPercent = (completedTasks.length / totalTasks) * 100;
-
-  const handleAddRequest = (request) => {
-    const newRequest = {
-      ...request,
-      id: Date.now(),
-      status: 'pending',
-      createdAt: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
-    };
-    setMyRequests(prev => [newRequest, ...prev]);
+  // Handle date selection from patient profile calendar
+  const handleSelectHistoricalDate = (date, tasksForDate) => {
+    setViewingDate(date);
+    setHistoricalTasks(tasksForDate);
+    setActiveTab('home');
   };
 
-  // Render Home Screen
-  const renderHomeScreen = () => (
-    <div className="h-full overflow-y-auto" style={{ backgroundColor: COLORS.background }}>
-      {/* Header */}
-      <div className="p-4 flex items-center justify-between">
-        <div>
-          <p className="text-sm" style={{ color: COLORS.textSecondary }}>Hello</p>
-          <h1 className="text-2xl font-bold" style={{ color: COLORS.white }}>{FAMILY_MEMBER.name}</h1>
+  // Return to today's view
+  const handleReturnToToday = () => {
+    setViewingDate(null);
+    setHistoricalTasks([]);
+  };
+
+  // Get latest vitals
+  const latestBP = vitalsData?.bloodPressure?.[vitalsData.bloodPressure.length - 1];
+  const latestHR = vitalsData?.heartRate?.[vitalsData.heartRate.length - 1];
+  const latestTemp = vitalsData?.temperature?.[vitalsData.temperature.length - 1];
+  const latestPain = vitalsData?.pain?.[vitalsData.pain.length - 1];
+
+  // Filter completed tasks for timeline - use historical if viewing past date
+  const displayTasks = viewingDate ? historicalTasks : tasks.filter(t => t.status === TaskStatus.COMPLETED);
+  const completedTasks = tasks.filter(t => t.status === TaskStatus.COMPLETED);
+  const totalTasks = tasks.filter(t => t.status !== TaskStatus.PROPOSED).length;
+
+  // Handle adding a new request
+  const handleAddRequest = () => {
+    if (newRequest.title.trim()) {
+      const request = {
+        id: Date.now(),
+        ...newRequest,
+        status: 'pending',
+        createdAt: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+      };
+      setMyRequests(prev => [request, ...prev]);
+      setNewRequest({ title: '', description: '', priority: 'standard' });
+      setShowRequestModal(false);
+    }
+  };
+
+  // Helper to get task image with AI-generated fallbacks
+  const getTaskImage = (task) => {
+    if (task.evidenceUrl) return task.evidenceUrl;
+    const title = task.title.toLowerCase();
+    if (title.includes('medication') || title.includes('med')) return CARE_IMAGES.medication;
+    if (title.includes('breakfast') || title.includes('lunch') || title.includes('dinner') || title.includes('meal')) return CARE_IMAGES.meal;
+    if (title.includes('walk') || title.includes('exercise')) return CARE_IMAGES.walk;
+    return CARE_IMAGES.vitals;
+  };
+
+  // Render sub-pages
+  if (activePage === 'profile') {
+    return <ProfilePage onBack={() => setActivePage(null)} role={UserRole.FAMILY} onSignOut={onSignOut} />;
+  }
+  if (activePage === 'settings') {
+    return <SettingsPage onBack={() => setActivePage(null)} />;
+  }
+  if (activePage === 'billing') {
+    return <AccountsPage onBack={() => setActivePage(null)} role={UserRole.FAMILY} />;
+  }
+  if (activePage === 'history') {
+    return <HistoryPage onBack={() => setActivePage(null)} role={UserRole.FAMILY} />;
+  }
+  if (activePage === 'support') {
+    return <SupportPage onBack={() => setActivePage(null)} />;
+  }
+  if (activePage === 'chat') {
+    return <ChatPage onBack={() => setActivePage(null)} role={UserRole.FAMILY} />;
+  }
+  if (activePage === 'updates') {
+    return <UpdatesPage onBack={() => setActivePage(null)} />;
+  }
+  if (activePage === 'caregiver') {
+    return <CaregiverPage onBack={() => setActivePage(null)} />;
+  }
+
+  // Render Home Content
+  const renderHomeContent = () => (
+    <div className={`flex-1 overflow-y-auto ${bg} pb-20`}>
+      {/* Vitals Summary - Grid Layout */}
+      <div className="px-6 pt-6 mb-6">
+        <div className="grid grid-cols-4 gap-2">
+          {/* BP */}
+          <button 
+            onClick={() => setShowVitals(true)}
+            className={`${bgCard} border ${border} rounded-2xl p-3 ${bgCardHover} transition-colors`}
+          >
+            <div className="w-9 h-9 bg-rose-500/20 rounded-xl flex items-center justify-center mb-2 mx-auto">
+              <Heart className="w-4 h-4 text-rose-400" />
+            </div>
+            <p className={`text-base font-bold ${text} text-center`}>{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
+            <p className={`text-[10px] ${textSecondary} font-medium mt-0.5 text-center`}>BP</p>
+          </button>
+
+          {/* HR */}
+          <button 
+            onClick={() => setShowVitals(true)}
+            className={`${bgCard} border ${border} rounded-2xl p-3 ${bgCardHover} transition-colors`}
+          >
+            <div className="w-9 h-9 bg-orange-500/20 rounded-xl flex items-center justify-center mb-2 mx-auto">
+              <Activity className="w-4 h-4 text-orange-400" />
+            </div>
+            <p className={`text-base font-bold ${text} text-center`}>{latestHR ? latestHR.value : '--'}</p>
+            <p className={`text-[10px] ${textSecondary} font-medium mt-0.5 text-center`}>Heart</p>
+          </button>
+
+          {/* Temp */}
+          <button 
+            onClick={() => setShowVitals(true)}
+            className={`${bgCard} border ${border} rounded-2xl p-3 ${bgCardHover} transition-colors`}
+          >
+            <div className="w-9 h-9 bg-blue-500/20 rounded-xl flex items-center justify-center mb-2 mx-auto">
+              <Thermometer className="w-4 h-4 text-blue-400" />
+            </div>
+            <p className={`text-base font-bold ${text} text-center`}>{latestTemp ? `${latestTemp.value}°` : '--'}</p>
+            <p className={`text-[10px] ${textSecondary} font-medium mt-0.5 text-center`}>Temp</p>
+          </button>
+
+          {/* Pain */}
+          <button 
+            onClick={() => setShowVitals(true)}
+            className={`${bgCard} border ${border} rounded-2xl p-3 ${bgCardHover} transition-colors`}
+          >
+            <div className="w-9 h-9 bg-purple-500/20 rounded-xl flex items-center justify-center mb-2 mx-auto">
+              <Frown className="w-4 h-4 text-purple-400" />
+            </div>
+            <p className={`text-base font-bold ${text} text-center`}>{latestPain ? `${latestPain.value}/10` : '--'}</p>
+            <p className={`text-[10px] ${textSecondary} font-medium mt-0.5 text-center`}>Pain</p>
+          </button>
         </div>
-        <button className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: COLORS.cardBorder }}>
-          <Bell size={20} color={COLORS.white} />
-        </button>
       </div>
 
-      <div className="px-4">
-        {/* Vitals Grid */}
-        <div className="grid grid-cols-4 gap-3 mb-4">
-          <div className="p-3 rounded-2xl text-center" style={{ backgroundColor: COLORS.vitalBPBg }}>
-            <div className="w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: COLORS.vitalBP }}>
-              <Heart size={20} color={COLORS.white} />
-            </div>
-            <p className="font-bold" style={{ color: COLORS.white }}>{vitals.bp.systolic}/{vitals.bp.diastolic}</p>
-            <p className="text-xs" style={{ color: COLORS.textSecondary }}>BP</p>
-          </div>
-          <div className="p-3 rounded-2xl text-center" style={{ backgroundColor: COLORS.vitalHeartBg }}>
-            <div className="w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: COLORS.vitalHeart }}>
-              <Activity size={20} color={COLORS.white} />
-            </div>
-            <p className="font-bold" style={{ color: COLORS.white }}>{vitals.heart}</p>
-            <p className="text-xs" style={{ color: COLORS.textSecondary }}>Heart</p>
-          </div>
-          <div className="p-3 rounded-2xl text-center" style={{ backgroundColor: COLORS.vitalTempBg }}>
-            <div className="w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: COLORS.vitalTemp }}>
-              <Thermometer size={20} color={COLORS.white} />
-            </div>
-            <p className="font-bold" style={{ color: COLORS.white }}>{vitals.temp}°</p>
-            <p className="text-xs" style={{ color: COLORS.textSecondary }}>Temp</p>
-          </div>
-          <div className="p-3 rounded-2xl text-center" style={{ backgroundColor: COLORS.vitalPainBg }}>
-            <div className="w-10 h-10 rounded-full mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: COLORS.vitalPain }}>
-              <Frown size={20} color={COLORS.white} />
-            </div>
-            <p className="font-bold" style={{ color: COLORS.white }}>{vitals.pain}/10</p>
-            <p className="text-xs" style={{ color: COLORS.textSecondary }}>Pain</p>
-          </div>
-        </div>
-
-        {/* Progress Section */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold" style={{ color: COLORS.white }}>Today's Progress</span>
-            <span style={{ color: COLORS.primary }}>{completedTasks.length}/{totalTasks}</span>
-          </div>
-          <div className="h-2 rounded-full" style={{ backgroundColor: COLORS.cardBorder }}>
-            <div className="h-full rounded-full" style={{ backgroundColor: COLORS.primary, width: `${progressPercent}%` }} />
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex border-b mb-4" style={{ borderColor: COLORS.cardBorder }}>
-          <button 
-            className="flex-1 py-3 text-center font-semibold"
-            style={{ 
-              color: activeTaskTab === 'timeline' ? COLORS.primary : COLORS.textSecondary,
-              borderBottom: activeTaskTab === 'timeline' ? `2px solid ${COLORS.primary}` : 'none'
-            }}
-            onClick={() => setActiveTaskTab('timeline')}
-          >
-            Care Timeline
-          </button>
-          <button 
-            className="flex-1 py-3 text-center font-semibold"
-            style={{ 
-              color: activeTaskTab === 'requests' ? COLORS.primary : COLORS.textSecondary,
-              borderBottom: activeTaskTab === 'requests' ? `2px solid ${COLORS.primary}` : 'none'
-            }}
-            onClick={() => setActiveTaskTab('requests')}
-          >
-            My Requests
-          </button>
-          <button 
-            className="flex-1 py-3 text-center font-semibold"
-            style={{ 
-              color: activeTaskTab === 'incidents' ? COLORS.primary : COLORS.textSecondary,
-              borderBottom: activeTaskTab === 'incidents' ? `2px solid ${COLORS.primary}` : 'none'
-            }}
-            onClick={() => setActiveTaskTab('incidents')}
-          >
-            Incidents
-          </button>
-        </div>
-
-        {/* Care Timeline */}
-        {activeTaskTab === 'timeline' && (
-          <div className="space-y-4 pb-24">
-            {completedTasks.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: COLORS.card }}>
-                  <Clock size={32} color={COLORS.textMuted} />
-                </div>
-                <p style={{ color: COLORS.textSecondary }}>No completed tasks yet today</p>
+      {/* Progress Section - Compact style */}
+      <div className="px-6 pb-5">
+        {/* Historical Date Banner */}
+        {viewingDate && (
+          <div className="mb-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center">
+                <Clock className="w-5 h-5 text-amber-400" />
               </div>
-            ) : (
-              completedTasks.map((task) => (
-                <div key={task.id} className="rounded-2xl overflow-hidden" style={{ backgroundColor: COLORS.card }}>
-                  {/* Task Photo */}
-                  {task.hasPhoto && task.photo && (
-                    <img src={task.photo} alt={task.title} className="w-full h-48 object-cover" />
-                  )}
-                  {/* Task Info */}
-                  <div className="p-4">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-2xl">{task.icon}</span>
-                      <div className="flex-1">
-                        <h4 className="font-semibold" style={{ color: COLORS.white }}>{task.title}</h4>
-                        <p className="text-sm" style={{ color: COLORS.textSecondary }}>{task.category}</p>
-                      </div>
-                      <CheckCircle size={24} color={COLORS.primary} />
-                    </div>
-                    <p className="text-sm" style={{ color: COLORS.textMuted }}>Completed at {task.completedAt}</p>
-                  </div>
-                </div>
-              ))
-            )}
+              <div>
+                <p className="text-xs text-amber-400 font-bold uppercase tracking-wider">Viewing History</p>
+                <p className={`text-base font-bold ${text}`}>{formatDateHeader(viewingDate)}</p>
+              </div>
+            </div>
+            <button 
+              onClick={handleReturnToToday}
+              className="px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-bold hover:bg-amber-600 transition-colors"
+            >
+              Back to Today
+            </button>
           </div>
         )}
 
-        {/* My Requests */}
-        {activeTaskTab === 'requests' && (
-          <div className="pb-24">
+        <div className="flex items-center justify-between mb-2">
+          <span className={`text-sm font-medium ${textSecondary}`}>
+            {viewingDate ? `${formatDateHeader(viewingDate)}'s Progress` : "Today's Progress"}
+          </span>
+          <span className={`text-sm font-bold ${text}`}>
+            {viewingDate ? displayTasks.length : completedTasks.length}/{viewingDate ? displayTasks.length : totalTasks}
+          </span>
+        </div>
+        <div className={`h-2 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-200'} rounded-full overflow-hidden`}>
+          <div 
+            className="h-full bg-[#25D366] rounded-full transition-all duration-500"
+            style={{ width: viewingDate ? '100%' : (totalTasks > 0 ? `${(completedTasks.length / totalTasks) * 100}%` : '0%') }}
+          />
+        </div>
+      </div>
+
+      {/* Task Tabs - Minimal Line Style */}
+      <div className="px-6 mb-4">
+        <div className="flex items-center gap-4">
+          {/* My Requests on left - only show if viewing today */}
+          {!viewingDate && (
+            <>
+              <button
+                onClick={() => setActiveTaskTab('requests')}
+                className="relative"
+              >
+                <span className={`text-sm font-semibold transition-colors ${
+                  activeTaskTab === 'requests'
+                    ? text
+                    : `${textMuted} hover:${textSecondary}`
+                }`}>
+                  My Requests
+                </span>
+                {myRequests.length > 0 && (
+                  <span className="absolute -top-2 -right-3 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {myRequests.length}
+                  </span>
+                )}
+              </button>
+              
+              {/* Line */}
+              <div className={`flex-1 h-px ${isDarkMode ? 'bg-stone-700' : 'bg-stone-300'}`} />
+            </>
+          )}
+          
+          {/* Care Timeline on right */}
+          <button
+            onClick={() => setActiveTaskTab('timeline')}
+            className={`text-sm font-semibold transition-colors ${
+              activeTaskTab === 'timeline' || viewingDate
+                ? text
+                : `${textMuted} hover:${textSecondary}`
+            }`}
+          >
+            {viewingDate ? 'Care Timeline' : 'Care Timeline'}
+          </button>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="px-6">
+        {activeTaskTab === 'requests' ? (
+          /* My Requests Tab */
+          <div className="space-y-4">
             {/* Add Request Button */}
-            <button 
-              className="w-full p-4 rounded-2xl mb-4 flex items-center justify-center gap-2"
-              style={{ backgroundColor: COLORS.primary }}
+            <button
               onClick={() => setShowRequestModal(true)}
+              className={`w-full p-4 border-2 border-dashed ${isDarkMode ? 'border-stone-700 text-stone-400 hover:border-[#25D366]' : 'border-stone-300 text-stone-500 hover:border-[#25D366]'} rounded-2xl flex items-center justify-center gap-2 hover:text-[#25D366] transition-colors`}
+              data-testid="add-request-btn"
             >
-              <Plus size={20} color={COLORS.white} />
-              <span className="font-semibold" style={{ color: COLORS.white }}>New Request</span>
+              <Plus className="w-5 h-5" />
+              <span className="font-semibold">Add New Request</span>
             </button>
 
-            {myRequests.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: COLORS.card }}>
-                  <MessageSquare size={32} color={COLORS.textMuted} />
-                </div>
-                <h3 className="font-semibold mb-2" style={{ color: COLORS.white }}>No Requests Yet</h3>
-                <p style={{ color: COLORS.textSecondary }}>Tap the button above to create a new request</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {myRequests.map((request) => (
-                  <div
-                    key={request.id}
-                    className="p-4 rounded-2xl"
-                    style={{ backgroundColor: COLORS.card, borderLeft: `4px solid ${request.priority === 'critical' ? COLORS.critical : request.priority === 'standard' ? COLORS.standard : COLORS.low}` }}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold" style={{ color: COLORS.white }}>{request.title}</span>
-                      <span 
-                        className="text-xs px-2 py-1 rounded"
-                        style={{ 
-                          backgroundColor: request.status === 'pending' ? 'rgba(234, 179, 8, 0.2)' : 'rgba(34, 197, 94, 0.2)',
-                          color: request.status === 'pending' ? COLORS.completed : COLORS.low
-                        }}
-                      >
-                        {request.status === 'pending' ? 'PENDING' : 'COMPLETED'}
+            {/* Request List */}
+            {myRequests.length > 0 ? (
+              myRequests.map((request) => (
+                <div 
+                  key={request.id}
+                  className={`${bgCard} border ${border} rounded-2xl p-4`}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                        request.priority === 'urgent' 
+                          ? 'bg-rose-500/20 text-rose-400' 
+                          : request.priority === 'high'
+                          ? 'bg-orange-500/20 text-orange-400'
+                          : isDarkMode ? 'bg-stone-800 text-stone-400' : 'bg-stone-200 text-stone-600'
+                      }`}>
+                        {request.priority.toUpperCase()}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                        request.status === 'pending'
+                          ? 'bg-amber-500/20 text-amber-400'
+                          : request.status === 'accepted'
+                          ? 'bg-teal-500/20 text-teal-400'
+                          : isDarkMode ? 'bg-stone-800 text-stone-400' : 'bg-stone-200 text-stone-600'
+                      }`}>
+                        {request.status === 'pending' ? 'Pending' : 'Accepted'}
                       </span>
                     </div>
-                    {request.description && (
-                      <p className="text-sm mb-2" style={{ color: COLORS.textSecondary }}>{request.description}</p>
-                    )}
-                    <p className="text-xs" style={{ color: COLORS.textMuted }}>Created at {request.createdAt}</p>
+                    <span className={`text-xs ${textMuted}`}>{request.createdAt}</span>
                   </div>
-                ))}
+                  <h3 className={`font-semibold ${text} mb-1`}>{request.title}</h3>
+                  {request.description && (
+                    <p className={`text-sm ${textSecondary}`}>{request.description}</p>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className={`${bgCard} border ${border} rounded-3xl p-8 text-center`}>
+                <div className={`w-16 h-16 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-100'} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+                  <Sparkles className={`w-8 h-8 ${textMuted}`} />
+                </div>
+                <h3 className={`font-semibold ${text} mb-1`}>No requests yet</h3>
+                <p className={`${textMuted} text-sm`}>
+                  Tap the button above to request tasks for the caregiver
+                </p>
               </div>
             )}
           </div>
-        )}
+        ) : (
+          /* Care Timeline Tab */
+          <div>
+            {displayTasks.length > 0 ? (
+              <div className="space-y-4">
+                {displayTasks.map((task) => (
+                  <div 
+                    key={task.id} 
+                    className={`${bgCard} border ${border} rounded-3xl overflow-hidden`}
+                  >
+                    {/* Task Image - Clickable */}
+                    <div 
+                      className="relative aspect-[16/9] cursor-pointer"
+                      onClick={() => setSelectedTask(task)}
+                    >
+                      <img 
+                        src={getTaskImage(task)} 
+                        alt={task.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-        {/* Incidents */}
-        {activeTaskTab === 'incidents' && (
-          <div className="pb-24">
-            {sharedIncidents.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ backgroundColor: COLORS.card }}>
-                  <AlertTriangle size={32} color={COLORS.textMuted} />
-                </div>
-                <h3 className="font-semibold mb-2" style={{ color: COLORS.white }}>No Incidents Reported</h3>
-                <p style={{ color: COLORS.textSecondary }}>Any incidents reported by caregivers will appear here</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {sharedIncidents.map((incident, idx) => (
-                  <div key={idx} className="p-4 rounded-2xl" style={{ backgroundColor: COLORS.card }}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-2xl">{INCIDENT_TYPES.find(t => t.id === incident.type)?.icon}</span>
-                      <span 
-                        className="px-2 py-1 rounded text-xs font-semibold"
-                        style={{ 
-                          backgroundColor: incident.severity === 'High' ? 'rgba(239, 68, 68, 0.2)' : incident.severity === 'Medium' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(34, 197, 94, 0.2)',
-                          color: incident.severity === 'High' ? COLORS.critical : incident.severity === 'Medium' ? COLORS.completed : COLORS.low
-                        }}
-                      >
-                        {incident.severity}
-                      </span>
+                      {/* Task Info Overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 p-5">
+                        <h3 className="text-white font-bold text-lg">{task.title}</h3>
+                        <p className="text-white/80 text-sm flex items-center gap-1 mt-1">
+                          <Clock className="w-4 h-4" />
+                          Completed at {task.completedAt}
+                        </p>
+                      </div>
                     </div>
-                    <h4 className="font-semibold mb-1" style={{ color: COLORS.white }}>
-                      {INCIDENT_TYPES.find(t => t.id === incident.type)?.label}
-                    </h4>
-                    <p className="text-sm" style={{ color: COLORS.textSecondary }}>{incident.description}</p>
+
+                    {/* Notes & Attribution */}
+                    <div className="p-5">
+                      {task.completionNote && (
+                        <p className={`${textSecondary} text-sm mb-4`}>
+                          &quot;{task.completionNote}&quot;
+                        </p>
+                      )}
+                      
+                      {/* Caregiver Attribution */}
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={CAREGIVER_PROFILE.photo}
+                          alt="Caregiver"
+                          className="w-10 h-10 rounded-xl object-cover"
+                        />
+                        <div className="flex-1">
+                          <p className={`font-semibold ${text} text-sm`}>Julia Martinez</p>
+                          <p className={`${textMuted} text-xs`}>Caregiver</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ))}
+              </div>
+            ) : (
+              <div className={`${bgCard} border ${border} rounded-3xl p-8 text-center`}>
+                <div className={`w-16 h-16 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-100'} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
+                  <Camera className={`w-8 h-8 ${textMuted}`} />
+                </div>
+                <h3 className={`font-semibold ${text} mb-1`}>
+                  {viewingDate ? 'No tasks recorded' : 'No updates yet'}
+                </h3>
+                <p className={`${textMuted} text-sm`}>
+                  {viewingDate 
+                    ? 'No care activities were recorded on this date'
+                    : 'Photos and notes will appear here as tasks are completed'
+                  }
+                </p>
               </div>
             )}
           </div>
         )}
       </div>
+    </div>
+  );
 
-      {/* AI Copilot FAB */}
+  // Render Settings Content
+  const renderSettingsContent = () => (
+    <div className={`flex-1 overflow-y-auto ${bg} p-6 space-y-3 pb-20`}>
+      {/* Profile Header - Clickable to open profile */}
       <button 
-        className="fixed bottom-24 right-4 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg"
-        style={{ backgroundColor: COLORS.cardBorder }}
+        onClick={() => setActivePage('profile')}
+        className={`w-full ${bgCard} border ${border} rounded-3xl p-5 ${bgCardHover} transition-colors text-left`}
       >
-        <Sparkles size={24} color={COLORS.primary} />
+        <div className="flex items-center gap-4">
+          <img 
+            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&q=80"
+            alt="Profile"
+            className="w-16 h-16 rounded-2xl object-cover"
+          />
+          <div className="flex-1">
+            <h3 className={`font-bold ${text}`}>Mary Smith</h3>
+            <p className={`${textSecondary} text-sm`}>Family Guardian</p>
+          </div>
+          <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
+        </div>
+      </button>
+      
+      {/* Quick Patient Access */}
+      <button
+        onClick={() => setShowPatientProfile(true)}
+        className={`w-full flex items-center gap-3 p-4 ${bgCard} border ${border} rounded-2xl ${bgCardHover} transition-colors`}
+      >
+        <img 
+          src={patient?.photo || 'https://via.placeholder.com/40'} 
+          alt={patient?.name}
+          className="w-11 h-11 rounded-xl object-cover"
+        />
+        <div className="flex-1 text-left">
+          <p className={`font-medium ${text}`}>{patient?.name}</p>
+          <p className={`${textMuted} text-sm`}>View Medical Profile</p>
+        </div>
+        <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
+      </button>
+
+      {/* Menu Items */}
+      {[
+        { label: 'Current Caregiver', icon: Heart, action: () => setActivePage('caregiver') },
+        { label: 'Billing', icon: Activity, action: () => setActivePage('billing') },
+        { label: 'Settings', icon: Settings, action: () => setActivePage('settings') },
+        { label: 'Support', icon: Bell, action: () => setActivePage('support') },
+      ].map((item, idx) => (
+        <button
+          key={idx}
+          onClick={item.action}
+          className={`w-full flex items-center gap-4 p-4 ${bgCard} border ${border} rounded-2xl ${bgCardHover} transition-colors`}
+        >
+          <div className={`w-11 h-11 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-100'} rounded-xl flex items-center justify-center`}>
+            <item.icon className={`w-5 h-5 ${textMuted}`} />
+          </div>
+          <span className={`font-medium ${text} flex-1 text-left`}>{item.label}</span>
+          <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-stone-600' : 'text-stone-400'}`} />
+        </button>
+      ))}
+
+      {/* Sign Out Button */}
+      <button
+        onClick={onSignOut}
+        className="w-full flex items-center gap-4 p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl hover:bg-rose-500/20 transition-colors mt-4"
+        data-testid="menu-sign-out-btn"
+      >
+        <div className="w-11 h-11 bg-rose-500/20 rounded-xl flex items-center justify-center">
+          <User className="w-5 h-5 text-rose-400" />
+        </div>
+        <span className="font-medium text-rose-400 flex-1 text-left">Sign Out</span>
       </button>
     </div>
   );
 
   return (
-    <div className="h-screen flex flex-col" style={{ backgroundColor: COLORS.background }}>
+    <div className={`min-h-screen ${bg} flex flex-col font-['Manrope',sans-serif]`}>
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
-        {activeTab === 'home' && renderHomeScreen()}
-        {activeTab === 'menu' && (
-          <FamilyMenuScreen 
-            onSignOut={onSignOut} 
-            showCurrentCaregiver={showCurrentCaregiver}
-            setShowCurrentCaregiver={setShowCurrentCaregiver}
-            performanceMetrics={performanceMetrics}
-            dailySummary={dailySummary}
-          />
-        )}
-      </div>
+      {activeTab === 'home' && renderHomeContent()}
+      {activeTab === 'incident' && <IncidentViewPage patientName={patient?.name} incidents={incidents} />}
+      {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.FAMILY} />}
+      {activeTab === 'notifications' && <UpdatesPage onBack={() => setActiveTab('home')} />}
+      {activeTab === 'settings' && renderSettingsContent()}
 
-      {/* Bottom Navigation */}
-      <div className="flex items-center justify-around py-3 border-t" style={{ backgroundColor: COLORS.card, borderColor: COLORS.cardBorder }}>
-        <button 
-          className="flex flex-col items-center gap-1"
-          onClick={() => { setActiveTab('home'); setShowCurrentCaregiver(false); }}
-        >
-          <Home size={24} color={activeTab === 'home' ? COLORS.primary : COLORS.textSecondary} />
-          <span className="text-xs" style={{ color: activeTab === 'home' ? COLORS.primary : COLORS.textSecondary }}>Home</span>
-        </button>
-        <button 
-          className="flex flex-col items-center gap-1"
-          onClick={() => { setActiveTab('menu'); setShowCurrentCaregiver(false); }}
-        >
-          <Menu size={24} color={activeTab === 'menu' ? COLORS.primary : COLORS.textSecondary} />
-          <span className="text-xs" style={{ color: activeTab === 'menu' ? COLORS.primary : COLORS.textSecondary }}>Menu</span>
-        </button>
-      </div>
+      {/* Floating Action Button - Copilot Only */}
+      {activeTab === 'home' && (
+        <div className="fixed bottom-24 right-5 z-40">
+          {/* Copilot Button */}
+          <button
+            onClick={() => setShowCopilot(true)}
+            className={`w-9 h-9 rounded-xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 ${
+              isDarkMode ? 'bg-stone-800' : 'bg-white'
+            }`}
+            data-testid="family-copilot-btn"
+          >
+            <Bot className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-stone-900'}`} />
+          </button>
+        </div>
+      )}
 
-      {/* New Request Modal */}
-      <NewRequestModal
-        visible={showRequestModal}
-        onClose={() => setShowRequestModal(false)}
-        onSubmit={handleAddRequest}
+      {/* Bottom Navigation - Fixed to bottom */}
+      <nav className={`fixed bottom-0 left-0 right-0 ${bgNav} border-t ${border} z-30`}>
+        <div className="flex justify-around items-center py-2">
+          {[
+            { id: 'home', icon: Home, label: 'Home' },
+            { id: 'incident', icon: AlertTriangle, label: 'Incident', badge: incidents.length > 0 ? incidents.length : null },
+            { id: 'chat', icon: MessageSquare, label: 'Message' },
+            { id: 'notifications', icon: Bell, label: 'Alerts' },
+            { id: 'settings', icon: Settings, label: 'Menu' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex flex-col items-center py-2 px-3 transition-all relative ${
+                activeTab === tab.id 
+                  ? 'text-[#25D366]'
+                  : `${textMuted} hover:${textSecondary}`
+              }`}
+              data-testid={`nav-${tab.id}`}
+            >
+              <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
+              <span className={`text-[10px] font-semibold mt-1 ${
+                activeTab === tab.id ? 'text-[#25D366]' : textMuted
+              }`}>{tab.label}</span>
+              {tab.badge && (
+                <div className={`absolute top-0 right-1 w-4 h-4 bg-rose-500 rounded-full flex items-center justify-center ring-2 ${isDarkMode ? 'ring-stone-900' : 'ring-white'}`}>
+                  <span className="text-white text-[10px] font-bold">{tab.badge}</span>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {/* Modals */}
+      <PatientProfileModal
+        isOpen={showPatientProfile}
+        onClose={() => setShowPatientProfile(false)}
+        patient={patient}
+        tasks={tasks}
+        role="family"
+        onSelectDate={handleSelectHistoricalDate}
       />
+
+      <VitalsModal
+        isOpen={showVitals}
+        onClose={() => setShowVitals(false)}
+        vitalsData={vitalsData}
+        isCaregiver={false}
+      />
+
+      <AICopilot
+        isOpen={showCopilot}
+        onClose={() => setShowCopilot(false)}
+        role="family"
+        patientName={patient?.name}
+      />
+
+      {/* Add Request Modal */}
+      {showRequestModal && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-end justify-center">
+          <div className={`${isDarkMode ? 'bg-stone-950 border-t border-stone-800' : 'bg-white border-t border-stone-200'} w-full max-w-md rounded-t-3xl p-6 animate-slide-up`}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className={`text-xl font-bold ${text}`}>New Request</h2>
+              <button 
+                onClick={() => setShowRequestModal(false)}
+                className={`p-2 ${isDarkMode ? 'hover:bg-stone-800' : 'hover:bg-stone-100'} rounded-full transition-colors`}
+              >
+                <X className={`w-5 h-5 ${textMuted}`} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Title */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                  What do you need?
+                </label>
+                <input
+                  type="text"
+                  value={newRequest.title}
+                  onChange={(e) => setNewRequest(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="e.g., Extra blanket, Call me back"
+                  className={`w-full px-4 py-3 text-base ${isDarkMode ? 'bg-stone-900 border-stone-800 text-white placeholder-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder-stone-400'} border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:border-transparent`}
+                  style={{ fontSize: '16px' }}
+                  data-testid="request-title-input"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                  Additional details (optional)
+                </label>
+                <textarea
+                  value={newRequest.description}
+                  onChange={(e) => setNewRequest(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Any specific instructions..."
+                  rows={3}
+                  className={`w-full px-4 py-3 text-base ${isDarkMode ? 'bg-stone-900 border-stone-800 text-white placeholder-stone-500' : 'bg-stone-100 border-stone-200 text-stone-900 placeholder-stone-400'} border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:border-transparent resize-none`}
+                  style={{ fontSize: '16px' }}
+                  data-testid="request-description-input"
+                />
+              </div>
+
+              {/* Priority */}
+              <div>
+                <label className={`block text-sm font-medium ${textSecondary} mb-2`}>
+                  Priority
+                </label>
+                <div className="flex gap-2">
+                  {['standard', 'high', 'urgent'].map((priority) => (
+                    <button
+                      key={priority}
+                      onClick={() => setNewRequest(prev => ({ ...prev, priority }))}
+                      className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all ${
+                        newRequest.priority === priority
+                          ? priority === 'urgent'
+                            ? 'bg-rose-500 text-white'
+                            : priority === 'high'
+                            ? 'bg-orange-500 text-white'
+                            : isDarkMode ? 'bg-stone-700 text-white' : 'bg-stone-600 text-white'
+                          : isDarkMode 
+                            ? 'bg-stone-900 border border-stone-800 text-stone-400 hover:bg-stone-800'
+                            : 'bg-stone-100 border border-stone-200 text-stone-600 hover:bg-stone-200'
+                      }`}
+                    >
+                      {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                onClick={handleAddRequest}
+                disabled={!newRequest.title.trim()}
+                className="w-full py-4 bg-[#25D366] text-white font-bold rounded-xl hover:bg-[#20bd5a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                data-testid="submit-request-btn"
+              >
+                Send Request
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Detail Modal */}
+      {selectedTask && (
+        <div 
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedTask(null)}
+        >
+          <div 
+            className={`${isDarkMode ? 'bg-stone-950' : 'bg-white'} rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className={`flex items-center justify-between p-4 border-b ${border}`}>
+              <div>
+                <h2 className={`text-lg font-bold ${text}`}>{selectedTask.title}</h2>
+                <p className={`text-sm ${textMuted} flex items-center gap-1 mt-0.5`}>
+                  <Clock className="w-4 h-4" />
+                  Completed at {selectedTask.completedAt}
+                </p>
+              </div>
+              <button 
+                onClick={() => setSelectedTask(null)}
+                className={`p-2 ${isDarkMode ? 'hover:bg-stone-800' : 'hover:bg-stone-100'} rounded-full transition-colors`}
+              >
+                <X className={`w-5 h-5 ${textMuted}`} />
+              </button>
+            </div>
+
+            {/* Full Image - Clean without overlay badges */}
+            <div className="relative">
+              <img 
+                src={getTaskImage(selectedTask)} 
+                alt={selectedTask.title}
+                className="w-full max-h-[50vh] object-contain bg-black"
+              />
+            </div>
+
+            {/* Task Details & Notes */}
+            <div className="p-5 space-y-4">
+              {/* Caregiver Note */}
+              {selectedTask.completionNote && (
+                <div className={`${isDarkMode ? 'bg-stone-900' : 'bg-stone-50'} rounded-2xl p-4`}>
+                  <p className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-2`}>Caregiver Note</p>
+                  <p className={`${text} text-sm leading-relaxed`}>
+                    &quot;{selectedTask.completionNote}&quot;
+                  </p>
+                </div>
+              )}
+
+              {/* Task Description */}
+              {selectedTask.description && (
+                <div>
+                  <p className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-2`}>Task Description</p>
+                  <p className={`${textSecondary} text-sm`}>{selectedTask.description}</p>
+                </div>
+              )}
+
+              {/* Caregiver Attribution */}
+              <div className={`flex items-center gap-3 pt-3 border-t ${border}`}>
+                <img 
+                  src={CAREGIVER_PROFILE.photo}
+                  alt="Caregiver"
+                  className="w-12 h-12 rounded-xl object-cover"
+                />
+                <div className="flex-1">
+                  <p className={`font-semibold ${text}`}>Julia Martinez</p>
+                  <p className={`${textMuted} text-sm`}>Certified Nursing Assistant</p>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-center gap-1 text-[#25D366] text-sm font-semibold">
+                    <CheckCircle className="w-4 h-4" />
+                    Verified
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
+export default FamilyDashboard;
