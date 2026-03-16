@@ -213,87 +213,87 @@ export const CaregiverDashboard = ({
     // Online State - Dashboard
     return (
       <div className={`flex-1 overflow-y-auto ${bg} pb-20`}>
-        {/* Patient Card - Large rounded card with photo background */}
-        <div className="px-4 pt-4">
+        {/* Patient Card - Rounded card with photo background */}
+        <div className="px-4 pt-3">
           <button 
             onClick={() => setShowPatientProfile(true)}
-            className="relative w-full h-72 rounded-3xl overflow-hidden"
+            className="relative w-full h-56 rounded-3xl overflow-hidden"
           >
             {/* Patient Photo Background */}
             <img 
               src={patient?.photo || 'https://via.placeholder.com/400'} 
               alt={patient?.name}
-              className="absolute inset-0 w-full h-full object-cover object-center"
+              className="absolute inset-0 w-full h-full object-cover object-top"
             />
             {/* Subtle gradient overlay for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
             
             {/* Patient Info - positioned at bottom left */}
-            <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
+            <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
               <div>
-                <h2 className="text-3xl font-bold text-white drop-shadow-lg">{patient?.name || 'Patient'}</h2>
-                <p className="text-white/80 text-base font-medium drop-shadow-md mt-1">{patient?.age} years old</p>
+                <h2 className="text-2xl font-bold text-white">{patient?.name || 'Patient'}</h2>
+                <p className="text-white/70 text-sm font-medium mt-0.5">{patient?.age} years old</p>
               </div>
-              <ChevronRight className="w-7 h-7 text-white/70" />
+              <ChevronRight className="w-6 h-6 text-white/60" />
             </div>
           </button>
         </div>
 
-        {/* Vitals Grid - 4 dark cards with colored icons */}
-        <div className="px-4 mt-4">
-          <div className="grid grid-cols-4 gap-3">
+        {/* Vitals Grid - 4 dark cards with circular colored icons */}
+        <div className="px-4 mt-3">
+          <div className="grid grid-cols-4 gap-2.5">
             {/* BP Card */}
             <button 
               onClick={() => setShowVitals(true)}
-              className="bg-[#1c1c1e] rounded-2xl p-4 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-12 h-12 bg-[#be185d] rounded-2xl flex items-center justify-center mb-3 mx-auto">
-                <Heart className="w-6 h-6 text-pink-300" />
+              <div className="w-11 h-11 bg-[#be185d] rounded-full flex items-center justify-center mb-2.5 mx-auto">
+                <Heart className="w-5 h-5 text-pink-200" fill="currentColor" />
               </div>
-              <p className="text-xl font-bold text-white text-center">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
-              <p className="text-sm text-stone-400 font-medium mt-1 text-center">BP</p>
+              <p className="text-lg font-bold text-white text-center">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
+              <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">BP</p>
             </button>
 
             {/* Heart Card */}
             <button 
               onClick={() => setShowVitals(true)}
-              className="bg-[#1c1c1e] rounded-2xl p-4 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-12 h-12 bg-[#9a3412] rounded-2xl flex items-center justify-center mb-3 mx-auto">
-                <Activity className="w-6 h-6 text-orange-300" />
+              <div className="w-11 h-11 bg-[#9a3412] rounded-full flex items-center justify-center mb-2.5 mx-auto">
+                <Activity className="w-5 h-5 text-orange-200" />
               </div>
-              <p className="text-xl font-bold text-white text-center">{latestHR ? latestHR.value : '--'}</p>
-              <p className="text-sm text-stone-400 font-medium mt-1 text-center">Heart</p>
+              <p className="text-lg font-bold text-white text-center">{latestHR ? latestHR.value : '--'}</p>
+              <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">Heart</p>
             </button>
 
             {/* Temp Card */}
             <button 
               onClick={() => setShowVitals(true)}
-              className="bg-[#1c1c1e] rounded-2xl p-4 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-12 h-12 bg-[#1d4ed8] rounded-2xl flex items-center justify-center mb-3 mx-auto">
-                <Thermometer className="w-6 h-6 text-blue-300" />
+              <div className="w-11 h-11 bg-[#1d4ed8] rounded-full flex items-center justify-center mb-2.5 mx-auto">
+                <Thermometer className="w-5 h-5 text-blue-200" />
               </div>
-              <p className="text-xl font-bold text-white text-center">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
-              <p className="text-sm text-stone-400 font-medium mt-1 text-center">Temp</p>
+              <p className="text-lg font-bold text-white text-center">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
+              <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">Temp</p>
             </button>
 
             {/* Pain Card */}
             <button 
               onClick={() => setShowVitals(true)}
-              className="bg-[#1c1c1e] rounded-2xl p-4 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-12 h-12 bg-[#7c3aed] rounded-2xl flex items-center justify-center mb-3 mx-auto">
-                <Frown className="w-6 h-6 text-purple-300" />
+              <div className="w-11 h-11 bg-[#7c3aed] rounded-full flex items-center justify-center mb-2.5 mx-auto">
+                <Frown className="w-5 h-5 text-purple-200" />
               </div>
-              <p className="text-xl font-bold text-white text-center">{latestPain ? `${latestPain.value}/10` : '--'}</p>
-              <p className="text-sm text-stone-400 font-medium mt-1 text-center">Pain</p>
+              <p className="text-lg font-bold text-white text-center">{latestPain ? `${latestPain.value}/10` : '--'}</p>
+              <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">Pain</p>
             </button>
           </div>
         </div>
 
         {/* Progress Section */}
-        <div className="px-6 py-5">
+        <div className="px-4 py-4">
           {/* Historical Date Banner */}
           {viewingDate && (
             <div className="mb-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between">
@@ -316,12 +316,12 @@ export const CaregiverDashboard = ({
           )}
 
           <div className="flex items-center justify-between mb-2">
-            <span className={`text-sm font-medium ${textSecondary}`}>
+            <span className="text-base font-semibold text-white">
               {viewingDate ? `${formatDateHeader(viewingDate)}'s Progress` : "Today's Progress"}
             </span>
-            <span className={`text-sm font-bold ${text}`}>{completedCount}/{displayTasks.length}</span>
+            <span className="text-base font-semibold text-stone-400">{completedCount}/{displayTasks.length}</span>
           </div>
-          <div className={`h-2 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-200'} rounded-full overflow-hidden`}>
+          <div className="h-1.5 bg-stone-800 rounded-full overflow-hidden">
             <div 
               className="h-full bg-[#25D366] rounded-full transition-all duration-500"
               style={{ width: `${displayTasks.length > 0 ? (completedCount / displayTasks.length) * 100 : 0}%` }}
@@ -329,9 +329,9 @@ export const CaregiverDashboard = ({
           </div>
         </div>
 
-        {/* Task Tabs - Minimal Line Style */}
-        <div className="px-6 mb-4">
-          <div className="flex items-center gap-4">
+        {/* Task Tabs - Requests | Today's Tasks */}
+        <div className="px-4 mb-3">
+          <div className="flex items-center">
             {/* Requests on left - only show if viewing today */}
             {!viewingDate && (
               <>
@@ -339,32 +339,32 @@ export const CaregiverDashboard = ({
                   onClick={() => setActiveTaskTab('requests')}
                   className="relative"
                 >
-                  <span className={`text-sm font-semibold transition-colors ${
+                  <span className={`text-base font-medium transition-colors ${
                     activeTaskTab === 'requests'
-                      ? text
-                      : `${textMuted} hover:${textSecondary}`
+                      ? 'text-white'
+                      : 'text-stone-500'
                   }`}>
                     Requests
                   </span>
                   {pendingRequests.length > 0 && (
-                    <span className="absolute -top-2 -right-3 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1.5 -right-3 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                       {pendingRequests.length}
                     </span>
                   )}
                 </button>
                 
-                {/* Line */}
-                <div className={`flex-1 h-px ${isDarkMode ? 'bg-stone-700' : 'bg-stone-300'}`} />
+                {/* Line separator */}
+                <div className="flex-1 h-px bg-stone-700 mx-4" />
               </>
             )}
             
             {/* Tasks tab */}
             <button
               onClick={() => setActiveTaskTab('today')}
-              className={`text-sm font-semibold transition-colors ${
+              className={`text-base font-medium transition-colors ${
                 activeTaskTab === 'today' || viewingDate
-                  ? text
-                  : `${textMuted} hover:${textSecondary}`
+                  ? 'text-white'
+                  : 'text-stone-500'
               }`}
             >
               {viewingDate ? 'Completed Tasks' : "Today's Tasks"}
@@ -373,7 +373,7 @@ export const CaregiverDashboard = ({
         </div>
 
         {/* Task List */}
-        <div className="px-6 space-y-3 pb-4">
+        <div className="px-4 space-y-2.5 pb-4">
           {activeTaskTab === 'today' || viewingDate ? (
             displayTasks.length > 0 ? (
               displayTasks.map((task) => (
