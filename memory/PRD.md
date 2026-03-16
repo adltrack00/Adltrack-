@@ -61,7 +61,19 @@ Build a comprehensive caregiving coordination application named "ADLTrack" with 
   - "Log New Reading" form (Caregiver only)
   - Weekly trend visualization (Mon-Sun)
 
-- **Shared Components**: VitalsModal, AICopilot, PatientProfileModal, TaskCard
+- **IncidentReportPage (Redesigned March 16, 2026)**:
+  - 5-step multi-step form (expanded from 4 steps):
+    - Step 1: Incident Type selection (6 types with icons)
+    - Step 2: Severity Level & Description
+    - Step 3: Witness Information (NEW - textarea + "No witnesses" checkbox + info box)
+    - Step 4: Add Photos (Optional)
+    - Step 5: Review & Submit with toggles
+  - Dark theme (bg-black) with pink/red progress bar (#ff3b5c)
+  - Green checkmark toggles for "Notify Family" and "Follow-up Required"
+  - Success modal overlay
+  - Past Reports list with severity badges
+
+- **Shared Components**: VitalsModal, AICopilot, PatientProfileModal, TaskCard, IncidentReportPage
 
 ### Mobile App (React Native/Expo)
 - Complete app in ADLTrackComplete.js with role-based auth, Caregiver and Family dashboards
@@ -84,8 +96,8 @@ Build a comprehensive caregiving coordination application named "ADLTrack" with 
 ## Testing Status
 - **Testing Agent**: All tests passed (100% frontend success rate)
 - **Date**: March 16, 2026
-- **Latest Report**: /app/test_reports/iteration_7.json
-- **Features Tested**: VitalsModal redesign - all 4 color themes, charts, forms, history
+- **Latest Report**: /app/test_reports/iteration_8.json
+- **Features Tested**: VitalsModal redesign (iteration_7), IncidentReportPage redesign (iteration_8)
 
 ## Prioritized Backlog
 
@@ -108,3 +120,4 @@ Build a comprehensive caregiving coordination application named "ADLTrack" with 
 
 ## Recent Changes Log
 - **March 16, 2026**: Redesigned VitalsModal with unique color themes per vital type (Blood Pressure, Heart Rate, Temperature, Pain Level), custom SVG charts, themed current reading cards, and color-coded history values
+- **March 16, 2026**: Redesigned IncidentReportPage with 5-step form (added Witness Information step), dark theme, pink progress bar, green toggle checkmarks, success modal overlay
