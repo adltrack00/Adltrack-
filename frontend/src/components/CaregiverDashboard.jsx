@@ -239,7 +239,7 @@ export const CaregiverDashboard = ({
           </button>
         </div>
 
-        {/* Vitals Grid - 4 dark cards with circular colored icons */}
+        {/* Vitals Grid - 4 dark cards with rounded square colored icons */}
         <div className="px-4 mt-3">
           <div className="grid grid-cols-4 gap-2.5">
             {/* BP Card */}
@@ -247,8 +247,8 @@ export const CaregiverDashboard = ({
               onClick={() => setShowVitals(true)}
               className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-11 h-11 bg-[#be185d] rounded-full flex items-center justify-center mb-2.5 mx-auto">
-                <Heart className="w-5 h-5 text-pink-200" fill="currentColor" />
+              <div className="w-12 h-12 bg-[#831843] rounded-xl flex items-center justify-center mb-2.5 mx-auto">
+                <Heart className="w-6 h-6 text-pink-400" fill="currentColor" />
               </div>
               <p className="text-lg font-bold text-white text-center">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
               <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">BP</p>
@@ -259,8 +259,8 @@ export const CaregiverDashboard = ({
               onClick={() => setShowVitals(true)}
               className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-11 h-11 bg-[#9a3412] rounded-full flex items-center justify-center mb-2.5 mx-auto">
-                <Activity className="w-5 h-5 text-orange-200" />
+              <div className="w-12 h-12 bg-[#78350f] rounded-xl flex items-center justify-center mb-2.5 mx-auto">
+                <Activity className="w-6 h-6 text-orange-400" />
               </div>
               <p className="text-lg font-bold text-white text-center">{latestHR ? latestHR.value : '--'}</p>
               <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">Heart</p>
@@ -271,8 +271,8 @@ export const CaregiverDashboard = ({
               onClick={() => setShowVitals(true)}
               className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-11 h-11 bg-[#1d4ed8] rounded-full flex items-center justify-center mb-2.5 mx-auto">
-                <Thermometer className="w-5 h-5 text-blue-200" />
+              <div className="w-12 h-12 bg-[#1e3a5f] rounded-xl flex items-center justify-center mb-2.5 mx-auto">
+                <Thermometer className="w-6 h-6 text-blue-400" />
               </div>
               <p className="text-lg font-bold text-white text-center">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
               <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">Temp</p>
@@ -283,8 +283,8 @@ export const CaregiverDashboard = ({
               onClick={() => setShowVitals(true)}
               className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-11 h-11 bg-[#7c3aed] rounded-full flex items-center justify-center mb-2.5 mx-auto">
-                <Frown className="w-5 h-5 text-purple-200" />
+              <div className="w-12 h-12 bg-[#581c87] rounded-xl flex items-center justify-center mb-2.5 mx-auto">
+                <Frown className="w-6 h-6 text-purple-400" />
               </div>
               <p className="text-lg font-bold text-white text-center">{latestPain ? `${latestPain.value}/10` : '--'}</p>
               <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">Pain</p>
