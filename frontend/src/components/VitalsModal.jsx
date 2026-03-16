@@ -119,8 +119,9 @@ export const VitalsModal = ({
   const renderDotChart = () => {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const maxValue = 10;
-    const height = 140;
     const dotSize = 10;
+    const chartWidth = 280;
+    const chartHeight = 110;
 
     return (
       <div className="relative h-36 w-full">
@@ -143,7 +144,7 @@ export const VitalsModal = ({
           </div>
           
           {/* Dots and connecting line */}
-          <svg className="absolute inset-0 w-full h-[calc(100%-24px)]" preserveAspectRatio="none">
+          <svg className="absolute inset-0 w-full h-[calc(100%-24px)]" viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="none">
             {/* Connecting line */}
             <polyline
               fill="none"
@@ -152,20 +153,20 @@ export const VitalsModal = ({
               strokeLinecap="round"
               strokeLinejoin="round"
               points={chartData.map((d, i) => {
-                const x = (i / (chartData.length - 1)) * 100;
-                const y = 100 - ((d.value / maxValue) * 100);
-                return `${x}%,${y}%`;
+                const x = (i / (chartData.length - 1)) * chartWidth;
+                const y = chartHeight - ((d.value / maxValue) * chartHeight);
+                return `${x},${y}`;
               }).join(' ')}
             />
             {/* Dots */}
             {chartData.map((d, i) => {
-              const x = (i / (chartData.length - 1)) * 100;
-              const y = 100 - ((d.value / maxValue) * 100);
+              const x = (i / (chartData.length - 1)) * chartWidth;
+              const y = chartHeight - ((d.value / maxValue) * chartHeight);
               return (
                 <circle
                   key={i}
-                  cx={`${x}%`}
-                  cy={`${y}%`}
+                  cx={x}
+                  cy={y}
                   r={dotSize / 2}
                   fill={theme.primaryColor}
                 />
@@ -190,6 +191,8 @@ export const VitalsModal = ({
     const [minVal, maxVal] = theme.yAxisDomain;
     const range = maxVal - minVal;
     const yLabels = [maxVal, maxVal - range * 0.25, maxVal - range * 0.5, maxVal - range * 0.75, minVal];
+    const chartWidth = 280;
+    const chartHeight = 110;
 
     return (
       <div className="relative h-36 w-full">
@@ -210,7 +213,7 @@ export const VitalsModal = ({
           </div>
           
           {/* Lines and dots */}
-          <svg className="absolute inset-0 w-full h-[calc(100%-24px)]" preserveAspectRatio="none">
+          <svg className="absolute inset-0 w-full h-[calc(100%-24px)]" viewBox={`0 0 ${chartWidth} ${chartHeight}`} preserveAspectRatio="none">
             {activeTab === 'bp' ? (
               <>
                 {/* Systolic line */}
@@ -221,17 +224,17 @@ export const VitalsModal = ({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   points={chartData.map((d, i) => {
-                    const x = (i / (chartData.length - 1)) * 100;
-                    const y = 100 - (((d.systolic - minVal) / range) * 100);
-                    return `${x}%,${y}%`;
+                    const x = (i / (chartData.length - 1)) * chartWidth;
+                    const y = chartHeight - (((d.systolic - minVal) / range) * chartHeight);
+                    return `${x},${y}`;
                   }).join(' ')}
                 />
                 {/* Systolic dots */}
                 {chartData.map((d, i) => {
-                  const x = (i / (chartData.length - 1)) * 100;
-                  const y = 100 - (((d.systolic - minVal) / range) * 100);
+                  const x = (i / (chartData.length - 1)) * chartWidth;
+                  const y = chartHeight - (((d.systolic - minVal) / range) * chartHeight);
                   return (
-                    <circle key={`sys-${i}`} cx={`${x}%`} cy={`${y}%`} r="5" fill={theme.graphColor} />
+                    <circle key={`sys-${i}`} cx={x} cy={y} r="5" fill={theme.graphColor} />
                   );
                 })}
                 {/* Diastolic line */}
@@ -242,17 +245,17 @@ export const VitalsModal = ({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   points={chartData.map((d, i) => {
-                    const x = (i / (chartData.length - 1)) * 100;
-                    const y = 100 - (((d.diastolic - minVal) / range) * 100);
-                    return `${x}%,${y}%`;
+                    const x = (i / (chartData.length - 1)) * chartWidth;
+                    const y = chartHeight - (((d.diastolic - minVal) / range) * chartHeight);
+                    return `${x},${y}`;
                   }).join(' ')}
                 />
                 {/* Diastolic dots */}
                 {chartData.map((d, i) => {
-                  const x = (i / (chartData.length - 1)) * 100;
-                  const y = 100 - (((d.diastolic - minVal) / range) * 100);
+                  const x = (i / (chartData.length - 1)) * chartWidth;
+                  const y = chartHeight - (((d.diastolic - minVal) / range) * chartHeight);
                   return (
-                    <circle key={`dia-${i}`} cx={`${x}%`} cy={`${y}%`} r="5" fill={theme.secondaryGraphColor} />
+                    <circle key={`dia-${i}`} cx={x} cy={y} r="5" fill={theme.secondaryGraphColor} />
                   );
                 })}
               </>
@@ -266,17 +269,17 @@ export const VitalsModal = ({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   points={chartData.map((d, i) => {
-                    const x = (i / (chartData.length - 1)) * 100;
-                    const y = 100 - (((d.value - minVal) / range) * 100);
-                    return `${x}%,${y}%`;
+                    const x = (i / (chartData.length - 1)) * chartWidth;
+                    const y = chartHeight - (((d.value - minVal) / range) * chartHeight);
+                    return `${x},${y}`;
                   }).join(' ')}
                 />
                 {/* Dots */}
                 {chartData.map((d, i) => {
-                  const x = (i / (chartData.length - 1)) * 100;
-                  const y = 100 - (((d.value - minVal) / range) * 100);
+                  const x = (i / (chartData.length - 1)) * chartWidth;
+                  const y = chartHeight - (((d.value - minVal) / range) * chartHeight);
                   return (
-                    <circle key={i} cx={`${x}%`} cy={`${y}%`} r="5" fill={theme.graphColor} />
+                    <circle key={i} cx={x} cy={y} r="5" fill={theme.graphColor} />
                   );
                 })}
               </>
