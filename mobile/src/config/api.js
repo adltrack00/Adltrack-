@@ -1,5 +1,5 @@
 // API Configuration
-export const API_BASE_URL = 'https://caregiver-hub-47.preview.emergentagent.com/api';
+export const API_BASE_URL = 'https://adltrack-dash-sync.preview.emergentagent.com/api';
 
 export const ENDPOINTS = {
   // Auth

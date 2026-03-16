@@ -10,20 +10,18 @@ export const PatientProfileModal = ({
   onUpdatePhoto,
   tasks = [],
   role = 'caregiver',
-  onSelectDate // New callback to pass selected date back to dashboard
+  onSelectDate
 }) => {
   const [showShareOptions, setShowShareOptions] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 17)); // Jan 17, 2026
+  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 17));
 
-  // Memoize today to prevent recreating on every render
-  const today = useMemo(() => new Date(2026, 0, 17), []); // Jan 17, 2026
+  const today = useMemo(() => new Date(2026, 0, 17), []);
 
   // Generate mock historical tasks for different dates
   const historicalTasks = useMemo(() => {
     const taskHistory = {};
     
-    // Add some completed tasks for past dates
     const pastDates = [
       { date: new Date(2026, 0, 16), tasks: [
         { id: 'h1', title: 'Morning Medication', completedAt: '8:15 AM', status: TaskStatus.COMPLETED, completionNote: 'Took all medications with breakfast', evidenceUrl: CARE_IMAGES.medication },
@@ -33,21 +31,9 @@ export const PatientProfileModal = ({
       { date: new Date(2026, 0, 15), tasks: [
         { id: 'h4', title: 'Morning Walk', completedAt: '10:00 AM', status: TaskStatus.COMPLETED, completionNote: 'Walked 15 minutes in the garden', evidenceUrl: CARE_IMAGES.walk },
         { id: 'h5', title: 'Lunch Preparation', completedAt: '12:15 PM', status: TaskStatus.COMPLETED, completionNote: 'Had soup and sandwich', evidenceUrl: CARE_IMAGES.meal },
-        { id: 'h6', title: 'Afternoon Medication', completedAt: '12:45 PM', status: TaskStatus.COMPLETED, completionNote: 'All meds taken on time', evidenceUrl: CARE_IMAGES.medication },
-        { id: 'h7', title: 'Evening Vitals', completedAt: '6:00 PM', status: TaskStatus.COMPLETED, completionNote: 'Temperature: 98.4°F', evidenceUrl: CARE_IMAGES.vitals },
       ]},
       { date: new Date(2026, 0, 14), tasks: [
         { id: 'h8', title: 'Morning Medication', completedAt: '8:00 AM', status: TaskStatus.COMPLETED, completionNote: 'Medications administered', evidenceUrl: CARE_IMAGES.medication },
-        { id: 'h9', title: 'Physical Therapy', completedAt: '11:00 AM', status: TaskStatus.COMPLETED, completionNote: 'Completed stretching exercises', evidenceUrl: CARE_IMAGES.walk },
-      ]},
-      { date: new Date(2026, 0, 13), tasks: [
-        { id: 'h10', title: 'Doctor Visit Prep', completedAt: '9:00 AM', status: TaskStatus.COMPLETED, completionNote: 'Prepared documents for appointment', evidenceUrl: null },
-        { id: 'h11', title: 'Lunch Assistance', completedAt: '12:30 PM', status: TaskStatus.COMPLETED, completionNote: 'Light lunch, good appetite', evidenceUrl: CARE_IMAGES.meal },
-        { id: 'h12', title: 'Afternoon Rest', completedAt: '2:00 PM', status: TaskStatus.COMPLETED, completionNote: 'Rested well for 2 hours', evidenceUrl: null },
-      ]},
-      { date: new Date(2026, 0, 10), tasks: [
-        { id: 'h13', title: 'Morning Routine', completedAt: '8:30 AM', status: TaskStatus.COMPLETED, completionNote: 'Bathing and grooming complete', evidenceUrl: null },
-        { id: 'h14', title: 'Medication Review', completedAt: '10:00 AM', status: TaskStatus.COMPLETED, completionNote: 'Weekly medication review done', evidenceUrl: CARE_IMAGES.medication },
       ]},
     ];
 
@@ -56,7 +42,6 @@ export const PatientProfileModal = ({
       taskHistory[key] = dateTasks;
     });
 
-    // Add today's completed tasks
     const todayCompleted = tasks.filter(t => t.status === TaskStatus.COMPLETED);
     if (todayCompleted.length > 0) {
       taskHistory[today.toDateString()] = todayCompleted;
@@ -65,12 +50,10 @@ export const PatientProfileModal = ({
     return taskHistory;
   }, [tasks, today]);
 
-  // Check if a date has tasks
   const hasTasksOnDate = (date) => {
     return (historicalTasks[date.toDateString()] || []).length > 0;
   };
 
-  // Generate calendar days
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -81,7 +64,6 @@ export const PatientProfileModal = ({
     
     const days = [];
     
-    // Previous month days
     const prevMonth = new Date(year, month, 0);
     const prevMonthDays = prevMonth.getDate();
     for (let i = startingDay - 1; i >= 0; i--) {
@@ -92,7 +74,6 @@ export const PatientProfileModal = ({
       });
     }
     
-    // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
       days.push({ 
         day: i, 
@@ -101,7 +82,6 @@ export const PatientProfileModal = ({
       });
     }
     
-    // Next month days
     const remainingDays = 42 - days.length;
     for (let i = 1; i <= remainingDays; i++) {
       days.push({ 
@@ -130,7 +110,6 @@ export const PatientProfileModal = ({
     });
   };
 
-  // Handle date selection - close modals and pass date to dashboard
   const handleDateSelect = (date) => {
     if (onSelectDate) {
       onSelectDate(date, historicalTasks[date.toDateString()] || []);
@@ -158,84 +137,87 @@ export const PatientProfileModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-end sm:items-center justify-center font-['Manrope',sans-serif]" onClick={onClose}>
+    <div className="fixed inset-0 bg-black z-50 flex flex-col font-['Manrope',sans-serif]" onClick={onClose}>
       <div 
-        className="bg-stone-950 w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl max-h-[90vh] overflow-y-auto border border-stone-800"
+        className="flex-1 overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header with Photo */}
-        <div className="relative h-56 bg-gradient-to-br from-rose-600 to-rose-700 overflow-hidden">
+        {/* Header with Photo - Full width, taller */}
+        <div className="relative h-80">
           {patient.photo ? (
             <>
               <img 
                 src={patient.photo} 
                 alt={patient.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-top"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
             </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <User className="w-24 h-24 text-white/40" />
+            <div className="w-full h-full bg-stone-900 flex items-center justify-center">
+              <User className="w-24 h-24 text-stone-700" />
             </div>
           )}
           
-          {/* Close Button */}
-          <button 
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2.5 bg-black/30 backdrop-blur-sm hover:bg-black/50 rounded-xl transition-colors"
-          >
-            <X className="w-5 h-5 text-white" />
-          </button>
+          {/* Top Right Buttons */}
+          <div className="absolute top-4 right-4 flex gap-2">
+            {/* Camera Button */}
+            {onUpdatePhoto && (
+              <label className="w-11 h-11 bg-stone-800/80 backdrop-blur-sm rounded-xl cursor-pointer flex items-center justify-center hover:bg-stone-700/80 transition-colors">
+                <Camera className="w-5 h-5 text-white" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                />
+              </label>
+            )}
+            
+            {/* Close Button */}
+            <button 
+              onClick={onClose}
+              className="w-11 h-11 bg-stone-800/80 backdrop-blur-sm hover:bg-stone-700/80 rounded-xl transition-colors flex items-center justify-center"
+            >
+              <X className="w-5 h-5 text-white" />
+            </button>
+          </div>
 
-          {/* Photo Upload Button */}
-          {onUpdatePhoto && (
-            <label className="absolute bottom-20 right-4 p-3 bg-stone-900 rounded-xl cursor-pointer shadow-lg hover:bg-stone-800 transition-colors border border-stone-700">
-              <Camera className="w-5 h-5 text-white" />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                className="hidden"
-              />
-            </label>
-          )}
-
-          {/* Patient Name */}
+          {/* Patient Name - Bottom left */}
           <div className="absolute bottom-0 left-0 right-0 p-5">
-            <h2 className="text-2xl font-bold text-white">{patient.name}</h2>
-            <p className="text-white/80 text-sm font-medium">Age {patient.age} • DOB: {patient.dateOfBirth}</p>
+            <h2 className="text-3xl font-bold text-white">{patient.name}</h2>
+            <p className="text-white/70 text-base font-medium mt-1">Age {patient.age} • DOB: {patient.dateOfBirth || '1946-03-15'}</p>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-5 space-y-4">
-          {/* Calendar Date Tab */}
+        <div className="px-4 py-4 space-y-3">
+          {/* Care History Card - Green */}
           <button
             onClick={() => setShowCalendar(true)}
-            className="w-full bg-[#25D366]/10 border border-[#25D366]/30 rounded-2xl p-4 flex items-center gap-3 hover:bg-[#25D366]/20 transition-colors"
+            className="w-full bg-[#25D366] rounded-2xl p-4 flex items-center gap-4 hover:bg-[#20bd5a] transition-colors"
             data-testid="calendar-tab"
           >
-            <div className="w-11 h-11 bg-[#25D366]/20 rounded-xl flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-[#25D366]" />
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+              <Calendar className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1 text-left">
-              <p className="text-xs text-[#25D366] font-bold uppercase tracking-wider">Care History</p>
-              <p className="text-lg font-bold text-white">{formatDate(today)}</p>
+              <p className="text-xs text-white/80 font-bold uppercase tracking-wider">Care History</p>
+              <p className="text-xl font-bold text-white">{formatDate(today)}</p>
             </div>
-            <ChevronRight className="w-5 h-5 text-[#25D366]" />
+            <ChevronRight className="w-6 h-6 text-white" />
           </button>
 
-          {/* Critical Alert - Allergies */}
+          {/* Allergies Card - Red */}
           {patient.allergies && patient.allergies.length > 0 && (
-            <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4">
-              <div className="flex items-center gap-2 text-rose-400 font-bold mb-3">
+            <div className="bg-[#3d1a1a] border-2 border-[#7f2d2d] rounded-2xl p-4">
+              <div className="flex items-center gap-2 text-[#ef4444] font-bold mb-3">
                 <AlertTriangle className="w-5 h-5" />
-                Allergies
+                <span className="text-lg">Allergies</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {patient.allergies.map((allergy, idx) => (
-                  <span key={idx} className="px-3 py-1.5 bg-rose-500/20 text-rose-400 rounded-full text-sm font-semibold">
+                  <span key={idx} className="px-4 py-2 bg-[#7f2d2d] text-[#f87171] rounded-xl text-sm font-semibold">
                     {allergy}
                   </span>
                 ))}
@@ -243,31 +225,34 @@ export const PatientProfileModal = ({
             </div>
           )}
 
-          {/* Medical Conditions */}
+          {/* Medical Conditions Card */}
           {patient.medicalConditions && patient.medicalConditions.length > 0 && (
-            <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4">
+            <div className="bg-[#1c1c1e] rounded-2xl p-4">
               <div className="flex items-center gap-2 text-white font-bold mb-3">
-                <Heart className="w-5 h-5 text-rose-500" />
-                Medical Conditions
+                <Heart className="w-5 h-5 text-[#ec4899]" fill="currentColor" />
+                <span className="text-lg">Medical Conditions</span>
               </div>
-              <ul className="space-y-1.5">
+              <ul className="space-y-2">
                 {patient.medicalConditions.map((condition, idx) => (
-                  <li key={idx} className="text-sm text-stone-400 font-medium">• {condition}</li>
+                  <li key={idx} className="text-base text-stone-400 font-medium flex items-start gap-2">
+                    <span className="text-stone-500">•</span>
+                    <span>{condition}</span>
+                  </li>
                 ))}
               </ul>
             </div>
           )}
 
-          {/* Medications */}
+          {/* Current Medications Card */}
           {patient.medications && patient.medications.length > 0 && (
-            <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4">
+            <div className="bg-[#1c1c1e] rounded-2xl p-4">
               <div className="flex items-center gap-2 text-white font-bold mb-3">
-                <Pill className="w-5 h-5 text-blue-500" />
-                Current Medications
+                <Pill className="w-5 h-5 text-[#3b82f6]" />
+                <span className="text-lg">Current Medications</span>
               </div>
               <div className="space-y-2">
                 {patient.medications.map((med, idx) => (
-                  <div key={idx} className="text-sm">
+                  <div key={idx} className="text-base">
                     <span className="font-bold text-white">{med.name}</span>
                     <span className="text-stone-400 font-medium"> - {med.dosage}, {med.frequency}</span>
                   </div>
@@ -276,51 +261,51 @@ export const PatientProfileModal = ({
             </div>
           )}
 
-          {/* Code Status & Mobility */}
+          {/* Code Status & Mobility - Side by side */}
           <div className="grid grid-cols-2 gap-3">
             {patient.codeStatus && (
-              <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-center">
-                <Shield className="w-5 h-5 text-amber-400 mx-auto mb-2" />
-                <p className="text-xs text-amber-400 font-bold uppercase tracking-wider">Code Status</p>
-                <p className="text-sm font-bold text-white mt-1">{patient.codeStatus}</p>
+              <div className="bg-[#3d3a1a] border-2 border-[#a3903d] rounded-2xl p-4 text-center">
+                <Shield className="w-7 h-7 text-[#eab308] mx-auto mb-2" />
+                <p className="text-xs text-[#eab308] font-bold uppercase tracking-wider">Code Status</p>
+                <p className="text-lg font-bold text-white mt-1">{patient.codeStatus}</p>
               </div>
             )}
             {patient.mobilityStatus && (
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4 text-center">
-                <Activity className="w-5 h-5 text-blue-400 mx-auto mb-2" />
-                <p className="text-xs text-blue-400 font-bold uppercase tracking-wider">Mobility</p>
-                <p className="text-sm font-bold text-white mt-1">{patient.mobilityStatus}</p>
+              <div className="bg-[#1a2a3d] border-2 border-[#3d6a9f] rounded-2xl p-4 text-center">
+                <Activity className="w-7 h-7 text-[#3b82f6] mx-auto mb-2" />
+                <p className="text-xs text-[#3b82f6] font-bold uppercase tracking-wider">Mobility</p>
+                <p className="text-base font-bold text-white mt-1">{patient.mobilityStatus}</p>
               </div>
             )}
           </div>
 
-          {/* Access Instructions */}
+          {/* Access Instructions Card */}
           {patient.accessInstructions && (
-            <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4">
+            <div className="bg-[#1c1c1e] rounded-2xl p-4">
               <div className="flex items-center gap-2 text-white font-bold mb-2">
-                <MapPin className="w-5 h-5 text-emerald-500" />
-                Access Instructions
+                <MapPin className="w-5 h-5 text-[#22c55e]" />
+                <span className="text-lg">Access Instructions</span>
               </div>
-              <p className="text-sm text-stone-400 font-medium">{patient.accessInstructions}</p>
+              <p className="text-base text-stone-400 font-medium">{patient.accessInstructions}</p>
             </div>
           )}
 
-          {/* Emergency Contacts */}
-          <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4">
+          {/* Emergency Contacts Card */}
+          <div className="bg-[#1c1c1e] rounded-2xl p-4">
             <div className="flex items-center gap-2 text-white font-bold mb-4">
-              <Phone className="w-5 h-5 text-emerald-500" />
-              Emergency Contacts
+              <Phone className="w-5 h-5 text-[#f97316]" />
+              <span className="text-lg">Emergency Contacts</span>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {patient.emergencyContacts?.map((contact, idx) => (
                 <div key={idx} className="flex items-center justify-between">
                   <div>
-                    <p className="font-bold text-white">{contact.name}</p>
-                    <p className="text-xs text-stone-500 font-medium">{contact.relationship}</p>
+                    <p className="font-bold text-white text-lg">{contact.name}</p>
+                    <p className="text-sm text-stone-500 font-medium">{contact.relationship}</p>
                   </div>
                   <a 
                     href={`tel:${contact.phone}`}
-                    className="px-4 py-2.5 bg-emerald-500 text-white rounded-xl text-sm font-bold hover:bg-emerald-600 transition-colors"
+                    className="px-5 py-2.5 bg-[#22c55e] text-white rounded-xl text-sm font-bold hover:bg-[#16a34a] transition-colors"
                   >
                     Call
                   </a>
@@ -329,16 +314,16 @@ export const PatientProfileModal = ({
               
               {/* Primary Care Physician */}
               {patient.primaryCarePhysician && (
-                <div className="pt-3 border-t border-stone-800">
-                  <p className="text-xs text-stone-500 font-bold uppercase tracking-wider mb-2">Primary Care Physician</p>
+                <div className="pt-4 border-t border-stone-800">
+                  <p className="text-xs text-stone-500 font-bold uppercase tracking-wider mb-3">Primary Care Physician</p>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-bold text-white">{patient.primaryCarePhysician.name}</p>
-                      <p className="text-xs text-stone-500 font-medium">{patient.primaryCarePhysician.facility}</p>
+                      <p className="font-bold text-white text-lg">{patient.primaryCarePhysician.name}</p>
+                      <p className="text-sm text-stone-500 font-medium">{patient.primaryCarePhysician.facility}</p>
                     </div>
                     <a 
                       href={`tel:${patient.primaryCarePhysician.phone}`}
-                      className="px-4 py-2.5 bg-blue-500 text-white rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors"
+                      className="px-5 py-2.5 bg-[#22c55e] text-white rounded-xl text-sm font-bold hover:bg-[#16a34a] transition-colors"
                     >
                       Call
                     </a>
@@ -348,13 +333,13 @@ export const PatientProfileModal = ({
             </div>
           </div>
 
-          {/* Share for EMS Button */}
+          {/* Share Medical ID Button - Red/Coral */}
           <button
             onClick={() => setShowShareOptions(true)}
-            className="w-full py-4 bg-rose-500 text-white rounded-2xl font-bold hover:bg-rose-600 transition-colors flex items-center justify-center gap-2 shadow-[0_4px_14px_rgba(244,63,94,0.3)]"
+            className="w-full py-4 bg-[#f43f5e] text-white rounded-2xl font-bold hover:bg-[#e11d48] transition-colors flex items-center justify-center gap-3 text-lg"
             data-testid="share-medical-id"
           >
-            <Share2 className="w-5 h-5" />
+            <Share2 className="w-6 h-6" />
             Share Medical ID for EMS
           </button>
         </div>
@@ -370,7 +355,7 @@ export const PatientProfileModal = ({
               <div className="space-y-2">
                 <button
                   onClick={handleShare}
-                  className="w-full py-3.5 bg-rose-500 text-white rounded-xl font-bold hover:bg-rose-600 transition-colors"
+                  className="w-full py-3.5 bg-[#f43f5e] text-white rounded-xl font-bold hover:bg-[#e11d48] transition-colors"
                 >
                   Share Now
                 </button>
@@ -385,7 +370,7 @@ export const PatientProfileModal = ({
           </div>
         )}
 
-        {/* Calendar Modal - Airbnb Style */}
+        {/* Calendar Modal */}
         {showCalendar && (
           <div 
             className="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4" 
