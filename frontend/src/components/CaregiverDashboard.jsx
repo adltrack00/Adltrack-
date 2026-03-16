@@ -247,8 +247,8 @@ export const CaregiverDashboard = ({
               onClick={() => setShowVitals(true)}
               className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-12 h-12 bg-[#831843] rounded-xl flex items-center justify-center mb-2.5 mx-auto">
-                <Heart className="w-6 h-6 text-pink-400" fill="currentColor" />
+              <div className="w-12 h-12 bg-[#7f1d5a] rounded-xl flex items-center justify-center mb-2.5 mx-auto">
+                <Heart className="w-6 h-6 text-[#ec4899]" fill="currentColor" />
               </div>
               <p className="text-lg font-bold text-white text-center">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
               <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">BP</p>
@@ -259,8 +259,8 @@ export const CaregiverDashboard = ({
               onClick={() => setShowVitals(true)}
               className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-12 h-12 bg-[#78350f] rounded-xl flex items-center justify-center mb-2.5 mx-auto">
-                <Activity className="w-6 h-6 text-orange-400" />
+              <div className="w-12 h-12 bg-[#7c2d12] rounded-xl flex items-center justify-center mb-2.5 mx-auto">
+                <Activity className="w-6 h-6 text-[#f97316]" />
               </div>
               <p className="text-lg font-bold text-white text-center">{latestHR ? latestHR.value : '--'}</p>
               <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">Heart</p>
@@ -272,7 +272,7 @@ export const CaregiverDashboard = ({
               className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
             >
               <div className="w-12 h-12 bg-[#1e3a5f] rounded-xl flex items-center justify-center mb-2.5 mx-auto">
-                <Thermometer className="w-6 h-6 text-blue-400" />
+                <Thermometer className="w-6 h-6 text-[#3b82f6]" />
               </div>
               <p className="text-lg font-bold text-white text-center">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
               <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">Temp</p>
@@ -283,8 +283,10 @@ export const CaregiverDashboard = ({
               onClick={() => setShowVitals(true)}
               className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-12 h-12 bg-[#581c87] rounded-xl flex items-center justify-center mb-2.5 mx-auto">
-                <Frown className="w-6 h-6 text-purple-400" />
+              <div className="w-12 h-12 bg-[#4c1d6e] rounded-xl flex items-center justify-center mb-2.5 mx-auto">
+                <div className="w-7 h-7 rounded-full border-2 border-[#a855f7] flex items-center justify-center">
+                  <Frown className="w-4 h-4 text-[#a855f7]" />
+                </div>
               </div>
               <p className="text-lg font-bold text-white text-center">{latestPain ? `${latestPain.value}/10` : '--'}</p>
               <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">Pain</p>
