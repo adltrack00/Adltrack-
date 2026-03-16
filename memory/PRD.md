@@ -1,95 +1,90 @@
 # ADLTrack - Product Requirements Document
 
 ## Original Problem Statement
-Build a mobile app named "ADLTrack" using Expo (React Native) for caregiving coordination with multiple user roles. The app is a real-time care accountability infrastructure connecting Caregivers, Families, Agencies, and eventually Doctors and Medicaid Caseworkers.
+Build a comprehensive caregiving coordination application named "ADLTrack" with both a React Native mobile app and a React web application. The primary goal is visual and functional parity between the mobile app and the web app for Caregiver and Family dashboards.
 
-## User Personas
-1. **Caregivers** - CNAs and home health aides who provide direct care
-2. **Family Members** - Children/relatives who want to monitor loved one's care
-3. **Agencies** - Care coordination organizations managing multiple caregivers
-4. **Future: Doctors** - Medical professionals overseeing patient care
-5. **Future: Caseworkers** - Medicaid case managers
-
-## Core Requirements
-
-### Caregiver App
-- Clock in/out with GPS verification
-- Client selection/switching
-- Log ADL tasks, medication, vitals, and incidents with evidence (photos/video)
-- View care plans and daily schedules
-- Manage requests from family members
-- AI Care Assistant (Copilot)
-
-### Family App
-- Real-time care timeline of completed tasks
-- View incident reports, vitals trends, and medication logs
-- Submit requests to caregivers
-- View caregiver performance scores and weekly/daily summaries
-- Care Plan visibility
-
-### Shared Data Architecture
-- All data (tasks, incidents, requests) shared in real-time via SharedDataContext
-- Caregiver and Family apps consume same data source
-
-## Technology Stack
-- **Framework:** Expo (React Native)
-- **Architecture:** Single-file for Expo Snack testing
-- **State Management:** React Context (AuthContext, SignOutContext, SharedDataContext)
-- **Navigation:** React Navigation (Bottom Tabs + Stack)
-- **Styling:** StyleSheet API
-
----
-
-## Implementation Status
-
-### Completed (December 2025)
-- [x] Full authentication flow (Caregiver, Family, Agency roles)
-- [x] Caregiver Dashboard with patient card, vitals grid, tasks, requests
-- [x] Family Dashboard with Care Timeline, Incident Reports, My Requests
-- [x] SharedDataContext for real-time data sharing
-- [x] AI Copilot FAB on both dashboards
-- [x] **UI Refactor: Moved Clock In/Out and Client Selector to Shifts tab**
-- [x] **UI Refactor: Moved Caregiver Performance + Today's Summary to "Current Caregiver" profile in Family Menu**
-- [x] **Created comprehensive Current Caregiver profile with photo, stats, certifications, contact info, and performance metrics**
-- [x] **Progress bar fix: Now dynamically calculates based on completed tasks**
-- [x] **Incident Report: Updated photo upload UI to match Tasks screen, added Witness step (5 steps total)**
-- [x] **WEB APP REBUILD: Ported mobile app Caregiver & Family dashboards to web - exact replica with all features**
-
-### In Progress
-- [ ] Wire up Care Plan and Weekly Report screens with data
-- [ ] Complete SharedDataContext data flows
-
-### Upcoming (P1)
-- [ ] Build Agency Dashboard (Web App)
-
-### Future (P2)
-- [ ] Connect AI Copilot to live backend API
-- [ ] AsyncStorage for persistent auth sessions
-- [ ] Doctor and Caseworker dashboards
-- [ ] Epic FHIR API integration
-- [ ] **CRITICAL: Break down ADLTrackComplete.js into modular structure**
-
----
-
-## File Structure
+## Architecture
 ```
 /app/
-└── mobile/
-    └── ADLTrackComplete.js  # Monolithic file (~9580 lines)
+├── frontend/ (React Web App - TailwindCSS, Manrope font, dark theme)
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── CaregiverDashboard.jsx  (5 tabs: Home, Incident, Message, Shifts, Menu)
+│   │   │   ├── FamilyDashboard.jsx     (5 tabs: Home, Incident, Message, Alerts, Menu)
+│   │   │   ├── PatientProfileModal.jsx (Full medical profile)
+│   │   │   ├── VitalsModal.jsx         (Vitals detail view)
+│   │   │   ├── AICopilot.jsx           (AI assistant)
+│   │   │   ├── TaskCard.jsx            (Task cards)
+│   │   │   ├── IncidentReportPage.jsx  (Caregiver incident form)
+│   │   │   ├── IncidentViewPage.jsx    (Family incident list)
+│   │   │   └── pages/                  (Sub-pages: Profile, Settings, etc.)
+│   │   ├── services/mockData.js        (All mock data)
+│   │   └── App.js
+├── mobile/ (React Native/Expo App)
+│   └── ADLTrackComplete.js             (Monolithic mobile app)
+├── backend/ (FastAPI)
 └── memory/
-    └── PRD.md               # This document
+    └── PRD.md
 ```
 
-## Known Technical Debt
-1. **Monolithic File** - ADLTrackComplete.js is ~9580 lines and needs to be broken into:
-   - /src/screens/ (separate screen components)
-   - /src/components/ (reusable UI components)
-   - /src/navigation/ (navigation configuration)
-   - /src/context/ (context providers)
-   - /src/styles/ (shared styles)
+## What's Been Implemented
 
-2. **Mock Data** - All authentication and data is currently mocked
+### Web App (React)
+- **Caregiver Dashboard** (fully matches mobile):
+  - Home tab: Patient card, vitals grid (colored icons: BP pink, Heart orange, Temp blue, Pain purple), Today's Progress, Requests/Tasks tabs
+  - Incident tab: Multi-step incident report form
+  - Message tab: Conversation list with chat (via ChatPage)
+  - Shifts tab: Clock In/Out, Active Client, Quick Actions, Shift History with filters
+  - Menu tab: Colored icon menu items (Medications, Earnings, Shift History, Settings, Support, Sign Out)
+  - Medications sub-screen: Summary stats, medication cards with "Mark as Administered"
+  - Patient Profile modal: Full medical profile with Care History, Allergies, Medical Conditions, Medications, Code Status, Mobility, Access Instructions, Emergency Contacts, Share Medical ID
 
-## Testing
-- Primary testing via **Expo Snack** (user copies code manually)
-- No automated test suite yet
+- **Family Dashboard** (fully matches mobile):
+  - Home tab: Vitals grid (same colored icons), Today's Progress, My Requests/Care Timeline tabs
+  - Incident tab: Incident summary + list
+  - Message tab: Built-in conversation list + chat view (Family Group, Julia Martinez, Tom Smith)
+  - Alerts tab: Upcoming Schedule + Recent Alerts with highlight
+  - Menu tab: Mary Smith profile, David Smith patient card, colored icon menu (Care Plan, Weekly Report, Current Caregiver, Billing, Settings, Support, Sign Out)
+  - Care Plan sub-screen: Primary Goals, Medications, Daily Schedule, Dietary Restrictions, Emergency Protocol
+  - Weekly Report sub-screen: 87% Compliance circle, stats grid, caregiver notes, performance trend bars
+  - Current Caregiver sub-screen: Julia Martinez photo, stats (4.9 rating, 5 years, 234 shifts), certifications, contact info
+
+- **Shared Components**: VitalsModal, AICopilot, PatientProfileModal, TaskCard
+
+### Mobile App (React Native/Expo)
+- Complete app in ADLTrackComplete.js with role-based auth, Caregiver and Family dashboards
+
+### Mock Data
+- All data is mocked in `mockData.js`: patient profile, vitals, tasks, conversations, shift history, alerts, care plan, weekly report, caregiver profile
+
+## Design Language
+- **Theme**: Hard dark theme (bg-black, bg-[#1c1c1e] cards)
+- **Font**: Manrope (400-800 weights)
+- **Primary Color**: #25D366 (green)
+- **Vitals Colors**: BP=#ec4899/pink, Heart=#f59e0b/orange, Temp=#3b82f6/blue, Pain=#a855f7/purple
+- **Cards**: rounded-2xl, no borders
+- **Bottom Nav**: 5 tabs, green active state
+
+## Testing Status
+- **Testing Agent**: All 26 tests passed (100% frontend success rate)
+- **Date**: March 16, 2026
+- **Report**: /app/test_reports/iteration_6.json
+
+## Prioritized Backlog
+
+### P0 - None (current milestone complete)
+
+### P1 - Upcoming
+- Redesign Patient Profile on Mobile App (ADLTrackComplete.js)
+- Build Agency Dashboard (Web App)
+- Connect AI Copilot to backend API (Gemini integration)
+
+### P2 - Future
+- AsyncStorage for persistent mobile auth sessions
+- Doctor and Caseworker dashboards
+- Backend API integration (replace mock data with real API)
+- CRITICAL REFACTOR: Break down monolithic ADLTrackComplete.js into modular structure
+
+## Login Credentials (Mock)
+- Caregiver: sarah@caregiving.com / password123
+- Family: mary@family.com / password123
