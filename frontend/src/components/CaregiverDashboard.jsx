@@ -217,7 +217,7 @@ export const CaregiverDashboard = ({
         <div className="px-4 pt-3">
           <button 
             onClick={() => setShowPatientProfile(true)}
-            className="relative w-full h-56 rounded-3xl overflow-hidden"
+            className="relative w-full h-40 rounded-3xl overflow-hidden"
           >
             {/* Patient Photo Background */}
             <img 
@@ -229,67 +229,67 @@ export const CaregiverDashboard = ({
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
             
             {/* Patient Info - positioned at bottom left */}
-            <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between">
+            <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-white">{patient?.name || 'Patient'}</h2>
-                <p className="text-white/70 text-sm font-medium mt-0.5">{patient?.age} years old</p>
+                <h2 className="text-xl font-bold text-white">{patient?.name || 'Patient'}</h2>
+                <p className="text-white/70 text-sm font-medium">{patient?.age} years old</p>
               </div>
-              <ChevronRight className="w-6 h-6 text-white/60" />
+              <ChevronRight className="w-5 h-5 text-white/60" />
             </div>
           </button>
         </div>
 
         {/* Vitals Grid - 4 dark cards with rounded square colored icons */}
-        <div className="px-4 mt-3">
-          <div className="grid grid-cols-4 gap-2.5">
+        <div className="px-4 mt-2.5">
+          <div className="grid grid-cols-4 gap-2">
             {/* BP Card */}
             <button 
               onClick={() => setShowVitals(true)}
-              className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] rounded-2xl py-3 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-12 h-12 bg-[#5c1a3d] rounded-2xl flex items-center justify-center mb-2.5 mx-auto">
-                <Heart className="w-6 h-6 text-[#e91e7a]" fill="currentColor" />
+              <div className="w-10 h-10 bg-[#5c1a3d] rounded-xl flex items-center justify-center mb-2 mx-auto">
+                <Heart className="w-5 h-5 text-[#e91e7a]" fill="currentColor" />
               </div>
-              <p className="text-lg font-bold text-white text-center">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
-              <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">BP</p>
+              <p className="text-base font-bold text-white text-center">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
+              <p className="text-[10px] text-stone-500 font-medium mt-0.5 text-center">BP</p>
             </button>
 
             {/* Heart Card */}
             <button 
               onClick={() => setShowVitals(true)}
-              className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] rounded-2xl py-3 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-12 h-12 bg-[#6b3410] rounded-2xl flex items-center justify-center mb-2.5 mx-auto">
-                <Activity className="w-6 h-6 text-[#f97316]" />
+              <div className="w-10 h-10 bg-[#6b3410] rounded-xl flex items-center justify-center mb-2 mx-auto">
+                <Activity className="w-5 h-5 text-[#f97316]" />
               </div>
-              <p className="text-lg font-bold text-white text-center">{latestHR ? latestHR.value : '--'}</p>
-              <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">Heart</p>
+              <p className="text-base font-bold text-white text-center">{latestHR ? latestHR.value : '--'}</p>
+              <p className="text-[10px] text-stone-500 font-medium mt-0.5 text-center">Heart</p>
             </button>
 
             {/* Temp Card */}
             <button 
               onClick={() => setShowVitals(true)}
-              className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] rounded-2xl py-3 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-12 h-12 bg-[#1a3a5c] rounded-2xl flex items-center justify-center mb-2.5 mx-auto">
-                <Thermometer className="w-6 h-6 text-[#3b82f6]" />
+              <div className="w-10 h-10 bg-[#1a3a5c] rounded-xl flex items-center justify-center mb-2 mx-auto">
+                <Thermometer className="w-5 h-5 text-[#3b82f6]" />
               </div>
-              <p className="text-lg font-bold text-white text-center">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
-              <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">Temp</p>
+              <p className="text-base font-bold text-white text-center">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
+              <p className="text-[10px] text-stone-500 font-medium mt-0.5 text-center">Temp</p>
             </button>
 
             {/* Pain Card */}
             <button 
               onClick={() => setShowVitals(true)}
-              className="bg-[#1c1c1e] rounded-2xl py-4 px-2 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] rounded-2xl py-3 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
-              <div className="w-12 h-12 bg-[#3d1a5c] rounded-2xl flex items-center justify-center mb-2.5 mx-auto">
-                <div className="w-7 h-7 rounded-full border-2 border-[#9333ea] flex items-center justify-center">
-                  <Frown className="w-4 h-4 text-[#9333ea]" />
+              <div className="w-10 h-10 bg-[#3d1a5c] rounded-xl flex items-center justify-center mb-2 mx-auto">
+                <div className="w-6 h-6 rounded-full border-2 border-[#9333ea] flex items-center justify-center">
+                  <Frown className="w-3.5 h-3.5 text-[#9333ea]" />
                 </div>
               </div>
-              <p className="text-lg font-bold text-white text-center">{latestPain ? `${latestPain.value}/10` : '--'}</p>
-              <p className="text-xs text-stone-500 font-medium mt-0.5 text-center">Pain</p>
+              <p className="text-base font-bold text-white text-center">{latestPain ? `${latestPain.value}/10` : '--'}</p>
+              <p className="text-[10px] text-stone-500 font-medium mt-0.5 text-center">Pain</p>
             </button>
           </div>
         </div>
