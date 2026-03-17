@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Plus, Heart, Activity, Thermometer, Frown } from 'lucide-react';
 
 export const VitalsModal = ({ 
@@ -6,11 +6,16 @@ export const VitalsModal = ({
   onClose, 
   vitalsData,
   onAddVital,
-  isCaregiver = false 
+  isCaregiver = false,
+  initialTab = 'bp'
 }) => {
-  const [activeTab, setActiveTab] = useState('bp');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newVital, setNewVital] = useState({ systolic: '', diastolic: '', heartRate: '', temperature: '', pain: '' });
+
+  useEffect(() => {
+    if (isOpen) setActiveTab(initialTab);
+  }, [isOpen, initialTab]);
 
   if (!isOpen) return null;
 
@@ -317,32 +322,6 @@ export const VitalsModal = ({
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto pb-8">
-          {/* Tabs - Horizontal scrollable */}
-          <div className="px-6 pb-5 overflow-x-auto">
-            <div className="flex gap-3 min-w-max">
-              {Object.values(vitalThemes).map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl font-bold text-base transition-all whitespace-nowrap ${
-                      isActive
-                        ? 'text-white shadow-lg'
-                        : 'bg-[#1c1c1e] text-stone-400 hover:bg-[#2c2c2e] hover:text-stone-300'
-                    }`}
-                    style={isActive ? { backgroundColor: tab.primaryColor } : {}}
-                    data-testid={`vital-tab-${tab.id}`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           {/* Current Value Card - Themed */}
           <div className="px-6 pb-6">
             <div 

@@ -27,6 +27,7 @@ export const FamilyDashboard = ({
   const [activeTaskTab, setActiveTaskTab] = useState('timeline');
   const [showPatientProfile, setShowPatientProfile] = useState(false);
   const [showVitals, setShowVitals] = useState(false);
+  const [vitalsInitialTab, setVitalsInitialTab] = useState('bp');
   const [showCopilot, setShowCopilot] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [activePage, setActivePage] = useState(null);
@@ -350,7 +351,7 @@ export const FamilyDashboard = ({
       {/* Vitals Grid */}
       <div className="px-4 pt-4">
         <div className="grid grid-cols-4 gap-2">
-          <button onClick={() => setShowVitals(true)} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-bp">
+          <button onClick={() => { setVitalsInitialTab('bp'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-bp">
             <div className="w-11 h-11 bg-[#6b1c3b] rounded-xl flex items-center justify-center mb-2 mx-auto">
               <Heart className="w-5 h-5 text-[#ec4899]" fill="currentColor" />
             </div>
@@ -358,7 +359,7 @@ export const FamilyDashboard = ({
             <p className="text-[11px] text-stone-500 font-medium mt-0.5 text-center">BP</p>
           </button>
 
-          <button onClick={() => setShowVitals(true)} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-heart">
+          <button onClick={() => { setVitalsInitialTab('hr'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-heart">
             <div className="w-11 h-11 bg-[#5c3d1e] rounded-xl flex items-center justify-center mb-2 mx-auto">
               <Activity className="w-5 h-5 text-[#f59e0b]" />
             </div>
@@ -366,7 +367,7 @@ export const FamilyDashboard = ({
             <p className="text-[11px] text-stone-500 font-medium mt-0.5 text-center">Heart</p>
           </button>
 
-          <button onClick={() => setShowVitals(true)} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-temp">
+          <button onClick={() => { setVitalsInitialTab('temp'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-temp">
             <div className="w-11 h-11 bg-[#1e3a5f] rounded-xl flex items-center justify-center mb-2 mx-auto">
               <Thermometer className="w-5 h-5 text-[#3b82f6]" />
             </div>
@@ -374,7 +375,7 @@ export const FamilyDashboard = ({
             <p className="text-[11px] text-stone-500 font-medium mt-0.5 text-center">Temp</p>
           </button>
 
-          <button onClick={() => setShowVitals(true)} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-pain">
+          <button onClick={() => { setVitalsInitialTab('pain'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-pain">
             <div className="w-11 h-11 bg-[#4a1d6b] rounded-xl flex items-center justify-center mb-2 mx-auto">
               <Frown className="w-5 h-5 text-[#a855f7]" />
             </div>
@@ -796,6 +797,7 @@ export const FamilyDashboard = ({
         onClose={() => setShowVitals(false)}
         vitalsData={vitalsData}
         isCaregiver={false}
+        initialTab={vitalsInitialTab}
       />
 
       <AICopilot

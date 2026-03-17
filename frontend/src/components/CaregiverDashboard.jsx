@@ -46,6 +46,7 @@ export const CaregiverDashboard = ({
   const [selectedTask, setSelectedTask] = useState(null);
   const [showPatientProfile, setShowPatientProfile] = useState(false);
   const [showVitals, setShowVitals] = useState(false);
+  const [vitalsInitialTab, setVitalsInitialTab] = useState('bp');
   const [showCopilot, setShowCopilot] = useState(false);
   const [isShiftActive, setIsShiftActive] = useState(skipStartShift); // Auto-start if skipStartShift
   const [shiftStartTime, setShiftStartTime] = useState(skipStartShift ? new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : null);
@@ -340,7 +341,7 @@ export const CaregiverDashboard = ({
           <div className="grid grid-cols-4 gap-2">
             {/* BP Card */}
             <button 
-              onClick={() => setShowVitals(true)}
+              onClick={() => { setVitalsInitialTab('bp'); setShowVitals(true); }}
               className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
               <div className="w-11 h-11 bg-[#5c1a3d] rounded-xl flex items-center justify-center mb-2 mx-auto">
@@ -352,7 +353,7 @@ export const CaregiverDashboard = ({
 
             {/* Heart Card */}
             <button 
-              onClick={() => setShowVitals(true)}
+              onClick={() => { setVitalsInitialTab('hr'); setShowVitals(true); }}
               className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
               <div className="w-11 h-11 bg-[#6b3410] rounded-xl flex items-center justify-center mb-2 mx-auto">
@@ -364,7 +365,7 @@ export const CaregiverDashboard = ({
 
             {/* Temp Card */}
             <button 
-              onClick={() => setShowVitals(true)}
+              onClick={() => { setVitalsInitialTab('temp'); setShowVitals(true); }}
               className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
               <div className="w-11 h-11 bg-[#1a3a5c] rounded-xl flex items-center justify-center mb-2 mx-auto">
@@ -376,7 +377,7 @@ export const CaregiverDashboard = ({
 
             {/* Pain Card */}
             <button 
-              onClick={() => setShowVitals(true)}
+              onClick={() => { setVitalsInitialTab('pain'); setShowVitals(true); }}
               className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
               <div className="w-11 h-11 bg-[#3d1a5c] rounded-xl flex items-center justify-center mb-2 mx-auto">
@@ -802,6 +803,7 @@ export const CaregiverDashboard = ({
         vitalsData={vitalsData}
         onAddVital={onAddVital}
         isCaregiver={true}
+        initialTab={vitalsInitialTab}
       />
 
       <AICopilot
