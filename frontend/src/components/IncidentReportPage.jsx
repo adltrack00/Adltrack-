@@ -220,8 +220,8 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Describe the incident in detail..."
-                    className="w-full h-32 bg-[#2c2c2e] text-white placeholder:text-[#636366] rounded-2xl p-4 text-[17px] focus:outline-none resize-none"
-                    style={{ fontSize: '16px' }}
+                    className="w-full h-32 bg-[#2c2c2e] text-white placeholder:text-[#636366] rounded-2xl p-4 text-[17px] focus:outline-none focus:ring-2 focus:ring-[#ff375f] resize-none caret-white"
+                    style={{ fontSize: '16px', caretColor: 'white' }}
                     data-testid="incident-description"
                   />
                 </div>
@@ -233,8 +233,8 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                     value={actionsTaken}
                     onChange={(e) => setActionsTaken(e.target.value)}
                     placeholder="What steps did you take to address this?"
-                    className="w-full h-28 bg-[#2c2c2e] text-white placeholder:text-[#636366] rounded-2xl p-4 text-[17px] focus:outline-none resize-none"
-                    style={{ fontSize: '16px' }}
+                    className="w-full h-28 bg-[#2c2c2e] text-white placeholder:text-[#636366] rounded-2xl p-4 text-[17px] focus:outline-none focus:ring-2 focus:ring-[#ff375f] resize-none caret-white"
+                    style={{ fontSize: '16px', caretColor: 'white' }}
                     data-testid="incident-actions"
                   />
                 </div>
@@ -258,10 +258,10 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                     onChange={(e) => setWitnessNames(e.target.value)}
                     placeholder="Enter the names of any witnesses present..."
                     disabled={noWitnesses}
-                    className={`w-full h-28 bg-[#2c2c2e] text-white placeholder:text-[#636366] rounded-2xl p-4 text-[17px] focus:outline-none resize-none ${
+                    className={`w-full h-28 bg-[#2c2c2e] text-white placeholder:text-[#636366] rounded-2xl p-4 text-[17px] focus:outline-none focus:ring-2 focus:ring-[#ff375f] resize-none caret-white ${
                       noWitnesses ? 'opacity-70' : ''
                     }`}
-                    style={{ fontSize: '16px' }}
+                    style={{ fontSize: '16px', caretColor: 'white' }}
                     data-testid="incident-witnesses"
                   />
                 </div>
