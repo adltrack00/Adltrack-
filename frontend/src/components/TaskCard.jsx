@@ -30,9 +30,9 @@ export const TaskCard = ({
 
   return (
     <div 
-      className={`relative ${bgCard} border ${border} rounded-2xl overflow-hidden transition-all duration-200 font-['Manrope',sans-serif] ${
+      className={`relative bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl overflow-hidden transition-all duration-200 font-['Manrope',sans-serif] ${
         isCompleted ? 'opacity-75' : ''
-      } ${isExpanded && !isCompleted ? (isDarkMode ? 'border-stone-700' : 'border-stone-300') : (isDarkMode ? 'hover:border-stone-700' : 'hover:border-stone-300')}`}
+      } ${isExpanded && !isCompleted ? 'border-[#636366]' : 'hover:border-[#636366]'}`}
     >
       {/* Priority Stripe */}
       <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${stripe}`} />
@@ -59,7 +59,7 @@ export const TaskCard = ({
               </span>
               {/* Only show Photo badge for pending tasks that require photo */}
               {task.requiresPhoto && !hasPhoto && !isCompleted && (
-                <span className={`flex items-center gap-1 ${isDarkMode ? 'text-stone-300 bg-stone-800' : 'text-stone-600 bg-stone-200'} px-2 py-0.5 rounded-full text-xs font-medium`}>
+                <span className="flex items-center gap-1 text-[#8e8e93] bg-[#2c2c2e] px-2 py-0.5 rounded-full text-xs font-medium">
                   <Camera className="w-3.5 h-3.5" />
                   Photo
                 </span>
@@ -76,7 +76,7 @@ export const TaskCard = ({
           <div className="flex-shrink-0 flex items-center gap-2">
             {/* Mini Photo Thumbnail */}
             {hasPhoto && (
-              <div className={`w-12 h-12 rounded-xl overflow-hidden border ${border}`}>
+              <div className="w-12 h-12 rounded-xl overflow-hidden border border-[#3a3a3c]">
                 <img src={task.evidenceUrl} alt="" className="w-full h-full object-cover" />
               </div>
             )}
@@ -87,7 +87,7 @@ export const TaskCard = ({
                 <XCircle className="w-5 h-5 text-rose-400" />
               </div>
             ) : !isCompleted && (
-              <div className={`w-8 h-8 border-2 ${isDarkMode ? 'border-stone-700' : 'border-stone-300'} rounded-full flex items-center justify-center`}>
+              <div className="w-8 h-8 border-2 border-[#3a3a3c] rounded-full flex items-center justify-center">
                 {isExpanded ? (
                   <ChevronUp className={`w-4 h-4 ${textMuted}`} />
                 ) : (
@@ -109,7 +109,7 @@ export const TaskCard = ({
 
       {/* Expanded Section */}
       {isExpanded && !isCompleted && !isMissed && !readOnly && (
-        <div className={`px-5 pb-4 pt-3 border-t ${border} ${isDarkMode ? 'bg-stone-950/50' : 'bg-stone-50'}`}>
+        <div className={`px-5 pb-4 pt-3 border-t border-[#3a3a3c] bg-black/30`}>
           <div className="space-y-3">
             <div>
               <p className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-1`}>Instructions</p>

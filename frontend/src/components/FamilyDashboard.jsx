@@ -103,7 +103,7 @@ export const FamilyDashboard = ({
 
           <div className="px-5 space-y-4">
             {/* Primary Goals */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
               <h3 className="text-[#25D366] text-xs font-bold uppercase tracking-wider mb-4">Primary Goals</h3>
               <div className="space-y-3">
                 {CARE_PLAN.goals.map((goal, idx) => (
@@ -116,7 +116,7 @@ export const FamilyDashboard = ({
             </div>
 
             {/* Medications */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
               <h3 className="text-[#25D366] text-xs font-bold uppercase tracking-wider mb-4">Medications</h3>
               <div className="divide-y divide-stone-800">
                 {CARE_PLAN.medications.map((med, idx) => (
@@ -134,7 +134,7 @@ export const FamilyDashboard = ({
             </div>
 
             {/* Daily Schedule */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
               <h3 className="text-[#25D366] text-xs font-bold uppercase tracking-wider mb-4">Daily Schedule</h3>
               <div className="space-y-3">
                 {CARE_PLAN.dailySchedule.map((item, idx) => (
@@ -147,7 +147,7 @@ export const FamilyDashboard = ({
             </div>
 
             {/* Dietary Restrictions */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
               <h3 className="text-[#25D366] text-xs font-bold uppercase tracking-wider mb-4">Dietary Restrictions</h3>
               <div className="flex flex-wrap gap-2">
                 {CARE_PLAN.dietaryRestrictions.map((item, idx) => (
@@ -185,7 +185,7 @@ export const FamilyDashboard = ({
 
           <div className="px-5 space-y-4">
             {/* Overall Compliance Circle */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-6 flex flex-col items-center">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-6 flex flex-col items-center">
               <div className="relative w-28 h-28 mb-3">
                 <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
                   <circle cx="60" cy="60" r="50" fill="none" stroke="#2a2a2e" strokeWidth="10" />
@@ -202,32 +202,32 @@ export const FamilyDashboard = ({
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-[#1c1c1e] rounded-2xl p-4 text-center">
+              <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 text-center">
                 <p className="text-2xl font-bold text-[#25D366]">{WEEKLY_REPORT.tasksCompleted}/{WEEKLY_REPORT.totalTasks}</p>
                 <p className="text-stone-400 text-xs mt-1">Tasks</p>
               </div>
-              <div className="bg-[#1c1c1e] rounded-2xl p-4 text-center">
+              <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 text-center">
                 <p className="text-2xl font-bold text-[#25D366]">{WEEKLY_REPORT.medsOnTime}%</p>
                 <p className="text-stone-400 text-xs mt-1">Meds On Time</p>
               </div>
-              <div className="bg-[#1c1c1e] rounded-2xl p-4 text-center">
+              <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 text-center">
                 <p className="text-2xl font-bold text-amber-400">{WEEKLY_REPORT.incidents}</p>
                 <p className="text-stone-400 text-xs mt-1">Incidents</p>
               </div>
-              <div className="bg-[#1c1c1e] rounded-2xl p-4 text-center">
+              <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 text-center">
                 <p className="text-2xl font-bold text-rose-400">{WEEKLY_REPORT.missedTasks}</p>
                 <p className="text-stone-400 text-xs mt-1">Missed Tasks</p>
               </div>
             </div>
 
             {/* Caregiver Notes */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
               <h3 className="text-[#25D366] text-xs font-bold uppercase tracking-wider mb-3">Caregiver Notes</h3>
               <p className="text-stone-300 text-sm leading-relaxed">{WEEKLY_REPORT.caregiverNotes}</p>
             </div>
 
             {/* Performance Trend */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
               <h3 className="text-[#25D366] text-xs font-bold uppercase tracking-wider mb-4">Performance Trend</h3>
               <div className="flex items-end justify-between h-24 gap-2">
                 {WEEKLY_REPORT.performanceTrend.map((d, idx) => (
@@ -271,7 +271,7 @@ export const FamilyDashboard = ({
             </div>
 
             {/* Stats Row */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
                   <p className="text-xl font-bold text-white">{CAREGIVER_PROFILE.rating}</p>
@@ -289,7 +289,7 @@ export const FamilyDashboard = ({
             </div>
 
             {/* Certifications */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
               <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">Certifications</h3>
               <div className="flex flex-wrap gap-2">
                 {CAREGIVER_PROFILE.certifications.map((cert, idx) => (
@@ -299,7 +299,7 @@ export const FamilyDashboard = ({
             </div>
 
             {/* Contact Info */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
               <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">Contact Information</h3>
               <div className="space-y-2">
                 <p className="text-stone-300 text-sm">{CAREGIVER_PROFILE.email}</p>
@@ -308,7 +308,7 @@ export const FamilyDashboard = ({
             </div>
 
             {/* Today's Summary */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
               <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">Today&apos;s Summary</h3>
               <div className="space-y-2">
                 <div className="flex justify-between">
@@ -335,7 +335,7 @@ export const FamilyDashboard = ({
       {/* Vitals Grid */}
       <div className="px-4 pt-4">
         <div className="grid grid-cols-4 gap-2">
-          <button onClick={() => { setVitalsInitialTab('bp'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-bp">
+          <button onClick={() => { setVitalsInitialTab('bp'); setShowVitals(true); }} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-bp">
             <div className="w-11 h-11 bg-[#6b1c3b] rounded-xl flex items-center justify-center mb-2 mx-auto">
               <Heart className="w-5 h-5 text-[#ec4899]" fill="currentColor" />
             </div>
@@ -343,7 +343,7 @@ export const FamilyDashboard = ({
             <p className="text-[11px] text-stone-500 font-medium mt-0.5 text-center">BP</p>
           </button>
 
-          <button onClick={() => { setVitalsInitialTab('hr'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-heart">
+          <button onClick={() => { setVitalsInitialTab('hr'); setShowVitals(true); }} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-heart">
             <div className="w-11 h-11 bg-[#5c3d1e] rounded-xl flex items-center justify-center mb-2 mx-auto">
               <Activity className="w-5 h-5 text-[#f59e0b]" />
             </div>
@@ -351,7 +351,7 @@ export const FamilyDashboard = ({
             <p className="text-[11px] text-stone-500 font-medium mt-0.5 text-center">Heart</p>
           </button>
 
-          <button onClick={() => { setVitalsInitialTab('temp'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-temp">
+          <button onClick={() => { setVitalsInitialTab('temp'); setShowVitals(true); }} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-temp">
             <div className="w-11 h-11 bg-[#1e3a5f] rounded-xl flex items-center justify-center mb-2 mx-auto">
               <Thermometer className="w-5 h-5 text-[#3b82f6]" />
             </div>
@@ -359,7 +359,7 @@ export const FamilyDashboard = ({
             <p className="text-[11px] text-stone-500 font-medium mt-0.5 text-center">Temp</p>
           </button>
 
-          <button onClick={() => { setVitalsInitialTab('pain'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-pain">
+          <button onClick={() => { setVitalsInitialTab('pain'); setShowVitals(true); }} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-pain">
             <div className="w-11 h-11 bg-[#4a1d6b] rounded-xl flex items-center justify-center mb-2 mx-auto">
               <Frown className="w-5 h-5 text-[#a855f7]" />
             </div>
@@ -434,7 +434,7 @@ export const FamilyDashboard = ({
 
             {myRequests.length > 0 ? (
               myRequests.map((request) => (
-                <div key={request.id} className="bg-[#1c1c1e] rounded-2xl p-4">
+                <div key={request.id} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
@@ -451,7 +451,7 @@ export const FamilyDashboard = ({
                 </div>
               ))
             ) : (
-              <div className="bg-[#1c1c1e] rounded-3xl p-8 text-center">
+              <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-8 text-center">
                 <div className="w-16 h-16 bg-stone-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Sparkles className="w-8 h-8 text-stone-600" />
                 </div>
@@ -465,7 +465,7 @@ export const FamilyDashboard = ({
             {displayTasks.length > 0 ? (
               <div className="space-y-3">
                 {displayTasks.map((task) => (
-                  <div key={task.id} className="bg-[#1c1c1e] rounded-3xl overflow-hidden" onClick={() => setSelectedTask(task)}>
+                  <div key={task.id} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl overflow-hidden" onClick={() => setSelectedTask(task)}>
                     <div className="relative aspect-[16/9] cursor-pointer">
                       <img src={getTaskImage(task)} alt={task.title} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -491,7 +491,7 @@ export const FamilyDashboard = ({
                 ))}
               </div>
             ) : (
-              <div className="bg-[#1c1c1e] rounded-3xl p-8 text-center">
+              <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-8 text-center">
                 <div className="w-16 h-16 bg-stone-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Camera className="w-8 h-8 text-stone-600" />
                 </div>
@@ -527,7 +527,7 @@ export const FamilyDashboard = ({
 
       <div className="px-5 space-y-2 mb-6">
         {FAMILY_ALERTS.upcoming.map((item) => (
-          <div key={item.id} className="bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-4">
+          <div key={item.id} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 flex items-center gap-4">
             <div className="w-12 h-12 bg-[#1e3a5f] rounded-xl flex items-center justify-center flex-shrink-0">
               <Activity className="w-6 h-6 text-[#3b82f6]" />
             </div>

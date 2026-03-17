@@ -168,7 +168,7 @@ export const CaregiverDashboard = ({
 
           {/* Summary Card */}
           <div className="px-5 mb-5">
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
               <div className="grid grid-cols-3 text-center">
                 <div>
                   <p className="text-2xl font-bold text-white">{medications.length}</p>
@@ -197,7 +197,7 @@ export const CaregiverDashboard = ({
             {medications.map((med, idx) => {
               const isGiven = medLogs.includes(med.name);
               return (
-                <div key={idx} className="bg-[#1c1c1e] rounded-2xl p-4">
+                <div key={idx} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
                       <Heart className="w-6 h-6 text-[#3b82f6]" />
@@ -342,7 +342,7 @@ export const CaregiverDashboard = ({
             {/* BP Card */}
             <button 
               onClick={() => { setVitalsInitialTab('bp'); setShowVitals(true); }}
-              className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
               <div className="w-11 h-11 bg-[#5c1a3d] rounded-xl flex items-center justify-center mb-2 mx-auto">
                 <Heart className="w-5 h-5 text-[#e91e7a]" fill="currentColor" />
@@ -354,7 +354,7 @@ export const CaregiverDashboard = ({
             {/* Heart Card */}
             <button 
               onClick={() => { setVitalsInitialTab('hr'); setShowVitals(true); }}
-              className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
               <div className="w-11 h-11 bg-[#6b3410] rounded-xl flex items-center justify-center mb-2 mx-auto">
                 <Activity className="w-5 h-5 text-[#f97316]" />
@@ -366,7 +366,7 @@ export const CaregiverDashboard = ({
             {/* Temp Card */}
             <button 
               onClick={() => { setVitalsInitialTab('temp'); setShowVitals(true); }}
-              className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
               <div className="w-11 h-11 bg-[#1a3a5c] rounded-xl flex items-center justify-center mb-2 mx-auto">
                 <Thermometer className="w-5 h-5 text-[#3b82f6]" />
@@ -378,7 +378,7 @@ export const CaregiverDashboard = ({
             {/* Pain Card */}
             <button 
               onClick={() => { setVitalsInitialTab('pain'); setShowVitals(true); }}
-              className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
               <div className="w-11 h-11 bg-[#3d1a5c] rounded-xl flex items-center justify-center mb-2 mx-auto">
                 <div className="w-6 h-6 rounded-full border-2 border-[#9333ea] flex items-center justify-center">
@@ -486,10 +486,10 @@ export const CaregiverDashboard = ({
                 />
               ))
             ) : (
-              <div className={`text-center py-12 ${bgCard} border ${border} rounded-3xl`}>
+              <div className="text-center py-12 bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl">
                 <CheckCircle className="w-12 h-12 text-[#25D366] mx-auto mb-3" />
-                <p className={`${text} font-semibold`}>All done for today!</p>
-                <p className={`${textSecondary} text-sm`}>Great work, Julia</p>
+                <p className="text-white font-semibold">All done for today!</p>
+                <p className="text-[#8e8e93] text-sm">Great work, Julia</p>
               </div>
             )
           ) : (
@@ -503,9 +503,9 @@ export const CaregiverDashboard = ({
                 />
               ))
             ) : (
-              <div className={`text-center py-12 ${bgCard} border ${border} rounded-3xl`}>
-                <Sparkles className={`w-12 h-12 ${textMuted} mx-auto mb-3`} />
-                <p className={textMuted}>No pending requests</p>
+              <div className="text-center py-12 bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl">
+                <Sparkles className="w-12 h-12 text-[#8e8e93] mx-auto mb-3" />
+                <p className="text-[#8e8e93]">No pending requests</p>
               </div>
             )
           )}
@@ -537,8 +537,8 @@ export const CaregiverDashboard = ({
           <div className="flex gap-2 mb-4">
             {['all', 'completed', 'cancelled'].map((f) => (
               <button key={f} onClick={() => setHistoryFilter(f)}
-                className={`px-5 py-3 rounded-3xl text-[15px] font-semibold transition-colors ${
-                  historyFilter === f ? 'bg-[#25D366] text-white' : 'bg-[#1c1c1e] text-[#8e8e93]'
+                className={`px-5 py-3 rounded-2xl text-[15px] font-semibold transition-colors border ${
+                  historyFilter === f ? 'bg-[#25D366] text-white border-[#25D366]' : 'bg-[#1c1c1e] text-[#8e8e93] border-[#3a3a3c]'
                 }`}
               >
                 {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -581,7 +581,7 @@ export const CaregiverDashboard = ({
       ) : (
         <div className="px-5 pt-4 space-y-4">
           {/* Shift Status Card */}
-          <div className="bg-[#1c1c1e] rounded-[20px] p-5" data-testid="shift-status-card">
+          <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5" data-testid="shift-status-card">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[18px] font-semibold text-white">Shift Status</h3>
@@ -628,7 +628,7 @@ export const CaregiverDashboard = ({
           {/* Active Client Selector */}
           <button 
             onClick={() => setShowClientList(true)}
-            className="w-full bg-[#1c1c1e] rounded-2xl p-4 text-left"
+            className="w-full bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5 text-left"
             data-testid="active-client-selector"
           >
             <p className="text-sm text-[#8e8e93] tracking-[1px]">ACTIVE CLIENT</p>
@@ -639,7 +639,7 @@ export const CaregiverDashboard = ({
           </button>
 
           {/* Quick Actions */}
-          <div className="bg-[#1c1c1e] rounded-[24px] p-6" data-testid="quick-actions-card">
+          <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5" data-testid="quick-actions-card">
             <h3 className="text-xl font-bold text-white mb-5">Quick Actions</h3>
             
             <button 
