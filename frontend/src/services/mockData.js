@@ -406,6 +406,34 @@ export const FAMILY_CONVERSATIONS = [
   },
 ];
 
+// Clients for caregiver
+export const CLIENTS = [
+  { 
+    id: 1, 
+    name: 'David Smith', 
+    condition: 'Diabetes, Hypertension',
+    riskLevel: 'moderate',
+    tasksToday: 8,
+    tasksCompleted: 3,
+  },
+  { 
+    id: 2, 
+    name: 'Margaret Johnson', 
+    condition: "Alzheimer's, Mobility Issues",
+    riskLevel: 'high',
+    tasksToday: 10,
+    tasksCompleted: 0,
+  },
+  { 
+    id: 3, 
+    name: 'Robert Williams', 
+    condition: 'Post-stroke Recovery',
+    riskLevel: 'low',
+    tasksToday: 6,
+    tasksCompleted: 0,
+  },
+];
+
 // Shift history
 export const SHIFT_HISTORY = [
   { id: 1, date: 'Dec 15, 2024', startTime: '8:00 AM', endTime: '4:00 PM', tasksCompleted: 12, totalTasks: 12, status: 'completed' },

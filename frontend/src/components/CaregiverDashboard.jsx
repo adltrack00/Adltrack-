@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
   Home, MessageSquare, Clock, Settings, Cpu, User, Heart, Activity, Thermometer,
-  MapPin, Play, ChevronRight, Bell, CheckCircle, Sparkles, Frown, AlertTriangle
+  MapPin, Play, ChevronRight, Bell, CheckCircle, Sparkles, Frown, AlertTriangle,
+  X, ChevronDown
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
 import { TaskCard } from './TaskCard';
@@ -17,7 +18,7 @@ import { AccountsPage } from './pages/AccountsPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { SupportPage } from './pages/SupportPage';
 import { ChatPage } from './pages/ChatPage';
-import { CAREGIVER_PROFILE, SHIFT_HISTORY, CARE_PLAN } from '../services/mockData';
+import { CAREGIVER_PROFILE, SHIFT_HISTORY, CARE_PLAN, CLIENTS } from '../services/mockData';
 import { useTheme } from '../context/ThemeContext';
 
 export const CaregiverDashboard = ({ 
@@ -56,6 +57,12 @@ export const CaregiverDashboard = ({
   const [historyFilter, setHistoryFilter] = useState('all');
   const [showShiftHistory, setShowShiftHistory] = useState(false);
   const [medLogs, setMedLogs] = useState([]);
+  const [showClientList, setShowClientList] = useState(false);
+  const [showClockAlert, setShowClockAlert] = useState(false);
+  const [clockAlertTitle, setClockAlertTitle] = useState('');
+  const [clockAlertMessage, setClockAlertMessage] = useState('');
+  const [activeClientId, setActiveClientId] = useState(1);
+  const [clockOutTime, setClockOutTime] = useState(null);
 
   const today = new Date(2026, 0, 17); // Jan 17, 2026
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
@@ -98,13 +105,18 @@ export const CaregiverDashboard = ({
   const handleStartShift = () => {
     setIsShiftActive(true);
     setShiftStartTime(new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }));
+    setClockOutTime(null);
+    setClockAlertTitle('Clocked In');
+    setClockAlertMessage('You have successfully clocked in. GPS location verified.');
+    setShowClockAlert(true);
   };
 
   const handleEndShift = () => {
-    if (window.confirm('Are you sure you want to end your shift?')) {
-      setIsShiftActive(false);
-      setShiftStartTime(null);
-    }
+    setIsShiftActive(false);
+    setClockOutTime(new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }));
+    setClockAlertTitle('Clocked Out');
+    setClockAlertMessage('You have successfully clocked out.');
+    setShowClockAlert(true);
   };
 
   const handleStartTask = (task) => {
@@ -501,13 +513,19 @@ export const CaregiverDashboard = ({
     );
   };
 
-  // Render Shift Tab
-  const filteredHistory = historyFilter === 'all' ? SHIFT_HISTORY : SHIFT_HISTORY.filter(s => s.status === historyFilter);
+  // Get active client name
+  const activeClient = CLIENTS.find(c => c.id === activeClientId);
+
+  // Filter shift history based on selected filter
+  const filteredHistory = SHIFT_HISTORY.filter(shift => {
+    if (historyFilter === 'all') return true;
+    return shift.status === historyFilter;
+  });
 
   const renderShiftContent = () => (
-    <div className="flex-1 overflow-y-auto bg-black p-5 space-y-4 pb-24">
+    <div className="flex-1 overflow-y-auto bg-black pb-24">
       {showShiftHistory ? (
-        <>
+        <div className="p-5 space-y-4">
           {/* Shift History View */}
           <button onClick={() => setShowShiftHistory(false)} className="flex items-center gap-1 text-stone-400 mb-2">
             <ChevronRight className="w-5 h-5 rotate-180" />
@@ -518,8 +536,8 @@ export const CaregiverDashboard = ({
           <div className="flex gap-2 mb-4">
             {['all', 'completed', 'cancelled'].map((f) => (
               <button key={f} onClick={() => setHistoryFilter(f)}
-                className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
-                  historyFilter === f ? 'bg-[#25D366] text-white' : 'bg-[#1c1c1e] text-stone-400'
+                className={`px-5 py-3 rounded-3xl text-[15px] font-semibold transition-colors ${
+                  historyFilter === f ? 'bg-[#25D366] text-white' : 'bg-[#1c1c1e] text-[#8e8e93]'
                 }`}
               >
                 {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -529,108 +547,121 @@ export const CaregiverDashboard = ({
 
           <div className="space-y-3">
             {filteredHistory.map((shift) => (
-              <div key={shift.id} className="bg-[#1c1c1e] rounded-2xl p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-white font-semibold">{shift.date}</p>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    shift.status === 'completed' ? 'bg-[#25D366]/20 text-[#25D366]' : 'bg-rose-500/20 text-rose-400'
+              <div key={shift.id} className={`bg-[#1c1c1e] rounded-2xl p-[18px] border ${
+                shift.status === 'completed' ? 'border-[#25D366]' : 'border-[#636366]'
+              }`}>
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-[18px] h-[18px] text-[#8e8e93]" />
+                    <p className="text-lg font-semibold text-white">{shift.date}</p>
+                  </div>
+                  <span className={`px-3 py-1.5 rounded-full text-[13px] font-semibold flex items-center gap-1 ${
+                    shift.status === 'completed' ? 'bg-[#22c55e]/15 text-[#25D366]' : 'bg-white/10 text-[#8e8e93]'
                   }`}>
                     {shift.status === 'completed' ? 'Completed' : 'Cancelled'}
                   </span>
                 </div>
-                <div className="flex items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4 text-stone-500" />
-                    <span className="text-stone-400">{shift.startTime} - {shift.endTime}</span>
+                <div className="flex items-center gap-5">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-[#8e8e93]" />
+                    <span className="text-sm text-[#8e8e93]">{shift.startTime} - {shift.endTime}</span>
                   </div>
                   {shift.status === 'completed' && (
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
                       <CheckCircle className="w-4 h-4 text-[#25D366]" />
-                      <span className="text-stone-400">{shift.tasksCompleted}/{shift.totalTasks} tasks</span>
+                      <span className="text-sm text-[#8e8e93]">{shift.tasksCompleted}/{shift.totalTasks} tasks</span>
                     </div>
                   )}
                 </div>
               </div>
             ))}
           </div>
-        </>
+        </div>
       ) : (
-        <>
+        <div className="px-5 pt-4 space-y-4">
           {/* Shift Status Card */}
-          <div className={`rounded-3xl p-6 ${isShiftActive ? 'bg-[#25D366]' : 'bg-[#1c1c1e]'}`}>
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="font-bold text-lg text-white">Current Shift</h3>
-              <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                isShiftActive ? 'bg-white/20 text-white' : 'bg-stone-800 text-stone-400'
-              }`}>
-                {isShiftActive ? 'Active' : 'Inactive'}
-              </span>
+          <div className="bg-[#1c1c1e] rounded-[20px] p-5" data-testid="shift-status-card">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[18px] font-semibold text-white">Shift Status</h3>
+              <div className="flex items-center gap-1.5">
+                <div className={`w-2.5 h-2.5 rounded-full ${isShiftActive ? 'bg-[#25D366]' : 'bg-[#ef4444]'}`} />
+                <span className="text-sm text-[#8e8e93]">{isShiftActive ? 'On Shift' : 'Off Shift'}</span>
+              </div>
             </div>
             
-            {isShiftActive && (
-              <div className="space-y-3 mb-5">
-                <div className="flex justify-between">
-                  <span className="text-white/70">Started</span>
-                  <span className="font-semibold text-white">{shiftStartTime}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/70">Patient</span>
-                  <span className="font-semibold text-white">{patient?.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/70">Tasks completed</span>
-                  <span className="font-semibold text-white">{completedCount}/{todayTasks.length}</span>
-                </div>
+            {/* Time Row */}
+            <div className="flex justify-around mb-5">
+              <div className="text-center">
+                <p className="text-xs text-[#8e8e93] mb-1">Clock In</p>
+                <p className="text-xl font-bold text-white">{shiftStartTime || '--:--'}</p>
               </div>
-            )}
+              <div className="text-center">
+                <p className="text-xs text-[#8e8e93] mb-1">Clock Out</p>
+                <p className="text-xl font-bold text-white">{clockOutTime || '--:--'}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-[#8e8e93] mb-1">Weekly Hours</p>
+                <p className="text-xl font-bold text-white">32.5h</p>
+              </div>
+            </div>
 
+            {/* Clock Button */}
             <button
               onClick={isShiftActive ? handleEndShift : handleStartShift}
-              className={`w-full py-4 rounded-2xl font-bold transition-all ${
-                isShiftActive 
-                  ? 'bg-white text-rose-600 hover:bg-stone-100' 
-                  : 'bg-[#25D366] text-white hover:bg-[#20bd5a]'
+              className={`w-full py-4 rounded-[14px] text-[18px] font-semibold text-white transition-colors ${
+                isShiftActive ? 'bg-[#ef4444] hover:bg-[#dc2626]' : 'bg-[#25D366] hover:bg-[#20bd5a]'
               }`}
+              data-testid="clock-btn"
             >
-              {isShiftActive ? 'End Shift' : 'Start Shift'}
+              {isShiftActive ? 'Clock Out' : 'Clock In'}
             </button>
+            
+            {/* GPS */}
+            <div className="flex items-center justify-center gap-1.5 mt-3">
+              <MapPin className="w-4 h-4 text-[#25D366]" />
+              <span className="text-[13px] text-[#8e8e93]">GPS verification enabled</span>
+            </div>
           </div>
 
-          {/* Active Client */}
-          {isShiftActive && (
-            <div className="bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-3">
-              <img src={patient?.photo || ''} alt={patient?.name} className="w-12 h-12 rounded-xl object-cover" />
-              <div className="flex-1">
-                <p className="text-xs text-stone-500 font-semibold uppercase tracking-wider">Active Client</p>
-                <p className="text-white font-semibold">{patient?.name}</p>
-              </div>
-              <span className="px-3 py-1 bg-[#25D366]/20 text-[#25D366] rounded-full text-xs font-semibold">Active</span>
+          {/* Active Client Selector */}
+          <button 
+            onClick={() => setShowClientList(true)}
+            className="w-full bg-[#1c1c1e] rounded-2xl p-4 text-left"
+            data-testid="active-client-selector"
+          >
+            <p className="text-sm text-[#8e8e93] tracking-[1px]">ACTIVE CLIENT</p>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-xl font-semibold text-white">{activeClient?.name || 'Select Client'}</p>
+              <ChevronDown className="w-6 h-6 text-[#8e8e93]" />
             </div>
-          )}
+          </button>
 
           {/* Quick Actions */}
-          <div className="bg-[#1c1c1e] rounded-2xl p-4">
-            <h3 className="font-bold text-white mb-3 text-sm uppercase tracking-wider text-stone-500">Quick Actions</h3>
-            {[
-              { label: 'View Earnings', icon: Activity, color: '#25D366', bgColor: 'bg-[#25D366]/20', action: () => setActivePage('earnings') },
-              { label: 'Shift History', icon: Clock, color: '#f59e0b', bgColor: 'bg-amber-500/20', action: () => setShowShiftHistory(true) },
-            ].map((item, idx) => (
-              <button
-                key={idx}
-                onClick={item.action}
-                className="w-full flex items-center justify-between p-3 hover:bg-stone-800 rounded-xl transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 ${item.bgColor} rounded-xl flex items-center justify-center`}>
-                    <item.icon className="w-5 h-5" style={{ color: item.color }} />
-                  </div>
-                  <span className="font-medium text-white">{item.label}</span>
-                </div>
-                <ChevronRight className="w-5 h-5 text-stone-600" />
-              </button>
-            ))}
+          <div className="bg-[#1c1c1e] rounded-[24px] p-6" data-testid="quick-actions-card">
+            <h3 className="text-xl font-bold text-white mb-5">Quick Actions</h3>
+            
+            <button 
+              className="w-full flex items-center py-4"
+              onClick={() => setActivePage('earnings')}
+              data-testid="view-earnings-btn"
+            >
+              <span className="text-2xl mr-4">💰</span>
+              <span className="flex-1 text-lg text-white text-left">View Earnings</span>
+              <ChevronRight className="w-[22px] h-[22px] text-[#8e8e93]" />
+            </button>
+            
+            <button 
+              className="w-full flex items-center py-4"
+              onClick={() => setShowShiftHistory(true)}
+              data-testid="shift-history-btn"
+            >
+              <span className="text-2xl mr-4">📋</span>
+              <span className="flex-1 text-lg text-white text-left">Shift History</span>
+              <ChevronRight className="w-[22px] h-[22px] text-[#8e8e93]" />
+            </button>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
@@ -779,6 +810,77 @@ export const CaregiverDashboard = ({
         role="caregiver"
         patientName={patient?.name}
       />
+
+      {/* Clock Alert Dialog */}
+      {showClockAlert && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60" data-testid="clock-alert-modal">
+          <div className="bg-[#2c2c2e] rounded-2xl mx-8 max-w-sm w-full text-center overflow-hidden">
+            <div className="p-6 pb-4">
+              <h3 className="text-lg font-bold text-white mb-2">{clockAlertTitle}</h3>
+              <p className="text-[#8e8e93] text-sm leading-relaxed">{clockAlertMessage}</p>
+            </div>
+            <div className="border-t border-[#3a3a3c]">
+              <button 
+                onClick={() => setShowClockAlert(false)} 
+                className="w-full py-3 text-[#25D366] font-semibold text-base"
+                data-testid="clock-alert-ok-btn"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Client List Modal */}
+      {showClientList && (
+        <div className="fixed inset-0 z-[60] bg-black/90" data-testid="client-list-modal">
+          <div className="pt-16 px-4 h-full overflow-y-auto pb-8">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-[28px] font-bold text-white">Your Clients</h2>
+              <button 
+                onClick={() => setShowClientList(false)}
+                data-testid="close-client-list-btn"
+              >
+                <X className="w-7 h-7 text-white" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              {CLIENTS.map(client => (
+                <button 
+                  key={client.id}
+                  onClick={() => { setActiveClientId(client.id); setShowClientList(false); }}
+                  className={`w-full bg-[#1c1c1e] rounded-2xl p-4 flex items-center text-left ${
+                    client.id === activeClientId ? 'border-2 border-[#25D366]' : 'border-2 border-transparent'
+                  }`}
+                  data-testid={`client-card-${client.id}`}
+                >
+                  <div className="w-14 h-14 rounded-[14px] bg-[#3a3a3c] flex items-center justify-center mr-3.5 flex-shrink-0">
+                    <User className="w-7 h-7 text-[#8e8e93]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[18px] font-semibold text-white">{client.name}</p>
+                    <p className="text-sm text-[#8e8e93] mt-0.5">{client.condition}</p>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className="text-[13px] text-[#25D366]">{client.tasksCompleted}/{client.tasksToday} tasks today</span>
+                      <span className={`px-2 py-0.5 rounded-md text-[11px] font-semibold ${
+                        client.riskLevel === 'low' ? 'bg-[#22c55e]/20 text-[#22c55e]' :
+                        client.riskLevel === 'moderate' ? 'bg-[#eab308]/20 text-[#eab308]' :
+                        'bg-[#ef4444]/20 text-[#ef4444]'
+                      }`}>
+                        {client.riskLevel.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                  {client.id === activeClientId && (
+                    <CheckCircle className="w-6 h-6 text-[#25D366] flex-shrink-0 ml-2" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
