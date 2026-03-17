@@ -162,25 +162,25 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
               {/* Step 1: Type */}
               {step === 1 && (
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-5">What type of incident?</h3>
-                  <div className="space-y-3">
+                  <h3 className="text-[22px] font-semibold text-white mb-5">What type of incident?</h3>
+                  <div className="space-y-2.5">
                     {INCIDENT_TYPES.map((type) => (
                       <button
                         key={type.id}
                         onClick={() => setIncidentType(type.id)}
-                        className={`w-full p-4 rounded-xl text-left flex items-center gap-4 transition-colors ${
+                        className={`w-full p-4 rounded-2xl text-left flex items-center gap-3.5 transition-colors ${
                           incidentType === type.id
-                            ? 'bg-[#3d1a1a] border-2 border-[#ff453a]'
-                            : 'bg-stone-900 border border-stone-800'
+                            ? 'bg-[#3d1a1a]/60 border-2 border-[#ef4444]'
+                            : 'bg-[#1c1c1e] border-2 border-transparent'
                         }`}
                       >
-                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-                          incidentType === type.id ? 'bg-[#5c1a1a]' : 'bg-stone-800'
+                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${
+                          incidentType === type.id ? 'bg-[#ef4444]/20' : 'bg-white/10'
                         }`}>
-                          <type.icon className={`w-7 h-7 ${incidentType === type.id ? 'text-[#ff453a]' : 'text-white'}`} />
+                          <type.icon className={`w-5 h-5 ${incidentType === type.id ? 'text-[#ef4444]' : 'text-white'}`} />
                         </div>
-                        <div>
-                          <p className="font-semibold text-white text-lg">{type.label}</p>
+                        <div className="flex-1">
+                          <p className="font-semibold text-white text-[17px]">{type.label}</p>
                           <p className="text-sm text-stone-400">{type.description}</p>
                         </div>
                       </button>
