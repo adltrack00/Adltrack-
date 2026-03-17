@@ -124,8 +124,8 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
             <div className="px-5 py-4 border-b border-stone-800">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-[#5c1a2a] rounded-xl flex items-center justify-center">
-                    <AlertTriangle className="w-6 h-6 text-[#ff453a]" />
+                  <div className="w-14 h-14 bg-[#3d1a1a] rounded-2xl flex items-center justify-center">
+                    <AlertTriangle className="w-7 h-7 text-[#ff453a]" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">New Incident Report</h2>
@@ -134,7 +134,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                 </div>
                 <button 
                   onClick={() => setActiveView('history')}
-                  className="px-4 py-2 bg-stone-800 rounded-lg text-sm font-semibold text-white"
+                  className="px-5 py-2.5 bg-[#2c2c2e] rounded-xl text-base font-semibold text-white"
                 >
                   Cancel
                 </button>
@@ -164,14 +164,14 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                         onClick={() => setIncidentType(type.id)}
                         className={`w-full p-4 rounded-xl text-left flex items-center gap-4 transition-colors ${
                           incidentType === type.id
-                            ? 'bg-[#ff375f]/20 border-2 border-[#ff375f]'
+                            ? 'bg-[#3d1a1a] border-2 border-[#ff453a]'
                             : 'bg-stone-900 border border-stone-800'
                         }`}
                       >
                         <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-                          incidentType === type.id ? 'bg-[#ff375f]' : 'bg-stone-800'
+                          incidentType === type.id ? 'bg-[#5c1a1a]' : 'bg-stone-800'
                         }`}>
-                          <type.icon className="w-7 h-7 text-white" />
+                          <type.icon className={`w-7 h-7 ${incidentType === type.id ? 'text-[#ff453a]' : 'text-white'}`} />
                         </div>
                         <div>
                           <p className="font-semibold text-white text-lg">{type.label}</p>
