@@ -465,7 +465,7 @@ export const FamilyDashboard = ({
             {displayTasks.length > 0 ? (
               <div className="space-y-3">
                 {displayTasks.map((task) => (
-                  <div key={task.id} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl overflow-hidden" onClick={() => setSelectedTask(task)}>
+                  <div key={task.id} className="bg-[#1c1c1e] rounded-2xl overflow-hidden" onClick={() => setSelectedTask(task)}>
                     <div className="relative aspect-[16/9] cursor-pointer">
                       <img src={getTaskImage(task)} alt={task.title} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
