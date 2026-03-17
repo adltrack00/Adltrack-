@@ -16,7 +16,7 @@ export const TaskRequestCard = ({ task, onAccept, onDecline }) => {
   };
 
   return (
-    <div className={`relative bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl overflow-hidden font-['Manrope',sans-serif]`}>
+    <div className={`relative bg-[#1c1c1e] rounded-2xl overflow-hidden font-['Manrope',sans-serif]`}>
       {/* Accent Stripe */}
       <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-indigo-500" />
       

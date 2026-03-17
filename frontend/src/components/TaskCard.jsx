@@ -30,9 +30,9 @@ export const TaskCard = ({
 
   return (
     <div 
-      className={`relative bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl overflow-hidden transition-all duration-200 font-['Manrope',sans-serif] ${
+      className={`relative bg-[#1c1c1e] rounded-2xl overflow-hidden transition-all duration-200 font-['Manrope',sans-serif] ${
         isCompleted ? 'opacity-75' : ''
-      } ${isExpanded && !isCompleted ? 'border-[#636366]' : 'hover:border-[#636366]'}`}
+      } ${isExpanded && !isCompleted ? 'border border-[#636366]' : ''}`}
     >
       {/* Priority Stripe */}
       <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${stripe}`} />

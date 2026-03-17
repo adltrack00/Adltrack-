@@ -342,7 +342,7 @@ export const CaregiverDashboard = ({
             {/* BP Card */}
             <button 
               onClick={() => { setVitalsInitialTab('bp'); setShowVitals(true); }}
-              className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
               <div className="w-11 h-11 bg-[#5c1a3d] rounded-xl flex items-center justify-center mb-2 mx-auto">
                 <Heart className="w-5 h-5 text-[#e91e7a]" fill="currentColor" />
@@ -354,7 +354,7 @@ export const CaregiverDashboard = ({
             {/* Heart Card */}
             <button 
               onClick={() => { setVitalsInitialTab('hr'); setShowVitals(true); }}
-              className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
               <div className="w-11 h-11 bg-[#6b3410] rounded-xl flex items-center justify-center mb-2 mx-auto">
                 <Activity className="w-5 h-5 text-[#f97316]" />
@@ -366,7 +366,7 @@ export const CaregiverDashboard = ({
             {/* Temp Card */}
             <button 
               onClick={() => { setVitalsInitialTab('temp'); setShowVitals(true); }}
-              className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
               <div className="w-11 h-11 bg-[#1a3a5c] rounded-xl flex items-center justify-center mb-2 mx-auto">
                 <Thermometer className="w-5 h-5 text-[#3b82f6]" />
@@ -378,7 +378,7 @@ export const CaregiverDashboard = ({
             {/* Pain Card */}
             <button 
               onClick={() => { setVitalsInitialTab('pain'); setShowVitals(true); }}
-              className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
+              className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors"
             >
               <div className="w-11 h-11 bg-[#3d1a5c] rounded-xl flex items-center justify-center mb-2 mx-auto">
                 <div className="w-6 h-6 rounded-full border-2 border-[#9333ea] flex items-center justify-center">
