@@ -106,22 +106,25 @@ export const TaskCard = ({
 
       {/* Expanded Section */}
       {isExpanded && !isCompleted && !isMissed && !readOnly && (
-        <div className="px-5 pb-5 pt-3 border-t border-[#3a3a3c] bg-black/30">
-          <div className="space-y-3">
-            <div>
-              <p className="text-xs font-bold text-[#636366] uppercase tracking-wider mb-1">Instructions</p>
-              <p className="text-sm text-[#8e8e93] leading-relaxed">{task.instructions || task.description}</p>
+        <div className="px-5 pb-5 pt-4 border-t border-[#3a3a3c]">
+          <div className="space-y-4">
+            <div className="bg-[#2c2c2e] rounded-2xl p-4">
+              <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-2">Instructions</p>
+              <p className="text-[15px] text-[#8e8e93] leading-relaxed">{task.instructions || task.description}</p>
             </div>
-            <div>
-              <p className="text-xs font-bold text-[#636366] uppercase tracking-wider mb-1">Time Window</p>
-              <p className="text-sm text-[#8e8e93]">{task.timeWindow}</p>
+            <div className="flex items-center gap-2.5">
+              <Clock className="w-5 h-5 text-[#636366]" />
+              <div>
+                <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px]">Time Window</p>
+                <p className="text-[15px] text-white font-semibold mt-0.5">{task.timeWindow}</p>
+              </div>
             </div>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onStartTask && onStartTask(task);
               }}
-              className="w-full py-3.5 bg-[#25D366] text-white rounded-xl text-sm font-bold hover:bg-[#20bd5a] transition-colors"
+              className="w-full py-4 bg-[#25D366] text-white rounded-2xl text-base font-bold hover:bg-[#20bd5a] transition-colors"
               data-testid={`start-task-${task.id}`}
             >
               Start Task
