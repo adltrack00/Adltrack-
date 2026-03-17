@@ -37,13 +37,13 @@ export const TaskCard = ({
       
       {/* Main Content */}
       <div 
-        className="pl-5 pr-4 py-5 cursor-pointer"
+        className="pl-5 pr-4 py-4 cursor-pointer"
         onClick={() => !readOnly && !isCompleted && onToggleExpand && onToggleExpand(task.id)}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             {/* Title */}
-            <h3 className={`text-xl font-bold mb-2 ${isCompleted ? 'text-[#8e8e93] line-through' : 'text-white'}`}>
+            <h3 className={`text-lg font-bold mb-1.5 ${isCompleted ? 'text-[#8e8e93] line-through' : 'text-white'}`}>
               {task.title}
             </h3>
             
