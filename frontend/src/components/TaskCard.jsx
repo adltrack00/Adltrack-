@@ -30,7 +30,7 @@ export const TaskCard = ({
     <div 
       className={`relative bg-[#1c1c1e] rounded-2xl overflow-hidden transition-all duration-200 font-['Manrope',sans-serif] ${
         isCompleted ? 'opacity-80' : ''
-      } ${isExpanded && !isCompleted ? 'border border-[#636366]' : ''}`}
+      } ${isExpanded && !isCompleted ? '' : ''}`}
     >
       {/* Priority Stripe */}
       <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${stripe}`} />
@@ -108,7 +108,7 @@ export const TaskCard = ({
       {isExpanded && !isCompleted && !isMissed && !readOnly && (
         <div className="px-5 pb-5 pt-4 border-t border-[#3a3a3c]">
           <div className="space-y-4">
-            <div className="bg-[#2c2c2e] rounded-2xl p-4">
+            <div className="bg-[#111111] rounded-2xl p-4">
               <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-2">Instructions</p>
               <p className="text-[15px] text-[#8e8e93] leading-relaxed">{task.instructions || task.description}</p>
             </div>
