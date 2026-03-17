@@ -237,36 +237,46 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
               {step === 3 && (
                 <div className="space-y-5">
                   <div>
-                    <h3 className="text-lg font-bold text-white mb-2">Witness Information</h3>
-                    <p className="text-stone-400 text-sm">
-                      Document any witnesses present during the incident.
+                    <h3 className="text-2xl font-bold text-white mb-2">Witness Information</h3>
+                    <p className="text-stone-400">
+                      Document any witnesses present during the incident for legal and record-keeping purposes.
                     </p>
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium text-stone-300 mb-2 block">Witness Name(s)</label>
+                    <label className="text-base font-semibold text-white mb-3 block">Witness Name(s)</label>
                     <textarea
                       value={witnessNames}
                       onChange={(e) => setWitnessNames(e.target.value)}
-                      placeholder="Enter witness names..."
+                      placeholder="Enter the names of any witnesses present..."
                       disabled={noWitnesses}
-                      className={`w-full h-28 bg-stone-900 border border-stone-800 rounded-xl p-4 text-white placeholder:text-stone-500 focus:outline-none focus:border-emerald-500 ${
+                      className={`w-full h-32 bg-stone-900 rounded-xl p-4 text-white placeholder:text-stone-500 focus:outline-none ${
                         noWitnesses ? 'opacity-50' : ''
-                      }`}
+                      } ${witnessNames && !noWitnesses ? 'border-2 border-[#ff375f]' : 'border border-stone-800'}`}
                       style={{ fontSize: '16px' }}
                     />
+                  </div>
+
+                  {/* Info box */}
+                  <div className="bg-[#1a2a3a] rounded-xl p-4 flex gap-3">
+                    <div className="w-6 h-6 rounded-full border-2 border-stone-500 flex items-center justify-center flex-shrink-0">
+                      <span className="text-stone-500 text-sm font-bold">i</span>
+                    </div>
+                    <p className="text-stone-400 text-sm leading-relaxed">
+                      Include full names and their relationship to the patient if applicable (e.g., "John Smith - Family Visitor", "Jane Doe - Nurse on duty")
+                    </p>
                   </div>
 
                   <button
                     onClick={() => setNoWitnesses(!noWitnesses)}
                     className="flex items-center gap-3"
                   >
-                    <div className={`w-5 h-5 rounded border flex items-center justify-center ${
+                    <div className={`w-6 h-6 rounded border-2 flex items-center justify-center ${
                       noWitnesses ? 'bg-emerald-500 border-emerald-500' : 'border-stone-600'
                     }`}>
-                      {noWitnesses && <Check className="w-3 h-3 text-white" />}
+                      {noWitnesses && <Check className="w-4 h-4 text-white" />}
                     </div>
-                    <span className="text-stone-300">No witnesses were present</span>
+                    <span className="text-white">No witnesses were present</span>
                   </button>
                 </div>
               )}
