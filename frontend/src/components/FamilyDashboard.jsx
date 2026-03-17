@@ -11,6 +11,7 @@ import { VitalsModal } from './VitalsModal';
 import { AICopilot } from './AICopilot';
 import { IncidentViewPage } from './IncidentViewPage';
 import { ChatPage } from './pages/ChatPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { CARE_IMAGES, CAREGIVER_PROFILE, FAMILY_ALERTS, CARE_PLAN, WEEKLY_REPORT } from '../services/mockData';
 
 export const FamilyDashboard = ({ 
@@ -565,51 +566,70 @@ export const FamilyDashboard = ({
   // MENU TAB
   // ==========================================
   const renderMenuContent = () => (
-    <div className="flex-1 overflow-y-auto bg-black p-5 space-y-3 pb-24">
+    <div className="flex-1 overflow-y-auto bg-black px-5 pt-4 space-y-3 pb-24">
       {/* Family Member Profile */}
-      <button className="w-full bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-4 hover:bg-[#2c2c2e] transition-colors text-left" data-testid="menu-profile">
-        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Mary Smith" className="w-16 h-16 rounded-2xl object-cover" />
+      <button 
+        onClick={() => setActivePage('profile')}
+        className="w-full bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 flex items-center gap-4 text-left"
+        data-testid="menu-profile"
+      >
+        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80" alt="Mary Smith" className="w-20 h-20 rounded-2xl object-cover" />
         <div className="flex-1">
-          <h3 className="font-bold text-white text-lg">Mary Smith</h3>
-          <p className="text-stone-400 text-sm">Family Guardian</p>
+          <h3 className="font-bold text-white text-xl">Mary Smith</h3>
+          <p className="text-[#8e8e93] text-[15px] mt-0.5">Family Guardian</p>
         </div>
-        <ChevronRight className="w-5 h-5 text-stone-600" />
+        <ChevronRight className="w-6 h-6 text-[#636366]" />
       </button>
 
       {/* Patient Quick Access */}
-      <button onClick={() => setShowPatientProfile(true)} className="w-full bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-3 hover:bg-[#2c2c2e] transition-colors" data-testid="menu-patient">
-        <img src={patient?.photo || ''} alt={patient?.name} className="w-12 h-12 rounded-xl object-cover" />
-        <div className="flex-1 text-left">
-          <p className="font-medium text-white">{patient?.name}</p>
-          <p className="text-stone-500 text-sm">View Medical Profile</p>
+      <button 
+        onClick={() => setShowPatientProfile(true)}
+        className="w-full bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 flex items-center gap-4 text-left"
+        data-testid="menu-patient"
+      >
+        <img src={patient?.photo || ''} alt={patient?.name} className="w-16 h-16 rounded-2xl object-cover" />
+        <div className="flex-1">
+          <p className="font-bold text-white text-lg">{patient?.name}</p>
+          <p className="text-[#8e8e93] text-[15px] mt-0.5">View Medical Profile</p>
         </div>
-        <ChevronRight className="w-5 h-5 text-stone-600" />
+        <ChevronRight className="w-6 h-6 text-[#636366]" />
       </button>
 
-      {/* Menu Items with colored icons */}
+      {/* Menu Items */}
       {[
-        { label: 'Care Plan', icon: FileText, color: '#25D366', bgColor: 'bg-[#25D366]/20', action: () => setActivePage('carePlan') },
-        { label: 'Weekly Report', icon: TrendingUp, color: '#3b82f6', bgColor: 'bg-blue-500/20', action: () => setActivePage('weeklyReport') },
-        { label: 'Current Caregiver', icon: Heart, color: '#ec4899', bgColor: 'bg-pink-500/20', action: () => setActivePage('caregiver') },
-        { label: 'Billing', icon: Activity, color: '#f59e0b', bgColor: 'bg-amber-500/20', action: () => setActivePage('billing') },
-        { label: 'Settings', icon: Settings, color: '#8b5cf6', bgColor: 'bg-purple-500/20', action: () => setActivePage('settings') },
-        { label: 'Support', icon: Bell, color: '#06b6d4', bgColor: 'bg-cyan-500/20', action: () => setActivePage('support') },
+        { label: 'Care Plan', icon: FileText, hasColor: true, color: '#25D366', action: () => setActivePage('carePlan') },
+        { label: 'Weekly Report', icon: TrendingUp, hasColor: true, color: '#f59e0b', action: () => setActivePage('weeklyReport') },
+        { label: 'Current Caregiver', icon: Heart, hasColor: false, action: () => setActivePage('caregiver') },
+        { label: 'Billing', icon: Activity, hasColor: false, action: () => setActivePage('billing') },
+        { label: 'Settings', icon: Settings, hasColor: false, action: () => setActivePage('settings') },
+        { label: 'Support', icon: Bell, hasColor: false, action: () => setActivePage('support') },
       ].map((item, idx) => (
-        <button key={idx} onClick={item.action} className="w-full bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-4 hover:bg-[#2c2c2e] transition-colors">
-          <div className={`w-12 h-12 ${item.bgColor} rounded-xl flex items-center justify-center`}>
-            <item.icon className="w-5 h-5" style={{ color: item.color }} />
+        <button 
+          key={idx} 
+          onClick={item.action} 
+          className="w-full bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5 flex items-center gap-4"
+          data-testid={`menu-${item.label.toLowerCase().replace(' ', '-')}`}
+        >
+          <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center ${
+            item.hasColor ? '' : 'bg-[#3a3a3c]'
+          }`} style={item.hasColor ? { backgroundColor: item.color } : {}}>
+            <item.icon className="w-6 h-6 text-white" />
           </div>
-          <span className="font-medium text-white flex-1 text-left">{item.label}</span>
-          <ChevronRight className="w-5 h-5 text-stone-600" />
+          <span className="text-white text-lg flex-1 text-left">{item.label}</span>
+          <ChevronRight className="w-6 h-6 text-[#636366]" />
         </button>
       ))}
 
       {/* Sign Out */}
-      <button onClick={onSignOut} className="w-full bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 flex items-center gap-4 hover:bg-rose-500/20 transition-colors mt-2" data-testid="menu-sign-out-btn">
-        <div className="w-12 h-12 bg-rose-500/20 rounded-xl flex items-center justify-center">
-          <User className="w-5 h-5 text-rose-400" />
+      <button 
+        onClick={onSignOut} 
+        className="w-full bg-[#3d1a1a] border border-[#6b2a2a] rounded-2xl p-5 flex items-center gap-4"
+        data-testid="menu-sign-out-btn"
+      >
+        <div className="w-12 h-12 bg-[#5c2020] rounded-[14px] flex items-center justify-center">
+          <User className="w-6 h-6 text-[#ef4444]" />
         </div>
-        <span className="font-medium text-rose-400 flex-1 text-left">Sign Out</span>
+        <span className="text-[#ef4444] text-lg flex-1 text-left">Sign Out</span>
       </button>
     </div>
   );
@@ -628,6 +648,9 @@ export const FamilyDashboard = ({
   if (activePage === 'support') {
     const SupportPage = require('./pages/SupportPage').SupportPage;
     return <SupportPage onBack={() => setActivePage(null)} />;
+  }
+  if (activePage === 'profile') {
+    return <ProfilePage onBack={() => setActivePage(null)} role={UserRole.FAMILY} />;
   }
 
   return (

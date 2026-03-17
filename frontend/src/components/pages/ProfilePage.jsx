@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Camera, Star, Award, Clock, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Camera, Star, Award, CheckCircle, Check } from 'lucide-react';
 import { UserRole } from '../../types';
 
 export const ProfilePage = ({ onBack, role, onSignOut }) => {
@@ -27,26 +27,26 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
   };
 
   return (
-    <div className="min-h-screen bg-stone-950">
+    <div className="min-h-screen bg-black font-['Manrope',sans-serif]" data-testid="profile-page">
       {/* Header */}
-      <div className="sticky top-0 bg-stone-900 border-b border-stone-800 px-4 py-4 flex items-center gap-3 z-10">
-        <button onClick={onBack} className="p-2 hover:bg-stone-800 rounded-full">
-          <ArrowLeft className="w-5 h-5 text-stone-300" />
+      <div className="flex items-center px-5 pt-5 pb-4">
+        <button onClick={onBack} className="mr-4 p-1" data-testid="profile-back-btn">
+          <ArrowLeft className="w-6 h-6 text-white" />
         </button>
-        <h1 className="text-lg font-semibold text-white">Profile</h1>
+        <h1 className="text-2xl font-bold text-white">Profile</h1>
       </div>
 
-      <div className="p-4 space-y-6">
+      <div className="px-10 pb-24 overflow-y-auto">
         {/* Profile Photo */}
-        <div className="flex flex-col items-center">
-          <div className="relative">
+        <div className="flex flex-col items-center mb-6">
+          <div className="relative mb-5">
             <img 
               src={profile.photo} 
               alt={profile.name}
-              className="w-28 h-28 rounded-full object-cover border-4 border-stone-800 shadow-lg"
+              className="w-40 h-40 rounded-full object-cover border-[3px] border-[#636366]"
             />
-            <label className="absolute bottom-0 right-0 p-2 bg-[#25D366] rounded-full cursor-pointer hover:bg-[#20bd5a] transition-colors">
-              <Camera className="w-4 h-4 text-white" />
+            <label className="absolute bottom-2 left-2 w-12 h-12 bg-[#25D366] rounded-full cursor-pointer flex items-center justify-center shadow-lg">
+              <Camera className="w-6 h-6 text-white" />
               <input
                 type="file"
                 accept="image/*"
@@ -55,52 +55,53 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
               />
             </label>
           </div>
-          <h2 className="text-xl font-bold text-white mt-4">{profile.name}</h2>
-          <p className="text-stone-400">{profile.role}</p>
+          <h2 className="text-[28px] font-bold text-white">{profile.name}</h2>
+          <p className="text-[#8e8e93] text-lg mt-1">{profile.role}</p>
         </div>
 
-        {/* Stats (Caregiver Only) */}
+        {/* Stats - Caregiver Only */}
         {isCaregiver && (
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
-              <Star className="w-6 h-6 text-yellow-500 mx-auto mb-1" />
-              <p className="text-xl font-bold text-white">4.9</p>
-              <p className="text-xs text-stone-400">Rating</p>
+          <div className="grid grid-cols-3 gap-3 mb-5">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 text-center">
+              <Star className="w-7 h-7 text-yellow-500 mx-auto mb-2" fill="#eab308" />
+              <p className="text-3xl font-bold text-white">4.9</p>
+              <p className="text-sm text-[#8e8e93] mt-1">Rating</p>
             </div>
-            <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
-              <Award className="w-6 h-6 text-blue-500 mx-auto mb-1" />
-              <p className="text-xl font-bold text-white">5</p>
-              <p className="text-xs text-stone-400">Years</p>
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 text-center">
+              <Award className="w-7 h-7 text-blue-500 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-white">5</p>
+              <p className="text-sm text-[#8e8e93] mt-1">Years</p>
             </div>
-            <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
-              <CheckCircle className="w-6 h-6 text-[#25D366] mx-auto mb-1" />
-              <p className="text-xl font-bold text-white">234</p>
-              <p className="text-xs text-stone-400">Shifts</p>
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 text-center">
+              <CheckCircle className="w-7 h-7 text-[#25D366] mx-auto mb-2" fill="#25D366" stroke="black" strokeWidth={2} />
+              <p className="text-3xl font-bold text-white">234</p>
+              <p className="text-sm text-[#8e8e93] mt-1">Shifts</p>
             </div>
           </div>
         )}
 
         {/* Contact Info */}
-        <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 space-y-4">
-          <h3 className="font-semibold text-white">Contact Information</h3>
-          <div>
-            <label className="text-xs text-stone-400 uppercase tracking-wider">Email</label>
-            <p className="text-stone-300">{profile.email}</p>
+        <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5 mb-5">
+          <h3 className="text-xl font-bold text-white mb-4">Contact Information</h3>
+          <div className="mb-4">
+            <p className="text-xs text-[#8e8e93] uppercase tracking-[1.5px] mb-1">EMAIL</p>
+            <p className="text-white text-[17px]">{profile.email}</p>
           </div>
           <div>
-            <label className="text-xs text-stone-400 uppercase tracking-wider">Phone</label>
-            <p className="text-stone-300">{profile.phone}</p>
+            <p className="text-xs text-[#8e8e93] uppercase tracking-[1.5px] mb-1">PHONE</p>
+            <p className="text-white text-[17px]">{profile.phone}</p>
           </div>
         </div>
 
-        {/* Certifications (Caregiver Only) */}
+        {/* Certifications - Caregiver Only */}
         {isCaregiver && (
-          <div className="bg-stone-900 border border-stone-800 rounded-xl p-4">
-            <h3 className="font-semibold text-white mb-3">Certifications</h3>
-            <div className="flex flex-wrap gap-2">
+          <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
+            <h3 className="text-xl font-bold text-white mb-4">Certifications</h3>
+            <div className="flex flex-wrap gap-2.5">
               {['CNA', 'CPR/First Aid', 'Dementia Care'].map((cert, idx) => (
-                <span key={idx} className="px-3 py-1 bg-[#25D366]/20 text-[#25D366] rounded-full text-sm font-medium">
-                  ✓ {cert}
+                <span key={idx} className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#25D366]/15 border border-[#25D366]/30 text-[#25D366] rounded-xl text-[15px] font-semibold">
+                  <Check className="w-4 h-4" />
+                  {cert}
                 </span>
               ))}
             </div>

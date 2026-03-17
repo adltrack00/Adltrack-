@@ -669,55 +669,63 @@ export const CaregiverDashboard = ({
 
   // Render Settings Tab
   const renderSettingsContent = () => (
-    <div className="flex-1 overflow-y-auto bg-black p-5 space-y-3 pb-24">
+    <div className="flex-1 overflow-y-auto bg-black px-5 pt-4 space-y-3 pb-24">
       {/* Profile Card */}
       <button 
         onClick={() => setActivePage('profile')}
-        className="w-full bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-4 hover:bg-[#2c2c2e] transition-colors text-left"
+        className="w-full bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 flex items-center gap-4 text-left"
+        data-testid="menu-profile"
       >
         <img 
           src={CAREGIVER_PROFILE.photo}
           alt="Profile"
-          className="w-16 h-16 rounded-2xl object-cover"
+          className="w-20 h-20 rounded-2xl object-cover"
         />
         <div className="flex-1">
-          <h3 className="font-bold text-white text-lg">Julia Martinez</h3>
-          <p className="text-stone-400 text-sm">Certified Nursing Assistant</p>
+          <h3 className="font-bold text-white text-xl">Julia Martinez</h3>
+          <p className="text-[#8e8e93] text-[15px] mt-0.5">Certified Nursing Assistant</p>
         </div>
-        <ChevronRight className="w-5 h-5 text-stone-600" />
+        <ChevronRight className="w-6 h-6 text-[#636366]" />
       </button>
 
-      {/* Menu Items with colored icons */}
+      {/* Menu Items */}
       {[
-        { label: 'Medications', icon: Heart, color: '#3b82f6', bgColor: 'bg-blue-500/20', action: () => setActivePage('medications') },
-        { label: 'Earnings', icon: Activity, color: '#25D366', bgColor: 'bg-[#25D366]/20', action: () => setActivePage('earnings') },
-        { label: 'Shift History', icon: Clock, color: '#f59e0b', bgColor: 'bg-amber-500/20', action: () => setActivePage('history') },
-        { label: 'Settings', icon: Settings, color: '#8b5cf6', bgColor: 'bg-purple-500/20', action: () => setActivePage('settings') },
-        { label: 'Support', icon: Bell, color: '#06b6d4', bgColor: 'bg-cyan-500/20', action: () => setActivePage('support') },
+        { label: 'Medications', icon: null, iconText: '✱', color: '#3b82f6', hasColor: true, action: () => setActivePage('medications') },
+        { label: 'Earnings', icon: Activity, color: '#636366', hasColor: false, action: () => setActivePage('earnings') },
+        { label: 'Shift History', icon: Clock, color: '#636366', hasColor: false, action: () => setActivePage('history') },
+        { label: 'Settings', icon: Settings, color: '#636366', hasColor: false, action: () => setActivePage('settings') },
+        { label: 'Support', icon: Bell, color: '#636366', hasColor: false, action: () => setActivePage('support') },
       ].map((item, idx) => (
         <button
           key={idx}
           onClick={item.action}
-          className="w-full bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-4 hover:bg-[#2c2c2e] transition-colors"
+          className="w-full bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5 flex items-center gap-4"
+          data-testid={`menu-${item.label.toLowerCase().replace(' ', '-')}`}
         >
-          <div className={`w-12 h-12 ${item.bgColor} rounded-xl flex items-center justify-center`}>
-            <item.icon className="w-5 h-5" style={{ color: item.color }} />
+          <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center ${
+            item.hasColor ? 'bg-[#3b82f6]' : 'bg-[#3a3a3c]'
+          }`}>
+            {item.iconText ? (
+              <span className="text-white text-2xl font-bold">{item.iconText}</span>
+            ) : (
+              <item.icon className="w-6 h-6 text-white" />
+            )}
           </div>
-          <span className="font-medium text-white flex-1 text-left">{item.label}</span>
-          <ChevronRight className="w-5 h-5 text-stone-600" />
+          <span className="text-white text-lg flex-1 text-left">{item.label}</span>
+          <ChevronRight className="w-6 h-6 text-[#636366]" />
         </button>
       ))}
 
       {/* Sign Out */}
       <button
         onClick={onSignOut}
-        className="w-full bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 flex items-center gap-4 hover:bg-rose-500/20 transition-colors mt-2"
+        className="w-full bg-[#3d1a1a] border border-[#6b2a2a] rounded-2xl p-5 flex items-center gap-4"
         data-testid="menu-sign-out-btn"
       >
-        <div className="w-12 h-12 bg-rose-500/20 rounded-xl flex items-center justify-center">
-          <User className="w-5 h-5 text-rose-400" />
+        <div className="w-12 h-12 bg-[#5c2020] rounded-[14px] flex items-center justify-center">
+          <User className="w-6 h-6 text-[#ef4444]" />
         </div>
-        <span className="font-medium text-rose-400 flex-1 text-left">Sign Out</span>
+        <span className="text-[#ef4444] text-lg flex-1 text-left">Sign Out</span>
       </button>
     </div>
   );
