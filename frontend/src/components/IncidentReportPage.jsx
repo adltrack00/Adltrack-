@@ -99,20 +99,26 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
   // New Report Form
   if (activeView === 'new') {
     return (
-      <div className="flex-1 bg-black flex flex-col pb-20 font-['Manrope',sans-serif]">
-        {/* Success Screen */}
-        {showSuccess ? (
-          <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-            <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mb-6">
-              <Check className="w-10 h-10 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-2">Report Submitted</h2>
-            <p className="text-stone-400 mb-8">
-              Your incident report has been submitted successfully.
-              {notifyFamily && ' Family members have been notified.'}
-            </p>
-            <button
-              onClick={resetForm}
+      <>
+        {/* Hide the bottom navigation completely */}
+        <style>{`
+          nav.fixed.bottom-0 { display: none !important; }
+          .fixed.bottom-0.left-0.right-0 { display: none !important; }
+        `}</style>
+        <div className="fixed inset-0 bg-black flex flex-col z-50 font-['Manrope',sans-serif]">
+          {/* Success Screen */}
+          {showSuccess ? (
+            <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
+              <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mb-6">
+                <Check className="w-10 h-10 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Report Submitted</h2>
+              <p className="text-stone-400 mb-8">
+                Your incident report has been submitted successfully.
+                {notifyFamily && ' Family members have been notified.'}
+              </p>
+              <button
+                onClick={resetForm}
               className="px-8 py-3 bg-emerald-500 text-white rounded-xl font-semibold"
             >
               Done
@@ -442,7 +448,8 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
             </div>
           </>
         )}
-      </div>
+        </div>
+      </>
     );
   }
 
