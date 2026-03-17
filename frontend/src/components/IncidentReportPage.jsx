@@ -128,7 +128,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                     <AlertTriangle className="w-7 h-7 text-[#ff453a]" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-white">New Incident Report</h2>
+                    <h2 className="text-lg font-bold text-white">New Incident Report</h2>
                     <p className="text-sm text-stone-400">Step {step} of 5</p>
                   </div>
                 </div>
