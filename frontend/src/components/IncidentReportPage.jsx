@@ -166,39 +166,34 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
           </div>
 
           {/* Scrollable Content Area */}
-          <div className="flex-1 overflow-y-auto px-4 pt-6 pb-4">
+          <div className="flex-1 overflow-y-auto px-4 pt-4 pb-4">
             {/* Step 1: Incident Type */}
             {step === 1 && (
               <div>
-                <h3 className="text-[32px] font-bold text-white mb-6 leading-tight">What type of incident occurred?</h3>
-                <div className="space-y-3">
+                <h3 className="text-[24px] font-bold text-white mb-4 leading-tight">What type of incident occurred?</h3>
+                <div className="space-y-2">
                   {INCIDENT_TYPES.map((type) => {
                     const isSelected = incidentType === type.id;
                     return (
                       <button
                         key={type.id}
                         onClick={() => setIncidentType(type.id)}
-                        className={`w-full p-4 rounded-2xl transition-all text-left flex items-center gap-4 ${
+                        className={`w-full p-3 rounded-xl transition-all text-left flex items-center gap-3 ${
                           isSelected 
                             ? 'bg-[#3a2020] ring-2 ring-[#ff375f]' 
                             : 'bg-[#1c1c1e]'
                         }`}
                         data-testid={`incident-type-${type.id}`}
                       >
-                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
+                        <div className={`w-11 h-11 rounded-lg flex items-center justify-center ${
                           isSelected ? 'bg-[#5c1a2a]' : 'bg-[#2c2c2e]'
                         }`}>
-                          <type.icon className={`w-7 h-7 ${isSelected ? 'text-[#ff453a]' : 'text-[#8e8e93]'}`} />
+                          <type.icon className={`w-5 h-5 ${isSelected ? 'text-[#ff453a]' : 'text-[#8e8e93]'}`} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-[18px] text-white">{type.label}</p>
-                          <p className="text-[15px] text-[#8e8e93] leading-snug">{type.description}</p>
+                          <p className="font-semibold text-[15px] text-white">{type.label}</p>
+                          <p className="text-[13px] text-[#8e8e93] leading-snug">{type.description}</p>
                         </div>
-                        {isSelected && (
-                          <div className="w-8 h-8 bg-[#30d158] rounded-full flex items-center justify-center">
-                            <Check className="w-5 h-5 text-white" strokeWidth={3} />
-                          </div>
-                        )}
                       </button>
                     );
                   })}
