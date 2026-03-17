@@ -134,7 +134,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                 </div>
                 <button 
                   onClick={() => setActiveView('history')}
-                  className="px-5 py-2.5 bg-stone-800 rounded-xl font-semibold text-white"
+                  className="px-4 py-2 bg-stone-800 rounded-lg text-sm font-semibold text-white"
                 >
                   Cancel
                 </button>
