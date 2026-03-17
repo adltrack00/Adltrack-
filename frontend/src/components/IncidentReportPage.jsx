@@ -123,20 +123,25 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
             {/* Header */}
             <div className="px-5 py-4 border-b border-stone-800">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-xl font-bold text-white">New Incident Report</h2>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-[#5c1a2a] rounded-xl flex items-center justify-center">
+                    <AlertTriangle className="w-6 h-6 text-[#ff453a]" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">New Incident Report</h2>
+                    <p className="text-sm text-stone-400">Step {step} of 5</p>
+                  </div>
+                </div>
                 <button 
                   onClick={() => setActiveView('history')}
-                  className="p-2 hover:bg-stone-800 rounded-lg"
+                  className="px-5 py-2.5 bg-stone-800 rounded-xl font-semibold text-white"
                 >
-                  <X className="w-5 h-5 text-stone-400" />
+                  Cancel
                 </button>
               </div>
               
               {/* Progress */}
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm text-stone-400">Step {step} of 5</span>
-              </div>
-              <div className="flex gap-1">
+              <div className="flex gap-1.5">
                 {[1, 2, 3, 4, 5].map((s) => (
                   <div 
                     key={s}
@@ -206,7 +211,9 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Describe the incident..."
-                      className="w-full h-32 bg-stone-900 border border-stone-800 rounded-xl p-4 text-white placeholder:text-stone-500 focus:outline-none focus:border-emerald-500"
+                      className={`w-full h-32 bg-stone-900 rounded-xl p-4 text-white placeholder:text-stone-500 focus:outline-none ${
+                        description ? 'border-2 border-[#ff375f]' : 'border border-stone-800'
+                      }`}
                       style={{ fontSize: '16px' }}
                     />
                   </div>
@@ -217,7 +224,9 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                       value={actionsTaken}
                       onChange={(e) => setActionsTaken(e.target.value)}
                       placeholder="What did you do to address this?"
-                      className="w-full h-28 bg-stone-900 border border-stone-800 rounded-xl p-4 text-white placeholder:text-stone-500 focus:outline-none focus:border-emerald-500"
+                      className={`w-full h-28 bg-stone-900 rounded-xl p-4 text-white placeholder:text-stone-500 focus:outline-none ${
+                        actionsTaken ? 'border-2 border-[#ff375f]' : 'border border-stone-800'
+                      }`}
                       style={{ fontSize: '16px' }}
                     />
                   </div>
@@ -438,21 +447,30 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
       <div className="px-5 mb-5">
         <button
           onClick={() => setActiveView('new')}
-          className="w-full p-4 bg-emerald-500 rounded-xl flex items-center justify-between"
+          className="w-full p-5 bg-[#c41b5e] rounded-2xl flex items-center justify-between"
         >
-          <div className="flex items-center gap-3">
-            <Plus className="w-5 h-5 text-white" />
-            <span className="text-white font-semibold">New Incident Report</span>
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+              <Plus className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <p className="text-white font-bold text-xl">New Incident Report</p>
+              <p className="text-white/70 text-base">Document an incident now</p>
+            </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-white/70" />
+          <ChevronRight className="w-6 h-6 text-white/70" />
         </button>
       </div>
 
       <div className="px-5">
-        <div className="flex items-center gap-2 mb-3">
-          <FileText className="w-4 h-4 text-stone-500" />
-          <h2 className="font-semibold text-white text-sm">Past Reports</h2>
-          <span className="text-xs text-stone-500">({incidents.length})</span>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-stone-500" />
+            <h2 className="font-bold text-white text-lg">Past Reports</h2>
+          </div>
+          <span className="w-8 h-8 rounded-full bg-stone-800 flex items-center justify-center text-sm font-bold text-stone-400">
+            {incidents.length}
+          </span>
         </div>
 
         {incidents.length > 0 ? (
@@ -480,9 +498,12 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
             })}
           </div>
         ) : (
-          <div className="bg-stone-900 rounded-xl p-8 text-center">
-            <AlertTriangle className="w-10 h-10 text-stone-600 mx-auto mb-3" />
-            <p className="text-stone-400 text-sm">No incidents reported</p>
+          <div className="bg-[#1c1c1e] rounded-2xl p-10 text-center">
+            <div className="w-20 h-20 bg-stone-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-10 h-10 text-stone-600" />
+            </div>
+            <p className="text-white font-bold text-lg mb-1">No incidents reported</p>
+            <p className="text-stone-500">Tap the button above to report a new incident</p>
           </div>
         )}
       </div>
