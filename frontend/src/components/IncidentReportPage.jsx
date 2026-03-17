@@ -3,7 +3,7 @@ import {
   Camera, AlertTriangle, Clock, Check,
   ChevronRight, Plus, Trash2, Shield, 
   Thermometer, Activity, Pill, HelpCircle, FileText, Info,
-  Bandage
+  Bandage, CheckCircle
 } from 'lucide-react';
 
 // Incident types matching mobile design exactly
@@ -37,6 +37,9 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
   const [followUpRequired, setFollowUpRequired] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  
+  // Track focus state for textareas
+  const [focusedField, setFocusedField] = useState(null);
 
   const handlePhotoUpload = (e) => {
     const files = Array.from(e.target.files || []);
@@ -104,55 +107,57 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
           nav.fixed.bottom-0 { display: none !important; }
         `}</style>
         <div className="fixed inset-0 bg-black flex flex-col font-['Manrope',sans-serif] z-40">
-          {/* Success Modal Overlay */}
+          {/* Success Modal Overlay - Matching mobile exactly */}
           {showSuccessModal && (
-            <div className="absolute inset-0 bg-black/60 z-50 flex items-center justify-center p-6">
-              <div className="bg-[#2c2c2e] rounded-2xl w-full max-w-[280px] text-center overflow-hidden">
-                <div className="p-5">
-                  <h3 className="text-xl font-bold text-white mb-2">Success</h3>
-                  <p className="text-[#8e8e93] text-[15px] leading-relaxed">
+            <div className="absolute inset-0 bg-black/80 z-50 flex items-center justify-center p-6">
+              <div className="bg-[#2c2c2e] rounded-[20px] w-full max-w-[300px] text-center overflow-hidden">
+                <div className="px-6 pt-6 pb-5">
+                  <h3 className="text-[22px] font-bold text-white mb-3">Success</h3>
+                  <p className="text-white text-[16px] leading-relaxed">
                     Incident report submitted successfully.
-                    {notifyFamily && ' Family has been notified.'}
+                    {notifyFamily && <><br />Family has been notified.</>}
                   </p>
                 </div>
-                <button
-                  onClick={resetForm}
-                  className="w-full py-3 text-[#0a84ff] font-semibold text-[17px] border-t border-[#3c3c3e]"
-                  data-testid="incident-ok-btn"
-                >
-                  OK
-                </button>
+                <div className="border-t border-[#48484a]">
+                  <button
+                    onClick={resetForm}
+                    className="w-full py-4 text-[#0a84ff] font-semibold text-[18px]"
+                    data-testid="incident-ok-btn"
+                  >
+                    OK
+                  </button>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Header - Matches mobile exactly */}
+          {/* Header - Matching mobile exactly */}
           <div className="flex-shrink-0 px-4 pt-4 pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 bg-[#5c1a2a] rounded-[14px] flex items-center justify-center">
-                  <AlertTriangle className="w-6 h-6 text-[#ff453a]" />
+                <div className="w-14 h-14 bg-[#5c1a2a] rounded-[16px] flex items-center justify-center">
+                  <AlertTriangle className="w-7 h-7 text-[#ff453a]" />
                 </div>
                 <div>
-                  <h2 className="text-[20px] font-bold text-white leading-tight">New Incident Report</h2>
-                  <p className="text-[15px] text-[#8e8e93]">Step {step} of 5</p>
+                  <h2 className="text-[24px] font-bold text-white leading-tight">New Incident Report</h2>
+                  <p className="text-[16px] text-[#8e8e93]">Step {step} of 5</p>
                 </div>
               </div>
               <button 
                 onClick={() => setActiveView('history')}
-                className="px-5 py-2.5 bg-[#3a3a3c] rounded-full text-[15px] font-semibold text-white"
+                className="px-6 py-3 bg-[#3a3a3c] rounded-xl text-[17px] font-semibold text-white"
                 data-testid="incident-cancel-btn"
               >
                 Cancel
               </button>
             </div>
             
-            {/* Progress Bar - 5 segments with gaps */}
-            <div className="flex gap-2 mt-4">
+            {/* Progress Bar - 5 segments with gaps, taller */}
+            <div className="flex gap-2 mt-5">
               {[1, 2, 3, 4, 5].map((s) => (
                 <div 
                   key={s}
-                  className={`h-[3px] flex-1 rounded-full ${
+                  className={`h-[5px] flex-1 rounded-full ${
                     s <= step ? 'bg-[#ff375f]' : 'bg-[#3a3a3c]'
                   }`}
                 />
@@ -161,30 +166,42 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
           </div>
 
           {/* Scrollable Content Area */}
-          <div className="flex-1 overflow-y-auto px-4 pt-4 pb-4">
+          <div className="flex-1 overflow-y-auto px-4 pt-6 pb-4">
             {/* Step 1: Incident Type */}
             {step === 1 && (
               <div>
-                <h3 className="text-[28px] font-bold text-white mb-5 leading-tight">What type of incident occurred?</h3>
+                <h3 className="text-[32px] font-bold text-white mb-6 leading-tight">What type of incident occurred?</h3>
                 <div className="space-y-3">
-                  {INCIDENT_TYPES.map((type) => (
-                    <button
-                      key={type.id}
-                      onClick={() => setIncidentType(type.id)}
-                      className={`w-full p-4 rounded-2xl transition-all text-left flex items-center gap-4 ${
-                        incidentType === type.id ? 'bg-[#3a3a3c]' : 'bg-[#2c2c2e]'
-                      }`}
-                      data-testid={`incident-type-${type.id}`}
-                    >
-                      <div className="w-12 h-12 bg-[#3a3a3c] rounded-xl flex items-center justify-center">
-                        <type.icon className="w-6 h-6 text-[#8e8e93]" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-[17px] text-white">{type.label}</p>
-                        <p className="text-[15px] text-[#8e8e93] leading-snug">{type.description}</p>
-                      </div>
-                    </button>
-                  ))}
+                  {INCIDENT_TYPES.map((type) => {
+                    const isSelected = incidentType === type.id;
+                    return (
+                      <button
+                        key={type.id}
+                        onClick={() => setIncidentType(type.id)}
+                        className={`w-full p-4 rounded-2xl transition-all text-left flex items-center gap-4 ${
+                          isSelected 
+                            ? 'bg-[#3a2020] ring-2 ring-[#ff375f]' 
+                            : 'bg-[#1c1c1e]'
+                        }`}
+                        data-testid={`incident-type-${type.id}`}
+                      >
+                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
+                          isSelected ? 'bg-[#5c1a2a]' : 'bg-[#2c2c2e]'
+                        }`}>
+                          <type.icon className={`w-7 h-7 ${isSelected ? 'text-[#ff453a]' : 'text-[#8e8e93]'}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-bold text-[18px] text-white">{type.label}</p>
+                          <p className="text-[15px] text-[#8e8e93] leading-snug">{type.description}</p>
+                        </div>
+                        {isSelected && (
+                          <div className="w-8 h-8 bg-[#30d158] rounded-full flex items-center justify-center">
+                            <Check className="w-5 h-5 text-white" strokeWidth={3} />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -194,13 +211,13 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
               <div className="space-y-6">
                 {/* Severity */}
                 <div>
-                  <h3 className="text-[17px] font-bold text-white mb-3">Severity Level</h3>
+                  <h3 className="text-[18px] font-bold text-white mb-4">Severity Level</h3>
                   <div className="flex gap-2">
                     {SEVERITY_LEVELS.map((level) => (
                       <button
                         key={level.id}
                         onClick={() => setSeverity(level.id)}
-                        className={`flex-1 py-3 px-2 rounded-xl text-center transition-all font-semibold text-[15px] ${
+                        className={`flex-1 py-3.5 px-2 rounded-xl text-center transition-all font-semibold text-[16px] ${
                           severity === level.id
                             ? 'bg-[#9a4f00] text-[#ff9f0a] ring-2 ring-[#ff9f0a]'
                             : 'bg-[#2c2c2e] text-[#8e8e93]'
@@ -215,26 +232,34 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
 
                 {/* Description */}
                 <div>
-                  <h3 className="text-[17px] font-bold text-white mb-3">What happened?</h3>
+                  <h3 className="text-[18px] font-bold text-white mb-3">What happened?</h3>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
+                    onFocus={() => setFocusedField('description')}
+                    onBlur={() => setFocusedField(null)}
                     placeholder="Describe the incident in detail..."
-                    className="w-full h-32 bg-[#2c2c2e] text-white placeholder:text-[#636366] rounded-2xl p-4 text-[17px] focus:outline-none focus:ring-2 focus:ring-[#ff375f] resize-none caret-white"
-                    style={{ fontSize: '16px', caretColor: 'white' }}
+                    className={`w-full h-36 bg-[#1c1c1e] text-[#d1d1d6] placeholder:text-[#636366] rounded-2xl p-4 text-[18px] resize-none transition-all ${
+                      focusedField === 'description' || description ? 'ring-2 ring-[#ff375f]' : ''
+                    }`}
+                    style={{ fontSize: '16px', caretColor: '#ff375f', outline: 'none' }}
                     data-testid="incident-description"
                   />
                 </div>
 
                 {/* Actions Taken */}
                 <div>
-                  <h3 className="text-[17px] font-bold text-white mb-3">Actions Taken</h3>
+                  <h3 className="text-[18px] font-bold text-white mb-3">Actions Taken</h3>
                   <textarea
                     value={actionsTaken}
                     onChange={(e) => setActionsTaken(e.target.value)}
+                    onFocus={() => setFocusedField('actions')}
+                    onBlur={() => setFocusedField(null)}
                     placeholder="What steps did you take to address this?"
-                    className="w-full h-28 bg-[#2c2c2e] text-white placeholder:text-[#636366] rounded-2xl p-4 text-[17px] focus:outline-none focus:ring-2 focus:ring-[#ff375f] resize-none caret-white"
-                    style={{ fontSize: '16px', caretColor: 'white' }}
+                    className={`w-full h-32 bg-[#1c1c1e] text-[#d1d1d6] placeholder:text-[#636366] rounded-2xl p-4 text-[18px] resize-none transition-all ${
+                      focusedField === 'actions' || actionsTaken ? 'ring-2 ring-[#ff375f]' : ''
+                    }`}
+                    style={{ fontSize: '16px', caretColor: '#ff375f', outline: 'none' }}
                     data-testid="incident-actions"
                   />
                 </div>
@@ -245,31 +270,35 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
             {step === 3 && (
               <div className="space-y-5">
                 <div>
-                  <h3 className="text-[28px] font-bold text-white mb-2 leading-tight">Witness Information</h3>
-                  <p className="text-[#8e8e93] text-[15px] leading-relaxed">
+                  <h3 className="text-[32px] font-bold text-white mb-2 leading-tight">Witness Information</h3>
+                  <p className="text-[#8e8e93] text-[16px] leading-relaxed">
                     Document any witnesses present during the incident for legal and record-keeping purposes.
                   </p>
                 </div>
                 
                 <div>
-                  <h4 className="text-[17px] font-bold text-white mb-3">Witness Name(s)</h4>
+                  <h4 className="text-[18px] font-bold text-white mb-3">Witness Name(s)</h4>
                   <textarea
-                    value={noWitnesses ? 'No witnesses present' : witnessNames}
+                    value={noWitnesses ? '' : witnessNames}
                     onChange={(e) => setWitnessNames(e.target.value)}
+                    onFocus={() => setFocusedField('witnesses')}
+                    onBlur={() => setFocusedField(null)}
                     placeholder="Enter the names of any witnesses present..."
                     disabled={noWitnesses}
-                    className={`w-full h-28 bg-[#2c2c2e] text-white placeholder:text-[#636366] rounded-2xl p-4 text-[17px] focus:outline-none focus:ring-2 focus:ring-[#ff375f] resize-none caret-white ${
-                      noWitnesses ? 'opacity-70' : ''
-                    }`}
-                    style={{ fontSize: '16px', caretColor: 'white' }}
+                    className={`w-full h-32 bg-[#1c1c1e] text-[#d1d1d6] placeholder:text-[#636366] rounded-2xl p-4 text-[18px] resize-none transition-all ${
+                      noWitnesses ? 'opacity-50' : ''
+                    } ${(focusedField === 'witnesses' || witnessNames) && !noWitnesses ? 'ring-2 ring-[#ff375f]' : ''}`}
+                    style={{ fontSize: '16px', caretColor: '#ff375f', outline: 'none' }}
                     data-testid="incident-witnesses"
                   />
                 </div>
 
-                {/* Info Box - Blue themed */}
-                <div className="bg-[#1c3a5e] border-l-4 border-[#0a84ff] rounded-xl p-4 flex gap-3">
-                  <Info className="w-5 h-5 text-[#0a84ff] flex-shrink-0 mt-0.5" />
-                  <p className="text-[#8cb4e0] text-[14px] leading-relaxed">
+                {/* Info Box - Dark navy without left border, matching mobile */}
+                <div className="bg-[#1c2836] rounded-2xl p-5 flex gap-4 items-start">
+                  <div className="w-6 h-6 rounded-full bg-[#48484a] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-[#8e8e93] text-[14px] font-bold">i</span>
+                  </div>
+                  <p className="text-[#8e8e93] text-[16px] leading-relaxed">
                     Include full names and their relationship to the patient if applicable (e.g., "John Smith - Family Visitor", "Jane Doe - Nurse on duty")
                   </p>
                 </div>
@@ -280,12 +309,12 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                   className="flex items-center gap-3"
                   data-testid="no-witnesses-checkbox"
                 >
-                  <div className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors ${
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
                     noWitnesses 
                       ? 'bg-[#30d158]' 
                       : 'border-2 border-[#636366] bg-transparent'
                   }`}>
-                    {noWitnesses && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
+                    {noWitnesses && <Check className="w-5 h-5 text-white" strokeWidth={3} />}
                   </div>
                   <span className="text-white text-[17px]">No witnesses were present</span>
                 </button>
@@ -294,20 +323,18 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
 
             {/* Step 4: Photos */}
             {step === 4 && (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div>
-                  <h3 className="text-[28px] font-bold text-white mb-2 leading-tight">Add Photos (Optional)</h3>
-                  <p className="text-[#8e8e93] text-[15px]">Document the incident visually for records.</p>
+                  <h3 className="text-[32px] font-bold text-white mb-2 leading-tight">Add Photos (Optional)</h3>
+                  <p className="text-[#8e8e93] text-[16px]">Document the incident visually for records.</p>
                 </div>
                 
-                {/* Photo Upload Area */}
+                {/* Photo Upload Area - Gray dashed border, matching mobile */}
                 <label className="block cursor-pointer">
-                  <div className="w-full py-20 border-2 border-dashed border-[#48484a] rounded-2xl flex flex-col items-center justify-center">
-                    <div className="w-12 h-12 bg-[#3a3a3c] rounded-xl flex items-center justify-center mb-3">
-                      <Camera className="w-6 h-6 text-[#636366]" />
-                    </div>
-                    <p className="text-[#636366] font-semibold text-[17px]">Tap to add photo</p>
-                    <p className="text-[#48484a] text-[14px] mt-1">Take a photo for documentation</p>
+                  <div className="w-full py-24 border-2 border-dashed border-[#48484a] rounded-3xl flex flex-col items-center justify-center">
+                    <Camera className="w-12 h-12 text-[#636366] mb-4" />
+                    <p className="text-[#8e8e93] font-semibold text-[18px]">Tap to add photo</p>
+                    <p className="text-[#636366] text-[15px] mt-1">Take a photo for documentation</p>
                   </div>
                   <input
                     type="file"
@@ -338,23 +365,23 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
               </div>
             )}
 
-            {/* Step 5: Review */}
+            {/* Step 5: Review - Matching mobile exactly */}
             {step === 5 && (
-              <div className="space-y-4">
-                <h3 className="text-[28px] font-bold text-white leading-tight">Review & Submit</h3>
+              <div className="space-y-5">
+                <h3 className="text-[32px] font-bold text-white leading-tight">Review & Submit</h3>
                 
                 {/* Summary Card */}
-                <div className="bg-[#2c2c2e] rounded-2xl p-5 space-y-4">
+                <div className="bg-[#1c1c1e] rounded-2xl p-5 space-y-5">
                   {/* Type & Severity Header */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 bg-[#5c1a2a] rounded-[14px] flex items-center justify-center">
-                        <AlertTriangle className="w-5 h-5 text-[#ff453a]" />
+                      <div className="w-12 h-12 bg-[#5c1a2a] rounded-xl flex items-center justify-center">
+                        <AlertTriangle className="w-6 h-6 text-[#ff453a]" />
                       </div>
-                      <span className="font-bold text-[18px] text-white">{selectedType?.label}</span>
+                      <span className="font-bold text-[20px] text-white">{selectedType?.label}</span>
                     </div>
                     {selectedSeverity && (
-                      <span className={`px-3 py-1.5 rounded-lg text-[13px] font-bold ${
+                      <span className={`px-4 py-2 rounded-lg text-[14px] font-bold ${
                         severity === 'low' ? 'bg-[#1c4428] text-[#30d158]' :
                         severity === 'medium' ? 'bg-[#4a3800] text-[#ffd60a]' :
                         severity === 'high' ? 'bg-[#5c3d0a] text-[#ff9f0a]' :
@@ -368,30 +395,30 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                   {/* Description */}
                   {description && (
                     <div>
-                      <p className="text-[12px] text-[#636366] uppercase tracking-wider font-bold mb-1">Description</p>
-                      <p className="text-white text-[15px]">{description}</p>
+                      <p className="text-[13px] text-[#636366] uppercase tracking-wider font-bold mb-2">Description</p>
+                      <p className="text-white text-[16px]">{description}</p>
                     </div>
                   )}
 
                   {/* Actions */}
                   {actionsTaken && (
                     <div>
-                      <p className="text-[12px] text-[#636366] uppercase tracking-wider font-bold mb-1">Actions Taken</p>
-                      <p className="text-white text-[15px]">{actionsTaken}</p>
+                      <p className="text-[13px] text-[#636366] uppercase tracking-wider font-bold mb-2">Actions Taken</p>
+                      <p className="text-white text-[16px]">{actionsTaken}</p>
                     </div>
                   )}
 
                   {/* Witnesses */}
                   <div>
-                    <p className="text-[12px] text-[#636366] uppercase tracking-wider font-bold mb-1">Witnesses</p>
-                    <p className="text-white text-[15px]">
+                    <p className="text-[13px] text-[#636366] uppercase tracking-wider font-bold mb-2">Witnesses</p>
+                    <p className="text-white text-[16px]">
                       {noWitnesses ? 'No witnesses present' : (witnessNames || 'Not provided')}
                     </p>
                   </div>
 
                   {/* Photos */}
                   <div>
-                    <p className="text-[12px] text-[#636366] uppercase tracking-wider font-bold mb-1">Photos ({photos.length})</p>
+                    <p className="text-[13px] text-[#636366] uppercase tracking-wider font-bold mb-2">Photos ({photos.length})</p>
                     {photos.length > 0 ? (
                       <div className="flex gap-2 mt-2">
                         {photos.slice(0, 4).map((photo) => (
@@ -399,65 +426,65 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                             key={photo.id}
                             src={photo.url} 
                             alt="Evidence"
-                            className="w-14 h-14 rounded-xl object-cover"
+                            className="w-16 h-16 rounded-xl object-cover"
                           />
                         ))}
                       </div>
                     ) : (
-                      <p className="text-[#636366] text-[15px]">No photos attached</p>
+                      <p className="text-[#636366] text-[16px]">No photos attached</p>
                     )}
                   </div>
                 </div>
 
-                {/* Toggle Options - Matching mobile exactly */}
+                {/* Toggle Options - Matching mobile with green circle checkmarks */}
                 <div className="space-y-3">
                   {/* Notify Family - Green themed when active */}
                   <button
                     onClick={() => setNotifyFamily(!notifyFamily)}
                     className={`w-full p-4 rounded-2xl flex items-center justify-between transition-colors ${
-                      notifyFamily ? 'bg-[#0d3320]' : 'bg-[#2c2c2e]'
+                      notifyFamily ? 'bg-[#0d3320]' : 'bg-[#1c1c1e]'
                     }`}
                     data-testid="notify-family-toggle"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                        notifyFamily ? 'bg-[#1a5c35]' : 'bg-[#3a3a3c]'
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                        notifyFamily ? 'bg-[#30d158]' : 'bg-[#3a3a3c]'
                       }`}>
-                        <Shield className={`w-5 h-5 ${notifyFamily ? 'text-[#30d158]' : 'text-[#8e8e93]'}`} />
+                        <Check className={`w-6 h-6 ${notifyFamily ? 'text-white' : 'text-[#8e8e93]'}`} strokeWidth={3} />
                       </div>
-                      <span className={`font-semibold text-[17px] ${notifyFamily ? 'text-white' : 'text-[#8e8e93]'}`}>
+                      <span className="font-semibold text-[18px] text-white">
                         Notify Family Member
                       </span>
                     </div>
-                    <div className={`w-6 h-6 rounded-md flex items-center justify-center ${
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
                       notifyFamily ? 'bg-[#30d158]' : 'border-2 border-[#636366]'
                     }`}>
-                      {notifyFamily && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
+                      {notifyFamily && <Check className="w-5 h-5 text-white" strokeWidth={3} />}
                     </div>
                   </button>
 
-                  {/* Follow-up Required - Gray when inactive */}
+                  {/* Follow-up Required */}
                   <button
                     onClick={() => setFollowUpRequired(!followUpRequired)}
                     className={`w-full p-4 rounded-2xl flex items-center justify-between transition-colors ${
-                      followUpRequired ? 'bg-[#0d3320]' : 'bg-[#2c2c2e]'
+                      followUpRequired ? 'bg-[#0d3320]' : 'bg-[#1c1c1e]'
                     }`}
                     data-testid="followup-toggle"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                        followUpRequired ? 'bg-[#1a5c35]' : 'bg-[#3a3a3c]'
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                        followUpRequired ? 'bg-[#30d158]' : 'bg-[#3a3a3c]'
                       }`}>
-                        <Clock className={`w-5 h-5 ${followUpRequired ? 'text-[#30d158]' : 'text-[#8e8e93]'}`} />
+                        <Clock className={`w-6 h-6 ${followUpRequired ? 'text-white' : 'text-[#8e8e93]'}`} />
                       </div>
-                      <span className={`font-semibold text-[17px] ${followUpRequired ? 'text-white' : 'text-[#8e8e93]'}`}>
+                      <span className="font-semibold text-[18px] text-white">
                         Follow-up Required
                       </span>
                     </div>
-                    <div className={`w-6 h-6 rounded-md flex items-center justify-center ${
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
                       followUpRequired ? 'bg-[#30d158]' : 'border-2 border-[#636366]'
                     }`}>
-                      {followUpRequired && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
+                      {followUpRequired && <Check className="w-5 h-5 text-white" strokeWidth={3} />}
                     </div>
                   </button>
                 </div>
@@ -466,11 +493,11 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
           </div>
 
           {/* Footer Navigation - Fixed at bottom */}
-          <div className="flex-shrink-0 px-4 py-4 flex gap-3 bg-black border-t border-[#2c2c2e]">
+          <div className="flex-shrink-0 px-4 py-4 flex gap-3 bg-black">
             {step > 1 && (
               <button
                 onClick={() => setStep(step - 1)}
-                className="flex-1 py-4 bg-[#2c2c2e] text-white rounded-xl font-bold text-[17px]"
+                className="flex-1 py-4 bg-[#2c2c2e] text-white rounded-xl font-bold text-[18px]"
                 data-testid="incident-back-btn"
               >
                 Back
@@ -481,7 +508,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
               <button
                 onClick={() => setStep(step + 1)}
                 disabled={(step === 1 && !incidentType) || (step === 2 && (!severity || !description))}
-                className={`flex-1 py-4 rounded-xl font-bold text-[17px] transition-colors ${
+                className={`flex-1 py-4 rounded-xl font-bold text-[18px] transition-colors ${
                   (step === 1 && !incidentType) || (step === 2 && (!severity || !description))
                     ? 'bg-[#3a3a3c] text-[#636366]'
                     : 'bg-[#ff375f] text-white'
@@ -494,7 +521,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="flex-1 py-4 bg-[#ff375f] text-white rounded-xl font-bold text-[17px] flex items-center justify-center gap-2"
+                className="flex-1 py-4 bg-[#ff375f] text-white rounded-xl font-bold text-[18px] flex items-center justify-center gap-2"
                 data-testid="incident-submit-btn"
               >
                 {isSubmitting ? (
