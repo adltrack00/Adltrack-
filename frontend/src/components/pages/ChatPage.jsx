@@ -1,263 +1,235 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Send, Search, Users, User, Image, Check, CheckCheck } from 'lucide-react';
+import { ArrowLeft, Send, Search, Users, Image, CheckCheck } from 'lucide-react';
 import { UserRole } from '../../types';
 
 export const ChatPage = ({ onBack, role }) => {
   const [activeConversation, setActiveConversation] = useState(null);
   const [message, setMessage] = useState('');
+  const [inputFocused, setInputFocused] = useState(false);
   const [conversationMessages, setConversationMessages] = useState({});
+  const [searchText, setSearchText] = useState('');
   const messagesEndRef = useRef(null);
   
   const isCaregiver = role === UserRole.CAREGIVER;
 
-  // Different conversations based on role
   const conversations = isCaregiver ? [
     { 
       id: 'poa', 
-      name: 'Mary Smith (POA)', 
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80',
+      name: 'Mary Smith',
+      role: 'POA',
+      avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
       lastMessage: 'Thank you for the update!',
       time: '2:30 PM',
       unread: 0,
+      online: true,
       isGroup: false
     },
     { 
       id: 'supervisor', 
-      name: 'Sarah Johnson (Supervisor)', 
-      avatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=100&q=80',
+      name: 'Sarah Johnson',
+      role: 'Supervisor',
+      avatar: 'https://randomuser.me/api/portraits/women/65.jpg',
       lastMessage: 'Please submit your timesheet',
       time: '1:15 PM',
       unread: 1,
+      online: true,
       isGroup: false
     },
     { 
       id: 'weekend', 
-      name: 'Michael Chen (Weekend Caregiver)', 
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80',
+      name: 'Michael Chen',
+      role: 'Weekend Caregiver',
+      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
       lastMessage: 'Handoff notes are ready',
       time: 'Yesterday',
       unread: 0,
+      online: false,
       isGroup: false
     },
     { 
       id: 'team', 
-      name: 'Care Team Handoff', 
+      name: 'Care Team Handoff',
+      role: '',
       avatar: null,
       lastMessage: 'Weekend schedule updated',
       time: 'Yesterday',
       unread: 2,
+      online: false,
       isGroup: true
     },
   ] : [
     { 
       id: 'family', 
-      name: 'Family Group', 
+      name: 'Family Group',
+      role: '',
       avatar: null,
       lastMessage: 'Can someone cover Sunday?',
       time: '10:30 AM',
       unread: 3,
+      online: false,
       isGroup: true
     },
     { 
       id: 'caregiver', 
-      name: 'Julia Martinez (Caregiver)', 
-      avatar: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=100&q=80',
+      name: 'Julia Martinez',
+      role: 'Caregiver',
+      avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
       lastMessage: 'David had a great morning!',
       time: '9:32 AM',
       unread: 0,
+      online: true,
       isGroup: false
     },
     { 
       id: 'tom', 
-      name: 'Tom Smith (Brother)', 
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80',
+      name: 'Tom Smith',
+      role: 'Brother',
+      avatar: 'https://randomuser.me/api/portraits/men/75.jpg',
       lastMessage: "I'll bring the puzzle",
       time: 'Yesterday',
       unread: 0,
+      online: false,
       isGroup: false
     },
   ];
 
-  // Initial mock messages for each conversation
-  const getInitialMessages = (convId) => {
-    const baseMessages = [
-      { id: 1, sender: 'other', text: 'Hi! How is everything going with Dad today?', time: '9:30 AM', status: 'read' },
-      { id: 2, sender: 'me', text: 'Great! He had a wonderful breakfast and we just finished his morning walk.', time: '9:32 AM', status: 'read' },
-      { id: 3, sender: 'other', text: 'That\'s wonderful to hear! Did he take his medication?', time: '9:33 AM', status: 'read' },
-      { id: 4, sender: 'me', text: 'Yes, all medications given on time. I\'ve uploaded the photo evidence.', time: '9:35 AM', hasImage: true, status: 'read' },
-      { id: 5, sender: 'other', text: 'Thank you for the update!', time: '9:36 AM', status: 'read' },
-    ];
-    return baseMessages;
-  };
+  const getInitialMessages = () => [
+    { id: 1, sender: 'other', text: 'Hi! How is everything going with Dad today?', time: '9:30 AM', status: 'read' },
+    { id: 2, sender: 'me', text: 'Great! He had a wonderful breakfast and we just finished his morning walk.', time: '9:32 AM', status: 'read' },
+    { id: 3, sender: 'other', text: "That's wonderful to hear! Did he take his medication?", time: '9:33 AM', status: 'read' },
+    { id: 4, sender: 'me', text: "Yes, all medications given on time. I've uploaded the photo evidence.", time: '9:35 AM', hasImage: true, status: 'read' },
+    { id: 5, sender: 'other', text: 'Thank you for the update!', time: '9:36 AM', status: 'read' },
+  ];
 
-  // Initialize messages for conversation if not exists
   useEffect(() => {
     if (activeConversation && !conversationMessages[activeConversation]) {
       setConversationMessages(prev => ({
         ...prev,
-        [activeConversation]: getInitialMessages(activeConversation)
+        [activeConversation]: getInitialMessages()
       }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeConversation]);
+  }, [activeConversation, conversationMessages]);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [conversationMessages, activeConversation]);
 
   const getCurrentTime = () => {
     return new Date().toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
+      hour: 'numeric', minute: '2-digit', hour12: true 
     });
   };
 
   const handleSend = () => {
     if (!message.trim() || !activeConversation) return;
-    
-    const newMessage = {
+    const newMsg = {
       id: Date.now(),
       sender: 'me',
       text: message.trim(),
       time: getCurrentTime(),
-      status: 'sending'
+      status: 'read'
     };
-
-    // Add message immediately with 'sending' status
     setConversationMessages(prev => ({
       ...prev,
-      [activeConversation]: [...(prev[activeConversation] || []), newMessage]
+      [activeConversation]: [...(prev[activeConversation] || []), newMsg]
     }));
-    
     setMessage('');
-
-    // Simulate sending -> sent -> delivered -> read
-    setTimeout(() => {
-      setConversationMessages(prev => ({
-        ...prev,
-        [activeConversation]: prev[activeConversation].map(msg => 
-          msg.id === newMessage.id ? { ...msg, status: 'sent' } : msg
-        )
-      }));
-    }, 500);
-
-    setTimeout(() => {
-      setConversationMessages(prev => ({
-        ...prev,
-        [activeConversation]: prev[activeConversation].map(msg => 
-          msg.id === newMessage.id ? { ...msg, status: 'delivered' } : msg
-        )
-      }));
-    }, 1200);
-
-    setTimeout(() => {
-      setConversationMessages(prev => ({
-        ...prev,
-        [activeConversation]: prev[activeConversation].map(msg => 
-          msg.id === newMessage.id ? { ...msg, status: 'read' } : msg
-        )
-      }));
-    }, 2500);
   };
 
-  // Message status indicator component
-  const MessageStatus = ({ status }) => {
-    if (status === 'sending') {
-      return (
-        <div className="flex items-center gap-1 ml-1">
-          <div className="w-3 h-3 border border-emerald-200/50 border-t-emerald-200 rounded-full animate-spin" />
-        </div>
-      );
-    }
-    if (status === 'sent') {
-      return <Check className="w-4 h-4 text-emerald-200/70 ml-1" />;
-    }
-    if (status === 'delivered') {
-      return <CheckCheck className="w-4 h-4 text-emerald-200/70 ml-1" />;
-    }
-    if (status === 'read') {
-      return <CheckCheck className="w-4 h-4 text-emerald-200 ml-1" />;
-    }
-    return null;
-  };
+  const filteredConversations = searchText 
+    ? conversations.filter(c => c.name.toLowerCase().includes(searchText.toLowerCase()))
+    : conversations;
 
+  // ===== CHAT VIEW =====
   if (activeConversation) {
     const conv = conversations.find(c => c.id === activeConversation);
-    const messages = conversationMessages[activeConversation] || [];
+    const messages_list = conversationMessages[activeConversation] || [];
+    const displayName = conv?.role ? `${conv.name} (${conv.role})` : conv?.name;
     
     return (
-      <div className="flex flex-col h-full bg-stone-950">
+      <div className="flex flex-col h-full bg-black" data-testid="chat-view">
         {/* Chat Header */}
-        <div className="sticky top-0 bg-stone-900 border-b border-stone-800 px-4 py-3 flex items-center gap-3 z-10">
+        <div className="flex items-center px-5 pt-3 pb-4 border-b border-[#3a3a3c]">
           <button 
             onClick={() => setActiveConversation(null)} 
-            className="p-2 hover:bg-stone-800 rounded-full"
+            className="mr-4 p-1"
             data-testid="chat-back-btn"
           >
-            <ArrowLeft className="w-5 h-5 text-stone-300" />
+            <ArrowLeft className="w-6 h-6 text-white" />
           </button>
           {conv?.isGroup ? (
-            <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
-              <Users className="w-5 h-5 text-purple-400" />
+            <div className="w-12 h-12 rounded-full bg-[#7c3aed] flex items-center justify-center mr-3">
+              <Users className="w-6 h-6 text-white" />
             </div>
           ) : (
-            <img src={conv?.avatar} alt={conv?.name} className="w-10 h-10 rounded-full object-cover" />
+            <img src={conv?.avatar} alt={conv?.name} className="w-12 h-12 rounded-full object-cover mr-3" />
           )}
           <div className="flex-1">
-            <h2 className="font-semibold text-white">{conv?.name}</h2>
-            <p className="text-xs text-emerald-400">Online</p>
+            <h2 className="text-xl font-semibold text-white">{displayName}</h2>
+            {conv?.online && <p className="text-sm text-[#25D366] mt-0.5">Online</p>}
           </div>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-stone-950">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[80%] px-4 py-3 rounded-2xl ${
-                msg.sender === 'me'
-                  ? 'bg-emerald-600 text-white rounded-br-md'
-                  : 'bg-stone-800 text-white rounded-bl-md'
-              }`}>
+        <div className="flex-1 overflow-y-auto px-5 py-4 pb-28">
+          {messages_list.map((msg) => (
+            <div 
+              key={msg.id} 
+              className={`mb-3 flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div 
+                className={`max-w-[80%] px-4 py-3 ${
+                  msg.sender === 'me'
+                    ? 'bg-[#25D366] rounded-[20px] rounded-br-[6px]'
+                    : 'bg-[#1c1c1e] rounded-[20px] rounded-bl-[6px]'
+                }`}
+              >
                 {msg.hasImage && (
-                  <div className="mb-2 bg-stone-700/50 rounded-lg p-3 flex items-center gap-2">
-                    <Image className="w-5 h-5 text-stone-300" />
-                    <span className="text-sm text-stone-200">Photo attached</span>
+                  <div className="flex items-center gap-2.5 bg-black/20 rounded-xl px-3.5 py-2.5 mb-2.5">
+                    <Image className="w-5 h-5 text-white" />
+                    <span className="text-[15px] text-white">Photo attached</span>
                   </div>
                 )}
-                <p className="text-sm">{msg.text}</p>
-                <div className={`flex items-center justify-end mt-1 ${msg.sender === 'me' ? 'text-emerald-200' : 'text-stone-400'}`}>
-                  <span className="text-[10px]">{msg.time}</span>
-                  {msg.sender === 'me' && <MessageStatus status={msg.status} />}
-                </div>
+                <p className="text-base text-white leading-[22px]">{msg.text}</p>
+                {msg.sender === 'me' ? (
+                  <div className="flex items-center justify-end gap-1 mt-1.5">
+                    <span className="text-xs text-white/70">{msg.time}</span>
+                    <CheckCheck className="w-4 h-4 text-white/70" />
+                  </div>
+                ) : (
+                  <p className="text-xs text-[#8e8e93] mt-1.5 text-right">{msg.time}</p>
+                )}
               </div>
             </div>
           ))}
-          {/* Spacer to ensure last message is fully visible above input bar */}
-          <div ref={messagesEndRef} className="h-32" />
+          <div ref={messagesEndRef} />
         </div>
 
-        {/* Input - Fixed at bottom above navigation */}
-        <div className="fixed bottom-16 left-0 right-0 border-t border-stone-800 p-4 bg-stone-900 z-20">
-          <div className="flex gap-3 max-w-screen-lg mx-auto">
+        {/* Input Area - Fixed above bottom nav */}
+        <div className="fixed bottom-[56px] left-0 right-0 border-t border-[#3a3a3c] px-5 py-3 bg-black z-20">
+          <div className="flex items-center gap-3">
             <input
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => setInputFocused(false)}
               placeholder="Type a message..."
-              className="flex-1 px-4 py-3 bg-stone-800 text-white rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-stone-400"
+              className={`flex-1 px-5 py-3.5 bg-[#1c1c1e] text-white rounded-3xl text-base focus:outline-none placeholder-[#636366] border-2 transition-colors ${
+                inputFocused ? 'border-[#25D366]' : 'border-transparent'
+              }`}
               style={{ fontSize: '16px' }}
               data-testid="chat-input"
             />
             <button
               onClick={handleSend}
-              disabled={!message.trim()}
-              className="px-5 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors disabled:bg-stone-700 disabled:cursor-not-allowed"
+              className={`w-[52px] h-[52px] rounded-[14px] flex items-center justify-center flex-shrink-0 transition-colors ${
+                message.trim() ? 'bg-[#25D366]' : 'bg-[#1c1c1e]'
+              }`}
               data-testid="chat-send-btn"
             >
-              <Send className="w-5 h-5" />
+              <Send className={`w-5 h-5 ${message.trim() ? 'text-white' : 'text-[#636366]'}`} />
             </button>
           </div>
         </div>
@@ -265,58 +237,69 @@ export const ChatPage = ({ onBack, role }) => {
     );
   }
 
+  // ===== MESSAGES LIST VIEW =====
   return (
-    <div className="min-h-screen bg-stone-950">
+    <div className="flex-1 overflow-y-auto bg-black pb-20" data-testid="messages-list-view">
       {/* Header */}
-      <div className="sticky top-0 bg-stone-900 border-b border-stone-800 px-4 py-4 flex items-center gap-3 z-10">
-        <button onClick={onBack} className="p-2 hover:bg-stone-800 rounded-full">
-          <ArrowLeft className="w-5 h-5 text-stone-300" />
+      <div className="flex items-center px-5 pt-3 pb-4">
+        <button onClick={onBack} className="mr-4 p-1" data-testid="messages-back-btn">
+          <ArrowLeft className="w-6 h-6 text-white" />
         </button>
-        <h1 className="text-lg font-semibold text-white">Messages</h1>
+        <h1 className="text-[28px] font-bold text-white">Messages</h1>
       </div>
 
       {/* Search */}
-      <div className="p-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-500" />
+      <div className="px-5 mb-4">
+        <div className="flex items-center bg-[#1c1c1e] rounded-2xl px-4 py-3.5">
+          <Search className="w-5 h-5 text-[#636366] flex-shrink-0" />
           <input
             type="text"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
             placeholder="Search conversations..."
-            className="w-full pl-10 pr-4 py-3 bg-stone-900 border border-stone-800 text-white rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-stone-500"
+            className="flex-1 ml-3 bg-transparent text-white text-base focus:outline-none placeholder-[#636366]"
             style={{ fontSize: '16px' }}
+            data-testid="search-conversations"
           />
         </div>
       </div>
 
       {/* Conversation List */}
-      <div className="px-4 space-y-2">
-        {conversations.map((conv) => (
+      <div>
+        {filteredConversations.map((conv) => (
           <button
             key={conv.id}
             onClick={() => setActiveConversation(conv.id)}
-            className="w-full flex items-center gap-3 p-3 hover:bg-stone-900 rounded-xl transition-colors border border-transparent hover:border-stone-800"
+            className="w-full flex items-center px-5 py-4 active:bg-[#1c1c1e] transition-colors"
             data-testid={`conversation-${conv.id}`}
           >
-            {conv.isGroup ? (
-              <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
-                <Users className="w-6 h-6 text-purple-400" />
-              </div>
-            ) : (
-              <img src={conv.avatar} alt={conv.name} className="w-12 h-12 rounded-full object-cover" />
-            )}
-            <div className="flex-1 text-left">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-white">{conv.name}</h3>
-                <span className="text-xs text-stone-500">{conv.time}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-stone-400 truncate max-w-[200px]">{conv.lastMessage}</p>
-                {conv.unread > 0 && (
-                  <span className="w-5 h-5 bg-emerald-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {conv.unread}
-                  </span>
-                )}
-              </div>
+            {/* Avatar */}
+            <div className="relative mr-3.5 flex-shrink-0">
+              {conv.isGroup ? (
+                <div className="w-14 h-14 rounded-full bg-[#7c3aed] flex items-center justify-center">
+                  <Users className="w-7 h-7 text-white" />
+                </div>
+              ) : (
+                <img src={conv.avatar} alt={conv.name} className="w-14 h-14 rounded-full object-cover" />
+              )}
+            </div>
+
+            {/* Info */}
+            <div className="flex-1 min-w-0 text-left">
+              <p className="text-[18px] font-semibold text-white leading-tight">
+                {conv.role ? `${conv.name} (${conv.role})` : conv.name}
+              </p>
+              <p className="text-[15px] text-[#8e8e93] mt-1 truncate">{conv.lastMessage}</p>
+            </div>
+
+            {/* Meta */}
+            <div className="flex flex-col items-end ml-3 flex-shrink-0">
+              <span className="text-sm text-[#8e8e93] mb-1.5">{conv.time}</span>
+              {conv.unread > 0 && (
+                <span className="w-6 h-6 bg-[#25D366] text-white text-[13px] font-semibold rounded-full flex items-center justify-center">
+                  {conv.unread}
+                </span>
+              )}
             </div>
           </button>
         ))}

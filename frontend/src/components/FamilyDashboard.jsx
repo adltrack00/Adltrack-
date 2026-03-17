@@ -10,6 +10,7 @@ import { PatientProfileModal } from './PatientProfileModal';
 import { VitalsModal } from './VitalsModal';
 import { AICopilot } from './AICopilot';
 import { IncidentViewPage } from './IncidentViewPage';
+import { ChatPage } from './pages/ChatPage';
 import { CARE_IMAGES, CAREGIVER_PROFILE, FAMILY_CONVERSATIONS, FAMILY_ALERTS, CARE_PLAN, WEEKLY_REPORT } from '../services/mockData';
 
 export const FamilyDashboard = ({ 
@@ -748,7 +749,7 @@ export const FamilyDashboard = ({
       {/* Main Content */}
       {activeTab === 'home' && renderHomeContent()}
       {activeTab === 'incident' && <IncidentViewPage patientName={patient?.name} incidents={incidents} />}
-      {activeTab === 'chat' && renderMessagesContent()}
+      {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.FAMILY} />}
       {activeTab === 'notifications' && renderAlertsContent()}
       {activeTab === 'settings' && renderMenuContent()}
 
