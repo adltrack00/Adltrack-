@@ -1,131 +1,67 @@
 # ADLTrack - Product Requirements Document
 
 ## Original Problem Statement
-Build a comprehensive caregiving coordination application named "ADLTrack" with both a React Native mobile app and a React web application. The primary goal is visual and functional parity between the mobile app and the web app for Caregiver and Family dashboards.
+Build a comprehensive caregiving coordination application named "ADLTrack". The primary and ongoing task is to make the web application's dashboards an exact visual and functional replica of the mobile app (`/app/mobile/ADLTrackComplete.js`). This is a meticulous, screenshot-driven process where the user provides designs for specific pages, and the agent implements them.
+
+## Core Requirements
+- Achieve visual and functional parity between the mobile app (React Native) and the web app (React)
+- All new web development must exactly replicate the mobile app's dark-themed, component-based design aesthetic
+- Replicate all mobile app functionality on the web app, including multi-step forms and detailed modal views
+- The user is the ultimate arbiter of design accuracy and expects a pixel-perfect match to reference images
 
 ## Architecture
-```
-/app/
-├── frontend/ (React Web App - TailwindCSS, Manrope font, dark theme)
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── CaregiverDashboard.jsx  (5 tabs: Home, Incident, Message, Shifts, Menu)
-│   │   │   ├── FamilyDashboard.jsx     (5 tabs: Home, Incident, Message, Alerts, Menu)
-│   │   │   ├── PatientProfileModal.jsx (Full medical profile)
-│   │   │   ├── VitalsModal.jsx         (Redesigned - unique color themes per vital)
-│   │   │   ├── AICopilot.jsx           (AI assistant)
-│   │   │   ├── TaskCard.jsx            (Task cards)
-│   │   │   ├── IncidentReportPage.jsx  (Caregiver incident form)
-│   │   │   ├── IncidentViewPage.jsx    (Family incident list)
-│   │   │   └── pages/                  (Sub-pages: Profile, Settings, etc.)
-│   │   ├── services/mockData.js        (All mock data)
-│   │   └── App.js
-├── mobile/ (React Native/Expo App)
-│   └── ADLTrackComplete.js             (Monolithic mobile app)
-├── backend/ (FastAPI)
-└── memory/
-    └── PRD.md
-```
+- **Frontend (Web):** React, JSX, TailwindCSS, Shadcn/UI components
+- **Frontend (Mobile):** Expo (React Native), React Navigation
+- **Backend:** FastAPI (minimal, mostly mocked data)
+- **Database:** MongoDB (not yet integrated - all data mocked)
+- **Data:** All hardcoded in `/app/frontend/src/services/mockData.js`
 
 ## What's Been Implemented
 
-### Web App (React)
-- **Caregiver Dashboard** (fully matches mobile):
-  - Home tab: Patient card, vitals grid (colored icons: BP pink, Heart orange, Temp blue, Pain purple), Today's Progress, Requests/Tasks tabs
-  - Incident tab: Multi-step incident report form
-  - Message tab: Conversation list with chat (via ChatPage)
-  - Shifts tab: Clock In/Out, Active Client, Quick Actions, Shift History with filters
-  - Menu tab: Colored icon menu items (Medications, Earnings, Shift History, Settings, Support, Sign Out)
-  - Medications sub-screen: Summary stats, medication cards with "Mark as Administered"
-  - Patient Profile modal: Full medical profile with Care History, Allergies, Medical Conditions, Medications, Code Status, Mobility, Access Instructions, Emergency Contacts, Share Medical ID
+### Completed Features (as of Feb 17, 2026)
+1. **Vital Signs Modal** - Multi-themed modal for BP, Heart Rate, Temperature, Pain
+2. **Incident Report Page** - 5-step form with red-themed styling, full-screen overlay pattern
+3. **Shifts Tab (NEW)** - Complete redesign matching mobile app screenshots:
+   - Shift Status card with On/Off shift states, Clock In/Out times, Weekly Hours
+   - Green "Clock In" / Red "Clock Out" button with GPS verification
+   - Custom alert dialog for Clock In/Out confirmations
+   - Active Client selector with dropdown modal showing 3 clients
+   - Client list with avatars, conditions, task counts, risk badges (MODERATE/HIGH/LOW)
+   - Quick Actions: View Earnings, Shift History
+   - Shift History sub-page with filter tabs (All/Completed/Cancelled)
+4. **Bottom Navigation** - Full-screen overlay pattern to prevent floating nav on forms
+5. **Landing Page, Auth Flow, Role Selection**
 
-- **Family Dashboard** (fully matches mobile):
-  - Home tab: Vitals grid (same colored icons), Today's Progress, My Requests/Care Timeline tabs
-  - Incident tab: Incident summary + list
-  - Message tab: Built-in conversation list + chat view (Family Group, Julia Martinez, Tom Smith)
-  - Alerts tab: Upcoming Schedule + Recent Alerts with highlight
-  - Menu tab: Mary Smith profile, David Smith patient card, colored icon menu (Care Plan, Weekly Report, Current Caregiver, Billing, Settings, Support, Sign Out)
-  - Care Plan sub-screen: Primary Goals, Medications, Daily Schedule, Dietary Restrictions, Emergency Protocol
-  - Weekly Report sub-screen: 87% Compliance circle, stats grid, caregiver notes, performance trend bars
-  - Current Caregiver sub-screen: Julia Martinez photo, stats (4.9 rating, 5 years, 234 shifts), certifications, contact info
-
-- **VitalsModal (Redesigned March 16, 2026)**:
-  - Unique color themes per vital type:
-    - Blood Pressure: Pink/Maroon (#e91e7a, bg #5c1a3d)
-    - Heart Rate: Orange (#f97316, bg #6b3410)
-    - Temperature: Blue (#3b82f6, bg #1a3a5c)
-    - Pain Level: Purple (#8b5cf6, bg #3d1a5c)
-  - Custom SVG charts with dots and connecting lines
-  - Themed current reading cards
-  - Color-coded history list values
-  - "Log New Reading" form (Caregiver only)
-  - Weekly trend visualization (Mon-Sun)
-
-- **IncidentReportPage (Redesigned March 16, 2026)**:
-  - 5-step multi-step form (expanded from 4 steps):
-    - Step 1: Incident Type selection (6 types with icons)
-    - Step 2: Severity Level & Description
-    - Step 3: Witness Information (NEW - textarea + "No witnesses" checkbox + info box)
-    - Step 4: Add Photos (Optional)
-    - Step 5: Review & Submit with toggles
-  - Dark theme (bg-black) with pink/red progress bar (#ff3b5c)
-  - Green checkmark toggles for "Notify Family" and "Follow-up Required"
-  - Success modal overlay
-  - Past Reports list with severity badges
-
-- **Shared Components**: VitalsModal, AICopilot, PatientProfileModal, TaskCard, IncidentReportPage
-
-### Mobile App (React Native/Expo)
-- Complete app in ADLTrackComplete.js with role-based auth, Caregiver and Family dashboards
-
-### Mock Data
-- All data is mocked in `mockData.js`: patient profile, vitals, tasks, conversations, shift history, alerts, care plan, weekly report, caregiver profile
-
-## Design Language
-- **Theme**: Hard dark theme (bg-black, bg-[#1c1c1e] cards)
-- **Font**: Manrope (400-800 weights)
-- **Primary Color**: #25D366 (green)
-- **Vitals Colors** (unique themes per modal):
-  - Blood Pressure: #e91e7a (pink) with #5c1a3d background
-  - Heart Rate: #f97316 (orange) with #6b3410 background
-  - Temperature: #3b82f6 (blue) with #1a3a5c background
-  - Pain Level: #8b5cf6 (purple) with #3d1a5c background
-- **Cards**: rounded-2xl to rounded-3xl, no borders
-- **Bottom Nav**: 5 tabs, green active state
-
-## Testing Status
-- **Testing Agent**: All tests passed (100% frontend success rate)
-- **Date**: March 17, 2026
-- **Latest Report**: /app/test_reports/iteration_10.json
-- **Features Tested**: VitalsModal redesign, IncidentReportPage full redesign (14 features verified)
+### Key Files
+- `/app/frontend/src/components/CaregiverDashboard.jsx` - Main caregiver dashboard with all tabs
+- `/app/frontend/src/components/IncidentReportPage.jsx` - 5-step incident form
+- `/app/frontend/src/components/VitalsModal.jsx` - Vitals display modal
+- `/app/frontend/src/services/mockData.js` - All mock data (CLIENTS, SHIFT_HISTORY, etc.)
+- `/app/mobile/ADLTrackComplete.js` - Mobile app source of truth for design
 
 ## Prioritized Backlog
 
-### P0 - None (current milestone complete)
+### P0 (Critical)
+- None currently pending
 
-### P1 - Upcoming
-- Redesign Patient Profile on Mobile App (ADLTrackComplete.js)
-- Build Agency Dashboard (Web App)
-- Connect AI Copilot to backend API (Gemini integration)
+### P1 (High Priority)
+- Redesign Mobile App Patient Profile in `/app/mobile/ADLTrackComplete.js`
+- Build Agency Dashboard for web app
+- Connect AI Copilot with Gemini API integration
 
-### P2 - Future
-- AsyncStorage for persistent mobile auth sessions
-- Doctor and Caseworker dashboards
-- Backend API integration (replace mock data with real API)
-- CRITICAL REFACTOR: Break down monolithic ADLTrackComplete.js into modular structure
+### P2 (Medium Priority)
+- Build Caseworker web dashboard
+- Build Doctor web dashboard
+- Integrate AsyncStorage for persistent mobile sessions
+- Backend API integration (replace mocked data with real API endpoints)
 
-## Login Credentials (Mock)
-- Caregiver: sarah@caregiving.com / password123
-- Family: mary@family.com / password123
+### P3 (Future/Refactoring)
+- Decompose monolithic `/app/mobile/ADLTrackComplete.js` into modular components
+- Refactor `CaregiverDashboard.jsx` god component into smaller sub-components
+- Set up proper MongoDB data models and backend CRUD operations
 
-## Recent Changes Log
-- **March 16, 2026**: Redesigned VitalsModal with unique color themes per vital type (Blood Pressure, Heart Rate, Temperature, Pain Level), custom SVG charts, themed current reading cards, and color-coded history values
-- **March 16, 2026**: Redesigned IncidentReportPage with 5-step form (added Witness Information step), dark theme, pink progress bar, green toggle checkmarks, success modal overlay
-- **March 17, 2026**: Fixed IncidentReportPage layout - full-screen form view with hidden bottom nav, proper Continue button positioning
-- **March 17, 2026**: Final IncidentReportPage refinements matching mobile app exactly:
-  - Red ring (#ff375f) + green checkmark (#30d158) when incident type selected
-  - Red/pink border on textareas when focused or has content
-  - Dark navy info box (#1c2836) without left border, gray circular icon
-  - Gray camera icon and dashed border for photo upload
-  - Green circular toggle icons for Notify Family and Follow-up Required
-  - iOS-style success modal with centered text and blue OK button (#0a84ff)
+## Technical Notes
+- Full-screen overlay pattern (`fixed inset-0 z-50`) used for forms to prevent bottom nav issues
+- All data currently mocked - no backend integration yet
+- The `skipStartShift=true` prop auto-starts the shift when the caregiver dashboard loads
+- Client list modal uses z-[60] to appear above other overlays
