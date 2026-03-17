@@ -10,7 +10,7 @@ export const TaskCard = ({
   onToggleExpand,
   readOnly = false 
 }) => {
-  const { isDarkMode, bg, bgCard, border, text, textSecondary, textMuted } = useTheme();
+  const { isDarkMode } = useTheme();
   
   const isCompleted = task.status === TaskStatus.COMPLETED;
   const isMissed = task.status === TaskStatus.MISSED;
@@ -30,7 +30,7 @@ export const TaskCard = ({
     <div 
       className={`relative bg-[#1c1c1e] rounded-2xl overflow-hidden transition-all duration-200 font-['Manrope',sans-serif] ${
         isCompleted ? 'opacity-80' : ''
-      } ${isExpanded && !isCompleted ? '' : ''}`}
+      }`}
     >
       {/* Priority Stripe */}
       <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${stripe}`} />
@@ -42,28 +42,25 @@ export const TaskCard = ({
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            {/* Title */}
             <h3 className={`text-lg font-bold mb-1.5 ${isCompleted ? 'text-[#8e8e93] line-through' : 'text-white'}`}>
               {task.title}
             </h3>
             
-            {/* Time & Photo indicator */}
             <div className={`flex items-center gap-2.5 ${isCompleted ? 'text-[#636366]' : 'text-[#8e8e93]'} text-[15px]`}>
               <span className="flex items-center gap-1.5 font-medium">
                 <Clock className="w-[18px] h-[18px]" />
                 {isCompleted && task.completedAt ? task.completedAt : task.scheduledTime}
               </span>
               {task.requiresPhoto && !hasPhoto && !isCompleted && (
-                <span className="flex items-center gap-1 text-[#8e8e93] bg-[#2c2c2e] px-2.5 py-1 rounded-full text-xs font-medium">
+                <span className="flex items-center gap-1.5 text-[#8e8e93] bg-[#2c2c2e] px-2.5 py-1 rounded-full text-xs font-medium">
                   <Camera className="w-3.5 h-3.5" />
                   Photo
                 </span>
               )}
             </div>
             
-            {/* Completion Note */}
             {isCompleted && task.completionNote && (
-              <p className="text-[15px] text-[#636366] mt-2 italic">&quot;{task.completionNote}&quot;</p>
+              <p className="text-[15px] text-[#636366] mt-1.5 italic">&quot;{task.completionNote}&quot;</p>
             )}
           </div>
           
@@ -81,11 +78,11 @@ export const TaskCard = ({
             )}
             
             {isMissed ? (
-              <div className="w-12 h-12 bg-rose-500/20 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-rose-500/20 rounded-xl flex items-center justify-center">
                 <XCircle className="w-6 h-6 text-rose-400" />
               </div>
             ) : !isCompleted && !hasPhoto && (
-              <div className="w-12 h-12 bg-[#2c2c2e] rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-[#2c2c2e] rounded-xl flex items-center justify-center">
                 {isExpanded ? (
                   <ChevronUp className="w-5 h-5 text-[#8e8e93]" />
                 ) : (
@@ -106,25 +103,23 @@ export const TaskCard = ({
 
       {/* Expanded Section */}
       {isExpanded && !isCompleted && !isMissed && !readOnly && (
-        <div className="px-5 pb-5 pt-4 border-t border-[#3a3a3c]">
+        <div className="px-5 pb-5">
           <div className="space-y-4">
-            <div className="bg-[#111111] rounded-2xl p-4">
+            <div className="bg-[#2c2c2e] rounded-2xl p-4">
               <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-2">Instructions</p>
               <p className="text-[15px] text-[#8e8e93] leading-relaxed">{task.instructions || task.description}</p>
             </div>
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-[#636366]" />
-              <div>
-                <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px]">Time Window</p>
-                <p className="text-[15px] text-white font-semibold mt-0.5">{task.timeWindow}</p>
-              </div>
+              <span className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px]">Time Window</span>
+              <span className="text-[15px] text-white font-bold ml-1">{task.timeWindow}</span>
             </div>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onStartTask && onStartTask(task);
               }}
-              className="w-full py-4 bg-[#25D366] text-white rounded-2xl text-base font-bold hover:bg-[#20bd5a] transition-colors"
+              className="w-full py-4 bg-[#25D366] text-white rounded-2xl text-lg font-bold hover:bg-[#20bd5a] transition-colors"
               data-testid={`start-task-${task.id}`}
             >
               Start Task
