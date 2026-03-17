@@ -171,7 +171,7 @@ export const ChatPage = ({ onBack, role }) => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 pb-[88px]">
+        <div className="flex-1 overflow-y-auto px-5 py-4 pb-[140px]">
           {messages_list.map((msg) => (
             <div 
               key={msg.id} 
@@ -206,7 +206,7 @@ export const ChatPage = ({ onBack, role }) => {
         </div>
 
         {/* Input Area - Fixed above bottom nav */}
-        <div className="fixed bottom-[56px] left-0 right-0 border-t border-[#3a3a3c] px-4 py-2.5 bg-black z-20">
+        <div className="fixed bottom-[68px] left-0 right-0 border-t border-[#3a3a3c] px-4 py-2.5 bg-black z-20">
           <div className="flex items-center gap-2.5">
             <input
               type="text"
