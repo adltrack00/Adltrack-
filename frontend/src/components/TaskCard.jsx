@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Camera, ChevronDown, ChevronUp, XCircle, AlertCircle } from 'lucide-react';
+import { Clock, Camera, ChevronDown, ChevronUp, XCircle, AlertCircle, Image } from 'lucide-react';
 import { TaskStatus, Priority } from '../types';
 import { useTheme } from '../context/ThemeContext';
 
@@ -16,14 +16,12 @@ export const TaskCard = ({
   const isMissed = task.status === TaskStatus.MISSED;
   const hasPhoto = !!task.evidenceUrl;
 
-  // Priority stripe colors - matching mobile app exactly
-  // Red = Medication/Critical, Blue = Nutrition/Standard, Green = Others/Quality of Life
   const priorityStripe = {
-    [Priority.CRITICAL]: 'bg-rose-500',      // Red for medications
-    [Priority.HIGH]: 'bg-rose-500',          // Red 
-    [Priority.STANDARD]: 'bg-blue-500',      // Blue for nutrition/standard
-    [Priority.LOW]: 'bg-[#25D366]',          // Green for others
-    [Priority.QUALITY_OF_LIFE]: 'bg-[#25D366]' // Green
+    [Priority.CRITICAL]: 'bg-rose-500',
+    [Priority.HIGH]: 'bg-rose-500',
+    [Priority.STANDARD]: 'bg-blue-500',
+    [Priority.LOW]: 'bg-[#25D366]',
+    [Priority.QUALITY_OF_LIFE]: 'bg-[#25D366]'
   };
 
   const stripe = isCompleted ? 'bg-[#25D366]' : (priorityStripe[task.priority] || priorityStripe[Priority.STANDARD]);
@@ -31,7 +29,7 @@ export const TaskCard = ({
   return (
     <div 
       className={`relative bg-[#1c1c1e] rounded-2xl overflow-hidden transition-all duration-200 font-['Manrope',sans-serif] ${
-        isCompleted ? 'opacity-75' : ''
+        isCompleted ? 'opacity-80' : ''
       } ${isExpanded && !isCompleted ? 'border border-[#636366]' : ''}`}
     >
       {/* Priority Stripe */}
@@ -39,27 +37,24 @@ export const TaskCard = ({
       
       {/* Main Content */}
       <div 
-        className="pl-5 pr-4 py-4 cursor-pointer"
+        className="pl-5 pr-4 py-5 cursor-pointer"
         onClick={() => !readOnly && !isCompleted && onToggleExpand && onToggleExpand(task.id)}
       >
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            {/* Title Row */}
-            <div className="flex items-center gap-2 mb-1.5">
-              <h3 className={`text-base font-bold truncate ${isCompleted ? `${textMuted} line-through` : text}`}>
-                {task.title}
-              </h3>
-            </div>
+            {/* Title */}
+            <h3 className={`text-xl font-bold mb-2 ${isCompleted ? 'text-[#8e8e93] line-through' : 'text-white'}`}>
+              {task.title}
+            </h3>
             
             {/* Time & Photo indicator */}
-            <div className={`flex items-center gap-2 ${isCompleted ? textMuted : textSecondary} text-sm`}>
+            <div className={`flex items-center gap-2.5 ${isCompleted ? 'text-[#636366]' : 'text-[#8e8e93]'} text-[15px]`}>
               <span className="flex items-center gap-1.5 font-medium">
-                <Clock className="w-4 h-4" />
-                {isCompleted && task.completedAt ? `${task.completedAt}` : task.scheduledTime}
+                <Clock className="w-[18px] h-[18px]" />
+                {isCompleted && task.completedAt ? task.completedAt : task.scheduledTime}
               </span>
-              {/* Only show Photo badge for pending tasks that require photo */}
               {task.requiresPhoto && !hasPhoto && !isCompleted && (
-                <span className="flex items-center gap-1 text-[#8e8e93] bg-[#2c2c2e] px-2 py-0.5 rounded-full text-xs font-medium">
+                <span className="flex items-center gap-1 text-[#8e8e93] bg-[#2c2c2e] px-2.5 py-1 rounded-full text-xs font-medium">
                   <Camera className="w-3.5 h-3.5" />
                   Photo
                 </span>
@@ -68,37 +63,39 @@ export const TaskCard = ({
             
             {/* Completion Note */}
             {isCompleted && task.completionNote && (
-              <p className={`text-sm ${textMuted} mt-1.5 truncate italic`}>&quot;{task.completionNote}&quot;</p>
+              <p className="text-[15px] text-[#636366] mt-2 italic">&quot;{task.completionNote}&quot;</p>
             )}
           </div>
           
-          {/* Right side - Photo thumbnail only (no checkmark for completed) */}
-          <div className="flex-shrink-0 flex items-center gap-2">
-            {/* Mini Photo Thumbnail */}
+          {/* Right side */}
+          <div className="flex-shrink-0">
             {hasPhoto && (
-              <div className="w-12 h-12 rounded-xl overflow-hidden border border-[#3a3a3c]">
-                <img src={task.evidenceUrl} alt="" className="w-full h-full object-cover" />
+              <div className="relative">
+                <div className="w-20 h-20 rounded-xl overflow-hidden">
+                  <img src={task.evidenceUrl} alt="" className="w-full h-full object-cover" />
+                </div>
+                <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-[#2c2c2e] rounded-lg flex items-center justify-center border border-[#3a3a3c]">
+                  <Image className="w-4 h-4 text-[#8e8e93]" />
+                </div>
               </div>
             )}
             
-            {/* Status Indicator - Only show for non-completed tasks */}
             {isMissed ? (
-              <div className="w-8 h-8 bg-rose-500/20 rounded-full flex items-center justify-center">
-                <XCircle className="w-5 h-5 text-rose-400" />
+              <div className="w-12 h-12 bg-rose-500/20 rounded-full flex items-center justify-center">
+                <XCircle className="w-6 h-6 text-rose-400" />
               </div>
-            ) : !isCompleted && (
-              <div className="w-8 h-8 border-2 border-[#3a3a3c] rounded-full flex items-center justify-center">
+            ) : !isCompleted && !hasPhoto && (
+              <div className="w-12 h-12 bg-[#2c2c2e] rounded-full flex items-center justify-center">
                 {isExpanded ? (
-                  <ChevronUp className={`w-4 h-4 ${textMuted}`} />
+                  <ChevronUp className="w-5 h-5 text-[#8e8e93]" />
                 ) : (
-                  <ChevronDown className={`w-4 h-4 ${textMuted}`} />
+                  <ChevronDown className="w-5 h-5 text-[#8e8e93]" />
                 )}
               </div>
             )}
           </div>
         </div>
 
-        {/* Missed Info */}
         {isMissed && task.missedReason && (
           <p className="text-sm text-rose-600 font-medium flex items-center gap-1.5 mt-2">
             <AlertCircle className="w-4 h-4" />
@@ -109,18 +106,16 @@ export const TaskCard = ({
 
       {/* Expanded Section */}
       {isExpanded && !isCompleted && !isMissed && !readOnly && (
-        <div className={`px-5 pb-4 pt-3 border-t border-[#3a3a3c] bg-black/30`}>
+        <div className="px-5 pb-5 pt-3 border-t border-[#3a3a3c] bg-black/30">
           <div className="space-y-3">
             <div>
-              <p className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-1`}>Instructions</p>
-              <p className={`text-sm ${textSecondary} leading-relaxed`}>{task.instructions || task.description}</p>
+              <p className="text-xs font-bold text-[#636366] uppercase tracking-wider mb-1">Instructions</p>
+              <p className="text-sm text-[#8e8e93] leading-relaxed">{task.instructions || task.description}</p>
             </div>
-            
             <div>
-              <p className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-1`}>Time Window</p>
-              <p className={`text-sm ${textSecondary}`}>{task.timeWindow}</p>
+              <p className="text-xs font-bold text-[#636366] uppercase tracking-wider mb-1">Time Window</p>
+              <p className="text-sm text-[#8e8e93]">{task.timeWindow}</p>
             </div>
-
             <button
               onClick={(e) => {
                 e.stopPropagation();
