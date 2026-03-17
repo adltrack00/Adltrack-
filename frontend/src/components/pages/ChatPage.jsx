@@ -149,7 +149,7 @@ export const ChatPage = ({ onBack, role }) => {
     return (
       <div className="flex flex-col h-full bg-black" data-testid="chat-view">
         {/* Chat Header */}
-        <div className="flex items-center px-5 pt-3 pb-4 border-b border-[#3a3a3c]">
+        <div className="flex items-center px-5 pt-2 pb-2.5 border-b border-[#3a3a3c]">
           <button 
             onClick={() => setActiveConversation(null)} 
             className="mr-4 p-1"
@@ -171,7 +171,7 @@ export const ChatPage = ({ onBack, role }) => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 pb-28">
+        <div className="flex-1 overflow-y-auto px-5 py-4 pb-[88px]">
           {messages_list.map((msg) => (
             <div 
               key={msg.id} 
@@ -206,8 +206,8 @@ export const ChatPage = ({ onBack, role }) => {
         </div>
 
         {/* Input Area - Fixed above bottom nav */}
-        <div className="fixed bottom-[56px] left-0 right-0 border-t border-[#3a3a3c] px-5 py-3 bg-black z-20">
-          <div className="flex items-center gap-3">
+        <div className="fixed bottom-[56px] left-0 right-0 border-t border-[#3a3a3c] px-4 py-2.5 bg-black z-20">
+          <div className="flex items-center gap-2.5">
             <input
               type="text"
               value={message}
@@ -216,8 +216,8 @@ export const ChatPage = ({ onBack, role }) => {
               onFocus={() => setInputFocused(true)}
               onBlur={() => setInputFocused(false)}
               placeholder="Type a message..."
-              className={`flex-1 px-5 py-3.5 bg-[#1c1c1e] text-white rounded-3xl text-base focus:outline-none placeholder-[#636366] border-2 transition-colors ${
-                inputFocused ? 'border-[#25D366]' : 'border-transparent'
+              className={`flex-1 px-5 py-3 bg-[#1c1c1e] text-white rounded-full text-base focus:outline-none placeholder-[#636366] border-2 transition-colors ${
+                inputFocused || message.trim() ? 'border-[#25D366]' : 'border-transparent'
               }`}
               style={{ fontSize: '16px' }}
               data-testid="chat-input"
