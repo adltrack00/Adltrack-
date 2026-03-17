@@ -140,7 +140,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                 {[1, 2, 3, 4, 5].map((s) => (
                   <div 
                     key={s}
-                    className={`h-1 flex-1 rounded-full ${s <= step ? 'bg-emerald-500' : 'bg-stone-700'}`}
+                    className={`h-1 flex-1 rounded-full ${s <= step ? 'bg-[#ff375f]' : 'bg-stone-700'}`}
                   />
                 ))}
               </div>
@@ -151,7 +151,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
               {/* Step 1: Type */}
               {step === 1 && (
                 <div>
-                  <h3 className="text-lg font-bold text-white mb-4">What type of incident?</h3>
+                  <h3 className="text-xl font-bold text-white mb-5">What type of incident?</h3>
                   <div className="space-y-3">
                     {INCIDENT_TYPES.map((type) => (
                       <button
@@ -159,17 +159,17 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                         onClick={() => setIncidentType(type.id)}
                         className={`w-full p-4 rounded-xl text-left flex items-center gap-4 transition-colors ${
                           incidentType === type.id
-                            ? 'bg-emerald-500/20 border border-emerald-500'
+                            ? 'bg-[#ff375f]/20 border-2 border-[#ff375f]'
                             : 'bg-stone-900 border border-stone-800'
                         }`}
                       >
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                          incidentType === type.id ? 'bg-emerald-500' : 'bg-stone-800'
+                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
+                          incidentType === type.id ? 'bg-[#ff375f]' : 'bg-stone-800'
                         }`}>
-                          <type.icon className="w-6 h-6 text-white" />
+                          <type.icon className="w-7 h-7 text-white" />
                         </div>
                         <div>
-                          <p className="font-semibold text-white">{type.label}</p>
+                          <p className="font-semibold text-white text-lg">{type.label}</p>
                           <p className="text-sm text-stone-400">{type.description}</p>
                         </div>
                       </button>
@@ -399,7 +399,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                   className={`flex-1 py-3 rounded-xl font-semibold ${
                     (step === 1 && !incidentType) || (step === 2 && (!severity || !description))
                       ? 'bg-stone-700 text-stone-500'
-                      : 'bg-emerald-500 text-white'
+                      : 'bg-[#ff375f] text-white'
                   }`}
                 >
                   Continue
@@ -408,7 +408,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                 <button
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="flex-1 py-3 bg-emerald-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-[#ff375f] text-white rounded-xl font-semibold flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
