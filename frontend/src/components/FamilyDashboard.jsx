@@ -754,32 +754,37 @@ export const FamilyDashboard = ({
       {activeTab === 'settings' && renderMenuContent()}
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-stone-950 border-t border-stone-800 z-30">
-        <div className="flex justify-around items-center py-2">
+      <nav className="fixed bottom-0 left-0 right-0 bg-[#1c1c1e] border-t border-[#3a3a3c] z-30">
+        <div className="flex justify-around items-center py-2.5">
           {[
             { id: 'home', icon: Home, label: 'Home' },
             { id: 'incident', icon: AlertTriangle, label: 'Incident', badge: incidents.length > 0 ? incidents.length : null },
             { id: 'chat', icon: MessageSquare, label: 'Message' },
             { id: 'notifications', icon: Bell, label: 'Alerts' },
             { id: 'settings', icon: Settings, label: 'Menu' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => { setActiveTab(tab.id); setActiveConversation(null); }}
-              className={`flex flex-col items-center py-2 px-3 transition-all relative ${
-                activeTab === tab.id ? 'text-[#25D366]' : 'text-stone-600 hover:text-stone-400'
-              }`}
-              data-testid={`nav-${tab.id}`}
-            >
-              <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
-              <span className={`text-[10px] font-semibold mt-1 ${activeTab === tab.id ? 'text-[#25D366]' : 'text-stone-600'}`}>{tab.label}</span>
-              {tab.badge && (
-                <div className="absolute top-0 right-1 w-4 h-4 bg-rose-500 rounded-full flex items-center justify-center ring-2 ring-stone-950">
-                  <span className="text-white text-[10px] font-bold">{tab.badge}</span>
-                </div>
-              )}
-            </button>
-          ))}
+          ].map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => { setActiveTab(tab.id); setActiveConversation(null); }}
+                className="flex flex-col items-center px-3 py-1 transition-all relative"
+                data-testid={`nav-${tab.id}`}
+              >
+                <tab.icon 
+                  className={`w-7 h-7 ${isActive ? 'text-[#25D366]' : 'text-[#8e8e93]'}`}
+                  fill={isActive ? '#25D366' : 'none'}
+                  strokeWidth={isActive ? 0 : 1.8}
+                />
+                <span className={`text-[11px] font-semibold mt-1 ${isActive ? 'text-[#25D366]' : 'text-[#8e8e93]'}`}>{tab.label}</span>
+                {tab.badge && (
+                  <div className="absolute top-0 right-0.5 w-4 h-4 bg-rose-500 rounded-full flex items-center justify-center ring-2 ring-[#1c1c1e]">
+                    <span className="text-white text-[10px] font-bold">{tab.badge}</span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
       </nav>
 

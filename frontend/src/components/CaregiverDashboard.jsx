@@ -747,34 +747,37 @@ export const CaregiverDashboard = ({
       )}
 
       {/* Bottom Navigation - Fixed to bottom */}
-      <nav className={`fixed bottom-0 left-0 right-0 ${bgNav} border-t ${border} z-30`}>
-        <div className="flex justify-around items-center py-2">
+      <nav className={`fixed bottom-0 left-0 right-0 bg-[#1c1c1e] border-t border-[#3a3a3c] z-30`}>
+        <div className="flex justify-around items-center py-2.5">
           {[
             { id: 'home', icon: Home, label: 'Home' },
             { id: 'incident', icon: AlertTriangle, label: 'Incident' },
             { id: 'chat', icon: MessageSquare, label: 'Message' },
             { id: 'shift', icon: Clock, label: 'Shifts', badge: isShiftActive },
             { id: 'settings', icon: Settings, label: 'Menu' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center py-2 px-4 transition-all relative ${
-                activeTab === tab.id 
-                  ? 'text-[#25D366]'
-                  : `${textMuted} hover:${textSecondary}`
-              }`}
-              data-testid={`nav-${tab.id}`}
-            >
-              <tab.icon className={`w-6 h-6 ${activeTab === tab.id ? 'stroke-[2.5px]' : ''}`} />
-              <span className={`text-[10px] font-semibold mt-1 ${
-                activeTab === tab.id ? 'text-[#25D366]' : textMuted
-              }`}>{tab.label}</span>
-              {tab.badge && (
-                <div className={`absolute top-1 right-2 w-2.5 h-2.5 bg-[#25D366] rounded-full ring-2 ${isDarkMode ? 'ring-stone-900' : 'ring-white'}`} />
-              )}
-            </button>
-          ))}
+          ].map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className="flex flex-col items-center px-4 py-1 transition-all relative"
+                data-testid={`nav-${tab.id}`}
+              >
+                <tab.icon 
+                  className={`w-7 h-7 ${isActive ? 'text-[#25D366]' : 'text-[#8e8e93]'}`}
+                  fill={isActive ? '#25D366' : 'none'}
+                  strokeWidth={isActive ? 0 : 1.8}
+                />
+                <span className={`text-[11px] font-semibold mt-1 ${
+                  isActive ? 'text-[#25D366]' : 'text-[#8e8e93]'
+                }`}>{tab.label}</span>
+                {tab.badge && (
+                  <div className="absolute top-0.5 right-2 w-2.5 h-2.5 bg-[#25D366] rounded-full ring-2 ring-[#1c1c1e]" />
+                )}
+              </button>
+            );
+          })}
         </div>
       </nav>
 
