@@ -267,44 +267,39 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
 
   // List view
   return (
-    <div className={`flex-1 overflow-y-auto ${bg} pb-24`}>
+    <div className="flex-1 overflow-y-auto bg-black pb-24 font-['Manrope',sans-serif]">
       {/* Header */}
-      <div className="px-6 pt-6 pb-4">
-        <h1 className={`text-2xl font-bold ${text} mb-1`}>Incident Reports</h1>
-        <p className={`${textSecondary} text-sm`}>Care incidents reported for {patientName}</p>
+      <div className="px-5 pt-8 pb-4">
+        <h1 className="text-[28px] font-bold text-white mb-1">Incident Reports</h1>
+        <p className="text-[#8e8e93] text-[15px]">Care incidents reported for {patientName}</p>
       </div>
 
       {/* Summary Card */}
-      <div className="px-6 mb-6">
-        <div className={`${bgCard} border ${border} rounded-2xl p-5`}>
+      <div className="px-5 mb-5">
+        <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className={`font-semibold ${text}`}>Summary</h3>
-            <span className={`text-xs ${textMuted}`}>Last 30 days</span>
+            <h3 className="font-bold text-white text-lg">Summary</h3>
+            <span className="text-sm text-[#636366]">Last 30 days</span>
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
-              <p className={`text-2xl font-bold ${text}`}>{incidents.length}</p>
-              <p className={`text-xs ${textMuted}`}>Total</p>
+              <p className="text-3xl font-bold text-white">{incidents.length}</p>
+              <p className="text-sm text-[#636366] mt-1">Total</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-[#25D366]">{incidents.filter(i => i.status === 'resolved').length}</p>
-              <p className={`text-xs ${textMuted}`}>Resolved</p>
+              <p className="text-3xl font-bold text-[#ff453a]">{incidents.filter(i => i.status === 'resolved').length}</p>
+              <p className="text-sm text-[#636366] mt-1">Resolved</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-amber-400">{incidents.filter(i => i.status !== 'resolved').length}</p>
-              <p className={`text-xs ${textMuted}`}>Open</p>
+              <p className="text-3xl font-bold text-[#30d158]">{incidents.filter(i => i.status !== 'resolved').length}</p>
+              <p className="text-sm text-[#636366] mt-1">Open</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Incidents List */}
-      <div className="px-6">
-        <div className="flex items-center gap-2 mb-4">
-          <FileText className={`w-5 h-5 ${textMuted}`} />
-          <h2 className={`font-semibold ${text}`}>Recent Incidents</h2>
-        </div>
-
+      <div className="px-5">
         {incidents.length > 0 ? (
           <div className="space-y-3">
             {incidents.map((incident) => {
@@ -315,7 +310,7 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
                 <button
                   key={incident.id}
                   onClick={() => setSelectedIncident(incident)}
-                  className={`w-full ${bgCard} border ${border} rounded-2xl p-4 flex items-center gap-4 text-left ${bgCardHover} transition-colors`}
+                  className="w-full bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 flex items-center gap-4 text-left"
                   data-testid={`family-incident-${incident.id}`}
                 >
                   <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
@@ -333,7 +328,7 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className={`font-semibold ${text}`}>{type?.label || 'Incident'}</p>
+                      <p className="font-semibold text-white">{type?.label || 'Incident'}</p>
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         incident.severity === 'critical' ? 'bg-rose-500/20 text-rose-400' :
                         incident.severity === 'high' ? 'bg-orange-500/20 text-orange-400' :
@@ -343,23 +338,21 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
                         {severityLevel?.label.toUpperCase()}
                       </span>
                     </div>
-                    <p className={`text-sm ${textMuted} truncate`}>{incident.description}</p>
-                    <p className={`text-xs ${textMuted} mt-1`}>{incident.createdAt}</p>
+                    <p className="text-sm text-[#636366] truncate">{incident.description}</p>
+                    <p className="text-xs text-[#48484a] mt-1">{incident.createdAt}</p>
                   </div>
-                  <ChevronRight className={`w-5 h-5 ${textMuted} flex-shrink-0`} />
+                  <ChevronRight className="w-5 h-5 text-[#636366] flex-shrink-0" />
                 </button>
               );
             })}
           </div>
         ) : (
-          <div className={`${bgCard} border ${border} rounded-3xl p-8 text-center`}>
-            <div className={`w-16 h-16 ${isDarkMode ? 'bg-stone-800' : 'bg-stone-100'} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
-              <AlertTriangle className={`w-8 h-8 ${textMuted}`} />
+          <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-10 text-center">
+            <div className="w-20 h-20 bg-[#2c2c2e] rounded-2xl flex items-center justify-center mx-auto mb-5">
+              <Shield className="w-10 h-10 text-[#30d158]" fill="#30d158" stroke="#1c1c1e" strokeWidth={1.5} />
             </div>
-            <h3 className={`font-semibold ${text} mb-1`}>No incidents reported</h3>
-            <p className={`${textMuted} text-sm`}>
-              Great news! No incidents have been reported recently.
-            </p>
+            <h3 className="font-bold text-white text-xl mb-2">No incidents reported</h3>
+            <p className="text-[#636366] text-[15px] leading-relaxed">When caregivers report incidents, they will appear here with photos and details</p>
           </div>
         )}
       </div>
