@@ -105,7 +105,7 @@ export const TaskCard = ({
       {isExpanded && !isCompleted && !isMissed && !readOnly && (
         <div className="px-5 pb-5">
           <div className="space-y-4">
-            <div className="bg-[#2c2c2e] rounded-2xl p-4">
+            <div className="bg-[#191919] rounded-2xl p-4">
               <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-2">Instructions</p>
               <p className="text-[15px] text-[#8e8e93] leading-relaxed">{task.instructions || task.description}</p>
             </div>
