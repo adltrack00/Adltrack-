@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Camera, AlertTriangle, Clock, Check,
-  ChevronRight, Plus, Trash2, 
+  ChevronRight, Plus, Trash2, Shield,
   Thermometer, Activity, Pill, HelpCircle, FileText,
   Bandage, X
 } from 'lucide-react';
@@ -325,75 +325,91 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
               {/* Step 5: Review */}
               {step === 5 && (
                 <div className="space-y-5">
-                  <h3 className="text-lg font-bold text-white">Review & Submit</h3>
+                  <h3 className="text-2xl font-bold text-white">Review & Submit</h3>
                   
-                  <div className="bg-stone-900 rounded-xl p-4 space-y-4">
+                  {/* Summary Card */}
+                  <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5 space-y-5">
+                    {/* Type + Severity Header */}
                     <div className="flex items-center gap-3">
                       {selectedType && (
                         <>
-                          <div className="w-10 h-10 bg-stone-800 rounded-lg flex items-center justify-center">
-                            <selectedType.icon className="w-5 h-5 text-white" />
+                          <div className="w-12 h-12 bg-[#3d1a1a] rounded-[14px] flex items-center justify-center">
+                            <selectedType.icon className="w-6 h-6 text-[#ff453a]" />
                           </div>
-                          <span className="font-semibold text-white">{selectedType.label}</span>
+                          <span className="font-bold text-white text-xl">{selectedType.label}</span>
                         </>
                       )}
                       {selectedSeverity && (
-                        <span className={`ml-auto px-3 py-1 rounded-lg text-sm font-medium ${selectedSeverity.color} text-white`}>
-                          {selectedSeverity.label}
+                        <span className={`ml-auto px-4 py-1.5 rounded-xl text-sm font-bold ${selectedSeverity.color} text-white`}>
+                          {selectedSeverity.label.toUpperCase()}
                         </span>
                       )}
                     </div>
 
                     {description && (
                       <div>
-                        <p className="text-xs text-stone-500 uppercase mb-1">Description</p>
-                        <p className="text-stone-300 text-sm">{description}</p>
+                        <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-1.5">Description</p>
+                        <p className="text-white text-[15px] leading-relaxed">{description}</p>
                       </div>
                     )}
 
                     {actionsTaken && (
                       <div>
-                        <p className="text-xs text-stone-500 uppercase mb-1">Actions Taken</p>
-                        <p className="text-stone-300 text-sm">{actionsTaken}</p>
+                        <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-1.5">Actions Taken</p>
+                        <p className="text-white text-[15px] leading-relaxed">{actionsTaken}</p>
                       </div>
                     )}
 
                     <div>
-                      <p className="text-xs text-stone-500 uppercase mb-1">Witnesses</p>
-                      <p className="text-stone-300 text-sm">
+                      <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-1.5">Witnesses</p>
+                      <p className="text-white text-[15px]">
                         {noWitnesses ? 'No witnesses present' : (witnessNames || 'Not provided')}
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-xs text-stone-500 uppercase mb-1">Photos</p>
-                      <p className="text-stone-300 text-sm">{photos.length} attached</p>
+                      <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-1.5">Photos ({photos.length})</p>
+                      <p className="text-[#636366] text-[15px]">{photos.length > 0 ? `${photos.length} attached` : 'No photos attached'}</p>
                     </div>
                   </div>
 
-                  {/* Options */}
+                  {/* Toggle Options */}
                   <div className="space-y-3">
                     <button
                       onClick={() => setNotifyFamily(!notifyFamily)}
-                      className="w-full p-4 bg-stone-900 rounded-xl flex items-center justify-between"
+                      className={`w-full p-5 rounded-2xl flex items-center gap-4 transition-colors ${
+                        notifyFamily ? 'bg-[#1a3d2a] border border-[#25D366]/40' : 'bg-[#1c1c1e] border border-[#3a3a3c]'
+                      }`}
                     >
-                      <span className="text-white">Notify Family</span>
-                      <div className={`w-5 h-5 rounded border flex items-center justify-center ${
-                        notifyFamily ? 'bg-emerald-500 border-emerald-500' : 'border-stone-600'
+                      <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center ${
+                        notifyFamily ? 'bg-[#25D366]/20' : 'bg-[#3a3a3c]'
                       }`}>
-                        {notifyFamily && <Check className="w-3 h-3 text-white" />}
+                        <Shield className={`w-6 h-6 ${notifyFamily ? 'text-[#25D366]' : 'text-[#8e8e93]'}`} />
+                      </div>
+                      <span className="text-white text-lg font-semibold flex-1 text-left">Notify Family Member</span>
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                        notifyFamily ? 'bg-[#25D366]' : 'border-2 border-[#636366]'
+                      }`}>
+                        {notifyFamily && <Check className="w-4 h-4 text-white" />}
                       </div>
                     </button>
 
                     <button
                       onClick={() => setFollowUpRequired(!followUpRequired)}
-                      className="w-full p-4 bg-stone-900 rounded-xl flex items-center justify-between"
+                      className={`w-full p-5 rounded-2xl flex items-center gap-4 transition-colors ${
+                        followUpRequired ? 'bg-[#1a3d2a] border border-[#25D366]/40' : 'bg-[#1c1c1e] border border-[#3a3a3c]'
+                      }`}
                     >
-                      <span className="text-white">Follow-up Required</span>
-                      <div className={`w-5 h-5 rounded border flex items-center justify-center ${
-                        followUpRequired ? 'bg-emerald-500 border-emerald-500' : 'border-stone-600'
+                      <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center ${
+                        followUpRequired ? 'bg-[#25D366]/20' : 'bg-[#3a3a3c]'
                       }`}>
-                        {followUpRequired && <Check className="w-3 h-3 text-white" />}
+                        <Clock className={`w-6 h-6 ${followUpRequired ? 'text-[#25D366]' : 'text-[#8e8e93]'}`} />
+                      </div>
+                      <span className="text-white text-lg font-semibold flex-1 text-left">Follow-up Required</span>
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+                        followUpRequired ? 'bg-[#25D366]' : 'border-2 border-[#636366]'
+                      }`}>
+                        {followUpRequired && <Check className="w-4 h-4 text-white" />}
                       </div>
                     </button>
                   </div>
@@ -402,11 +418,11 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
             </div>
 
             {/* Footer */}
-            <div className="px-5 py-4 flex gap-3 border-t border-stone-800">
+            <div className="px-5 py-4 flex gap-3 border-t border-[#3a3a3c]">
               {step > 1 && (
                 <button
                   onClick={() => setStep(step - 1)}
-                  className="flex-1 py-3 bg-stone-800 text-white rounded-xl font-semibold"
+                  className="flex-1 py-4 bg-[#2c2c2e] text-white rounded-2xl font-bold text-base"
                 >
                   Back
                 </button>
@@ -416,9 +432,9 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                 <button
                   onClick={() => setStep(step + 1)}
                   disabled={(step === 1 && !incidentType) || (step === 2 && (!severity || !description))}
-                  className={`flex-1 py-3 rounded-xl font-semibold ${
+                  className={`flex-1 py-4 rounded-2xl font-bold text-base ${
                     (step === 1 && !incidentType) || (step === 2 && (!severity || !description))
-                      ? 'bg-stone-700 text-stone-500'
+                      ? 'bg-[#3a3a3c] text-[#636366]'
                       : 'bg-[#ff375f] text-white'
                   }`}
                 >
@@ -428,7 +444,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                 <button
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="flex-1 py-3 bg-[#ff375f] text-white rounded-xl font-semibold flex items-center justify-center gap-2"
+                  className="flex-1 py-4 bg-[#ff375f] text-white rounded-2xl font-bold text-base flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
@@ -436,7 +452,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                       Submitting...
                     </>
                   ) : (
-                    'Submit Report'
+                    'Submit Incident Report'
                   )}
                 </button>
               )}
@@ -492,17 +508,17 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
               const sev = SEVERITY_LEVELS.find(s => s.id === incident.severity);
               
               return (
-                <div key={incident.id} className="bg-stone-900 rounded-xl p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 bg-stone-800 rounded-lg flex items-center justify-center">
-                    {type && <type.icon className="w-5 h-5 text-white" />}
+                <div key={incident.id} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-[#3d1a1a] rounded-[14px] flex items-center justify-center flex-shrink-0">
+                    {type && <type.icon className="w-6 h-6 text-[#ff453a]" />}
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-white text-sm">{type?.label || 'Incident'}</p>
-                    <p className="text-xs text-stone-500">{incident.createdAt}</p>
+                    <p className="font-bold text-white text-lg">{type?.label || 'Incident'}</p>
+                    <p className="text-sm text-[#8e8e93] mt-0.5">{incident.createdAt}</p>
                   </div>
                   {sev && (
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${sev.color} text-white`}>
-                      {sev.label}
+                    <span className={`px-4 py-1.5 rounded-xl text-sm font-bold ${sev.color} text-white`}>
+                      {sev.label.toUpperCase()}
                     </span>
                   )}
                 </div>
