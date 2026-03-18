@@ -129,14 +129,9 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
             {/* Header */}
             <div className="px-5 py-4 border-b border-stone-800">
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-14 h-14 bg-[#3d1a1a] rounded-2xl flex items-center justify-center">
-                    <AlertTriangle className="w-7 h-7 text-[#ff453a]" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-white">New Incident Report</h2>
-                    <p className="text-sm text-stone-400">Step {step} of 5</p>
-                  </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">New Incident Report</h2>
+                  <p className="text-sm text-stone-400">Step {step} of 5</p>
                 </div>
                 <button 
                   onClick={() => setActiveView('history')}
