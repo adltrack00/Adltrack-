@@ -36,7 +36,7 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
         <h1 className="text-2xl font-bold text-white">Profile</h1>
       </div>
 
-      <div className="px-10 pb-24 overflow-y-auto">
+      <div className="px-5 pb-24 overflow-y-auto">
         {/* Profile Photo */}
         <div className="flex flex-col items-center mb-6">
           <div className="relative mb-5">
