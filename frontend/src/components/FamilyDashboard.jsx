@@ -639,7 +639,7 @@ export const FamilyDashboard = ({
   // ==========================================
   if (activePage === 'settings') {
     const SettingsPage = require('./pages/SettingsPage').SettingsPage;
-    return <SettingsPage onBack={() => setActivePage(null)} />;
+    return <SettingsPage onBack={() => setActivePage(null)} onNavigateToHelp={() => setActivePage('support')} />;
   }
   if (activePage === 'billing') {
     const AccountsPage = require('./pages/AccountsPage').AccountsPage;

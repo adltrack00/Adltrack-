@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowLeft, MessageCircle, Phone, Mail, FileText, ChevronRight, ExternalLink } from 'lucide-react';
 
 export const SupportPage = ({ onBack }) => {
-  const supportOptions = [
+  const contactOptions = [
     { icon: MessageCircle, label: 'Live Chat', desc: 'Chat with our support team', action: 'Start Chat' },
     { icon: Phone, label: 'Call Support', desc: '1-888-555-0123', action: 'Call Now' },
     { icon: Mail, label: 'Email Support', desc: 'support@adltrack.com', action: 'Send Email' },
@@ -16,82 +16,88 @@ export const SupportPage = ({ onBack }) => {
     'How do I end my shift?',
   ];
 
+  const resources = [
+    { label: 'User Guide' },
+    { label: 'Privacy Policy' },
+    { label: 'Terms of Service' },
+  ];
+
   return (
-    <div className="min-h-screen bg-stone-950">
+    <div className="min-h-screen bg-black font-['Manrope',sans-serif]" data-testid="support-page">
       {/* Header */}
-      <div className="sticky top-0 bg-stone-900 border-b border-stone-800 px-4 py-4 flex items-center gap-3 z-10">
-        <button onClick={onBack} className="p-2 hover:bg-stone-800 rounded-full">
-          <ArrowLeft className="w-5 h-5 text-stone-300" />
+      <div className="flex items-center px-5 pt-5 pb-4">
+        <button onClick={onBack} className="mr-4 p-1" data-testid="support-back-btn">
+          <ArrowLeft className="w-6 h-6 text-white" />
         </button>
-        <h1 className="text-lg font-semibold text-white">Help & Support</h1>
+        <h1 className="text-2xl font-bold text-white">Help & Support</h1>
       </div>
 
-      <div className="p-4 space-y-6">
-        {/* Contact Options */}
-        <div>
-          <h2 className="text-sm font-semibold text-stone-400 uppercase tracking-wider mb-3">Contact Us</h2>
+      <div className="px-5 pb-24 overflow-y-auto">
+        {/* Contact Us */}
+        <div className="mb-6">
+          <h2 className="text-xs font-semibold text-[#8e8e93] uppercase tracking-wider mb-3" data-testid="contact-us-heading">CONTACT US</h2>
           <div className="space-y-3">
-            {supportOptions.map((option, idx) => (
+            {contactOptions.map((option, idx) => (
               <button
                 key={idx}
-                className="w-full flex items-center justify-between p-4 bg-stone-900 border border-stone-800 rounded-xl hover:bg-stone-800 transition-colors"
+                className="w-full flex items-center justify-between p-4 bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl"
+                data-testid={`contact-${option.label.toLowerCase().replace(/\s/g, '-')}`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-stone-800 rounded-full flex items-center justify-center">
-                    <option.icon className="w-5 h-5 text-stone-300" />
+                  <div className="w-11 h-11 bg-[#2c2c2e] rounded-xl flex items-center justify-center">
+                    <option.icon className="w-5 h-5 text-[#8e8e93]" />
                   </div>
                   <div className="text-left">
-                    <p className="font-medium text-white">{option.label}</p>
-                    <p className="text-xs text-stone-400">{option.desc}</p>
+                    <p className="text-[16px] font-medium text-white">{option.label}</p>
+                    <p className="text-[13px] text-[#636366] mt-0.5">{option.desc}</p>
                   </div>
                 </div>
-                <span className="text-sm font-medium text-[#25D366]">{option.action}</span>
+                <span className="text-[15px] font-semibold text-[#34C759]">{option.action}</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* FAQs */}
-        <div>
-          <h2 className="text-sm font-semibold text-stone-400 uppercase tracking-wider mb-3">Frequently Asked Questions</h2>
-          <div className="bg-stone-900 border border-stone-800 rounded-xl overflow-hidden">
+        {/* Frequently Asked Questions */}
+        <div className="mb-6">
+          <h2 className="text-xs font-semibold text-[#8e8e93] uppercase tracking-wider mb-3" data-testid="faq-heading">FREQUENTLY ASKED QUESTIONS</h2>
+          <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl overflow-hidden">
             {faqItems.map((faq, idx) => (
-              <button
-                key={idx}
-                className="w-full flex items-center justify-between p-4 border-b border-stone-800 last:border-0 hover:bg-stone-800 transition-colors"
-              >
-                <span className="text-sm font-medium text-white text-left">{faq}</span>
-                <ChevronRight className="w-5 h-5 text-stone-600" />
-              </button>
+              <div key={idx}>
+                <button
+                  className="w-full flex items-center justify-between px-4 py-4"
+                  data-testid={`faq-item-${idx}`}
+                >
+                  <span className="text-[15px] font-medium text-white text-left">{faq}</span>
+                  <ChevronRight className="w-5 h-5 text-[#636366] flex-shrink-0 ml-3" />
+                </button>
+                {idx < faqItems.length - 1 && (
+                  <div className="mx-4 border-t border-[#3a3a3c]" />
+                )}
+              </div>
             ))}
           </div>
         </div>
 
         {/* Resources */}
         <div>
-          <h2 className="text-sm font-semibold text-stone-400 uppercase tracking-wider mb-3">Resources</h2>
+          <h2 className="text-xs font-semibold text-[#8e8e93] uppercase tracking-wider mb-3" data-testid="resources-heading">RESOURCES</h2>
           <div className="space-y-3">
-            <button className="w-full flex items-center justify-between p-4 bg-stone-900 border border-stone-800 rounded-xl hover:bg-stone-800 transition-colors">
-              <div className="flex items-center gap-3">
-                <FileText className="w-5 h-5 text-stone-400" />
-                <span className="font-medium text-white">User Guide</span>
-              </div>
-              <ExternalLink className="w-4 h-4 text-stone-600" />
-            </button>
-            <button className="w-full flex items-center justify-between p-4 bg-stone-900 border border-stone-800 rounded-xl hover:bg-stone-800 transition-colors">
-              <div className="flex items-center gap-3">
-                <FileText className="w-5 h-5 text-stone-400" />
-                <span className="font-medium text-white">Privacy Policy</span>
-              </div>
-              <ExternalLink className="w-4 h-4 text-stone-600" />
-            </button>
-            <button className="w-full flex items-center justify-between p-4 bg-stone-900 border border-stone-800 rounded-xl hover:bg-stone-800 transition-colors">
-              <div className="flex items-center gap-3">
-                <FileText className="w-5 h-5 text-stone-400" />
-                <span className="font-medium text-white">Terms of Service</span>
-              </div>
-              <ExternalLink className="w-4 h-4 text-stone-600" />
-            </button>
+            {resources.map((resource, idx) => (
+              <button
+                key={idx}
+                className="w-full flex items-center justify-between p-4 bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl"
+                data-testid={`resource-${resource.label.toLowerCase().replace(/\s/g, '-')}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 bg-[#2c2c2e] rounded-xl flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-[#8e8e93]" />
+                  </div>
+                  <span className="text-[16px] font-medium text-white">{resource.label}</span>
+                </div>
+                <ExternalLink className="w-5 h-5 text-[#636366]" />
+              </button>
+            ))}
           </div>
         </div>
       </div>

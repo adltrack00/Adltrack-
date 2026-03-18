@@ -135,7 +135,7 @@ export const CaregiverDashboard = ({
     return <ProfilePage onBack={() => setActivePage(null)} role={UserRole.CAREGIVER} onSignOut={onSignOut} />;
   }
   if (activePage === 'settings') {
-    return <SettingsPage onBack={() => setActivePage(null)} />;
+    return <SettingsPage onBack={() => setActivePage(null)} onNavigateToHelp={() => setActivePage('support')} />;
   }
   if (activePage === 'earnings') {
     return <AccountsPage onBack={() => setActivePage(null)} role={UserRole.CAREGIVER} />;
