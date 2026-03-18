@@ -418,7 +418,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
             </div>
 
             {/* Footer */}
-            <div className="px-5 py-4 flex gap-3 border-t border-[#3a3a3c]">
+            <div className="px-5 py-4 flex gap-3">
               {step > 1 && (
                 <button
                   onClick={() => setStep(step - 1)}
