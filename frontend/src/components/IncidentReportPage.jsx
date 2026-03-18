@@ -418,11 +418,11 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
             </div>
 
             {/* Footer */}
-            <div className="px-5 py-4 flex gap-3 items-stretch">
+            <div className="px-5 py-4 flex gap-3">
               {step > 1 && (
                 <button
                   onClick={() => setStep(step - 1)}
-                  className="flex-1 py-4 bg-[#2c2c2e] text-white rounded-xl font-semibold text-[17px]"
+                  className="flex-1 py-4 bg-[#2c2c2e] text-white rounded-[14px] font-semibold text-[17px]"
                 >
                   Back
                 </button>
@@ -432,10 +432,10 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                 <button
                   onClick={() => setStep(step + 1)}
                   disabled={(step === 1 && !incidentType) || (step === 2 && (!severity || !description))}
-                  className={`flex-1 py-4 rounded-xl font-semibold text-[17px] whitespace-nowrap ${
+                  className={`flex-1 py-4 rounded-[14px] font-semibold text-[17px] ${
                     (step === 1 && !incidentType) || (step === 2 && (!severity || !description))
                       ? 'bg-[#3a3a3c] text-[#636366]'
-                      : 'bg-[#ff375f] text-white'
+                      : 'bg-[#f43f5e] text-white'
                   }`}
                 >
                   Continue
@@ -444,7 +444,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                 <button
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="flex-1 py-4 bg-[#ff375f] text-white rounded-xl font-semibold text-[17px] flex items-center justify-center gap-2 whitespace-nowrap"
+                  className="flex-1 py-4 bg-[#f43f5e] text-white rounded-[14px] font-semibold text-[17px] flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
