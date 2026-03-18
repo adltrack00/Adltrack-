@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Activity, MessageSquare, Bell, Settings, Heart, Thermometer, 
   ChevronRight, ChevronLeft, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X, 
-  AlertTriangle, Home, Search, Users,
+  AlertTriangle, Home, Search, Users, Cpu,
   Calendar, Pill, Shield, TrendingUp, Phone, FileText, ArrowLeft
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
@@ -491,12 +491,12 @@ export const FamilyDashboard = ({
                 ))}
               </div>
             ) : (
-              <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-8 text-center">
-                <div className="w-16 h-16 bg-stone-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Camera className="w-8 h-8 text-stone-600" />
+              <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-10 text-center">
+                <div className="w-20 h-20 bg-[#2c2c2e] rounded-2xl flex items-center justify-center mx-auto mb-5">
+                  <Clock className="w-10 h-10 text-[#636366]" />
                 </div>
-                <h3 className="font-semibold text-white mb-1">No updates yet</h3>
-                <p className="text-stone-600 text-sm">Photos and notes will appear here as tasks are completed</p>
+                <h3 className="font-bold text-white text-xl mb-2">No care updates yet</h3>
+                <p className="text-[#636366] text-[15px] leading-relaxed">Tasks completed by caregivers will appear here with photos and notes</p>
               </div>
             )}
           </div>
@@ -661,6 +661,19 @@ export const FamilyDashboard = ({
       {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.FAMILY} />}
       {activeTab === 'notifications' && renderAlertsContent()}
       {activeTab === 'settings' && renderMenuContent()}
+
+      {/* Floating Action Button - AI Copilot */}
+      {activeTab === 'home' && (
+        <div className="fixed bottom-24 right-5 z-40">
+          <button
+            onClick={() => setShowCopilot(true)}
+            className="w-14 h-14 bg-[#2c2c2e] rounded-2xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105"
+            data-testid="copilot-btn"
+          >
+            <Cpu className="w-7 h-7 text-[#8e8e93]" />
+          </button>
+        </div>
+      )}
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-[#1c1c1e] border-t border-[#3a3a3c] z-30">
