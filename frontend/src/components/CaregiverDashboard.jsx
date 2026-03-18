@@ -755,8 +755,8 @@ export const CaregiverDashboard = ({
       )}
 
       {/* Bottom Navigation - Fixed to bottom */}
-      <nav className={`fixed bottom-0 left-0 right-0 bg-[#1c1c1e] border-t border-[#3a3a3c] z-30`}>
-        <div className="flex justify-around items-center py-2.5">
+      <nav className="fixed bottom-0 left-0 right-0 bg-[#1c1c1e] z-30">
+        <div className="flex justify-around items-center py-3">
           {[
             { id: 'home', icon: Home, label: 'Home' },
             { id: 'incident', icon: AlertTriangle, label: 'Incident' },
@@ -775,7 +775,7 @@ export const CaregiverDashboard = ({
                 <tab.icon 
                   className={`w-7 h-7 ${isActive ? 'text-[#25D366]' : 'text-[#8e8e93]'}`}
                   fill={isActive ? '#25D366' : 'none'}
-                  strokeWidth={isActive ? 0 : 1.8}
+                  strokeWidth={isActive ? 0 : 1.5}
                 />
                 <span className={`text-[11px] font-semibold mt-1 ${
                   isActive ? 'text-[#25D366]' : 'text-[#8e8e93]'
