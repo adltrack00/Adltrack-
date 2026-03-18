@@ -511,51 +511,67 @@ export const FamilyDashboard = ({
   // ==========================================
   // ALERTS TAB
   // ==========================================
+  const getScheduleIcon = (iconType) => {
+    switch (iconType) {
+      case 'pulse': return Activity;
+      case 'calendar': return Calendar;
+      case 'pill': return Pill;
+      default: return Activity;
+    }
+  };
+
   const renderAlertsContent = () => (
     <div className="flex-1 overflow-y-auto bg-black pb-20">
-      <div className="px-5 pt-5 mb-4">
+      {/* Header */}
+      <div className="flex items-center px-5 pt-5 pb-4">
+        <button onClick={() => setActiveTab('home')} className="mr-4 p-1" data-testid="alerts-back-btn">
+          <ArrowLeft className="w-6 h-6 text-white" />
+        </button>
         <h1 className="text-2xl font-bold text-white">Notifications</h1>
       </div>
 
       {/* Upcoming Schedule */}
       <div className="px-5 mb-2">
         <div className="flex items-center gap-2 mb-3">
-          <Calendar className="w-4 h-4 text-stone-500" />
-          <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">Upcoming Schedule</span>
+          <Calendar className="w-4 h-4 text-[#636366]" />
+          <span className="text-xs font-bold text-[#636366] uppercase tracking-wider">Upcoming Schedule</span>
         </div>
       </div>
 
-      <div className="px-5 space-y-2 mb-6">
-        {FAMILY_ALERTS.upcoming.map((item) => (
-          <div key={item.id} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 flex items-center gap-4">
-            <div className="w-12 h-12 bg-[#1e3a5f] rounded-xl flex items-center justify-center flex-shrink-0">
-              <Activity className="w-6 h-6 text-[#3b82f6]" />
-            </div>
-            <div className="flex-1">
-              <p className="text-white font-semibold text-sm">{item.title}</p>
-              <div className="flex items-center gap-1 mt-1">
-                <Clock className="w-3.5 h-3.5 text-stone-500" />
-                <p className="text-stone-500 text-xs">{item.time}</p>
+      <div className="px-5 space-y-3 mb-6">
+        {FAMILY_ALERTS.upcoming.map((item) => {
+          const IconComp = getScheduleIcon(item.icon);
+          return (
+            <div key={item.id} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 flex items-center gap-4">
+              <div className="w-14 h-14 bg-[#1e3a5f] rounded-full flex items-center justify-center flex-shrink-0">
+                <IconComp className="w-7 h-7 text-[#3b82f6]" />
+              </div>
+              <div className="flex-1">
+                <p className="text-white font-semibold text-[16px]">{item.title}</p>
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  <Clock className="w-4 h-4 text-[#636366]" />
+                  <p className="text-[#636366] text-[14px]">{item.time}</p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Recent Alerts */}
       <div className="px-5 mb-2">
         <div className="flex items-center gap-2 mb-3">
-          <Bell className="w-4 h-4 text-stone-500" />
-          <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">Recent Alerts</span>
+          <Bell className="w-4 h-4 text-[#636366]" />
+          <span className="text-xs font-bold text-[#636366] uppercase tracking-wider">Recent Alerts</span>
         </div>
       </div>
 
-      <div className="px-5 space-y-2">
+      <div className="px-5 space-y-3">
         {FAMILY_ALERTS.recent.map((item) => (
-          <div key={item.id} className={`rounded-2xl p-4 ${item.highlight ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-[#1c1c1e]'}`}>
-            <p className="text-white font-semibold text-sm">{item.title}</p>
-            <p className="text-stone-400 text-xs mt-1">{item.subtitle}</p>
-            <p className="text-stone-600 text-xs mt-2">{item.time}</p>
+          <div key={item.id} className={`rounded-2xl p-5 ${item.highlight ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-[#1c1c1e] border border-[#3a3a3c]'}`}>
+            <p className="text-white font-bold text-[16px]">{item.title}</p>
+            <p className="text-[#8e8e93] text-[14px] mt-1">{item.subtitle}</p>
+            <p className="text-[#48484a] text-[13px] mt-2">{item.time}</p>
           </div>
         ))}
       </div>
