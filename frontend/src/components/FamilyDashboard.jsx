@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Activity, MessageSquare, Bell, Settings, Heart, Thermometer, 
   ChevronRight, ChevronLeft, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X, 
-  AlertTriangle, Home, Search, Users, Cpu,
+  AlertTriangle, Home, Search, Users, Cpu, Star, Mail,
   Calendar, Pill, Shield, TrendingUp, Phone, FileText, ArrowLeft
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
@@ -250,77 +250,145 @@ export const FamilyDashboard = ({
   // CURRENT CAREGIVER SUB-SCREEN
   // ==========================================
   if (activePage === 'caregiver') {
+    const today = new Date();
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const todayStr = `${dayNames[today.getDay()]}, ${monthNames[today.getMonth()]} ${today.getDate()}`;
+
     return (
       <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
         <div className="flex-1 overflow-y-auto pb-6">
-          <div className="px-5 pt-5">
-            <button onClick={() => setActivePage(null)} className="flex items-center gap-1 text-stone-400 mb-6" data-testid="caregiver-page-back">
-              <ChevronLeft className="w-5 h-5" />
-              <span className="text-sm font-medium">Back</span>
+          {/* Header */}
+          <div className="flex items-center px-5 pt-5 pb-4">
+            <button onClick={() => setActivePage(null)} className="mr-4 p-1" data-testid="caregiver-page-back">
+              <ArrowLeft className="w-6 h-6 text-white" />
             </button>
+            <h1 className="text-2xl font-bold text-white">Current Caregiver</h1>
           </div>
 
           <div className="px-5 space-y-5">
-            {/* Caregiver Photo & Info */}
-            <div className="flex flex-col items-center">
-              <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-[#25D366] mb-3">
+            {/* Photo & Info */}
+            <div className="flex flex-col items-center pt-2">
+              <div className="w-36 h-36 rounded-full overflow-hidden ring-[3px] ring-[#25D366] mb-4">
                 <img src={CAREGIVER_PROFILE.photo} alt={CAREGIVER_PROFILE.name} className="w-full h-full object-cover" />
               </div>
-              <h2 className="text-xl font-bold text-white">{CAREGIVER_PROFILE.name}</h2>
-              <p className="text-stone-400 text-sm">{CAREGIVER_PROFILE.role}</p>
+              <h2 className="text-[26px] font-bold text-white">{CAREGIVER_PROFILE.name}</h2>
+              <p className="text-[#8e8e93] text-[16px] mt-1">{CAREGIVER_PROFILE.role}</p>
             </div>
 
-            {/* Stats Row */}
-            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <p className="text-xl font-bold text-white">{CAREGIVER_PROFILE.rating}</p>
-                  <p className="text-stone-500 text-xs mt-0.5">Rating</p>
+            {/* Stats Row - Icons + Numbers */}
+            <div className="flex justify-center gap-10 py-2">
+              <div className="flex flex-col items-center">
+                <div className="w-14 h-14 bg-[#2c2c2e] rounded-full flex items-center justify-center mb-2">
+                  <Star className="w-7 h-7 text-amber-400" fill="#fbbf24" />
                 </div>
-                <div className="border-x border-stone-800">
-                  <p className="text-xl font-bold text-white">{CAREGIVER_PROFILE.yearsExperience}</p>
-                  <p className="text-stone-500 text-xs mt-0.5">Years</p>
+                <p className="text-[22px] font-bold text-white">{CAREGIVER_PROFILE.rating}</p>
+                <p className="text-[#636366] text-sm">Rating</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-14 h-14 bg-[#2c2c2e] rounded-full flex items-center justify-center mb-2">
+                  <Clock className="w-7 h-7 text-[#25D366]" />
                 </div>
-                <div>
-                  <p className="text-xl font-bold text-white">{CAREGIVER_PROFILE.shiftsCompleted}</p>
-                  <p className="text-stone-500 text-xs mt-0.5">Shifts</p>
+                <p className="text-[22px] font-bold text-white">{CAREGIVER_PROFILE.yearsExperience}</p>
+                <p className="text-[#636366] text-sm">Years</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-14 h-14 bg-[#2c2c2e] rounded-full flex items-center justify-center mb-2">
+                  <Calendar className="w-7 h-7 text-[#3b82f6]" />
                 </div>
+                <p className="text-[22px] font-bold text-white">{CAREGIVER_PROFILE.shiftsCompleted}</p>
+                <p className="text-[#636366] text-sm">Shifts</p>
               </div>
             </div>
 
             {/* Certifications */}
             <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
-              <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">Certifications</h3>
+              <h3 className="text-[17px] font-bold text-white mb-4">Certifications</h3>
               <div className="flex flex-wrap gap-2">
                 {CAREGIVER_PROFILE.certifications.map((cert, idx) => (
-                  <span key={idx} className="bg-[#25D366]/20 text-[#25D366] text-xs font-semibold px-3 py-1.5 rounded-full">{cert}</span>
+                  <span key={idx} className="bg-[#25D366]/15 text-[#25D366] text-[14px] font-semibold px-4 py-2 rounded-full flex items-center gap-1.5">
+                    <Shield className="w-4 h-4" />
+                    {cert}
+                  </span>
                 ))}
               </div>
             </div>
 
-            {/* Contact Info */}
+            {/* Contact Information */}
             <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
-              <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">Contact Information</h3>
-              <div className="space-y-2">
-                <p className="text-stone-300 text-sm">{CAREGIVER_PROFILE.email}</p>
-                <p className="text-stone-300 text-sm">{CAREGIVER_PROFILE.phone}</p>
+              <h3 className="text-[17px] font-bold text-white mb-4">Contact Information</h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Mail className="w-5 h-5 text-[#636366]" />
+                  <span className="text-white text-[15px]">{CAREGIVER_PROFILE.email}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-[#636366]" />
+                  <span className="text-white text-[15px]">{CAREGIVER_PROFILE.phone}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Caregiver Performance */}
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-[17px] font-bold text-white">Caregiver Performance</h3>
+                <span className="bg-[#25D366]/15 text-[#25D366] text-[14px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
+                  <Star className="w-4 h-4" fill="#25D366" />
+                  96%
+                </span>
+              </div>
+              <div className="grid grid-cols-3 text-center">
+                <div>
+                  <p className="text-[24px] font-bold text-white">94%</p>
+                  <p className="text-[#636366] text-[13px] mt-1">Tasks<br/>Completed</p>
+                </div>
+                <div className="border-x border-[#3a3a3c]">
+                  <p className="text-[24px] font-bold text-white">98%</p>
+                  <p className="text-[#636366] text-[13px] mt-1">On-Time<br/>Rate</p>
+                </div>
+                <div>
+                  <p className="text-[24px] font-bold text-white">4.8</p>
+                  <p className="text-[#636366] text-[13px] mt-1">Family<br/>Rating</p>
+                </div>
               </div>
             </div>
 
             {/* Today's Summary */}
             <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
-              <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">Today&apos;s Summary</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-stone-400 text-sm">Tasks Completed</span>
-                  <span className="text-white font-semibold text-sm">{completedTasks.length}/{totalTasks}</span>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[17px] font-bold text-white">Today's Summary</h3>
+                <span className="text-[#636366] text-[14px]">{todayStr}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-[#2c2c2e] rounded-xl p-4 text-center">
+                  <p className="text-[24px] font-bold text-white">{completedTasks.length}/{totalTasks}</p>
+                  <p className="text-[#636366] text-[13px] mt-1">Tasks Done</p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-stone-400 text-sm">On Shift Since</span>
-                  <span className="text-white font-semibold text-sm">8:00 AM</span>
+                <div className="bg-[#2c2c2e] rounded-xl p-4 text-center">
+                  <p className="text-[24px] font-bold text-white">0/4</p>
+                  <p className="text-[#636366] text-[13px] mt-1">Meds Given</p>
+                </div>
+                <div className="bg-[#2c2c2e] rounded-xl p-4 text-center">
+                  <p className="text-[24px] font-bold text-white">--:--</p>
+                  <p className="text-[#636366] text-[13px] mt-1">Arrived At</p>
+                </div>
+                <div className="bg-[#2c2c2e] rounded-xl p-4 text-center">
+                  <p className="text-[24px] font-bold text-white">0</p>
+                  <p className="text-[#636366] text-[13px] mt-1">Incidents</p>
                 </div>
               </div>
             </div>
+
+            {/* Message Caregiver Button */}
+            <button
+              onClick={() => { setActivePage(null); setActiveTab('messages'); }}
+              className="w-full py-4 bg-[#25D366] text-white rounded-2xl font-bold text-[17px] flex items-center justify-center gap-2"
+              data-testid="message-caregiver-btn"
+            >
+              <MessageSquare className="w-5 h-5" />
+              Message Caregiver
+            </button>
           </div>
         </div>
       </div>
