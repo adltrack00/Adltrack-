@@ -157,13 +157,14 @@ export const CaregiverDashboard = ({
     return (
       <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
         <div className="flex-1 overflow-y-auto pb-6">
-          <div className="px-5 pt-3">
-            <button onClick={() => setActivePage(null)} className="flex items-center gap-1 text-[#8e8e93] mb-4" data-testid="meds-back-btn">
-              <ChevronRight className="w-5 h-5 rotate-180" />
-              <span className="text-sm font-medium">Back</span>
+          <div className="flex items-center px-5 pt-3 pb-1">
+            <button onClick={() => setActivePage(null)} className="mr-4 p-1" data-testid="meds-back-btn">
+              <ArrowLeft className="w-6 h-6 text-white" />
             </button>
-            <h1 className="text-[28px] font-bold text-white mb-1">Medications</h1>
-            <p className="text-[#8e8e93] text-[15px] mb-6">For {patient?.name}</p>
+            <div>
+              <h1 className="text-2xl font-bold text-white">Medications</h1>
+              <p className="text-[#8e8e93] text-[14px]">For {patient?.name}</p>
+            </div>
           </div>
 
           {/* Summary Card */}
