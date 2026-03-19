@@ -63,7 +63,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
       description,
       actionsTaken,
       witnesses: noWitnesses ? 'No witnesses present' : witnessNames,
-      photos: photos.length,
+      photos: photos,
       notifyFamily,
       followUpRequired,
       patientName,
