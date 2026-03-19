@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { 
   Activity, MessageSquare, Bell, Settings, Heart, Thermometer, 
   ChevronRight, ChevronLeft, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X, 
-  AlertTriangle, Home, Search, Users, Cpu, Star, Mail, AlertCircle,
+  AlertTriangle, Home, Search, Users, Star, Mail, AlertCircle,
   Calendar, Pill, Shield, TrendingUp, Phone, FileText, ArrowLeft
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
 import { PatientProfileModal } from './PatientProfileModal';
 import { VitalsModal } from './VitalsModal';
 import { AICopilot } from './AICopilot';
+import { CareAssistantIcon } from './CareAssistantIcon';
 import { IncidentViewPage } from './IncidentViewPage';
 import { ChatPage } from './pages/ChatPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -758,15 +759,15 @@ export const FamilyDashboard = ({
       {activeTab === 'notifications' && renderAlertsContent()}
       {activeTab === 'settings' && renderMenuContent()}
 
-      {/* Floating Action Button - AI Copilot */}
+      {/* Floating Action Button - AI Care Assistant */}
       {activeTab === 'home' && (
         <div className="fixed bottom-24 right-5 z-40">
           <button
             onClick={() => setShowCopilot(true)}
-            className="w-14 h-14 bg-[#2c2c2e] rounded-2xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105"
+            className="w-14 h-14 bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105"
             data-testid="copilot-btn"
           >
-            <Cpu className="w-7 h-7 text-[#8e8e93]" />
+            <CareAssistantIcon size={32} />
           </button>
         </div>
       )}

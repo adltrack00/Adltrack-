@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Home, MessageSquare, Clock, Settings, Cpu, User, Heart, Activity, Thermometer,
+  Home, MessageSquare, Clock, Settings, User, Heart, Activity, Thermometer,
   MapPin, Play, ChevronRight, Bell, CheckCircle, Sparkles, Frown, AlertTriangle,
   X, ChevronDown, Calendar, ArrowLeft, XCircle
 } from 'lucide-react';
@@ -11,6 +11,7 @@ import { TaskCompletionModal } from './TaskCompletionModal';
 import { PatientProfileModal } from './PatientProfileModal';
 import { VitalsModal } from './VitalsModal';
 import { AICopilot } from './AICopilot';
+import { CareAssistantIcon } from './CareAssistantIcon';
 import { IncidentReportPage } from './IncidentReportPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -748,17 +749,15 @@ export const CaregiverDashboard = ({
       {activeTab === 'shift' && renderShiftContent()}
       {activeTab === 'settings' && renderSettingsContent()}
 
-      {/* Floating Action Button - Copilot - Chip Icon like mobile */}
+      {/* Floating Action Button - AI Care Assistant */}
       {activeTab === 'home' && isShiftActive && (
         <div className="fixed bottom-24 right-5 z-40">
           <button
             onClick={() => setShowCopilot(true)}
-            className={`w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 ${
-              isDarkMode ? 'bg-stone-800' : 'bg-stone-100'
-            }`}
+            className="w-14 h-14 bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105"
             data-testid="copilot-btn"
           >
-            <Cpu className={`w-6 h-6 ${isDarkMode ? 'text-[#25D366]' : 'text-[#25D366]'}`} />
+            <CareAssistantIcon size={32} />
           </button>
         </div>
       )}

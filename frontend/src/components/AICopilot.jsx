@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Cpu, Loader2, Heart, ClipboardList, ShieldCheck } from 'lucide-react';
+import { X, Send, Loader2, Heart, ClipboardList, ShieldCheck } from 'lucide-react';
+import { CareAssistantIcon } from './CareAssistantIcon';
 import { sendChatMessage, getGreeting } from '../services/geminiService';
 import { useTheme } from '../context/ThemeContext';
 
@@ -14,7 +15,6 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
   const inputRef = useRef(null);
   const sessionId = useRef(`session-${Date.now()}`);
 
-  // Initialize with greeting when entering chat
   useEffect(() => {
     if (isOpen && !showIntro && messages.length === 0) {
       const greeting = getGreeting(role, patientName);
@@ -22,14 +22,12 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
     }
   }, [isOpen, showIntro, role, patientName, messages.length]);
 
-  // Reset when role changes
   useEffect(() => {
     setMessages([]);
     setShowIntro(true);
     sessionId.current = `session-${Date.now()}`;
   }, [role]);
 
-  // Reset intro when reopened
   useEffect(() => {
     if (isOpen) {
       setShowIntro(true);
@@ -38,7 +36,6 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -119,29 +116,12 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
 
           {/* Scrollable content */}
           <div className="flex-1 overflow-y-auto px-7 pb-6">
-            {/* Glowing Ring Icon */}
+            {/* Icon */}
             <div className="flex justify-center pt-6 pb-8">
-              <div className="relative w-32 h-32">
-                {/* Outer glow */}
-                <div className="absolute inset-0 rounded-full bg-[#25D366]/20 blur-xl animate-pulse" />
-                {/* Ring */}
-                <svg className="relative w-full h-full" viewBox="0 0 128 128">
-                  <defs>
-                    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#25D366" />
-                      <stop offset="35%" stopColor="#20bd5a" />
-                      <stop offset="65%" stopColor="#34d399" />
-                      <stop offset="100%" stopColor="#25D366" />
-                    </linearGradient>
-                  </defs>
-                  <circle cx="64" cy="64" r="52" fill="none" stroke="url(#ringGrad)" strokeWidth="8" strokeLinecap="round" />
-                  {/* Inner subtle glow circle */}
-                  <circle cx="64" cy="64" r="36" fill="none" stroke="#25D366" strokeWidth="1" opacity="0.15" />
-                </svg>
-                {/* Center icon */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Cpu className="w-10 h-10 text-[#25D366]" />
-                </div>
+              <div className="relative">
+                {/* Glow effect behind icon */}
+                <div className="absolute inset-[-16px] rounded-full bg-[#25D366]/15 blur-2xl" />
+                <CareAssistantIcon size={120} className="relative" />
               </div>
             </div>
 
@@ -166,7 +146,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
             </div>
           </div>
 
-          {/* Bottom section - disclaimer + button */}
+          {/* Bottom section */}
           <div className="flex-none px-7 pb-8 pt-4">
             <p className="text-[#636366] text-[13px] text-center leading-relaxed mb-5">
               ADLTrack Care Assistant is an AI-powered tool for care guidance only. It does not provide medical diagnoses or replace professional medical advice.
@@ -199,9 +179,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
           >
             <X className={`w-6 h-6 ${isDarkMode ? 'text-white' : 'text-stone-800'}`} />
           </button>
-          <div className="w-11 h-11 rounded-xl bg-[#25D366]/20 flex items-center justify-center">
-            <Cpu className="w-6 h-6 text-[#25D366]" />
-          </div>
+          <CareAssistantIcon size={40} />
           <div>
             <h2 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-stone-900'}`}>Care Assistant</h2>
             <p className="text-xs text-[#8e8e93] font-medium">Powered by AI</p>
@@ -213,8 +191,8 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
           {messages.map((msg, idx) => (
             <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
               {msg.role === 'assistant' && (
-                <div className="w-9 h-9 rounded-xl bg-[#25D366]/20 flex-shrink-0 flex items-center justify-center">
-                  <Cpu className="w-5 h-5 text-[#25D366]" />
+                <div className="flex-shrink-0">
+                  <CareAssistantIcon size={32} />
                 </div>
               )}
               <div className={`max-w-[85%] px-4 py-3 rounded-2xl ${
@@ -228,8 +206,8 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
           ))}
           {isLoading && (
             <div className="flex gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#25D366]/20 flex items-center justify-center">
-                <Cpu className="w-5 h-5 text-[#25D366]" />
+              <div className="flex-shrink-0">
+                <CareAssistantIcon size={32} />
               </div>
               <div className={`${isDarkMode ? 'bg-stone-800' : 'bg-white shadow-sm'} px-4 py-3 rounded-2xl`}>
                 <Loader2 className="w-5 h-5 text-[#25D366] animate-spin" />
