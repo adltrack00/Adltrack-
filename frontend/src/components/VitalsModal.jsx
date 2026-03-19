@@ -310,7 +310,7 @@ export const VitalsModal = ({
       >
         {/* Header */}
         <div className="flex-shrink-0 px-6 py-5 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-white">Vital Signs</h2>
+          <h2 className="text-2xl font-bold text-white">{vitalThemes[activeTab]?.label || 'Vital Signs'}</h2>
           <button 
             onClick={onClose}
             className="p-2 hover:bg-stone-900 rounded-xl transition-colors"
