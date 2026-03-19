@@ -83,30 +83,23 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
 
   return (
     <div 
-      className="fixed inset-0 bg-black/50 z-[100] font-['Manrope',sans-serif]" 
-      onClick={onClose}
+      className="fixed inset-0 z-[100] font-['Manrope',sans-serif]"
     >
-      {/* Slide-up panel matching mobile app */}
+      {/* Full-screen panel */}
       <div 
         ref={containerRef}
-        className={`
-          ${isDarkMode ? 'bg-black' : 'bg-white'} 
-          fixed left-0 right-0 bottom-0
-          sm:left-1/2 sm:-translate-x-1/2 sm:bottom-0
-          sm:max-w-lg
-          rounded-t-3xl
-          shadow-2xl
-          flex flex-col
-        `}
-        style={{
-          height: '70vh',
-          maxHeight: '600px'
-        }}
-        onClick={(e) => e.stopPropagation()}
+        className={`${isDarkMode ? 'bg-black' : 'bg-white'} fixed inset-0 flex flex-col`}
       >
-        {/* Header - matching mobile exactly */}
+        {/* Header */}
         <div className={`flex-none ${isDarkMode ? 'border-[#3a3a3c]' : 'border-stone-200'} border-b px-5 py-4 flex items-center justify-between`}>
           <div className="flex items-center gap-3">
+            <button 
+              onClick={onClose}
+              className="w-9 h-9 flex items-center justify-center"
+              data-testid="copilot-close"
+            >
+              <X className={`w-6 h-6 ${isDarkMode ? 'text-white' : 'text-stone-800'}`} />
+            </button>
             <div className="w-11 h-11 rounded-xl bg-[#25D366]/20 flex items-center justify-center">
               <Cpu className="w-6 h-6 text-[#25D366]" />
             </div>
@@ -117,13 +110,6 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
               <p className={`text-xs ${isDarkMode ? 'text-[#8e8e93]' : 'text-[#8e8e93]'} font-medium`}>Powered by AI</p>
             </div>
           </div>
-          <button 
-            onClick={onClose}
-            className={`w-9 h-9 ${isDarkMode ? 'bg-stone-800 hover:bg-stone-700' : 'bg-stone-100 hover:bg-stone-200'} rounded-full flex items-center justify-center transition-colors`}
-            data-testid="copilot-close"
-          >
-            <X className={`w-5 h-5 ${isDarkMode ? 'text-[#ababab]' : 'text-[#8e8e93]'}`} />
-          </button>
         </div>
 
         {/* Messages Area */}
