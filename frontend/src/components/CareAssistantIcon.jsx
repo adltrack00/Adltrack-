@@ -14,12 +14,12 @@ export const CareAssistantIcon = ({ size = 40, className = '' }) => {
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      {/* Black rounded square background with subtle border */}
-      <rect x="4" y="4" width="92" height="92" rx="24" fill="black" stroke="#3a3a3c" strokeWidth="1.5" />
+      {/* Black rounded square - fills entire viewBox */}
+      <rect x="0" y="0" width="100" height="100" rx="22" fill="#1c1c1e" />
 
       {/* White heartbeat/pulse waveform line */}
       <polyline
-        points="12,52 30,52 36,52 40,38 46,66 52,28 58,72 62,44 66,52 70,52 88,52"
+        points="10,52 28,52 34,52 38,38 44,66 50,28 56,72 60,44 64,52 68,52 90,52"
         fill="none"
         stroke="white"
         strokeWidth="4.5"

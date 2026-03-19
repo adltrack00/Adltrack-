@@ -754,10 +754,10 @@ export const CaregiverDashboard = ({
         <div className="fixed bottom-24 right-5 z-40">
           <button
             onClick={() => setShowCopilot(true)}
-            className="w-14 h-14 bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105"
+            className="w-14 h-14 rounded-2xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 overflow-hidden"
             data-testid="copilot-btn"
           >
-            <CareAssistantIcon size={32} />
+            <CareAssistantIcon size={56} />
           </button>
         </div>
       )}
