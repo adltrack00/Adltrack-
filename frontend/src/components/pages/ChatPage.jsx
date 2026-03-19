@@ -241,10 +241,7 @@ export const ChatPage = ({ onBack, role }) => {
   return (
     <div className="flex-1 overflow-y-auto bg-black pb-20" data-testid="messages-list-view">
       {/* Header */}
-      <div className="flex items-center px-5 pt-3 pb-4">
-        <button onClick={onBack} className="mr-4 p-1" data-testid="messages-back-btn">
-          <ArrowLeft className="w-6 h-6 text-white" />
-        </button>
+      <div className="px-5 pt-3 pb-4">
         <h1 className="text-[28px] font-bold text-white">Messages</h1>
       </div>
 

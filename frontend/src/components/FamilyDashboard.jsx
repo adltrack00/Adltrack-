@@ -602,10 +602,7 @@ export const FamilyDashboard = ({
   const renderAlertsContent = () => (
     <div className="flex-1 overflow-y-auto bg-black pb-28">
       {/* Header */}
-      <div className="flex items-center px-5 pt-3 pb-3">
-        <button onClick={() => setActiveTab('home')} className="mr-4 p-1" data-testid="alerts-back-btn">
-          <ArrowLeft className="w-6 h-6 text-white" />
-        </button>
+      <div className="px-5 pt-3 pb-3">
         <h1 className="text-2xl font-bold text-white">Notifications</h1>
       </div>
 
