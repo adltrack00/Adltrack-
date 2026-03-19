@@ -14,8 +14,8 @@ export const CareAssistantIcon = ({ size = 40, className = '' }) => {
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      {/* Green rounded square background */}
-      <rect x="4" y="4" width="92" height="92" rx="24" fill="#25D366" />
+      {/* Black rounded square background with subtle border */}
+      <rect x="4" y="4" width="92" height="92" rx="24" fill="black" stroke="#3a3a3c" strokeWidth="1.5" />
 
       {/* White heartbeat/pulse waveform line */}
       <polyline
