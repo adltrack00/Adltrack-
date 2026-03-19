@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Home, MessageSquare, Clock, Settings, Cpu, User, Heart, Activity, Thermometer,
   MapPin, Play, ChevronRight, Bell, CheckCircle, Sparkles, Frown, AlertTriangle,
-  X, ChevronDown
+  X, ChevronDown, Calendar, ArrowLeft, XCircle
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
 import { TaskCard } from './TaskCard';
@@ -527,19 +527,21 @@ export const CaregiverDashboard = ({
   const renderShiftContent = () => (
     <div className="flex-1 overflow-y-auto bg-black pb-24">
       {showShiftHistory ? (
-        <div className="p-5 space-y-4">
-          {/* Shift History View */}
-          <button onClick={() => setShowShiftHistory(false)} className="flex items-center gap-1 text-stone-400 mb-2">
-            <ChevronRight className="w-5 h-5 rotate-180" />
-            <span className="text-sm font-medium">Back</span>
-          </button>
-          <h2 className="text-xl font-bold text-white mb-4">Shift History</h2>
+        <div className="px-5 pt-5 pb-24">
+          {/* Shift History Header */}
+          <div className="flex items-center mb-5">
+            <button onClick={() => setShowShiftHistory(false)} className="mr-4 p-1" data-testid="inline-history-back">
+              <ArrowLeft className="w-6 h-6 text-white" />
+            </button>
+            <h2 className="text-2xl font-bold text-white">Shift History</h2>
+          </div>
           
-          <div className="flex gap-2 mb-4">
+          {/* Filter Tabs */}
+          <div className="flex gap-3 mb-5">
             {['all', 'completed', 'cancelled'].map((f) => (
               <button key={f} onClick={() => setHistoryFilter(f)}
-                className={`px-5 py-3 rounded-2xl text-[15px] font-semibold transition-colors border ${
-                  historyFilter === f ? 'bg-[#25D366] text-white border-[#25D366]' : 'bg-[#1c1c1e] text-[#8e8e93] border-[#3a3a3c]'
+                className={`px-6 py-2.5 rounded-full text-[15px] font-semibold transition-colors ${
+                  historyFilter === f ? 'bg-[#25D366] text-white' : 'bg-[#2c2c2e] text-[#8e8e93]'
                 }`}
               >
                 {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -547,31 +549,38 @@ export const CaregiverDashboard = ({
             ))}
           </div>
 
-          <div className="space-y-3">
+          {/* Shift Cards */}
+          <div className="space-y-4">
             {filteredHistory.map((shift) => (
-              <div key={shift.id} className={`bg-[#1c1c1e] rounded-2xl p-[18px] border ${
-                shift.status === 'completed' ? 'border-[#25D366]' : 'border-[#636366]'
+              <div key={shift.id} className={`bg-[#1c1c1e] rounded-2xl p-5 border ${
+                shift.status === 'completed' ? 'border-[#25D366]/50' : 'border-[#636366]/50'
               }`}>
-                <div className="flex items-center justify-between mb-2.5">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-[18px] h-[18px] text-[#8e8e93]" />
-                    <p className="text-lg font-semibold text-white">{shift.date}</p>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2.5">
+                    <Calendar className="w-5 h-5 text-[#8e8e93]" />
+                    <span className="text-[19px] font-bold text-white">{shift.date}</span>
                   </div>
-                  <span className={`px-3 py-1.5 rounded-full text-[13px] font-semibold flex items-center gap-1 ${
-                    shift.status === 'completed' ? 'bg-[#22c55e]/15 text-[#25D366]' : 'bg-white/10 text-[#8e8e93]'
-                  }`}>
-                    {shift.status === 'completed' ? 'Completed' : 'Cancelled'}
-                  </span>
+                  {shift.status === 'completed' ? (
+                    <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-semibold bg-[#25D366]/15 text-[#25D366]">
+                      <CheckCircle className="w-4 h-4" fill="#25D366" stroke="#1c1c1e" strokeWidth={2} />
+                      Completed
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[13px] font-semibold bg-white/10 text-[#8e8e93]">
+                      <XCircle className="w-4 h-4" />
+                      Cancelled
+                    </span>
+                  )}
                 </div>
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-6">
                   <div className="flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-[#8e8e93]" />
-                    <span className="text-sm text-[#8e8e93]">{shift.startTime} - {shift.endTime}</span>
+                    <Clock className="w-4 h-4 text-[#636366]" />
+                    <span className="text-[14px] text-[#8e8e93]">{shift.startTime} - {shift.endTime}</span>
                   </div>
                   {shift.status === 'completed' && (
                     <div className="flex items-center gap-1.5">
-                      <CheckCircle className="w-4 h-4 text-[#25D366]" />
-                      <span className="text-sm text-[#8e8e93]">{shift.tasksCompleted}/{shift.totalTasks} tasks</span>
+                      <CheckCircle className="w-4 h-4 text-[#25D366]" fill="#25D366" stroke="#1c1c1e" strokeWidth={2} />
+                      <span className="text-[14px] text-[#8e8e93]">{shift.tasksCompleted}/{shift.totalTasks} tasks</span>
                     </div>
                   )}
                 </div>
