@@ -154,7 +154,7 @@ export const PatientProfileModal = ({
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
             </>
           ) : (
-            <div className="w-full h-full bg-stone-900 flex items-center justify-center">
+            <div className="w-full h-full bg-[#2c2c2e] flex items-center justify-center">
               <User className="w-24 h-24 text-stone-700" />
             </div>
           )}
@@ -234,8 +234,8 @@ export const PatientProfileModal = ({
               </div>
               <ul className="space-y-2">
                 {patient.medicalConditions.map((condition, idx) => (
-                  <li key={idx} className="text-base text-stone-400 font-medium flex items-start gap-2">
-                    <span className="text-stone-500">•</span>
+                  <li key={idx} className="text-base text-[#ababab] font-medium flex items-start gap-2">
+                    <span className="text-[#8e8e93]">•</span>
                     <span>{condition}</span>
                   </li>
                 ))}
@@ -254,7 +254,7 @@ export const PatientProfileModal = ({
                 {patient.medications.map((med, idx) => (
                   <div key={idx} className="text-base">
                     <span className="font-bold text-white">{med.name}</span>
-                    <span className="text-stone-400 font-medium"> - {med.dosage}, {med.frequency}</span>
+                    <span className="text-[#ababab] font-medium"> - {med.dosage}, {med.frequency}</span>
                   </div>
                 ))}
               </div>
@@ -286,7 +286,7 @@ export const PatientProfileModal = ({
                 <MapPin className="w-5 h-5 text-[#22c55e]" />
                 <span className="text-lg">Access Instructions</span>
               </div>
-              <p className="text-base text-stone-400 font-medium">{patient.accessInstructions}</p>
+              <p className="text-base text-[#ababab] font-medium">{patient.accessInstructions}</p>
             </div>
           )}
 
@@ -301,7 +301,7 @@ export const PatientProfileModal = ({
                 <div key={idx} className="flex items-center justify-between">
                   <div>
                     <p className="font-bold text-white text-lg">{contact.name}</p>
-                    <p className="text-sm text-stone-500 font-medium">{contact.relationship}</p>
+                    <p className="text-sm text-[#8e8e93] font-medium">{contact.relationship}</p>
                   </div>
                   <a 
                     href={`tel:${contact.phone}`}
@@ -314,12 +314,12 @@ export const PatientProfileModal = ({
               
               {/* Primary Care Physician */}
               {patient.primaryCarePhysician && (
-                <div className="pt-4 border-t border-stone-800">
-                  <p className="text-xs text-stone-500 font-bold uppercase tracking-wider mb-3">Primary Care Physician</p>
+                <div className="pt-4 border-t border-[#3a3a3c]">
+                  <p className="text-xs text-[#8e8e93] font-bold uppercase tracking-wider mb-3">Primary Care Physician</p>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-bold text-white text-lg">{patient.primaryCarePhysician.name}</p>
-                      <p className="text-sm text-stone-500 font-medium">{patient.primaryCarePhysician.facility}</p>
+                      <p className="text-sm text-[#8e8e93] font-medium">{patient.primaryCarePhysician.facility}</p>
                     </div>
                     <a 
                       href={`tel:${patient.primaryCarePhysician.phone}`}
@@ -347,9 +347,9 @@ export const PatientProfileModal = ({
         {/* Share Options Modal */}
         {showShareOptions && (
           <div className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center" onClick={() => setShowShareOptions(false)}>
-            <div className="bg-stone-900 border border-stone-800 rounded-3xl p-6 m-4 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-[#2c2c2e] border border-[#3a3a3c] rounded-3xl p-6 m-4 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
               <h3 className="text-lg font-bold text-white mb-3">Share Medical ID</h3>
-              <p className="text-sm text-stone-400 mb-5 font-medium">
+              <p className="text-sm text-[#ababab] mb-5 font-medium">
                 This will generate a secure summary of the patient&apos;s critical medical information for emergency services.
               </p>
               <div className="space-y-2">
@@ -377,22 +377,22 @@ export const PatientProfileModal = ({
             onClick={() => setShowCalendar(false)}
           >
             <div 
-              className="bg-stone-950 border border-stone-800 rounded-3xl w-full max-w-md overflow-hidden"
+              className="bg-black border border-[#3a3a3c] rounded-3xl w-full max-w-md overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Calendar Header */}
-              <div className="p-4 border-b border-stone-800">
+              <div className="p-4 border-b border-[#3a3a3c]">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-white">Care History</h3>
                   <button 
                     onClick={() => setShowCalendar(false)}
                     className="p-2 hover:bg-stone-800 rounded-xl transition-colors"
                   >
-                    <X className="w-5 h-5 text-stone-400" />
+                    <X className="w-5 h-5 text-[#ababab]" />
                   </button>
                 </div>
                 
-                <p className="text-sm text-stone-400 mb-4">Select a date to view all care activities</p>
+                <p className="text-sm text-[#ababab] mb-4">Select a date to view all care activities</p>
 
                 {/* Month Navigation */}
                 <div className="flex items-center justify-between">
@@ -400,7 +400,7 @@ export const PatientProfileModal = ({
                     onClick={() => navigateMonth(-1)}
                     className="p-2 hover:bg-stone-800 rounded-xl transition-colors"
                   >
-                    <ChevronLeft className="w-5 h-5 text-stone-400" />
+                    <ChevronLeft className="w-5 h-5 text-[#ababab]" />
                   </button>
                   <h4 className="text-lg font-bold text-white">
                     {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
@@ -409,7 +409,7 @@ export const PatientProfileModal = ({
                     onClick={() => navigateMonth(1)}
                     className="p-2 hover:bg-stone-800 rounded-xl transition-colors"
                   >
-                    <ChevronRight className="w-5 h-5 text-stone-400" />
+                    <ChevronRight className="w-5 h-5 text-[#ababab]" />
                   </button>
                 </div>
               </div>
@@ -419,7 +419,7 @@ export const PatientProfileModal = ({
                 {/* Day Names */}
                 <div className="grid grid-cols-7 gap-1 mb-2">
                   {dayNames.map((day) => (
-                    <div key={day} className="text-center text-xs font-bold text-stone-500 py-2">
+                    <div key={day} className="text-center text-xs font-bold text-[#8e8e93] py-2">
                       {day}
                     </div>
                   ))}
@@ -440,7 +440,7 @@ export const PatientProfileModal = ({
                         className={`
                           relative aspect-square flex flex-col items-center justify-center rounded-xl text-sm font-medium transition-all
                           ${!dayInfo.isCurrentMonth ? 'text-stone-700 cursor-not-allowed' : ''}
-                          ${dayInfo.isCurrentMonth && !isPast ? 'text-stone-600 cursor-not-allowed' : ''}
+                          ${dayInfo.isCurrentMonth && !isPast ? 'text-[#8e8e93] cursor-not-allowed' : ''}
                           ${dayInfo.isCurrentMonth && isPast && !isToday ? 'text-stone-300 hover:bg-stone-800 cursor-pointer' : ''}
                           ${isToday ? 'bg-[#25D366] text-white hover:bg-[#20bd5a]' : ''}
                         `}
@@ -457,7 +457,7 @@ export const PatientProfileModal = ({
 
               {/* Hint */}
               <div className="px-4 pb-4">
-                <p className="text-xs text-stone-500 text-center">
+                <p className="text-xs text-[#8e8e93] text-center">
                   Tap a date to view that day&apos;s care timeline
                 </p>
               </div>

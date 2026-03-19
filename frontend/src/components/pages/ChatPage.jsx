@@ -229,7 +229,7 @@ export const ChatPage = ({ onBack, role }) => {
               }`}
               data-testid="chat-send-btn"
             >
-              <Send className={`w-5 h-5 ${message.trim() ? 'text-white' : 'text-[#636366]'}`} />
+              <Send className={`w-5 h-5 ${message.trim() ? 'text-white' : 'text-[#8e8e93]'}`} />
             </button>
           </div>
         </div>
@@ -251,7 +251,7 @@ export const ChatPage = ({ onBack, role }) => {
       {/* Search */}
       <div className="px-5 mb-4">
         <div className="flex items-center bg-[#1c1c1e] rounded-2xl px-4 py-3.5">
-          <Search className="w-5 h-5 text-[#636366] flex-shrink-0" />
+          <Search className="w-5 h-5 text-[#8e8e93] flex-shrink-0" />
           <input
             type="text"
             value={searchText}

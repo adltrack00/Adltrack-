@@ -69,7 +69,7 @@ export const SettingsPage = ({ onBack, onNavigateToHelp }) => {
               </div>
               <span className="text-[16px] font-medium text-white">Privacy & Security</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-[#636366]" />
+            <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
           </button>
 
           <div className="mx-4 border-t border-[#3a3a3c]" />
@@ -83,8 +83,8 @@ export const SettingsPage = ({ onBack, onNavigateToHelp }) => {
               <span className="text-[16px] font-medium text-white">Language</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[15px] text-[#636366]">English</span>
-              <ChevronRight className="w-5 h-5 text-[#636366]" />
+              <span className="text-[15px] text-[#8e8e93]">English</span>
+              <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
             </div>
           </button>
 
@@ -102,14 +102,14 @@ export const SettingsPage = ({ onBack, onNavigateToHelp }) => {
               </div>
               <span className="text-[16px] font-medium text-white">Help & Support</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-[#636366]" />
+            <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
           </button>
         </div>
 
         {/* App Info */}
         <div className="text-center pt-10">
-          <p className="text-[15px] text-[#636366]">ADLTrack v1.0.0</p>
-          <p className="text-[14px] text-[#48484a] mt-1">&copy; 2026 ADLTrack Inc.</p>
+          <p className="text-[15px] text-[#8e8e93]">ADLTrack v1.0.0</p>
+          <p className="text-[14px] text-[#8e8e93] mt-1">&copy; 2026 ADLTrack Inc.</p>
         </div>
       </div>
     </div>

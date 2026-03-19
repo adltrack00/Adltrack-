@@ -113,7 +113,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                 <Check className="w-10 h-10 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">Report Submitted</h2>
-              <p className="text-stone-400 mb-8">
+              <p className="text-[#ababab] mb-8">
                 Your incident report has been submitted successfully.
                 {notifyFamily && ' Family members have been notified.'}
               </p>
@@ -127,11 +127,11 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
         ) : (
           <>
             {/* Header */}
-            <div className="px-5 py-4 border-b border-stone-800">
+            <div className="px-5 py-4 border-b border-[#3a3a3c]">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h2 className="text-lg font-bold text-white">New Incident Report</h2>
-                  <p className="text-sm text-stone-400">Step {step} of 5</p>
+                  <p className="text-sm text-[#ababab]">Step {step} of 5</p>
                 </div>
                 <button 
                   onClick={() => setActiveView('history')}
@@ -176,7 +176,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                         </div>
                         <div className="flex-1">
                           <p className="font-bold text-white text-xl">{type.label}</p>
-                          <p className="text-[15px] text-stone-400 mt-0.5">{type.description}</p>
+                          <p className="text-[15px] text-[#ababab] mt-0.5">{type.description}</p>
                         </div>
                       </button>
                     ))}
@@ -212,8 +212,8 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Describe the incident..."
-                      className={`w-full h-32 bg-stone-900 rounded-xl p-4 text-white placeholder:text-stone-500 focus:outline-none ${
-                        description ? 'border-2 border-[#ff375f]' : 'border border-stone-800'
+                      className={`w-full h-32 bg-[#2c2c2e] rounded-xl p-4 text-white placeholder:text-[#8e8e93] focus:outline-none ${
+                        description ? 'border-2 border-[#ff375f]' : 'border border-[#3a3a3c]'
                       }`}
                       style={{ fontSize: '16px' }}
                     />
@@ -225,8 +225,8 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                       value={actionsTaken}
                       onChange={(e) => setActionsTaken(e.target.value)}
                       placeholder="What did you do to address this?"
-                      className={`w-full h-28 bg-stone-900 rounded-xl p-4 text-white placeholder:text-stone-500 focus:outline-none ${
-                        actionsTaken ? 'border-2 border-[#ff375f]' : 'border border-stone-800'
+                      className={`w-full h-28 bg-[#2c2c2e] rounded-xl p-4 text-white placeholder:text-[#8e8e93] focus:outline-none ${
+                        actionsTaken ? 'border-2 border-[#ff375f]' : 'border border-[#3a3a3c]'
                       }`}
                       style={{ fontSize: '16px' }}
                     />
@@ -239,7 +239,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                 <div className="space-y-5">
                   <div>
                     <h3 className="text-2xl font-bold text-white mb-2">Witness Information</h3>
-                    <p className="text-stone-400">
+                    <p className="text-[#ababab]">
                       Document any witnesses present during the incident for legal and record-keeping purposes.
                     </p>
                   </div>
@@ -251,9 +251,9 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                       onChange={(e) => setWitnessNames(e.target.value)}
                       placeholder="Enter the names of any witnesses present..."
                       disabled={noWitnesses}
-                      className={`w-full h-32 bg-stone-900 rounded-xl p-4 text-white placeholder:text-stone-500 focus:outline-none ${
+                      className={`w-full h-32 bg-[#2c2c2e] rounded-xl p-4 text-white placeholder:text-[#8e8e93] focus:outline-none ${
                         noWitnesses ? 'opacity-50' : ''
-                      } ${witnessNames && !noWitnesses ? 'border-2 border-[#ff375f]' : 'border border-stone-800'}`}
+                      } ${witnessNames && !noWitnesses ? 'border-2 border-[#ff375f]' : 'border border-[#3a3a3c]'}`}
                       style={{ fontSize: '16px' }}
                     />
                   </div>
@@ -261,9 +261,9 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                   {/* Info box */}
                   <div className="bg-[#1a2a3a] rounded-xl p-4 flex gap-3">
                     <div className="w-6 h-6 rounded-full border-2 border-stone-500 flex items-center justify-center flex-shrink-0">
-                      <span className="text-stone-500 text-sm font-bold">i</span>
+                      <span className="text-[#8e8e93] text-sm font-bold">i</span>
                     </div>
-                    <p className="text-stone-400 text-sm leading-relaxed">
+                    <p className="text-[#ababab] text-sm leading-relaxed">
                       Include full names and their relationship to the patient if applicable (e.g., "John Smith - Family Visitor", "Jane Doe - Nurse on duty")
                     </p>
                   </div>
@@ -287,13 +287,13 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                 <div className="space-y-5">
                   <div>
                     <h3 className="text-lg font-bold text-white mb-2">Add Photos (Optional)</h3>
-                    <p className="text-stone-400 text-sm">Document the incident visually.</p>
+                    <p className="text-[#ababab] text-sm">Document the incident visually.</p>
                   </div>
                   
                   <label className="block cursor-pointer">
                     <div className="w-full py-12 border-2 border-dashed border-stone-700 rounded-xl flex flex-col items-center justify-center hover:border-stone-600">
-                      <Camera className="w-10 h-10 text-stone-500 mb-3" />
-                      <p className="text-stone-400 font-medium">Tap to add photo</p>
+                      <Camera className="w-10 h-10 text-[#8e8e93] mb-3" />
+                      <p className="text-[#ababab] font-medium">Tap to add photo</p>
                     </div>
                     <input
                       type="file"
@@ -348,28 +348,28 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
 
                     {description && (
                       <div>
-                        <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-1.5">Description</p>
+                        <p className="text-xs font-bold text-[#8e8e93] uppercase tracking-[1.5px] mb-1.5">Description</p>
                         <p className="text-white text-[15px] leading-relaxed">{description}</p>
                       </div>
                     )}
 
                     {actionsTaken && (
                       <div>
-                        <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-1.5">Actions Taken</p>
+                        <p className="text-xs font-bold text-[#8e8e93] uppercase tracking-[1.5px] mb-1.5">Actions Taken</p>
                         <p className="text-white text-[15px] leading-relaxed">{actionsTaken}</p>
                       </div>
                     )}
 
                     <div>
-                      <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-1.5">Witnesses</p>
+                      <p className="text-xs font-bold text-[#8e8e93] uppercase tracking-[1.5px] mb-1.5">Witnesses</p>
                       <p className="text-white text-[15px]">
                         {noWitnesses ? 'No witnesses present' : (witnessNames || 'Not provided')}
                       </p>
                     </div>
 
                     <div>
-                      <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-1.5">Photos ({photos.length})</p>
-                      <p className="text-[#636366] text-[15px]">{photos.length > 0 ? `${photos.length} attached` : 'No photos attached'}</p>
+                      <p className="text-xs font-bold text-[#8e8e93] uppercase tracking-[1.5px] mb-1.5">Photos ({photos.length})</p>
+                      <p className="text-[#8e8e93] text-[15px]">{photos.length > 0 ? `${photos.length} attached` : 'No photos attached'}</p>
                     </div>
                   </div>
 
@@ -434,7 +434,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                   disabled={(step === 1 && !incidentType) || (step === 2 && (!severity || !description))}
                   className={`flex-1 py-4 rounded-[14px] font-semibold text-[17px] ${
                     (step === 1 && !incidentType) || (step === 2 && (!severity || !description))
-                      ? 'bg-[#3a3a3c] text-[#636366]'
+                      ? 'bg-[#3a3a3c] text-[#8e8e93]'
                       : 'bg-[#f43f5e] text-white'
                   }`}
                 >
@@ -469,7 +469,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
     <div className="flex-1 overflow-y-auto bg-black pb-24 font-['Manrope',sans-serif]">
       <div className="px-5 pt-6 pb-4">
         <h1 className="text-2xl font-bold text-white mb-1">Incidents</h1>
-        <p className="text-stone-500 text-sm">Report and track incidents for {patientName}</p>
+        <p className="text-[#8e8e93] text-sm">Report and track incidents for {patientName}</p>
       </div>
 
       <div className="px-5 mb-5">
@@ -493,10 +493,10 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
       <div className="px-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-stone-500" />
+            <FileText className="w-5 h-5 text-[#8e8e93]" />
             <h2 className="font-bold text-white text-lg">Past Reports</h2>
           </div>
-          <span className="w-8 h-8 rounded-full bg-stone-800 flex items-center justify-center text-sm font-bold text-stone-400">
+          <span className="w-8 h-8 rounded-full bg-stone-800 flex items-center justify-center text-sm font-bold text-[#ababab]">
             {incidents.length}
           </span>
         </div>
@@ -528,10 +528,10 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
         ) : (
           <div className="bg-[#1c1c1e] rounded-2xl p-10 text-center">
             <div className="w-20 h-20 bg-stone-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-10 h-10 text-stone-600" />
+              <AlertTriangle className="w-10 h-10 text-[#8e8e93]" />
             </div>
             <p className="text-white font-bold text-lg mb-1">No incidents reported</p>
-            <p className="text-stone-500">Tap the button above to report a new incident</p>
+            <p className="text-[#8e8e93]">Tap the button above to report a new incident</p>
           </div>
         )}
       </div>

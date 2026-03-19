@@ -78,7 +78,7 @@ export const HistoryPage = ({ onBack }) => {
             {/* Time + Tasks Row */}
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-[#636366]" />
+                <Clock className="w-4 h-4 text-[#8e8e93]" />
                 <span className="text-[14px] text-[#8e8e93]">{shift.hours}</span>
               </div>
               {shift.status === 'completed' && (
@@ -93,7 +93,7 @@ export const HistoryPage = ({ onBack }) => {
 
         {filteredShifts.length === 0 && (
           <div className="text-center py-16">
-            <p className="text-[#636366] text-[16px]">No shifts found</p>
+            <p className="text-[#8e8e93] text-[16px]">No shifts found</p>
           </div>
         )}
       </div>

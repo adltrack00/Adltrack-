@@ -77,7 +77,7 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
             <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
             <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-stone-200 overflow-hidden z-50">
               <div className="p-2">
-                <p className="px-3 py-2 text-xs font-bold text-stone-400 uppercase">Switch View</p>
+                <p className="px-3 py-2 text-xs font-bold text-[#ababab] uppercase">Switch View</p>
                 {roles.map(({ role, title, icon: Icon, color, bg, activeBg, description }) => (
                   <button
                     key={role}
@@ -92,7 +92,7 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
                     </div>
                     <div className="flex-1 text-left">
                       <p className="text-sm font-bold text-stone-900">{title}</p>
-                      <p className="text-xs text-stone-500">{description}</p>
+                      <p className="text-xs text-[#8e8e93]">{description}</p>
                     </div>
                     {role === currentRole && (
                       <Check className="w-4 h-4 text-emerald-500" />
@@ -101,7 +101,7 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
                 ))}
               </div>
               <div className="border-t border-stone-100 p-3 bg-stone-50">
-                <p className="text-xs text-stone-400 text-center">
+                <p className="text-xs text-[#ababab] text-center">
                   All data is shared across views for testing
                 </p>
               </div>
@@ -130,9 +130,9 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
         </div>
         <div className="flex-1 text-left">
           <p className="text-sm font-bold text-stone-900">Viewing as {currentRoleConfig.title}</p>
-          <p className="text-xs text-stone-500">Click to switch role</p>
+          <p className="text-xs text-[#8e8e93]">Click to switch role</p>
         </div>
-        <ChevronDown className={`w-5 h-5 text-stone-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-5 h-5 text-[#ababab] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
@@ -140,7 +140,7 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
           <div className="absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-stone-200 overflow-hidden z-50">
             <div className="p-2">
-              <p className="px-3 py-2 text-xs font-bold text-stone-400 uppercase">Switch Role</p>
+              <p className="px-3 py-2 text-xs font-bold text-[#ababab] uppercase">Switch Role</p>
               {roles.map(({ role, title, icon: Icon, color, bg, activeBg, description }) => (
                 <button
                   key={role}
@@ -155,7 +155,7 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
                   </div>
                   <div className="flex-1 text-left">
                     <p className="text-sm font-bold text-stone-900">{title}</p>
-                    <p className="text-xs text-stone-500">{description}</p>
+                    <p className="text-xs text-[#8e8e93]">{description}</p>
                   </div>
                   {role === currentRole && (
                     <Check className="w-5 h-5 text-emerald-500" />
@@ -164,7 +164,7 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
               ))}
             </div>
             <div className="border-t border-stone-100 p-3 bg-stone-50">
-              <p className="text-xs text-stone-500 text-center">
+              <p className="text-xs text-[#8e8e93] text-center">
                 Same data • Different views • Perfect for testing
               </p>
             </div>

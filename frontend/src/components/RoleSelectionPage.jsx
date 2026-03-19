@@ -62,7 +62,7 @@ export const RoleSelectionPage = ({ onSelectRole, onBack, mode = 'signin' }) => 
             <h1 className="text-3xl lg:text-4xl font-bold text-stone-900 tracking-tight">
               {isSignUp ? 'Create your account' : 'Welcome back'}
             </h1>
-            <p className="text-stone-600 font-medium lg:text-lg">
+            <p className="text-[#8e8e93] font-medium lg:text-lg">
               Select your account type to {isSignUp ? 'get started' : 'continue'}
             </p>
           </div>
@@ -82,7 +82,7 @@ export const RoleSelectionPage = ({ onSelectRole, onBack, mode = 'signin' }) => 
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg lg:text-xl font-bold text-stone-900">{title}</h3>
-                    <p className="text-sm lg:text-base text-stone-500 font-medium">{description}</p>
+                    <p className="text-sm lg:text-base text-[#8e8e93] font-medium">{description}</p>
                   </div>
                   <ArrowRight className={`w-5 h-5 lg:w-6 lg:h-6 text-stone-300 ${hoverArrow} group-hover:translate-x-1 transition-all`} />
                 </div>
@@ -91,7 +91,7 @@ export const RoleSelectionPage = ({ onSelectRole, onBack, mode = 'signin' }) => 
           </div>
 
           {/* Mode Switch */}
-          <p className="text-center text-stone-600 pt-4">
+          <p className="text-center text-[#8e8e93] pt-4">
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
             <button
               onClick={() => onSelectRole(null, !isSignUp)}
@@ -106,7 +106,7 @@ export const RoleSelectionPage = ({ onSelectRole, onBack, mode = 'signin' }) => 
 
       {/* Footer */}
       <footer className="p-6 text-center border-t border-stone-200">
-        <p className="text-sm text-stone-500 font-medium">
+        <p className="text-sm text-[#8e8e93] font-medium">
           © {new Date().getFullYear()} Adltrack. Secure care coordination.
         </p>
       </footer>

@@ -131,7 +131,7 @@ export const VitalsModal = ({
     return (
       <div className="relative h-36 w-full">
         {/* Y-axis labels */}
-        <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-xs text-stone-500 font-medium w-8">
+        <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-xs text-[#8e8e93] font-medium w-8">
           <span>10</span>
           <span>7.5</span>
           <span>5</span>
@@ -144,7 +144,7 @@ export const VitalsModal = ({
           {/* Grid lines */}
           <div className="absolute inset-0 flex flex-col justify-between pb-6">
             {[0, 1, 2, 3, 4].map((_, i) => (
-              <div key={i} className="border-b border-dashed border-stone-800 w-full" />
+              <div key={i} className="border-b border-dashed border-[#3a3a3c] w-full" />
             ))}
           </div>
           
@@ -180,7 +180,7 @@ export const VitalsModal = ({
           </svg>
           
           {/* X-axis labels */}
-          <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[10px] text-stone-500 font-medium">
+          <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[10px] text-[#8e8e93] font-medium">
             {days.map((day) => (
               <span key={day}>{day}</span>
             ))}
@@ -202,7 +202,7 @@ export const VitalsModal = ({
     return (
       <div className="relative h-36 w-full">
         {/* Y-axis labels */}
-        <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-xs text-stone-500 font-medium w-8">
+        <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-xs text-[#8e8e93] font-medium w-8">
           {yLabels.map((v, i) => (
             <span key={i}>{Math.round(v)}</span>
           ))}
@@ -213,7 +213,7 @@ export const VitalsModal = ({
           {/* Grid lines */}
           <div className="absolute inset-0 flex flex-col justify-between pb-6">
             {[0, 1, 2, 3, 4].map((_, i) => (
-              <div key={i} className="border-b border-dashed border-stone-800 w-full" />
+              <div key={i} className="border-b border-dashed border-[#3a3a3c] w-full" />
             ))}
           </div>
           
@@ -292,7 +292,7 @@ export const VitalsModal = ({
           </svg>
           
           {/* X-axis labels */}
-          <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[10px] text-stone-500 font-medium">
+          <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[10px] text-[#8e8e93] font-medium">
             {days.map((day) => (
               <span key={day}>{day}</span>
             ))}
@@ -313,10 +313,10 @@ export const VitalsModal = ({
           <h2 className="text-2xl font-bold text-white">{vitalThemes[activeTab]?.label || 'Vital Signs'}</h2>
           <button 
             onClick={onClose}
-            className="p-2 hover:bg-stone-900 rounded-xl transition-colors"
+            className="p-2 hover:bg-[#2c2c2e] rounded-xl transition-colors"
             data-testid="vitals-close-btn"
           >
-            <X className="w-6 h-6 text-stone-400" />
+            <X className="w-6 h-6 text-[#ababab]" />
           </button>
         </div>
 
@@ -344,7 +344,7 @@ export const VitalsModal = ({
             <div className="bg-[#1c1c1e] rounded-3xl p-5">
               {activeTab === 'pain' ? renderDotChart() : renderLineChart()}
             </div>
-            <p className="text-sm text-stone-500 text-center mt-3 font-semibold">Weekly trend</p>
+            <p className="text-sm text-[#8e8e93] text-center mt-3 font-semibold">Weekly trend</p>
           </div>
 
           {/* Add Vital Form (Caregiver Only) */}
@@ -362,7 +362,7 @@ export const VitalsModal = ({
                           placeholder="Systolic"
                           value={newVital.systolic}
                           onChange={(e) => setNewVital({...newVital, systolic: e.target.value})}
-                          className="w-full px-4 py-4 bg-stone-900 border border-stone-800 rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full px-4 py-4 bg-[#2c2c2e] border border-[#3a3a3c] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                           style={{ fontSize: '16px' }}
                           data-testid="vital-systolic"
                         />
@@ -373,7 +373,7 @@ export const VitalsModal = ({
                           placeholder="Diastolic"
                           value={newVital.diastolic}
                           onChange={(e) => setNewVital({...newVital, diastolic: e.target.value})}
-                          className="w-full px-4 py-4 bg-stone-900 border border-stone-800 rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full px-4 py-4 bg-[#2c2c2e] border border-[#3a3a3c] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                           style={{ fontSize: '16px' }}
                           data-testid="vital-diastolic"
                         />
@@ -387,7 +387,7 @@ export const VitalsModal = ({
                       placeholder="Heart Rate (BPM)"
                       value={newVital.heartRate}
                       onChange={(e) => setNewVital({...newVital, heartRate: e.target.value})}
-                      className="w-full px-4 py-4 bg-stone-900 border border-stone-800 rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full px-4 py-4 bg-[#2c2c2e] border border-[#3a3a3c] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       style={{ fontSize: '16px' }}
                       data-testid="vital-heartrate"
                     />
@@ -400,7 +400,7 @@ export const VitalsModal = ({
                       placeholder="Temperature (°F)"
                       value={newVital.temperature}
                       onChange={(e) => setNewVital({...newVital, temperature: e.target.value})}
-                      className="w-full px-4 py-4 bg-stone-900 border border-stone-800 rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full px-4 py-4 bg-[#2c2c2e] border border-[#3a3a3c] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       style={{ fontSize: '16px' }}
                       data-testid="vital-temperature"
                     />
@@ -414,7 +414,7 @@ export const VitalsModal = ({
                       placeholder="Pain Level (0-10)"
                       value={newVital.pain}
                       onChange={(e) => setNewVital({...newVital, pain: e.target.value})}
-                      className="w-full px-4 py-4 bg-stone-900 border border-stone-800 rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full px-4 py-4 bg-[#2c2c2e] border border-[#3a3a3c] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       style={{ fontSize: '16px' }}
                       data-testid="vital-pain"
                     />
@@ -423,7 +423,7 @@ export const VitalsModal = ({
                   <div className="flex gap-4 pt-2">
                     <button
                       onClick={() => setShowAddForm(false)}
-                      className="flex-1 py-4 border-2 border-stone-700 rounded-2xl text-base font-bold text-stone-400 hover:bg-stone-900 transition-colors"
+                      className="flex-1 py-4 border-2 border-stone-700 rounded-2xl text-base font-bold text-[#ababab] hover:bg-[#2c2c2e] transition-colors"
                     >
                       Cancel
                     </button>
@@ -439,7 +439,7 @@ export const VitalsModal = ({
               ) : (
                 <button
                   onClick={() => setShowAddForm(true)}
-                  className="w-full py-4 border-2 border-dashed border-stone-700 rounded-3xl text-stone-400 font-bold text-base hover:border-stone-600 hover:text-stone-300 transition-colors flex items-center justify-center gap-3"
+                  className="w-full py-4 border-2 border-dashed border-stone-700 rounded-3xl text-[#ababab] font-bold text-base hover:border-stone-600 hover:text-stone-300 transition-colors flex items-center justify-center gap-3"
                   data-testid="log-new-reading-btn"
                 >
                   <Plus className="w-6 h-6" />
@@ -451,12 +451,12 @@ export const VitalsModal = ({
 
           {/* History */}
           <div className="px-6">
-            <p className="text-sm font-bold text-stone-500 uppercase tracking-wider mb-4">Recent History</p>
+            <p className="text-sm font-bold text-[#8e8e93] uppercase tracking-wider mb-4">Recent History</p>
             <div className="bg-[#1c1c1e] rounded-3xl overflow-hidden">
               {chartData.slice(-5).reverse().map((entry, idx) => (
                 <div 
                   key={idx} 
-                  className="flex items-center justify-between py-4 px-5 border-b border-stone-800 last:border-0"
+                  className="flex items-center justify-between py-4 px-5 border-b border-[#3a3a3c] last:border-0"
                 >
                   <span className="text-base text-white font-semibold">{entry.date} at {entry.time}</span>
                   <span className="text-lg font-bold" style={{ color: theme.primaryColor }}>

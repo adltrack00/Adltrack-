@@ -91,7 +91,7 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
             <h1 className="text-3xl lg:text-4xl font-bold text-stone-900 tracking-tight">
               {isSignUp ? 'Create your account' : 'Welcome back'}
             </h1>
-            <p className="text-stone-600 font-medium lg:text-lg">
+            <p className="text-[#8e8e93] font-medium lg:text-lg">
               {config.description}
             </p>
           </div>
@@ -142,7 +142,7 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
               <div className="w-full border-t border-stone-200"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-stone-500 font-medium">or continue with email</span>
+              <span className="px-4 bg-white text-[#8e8e93] font-medium">or continue with email</span>
             </div>
           </div>
 
@@ -157,11 +157,11 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your full name"
-                    className="w-full p-4 pl-12 bg-stone-50 border border-stone-200 rounded-2xl text-base text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                    className="w-full p-4 pl-12 bg-stone-50 border border-stone-200 rounded-2xl text-base text-stone-900 placeholder:text-[#ababab] focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
                     style={{ fontSize: '16px' }}
                     data-testid="auth-name-input"
                   />
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ababab]">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
@@ -178,11 +178,11 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="w-full p-4 pl-12 bg-stone-50 border border-stone-200 rounded-2xl text-base text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                  className="w-full p-4 pl-12 bg-stone-50 border border-stone-200 rounded-2xl text-base text-stone-900 placeholder:text-[#ababab] focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
                   style={{ fontSize: '16px' }}
                   data-testid="auth-email-input"
                 />
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#ababab]" />
               </div>
             </div>
 
@@ -194,15 +194,15 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={isSignUp ? 'Create a password' : 'Enter your password'}
-                  className="w-full p-4 pl-12 pr-12 bg-stone-50 border border-stone-200 rounded-2xl text-base text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                  className="w-full p-4 pl-12 pr-12 bg-stone-50 border border-stone-200 rounded-2xl text-base text-stone-900 placeholder:text-[#ababab] focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
                   style={{ fontSize: '16px' }}
                   data-testid="auth-password-input"
                 />
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#ababab]" />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#ababab] hover:text-[#8e8e93]"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -235,7 +235,7 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
           </form>
 
           {/* Switch Mode Link */}
-          <p className="text-center text-stone-600">
+          <p className="text-center text-[#8e8e93]">
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
             <button
               onClick={onSwitchMode}
@@ -248,7 +248,7 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
 
           {/* Terms */}
           {isSignUp && (
-            <p className="text-center text-xs text-stone-500">
+            <p className="text-center text-xs text-[#8e8e93]">
               By creating an account, you agree to our{' '}
               <a href="#" className="underline">Terms of Service</a> and{' '}
               <a href="#" className="underline">Privacy Policy</a>
@@ -259,7 +259,7 @@ export const AuthPage = ({ mode = 'signin', selectedRole, onBack, onSwitchMode, 
 
       {/* Footer */}
       <footer className="p-6 text-center border-t border-stone-200">
-        <p className="text-sm text-stone-500 font-medium">
+        <p className="text-sm text-[#8e8e93] font-medium">
           © {new Date().getFullYear()} Adltrack. Secure care coordination.
         </p>
       </footer>

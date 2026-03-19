@@ -181,12 +181,12 @@ export const FamilyDashboard = ({
       <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
         <div className="flex-1 overflow-y-auto pb-6">
           <div className="px-5 pt-5">
-            <button onClick={() => setActivePage(null)} className="flex items-center gap-1 text-stone-400 mb-4" data-testid="weekly-report-back">
+            <button onClick={() => setActivePage(null)} className="flex items-center gap-1 text-[#ababab] mb-4" data-testid="weekly-report-back">
               <ChevronLeft className="w-5 h-5" />
               <span className="text-sm font-medium">Back</span>
             </button>
             <h1 className="text-2xl font-bold text-white mb-1">Weekly Report</h1>
-            <p className="text-stone-400 text-sm mb-6">Week of Dec 9-15</p>
+            <p className="text-[#ababab] text-sm mb-6">Week of Dec 9-15</p>
           </div>
 
           <div className="px-5 space-y-4">
@@ -203,26 +203,26 @@ export const FamilyDashboard = ({
                   <span className="text-3xl font-bold text-white">{WEEKLY_REPORT.overallCompliance}%</span>
                 </div>
               </div>
-              <p className="text-stone-400 text-sm">Overall Compliance</p>
+              <p className="text-[#ababab] text-sm">Overall Compliance</p>
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 text-center">
                 <p className="text-2xl font-bold text-[#25D366]">{WEEKLY_REPORT.tasksCompleted}/{WEEKLY_REPORT.totalTasks}</p>
-                <p className="text-stone-400 text-xs mt-1">Tasks</p>
+                <p className="text-[#ababab] text-xs mt-1">Tasks</p>
               </div>
               <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 text-center">
                 <p className="text-2xl font-bold text-[#25D366]">{WEEKLY_REPORT.medsOnTime}%</p>
-                <p className="text-stone-400 text-xs mt-1">Meds On Time</p>
+                <p className="text-[#ababab] text-xs mt-1">Meds On Time</p>
               </div>
               <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 text-center">
                 <p className="text-2xl font-bold text-amber-400">{WEEKLY_REPORT.incidents}</p>
-                <p className="text-stone-400 text-xs mt-1">Incidents</p>
+                <p className="text-[#ababab] text-xs mt-1">Incidents</p>
               </div>
               <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 text-center">
                 <p className="text-2xl font-bold text-rose-400">{WEEKLY_REPORT.missedTasks}</p>
-                <p className="text-stone-400 text-xs mt-1">Missed Tasks</p>
+                <p className="text-[#ababab] text-xs mt-1">Missed Tasks</p>
               </div>
             </div>
 
@@ -241,7 +241,7 @@ export const FamilyDashboard = ({
                     <div className="w-full bg-stone-800 rounded-full overflow-hidden" style={{ height: '80px' }}>
                       <div className="w-full bg-[#25D366] rounded-full mt-auto" style={{ height: `${d.score}%`, marginTop: `${100 - d.score}%` }} />
                     </div>
-                    <span className="text-stone-500 text-[10px]">{d.day}</span>
+                    <span className="text-[#8e8e93] text-[10px]">{d.day}</span>
                   </div>
                 ))}
               </div>
@@ -289,21 +289,21 @@ export const FamilyDashboard = ({
                   <Star className="w-7 h-7 text-amber-400" fill="#fbbf24" />
                 </div>
                 <p className="text-[22px] font-bold text-white">{CAREGIVER_PROFILE.rating}</p>
-                <p className="text-[#636366] text-sm">Rating</p>
+                <p className="text-[#8e8e93] text-sm">Rating</p>
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-14 h-14 bg-[#2c2c2e] rounded-full flex items-center justify-center mb-2">
                   <Clock className="w-7 h-7 text-[#25D366]" />
                 </div>
                 <p className="text-[22px] font-bold text-white">{CAREGIVER_PROFILE.yearsExperience}</p>
-                <p className="text-[#636366] text-sm">Years</p>
+                <p className="text-[#8e8e93] text-sm">Years</p>
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-14 h-14 bg-[#2c2c2e] rounded-full flex items-center justify-center mb-2">
                   <Calendar className="w-7 h-7 text-[#3b82f6]" />
                 </div>
                 <p className="text-[22px] font-bold text-white">{CAREGIVER_PROFILE.shiftsCompleted}</p>
-                <p className="text-[#636366] text-sm">Shifts</p>
+                <p className="text-[#8e8e93] text-sm">Shifts</p>
               </div>
             </div>
 
@@ -325,11 +325,11 @@ export const FamilyDashboard = ({
               <h3 className="text-[17px] font-bold text-white mb-4">Contact Information</h3>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-[#636366]" />
+                  <Mail className="w-5 h-5 text-[#8e8e93]" />
                   <span className="text-white text-[15px]">{CAREGIVER_PROFILE.email}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-[#636366]" />
+                  <Phone className="w-5 h-5 text-[#8e8e93]" />
                   <span className="text-white text-[15px]">{CAREGIVER_PROFILE.phone}</span>
                 </div>
               </div>
@@ -347,15 +347,15 @@ export const FamilyDashboard = ({
               <div className="grid grid-cols-3 text-center">
                 <div>
                   <p className="text-[24px] font-bold text-white">94%</p>
-                  <p className="text-[#636366] text-[13px] mt-1">Tasks<br/>Completed</p>
+                  <p className="text-[#8e8e93] text-[13px] mt-1">Tasks<br/>Completed</p>
                 </div>
                 <div className="border-x border-[#3a3a3c]">
                   <p className="text-[24px] font-bold text-white">98%</p>
-                  <p className="text-[#636366] text-[13px] mt-1">On-Time<br/>Rate</p>
+                  <p className="text-[#8e8e93] text-[13px] mt-1">On-Time<br/>Rate</p>
                 </div>
                 <div>
                   <p className="text-[24px] font-bold text-white">4.8</p>
-                  <p className="text-[#636366] text-[13px] mt-1">Family<br/>Rating</p>
+                  <p className="text-[#8e8e93] text-[13px] mt-1">Family<br/>Rating</p>
                 </div>
               </div>
             </div>
@@ -364,24 +364,24 @@ export const FamilyDashboard = ({
             <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[17px] font-bold text-white">Today's Summary</h3>
-                <span className="text-[#636366] text-[14px]">{todayStr}</span>
+                <span className="text-[#8e8e93] text-[14px]">{todayStr}</span>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-[#2c2c2e] rounded-xl p-4 text-center">
                   <p className="text-[24px] font-bold text-white">{completedTasks.length}/{totalTasks}</p>
-                  <p className="text-[#636366] text-[13px] mt-1">Tasks Done</p>
+                  <p className="text-[#8e8e93] text-[13px] mt-1">Tasks Done</p>
                 </div>
                 <div className="bg-[#2c2c2e] rounded-xl p-4 text-center">
                   <p className="text-[24px] font-bold text-white">0/4</p>
-                  <p className="text-[#636366] text-[13px] mt-1">Meds Given</p>
+                  <p className="text-[#8e8e93] text-[13px] mt-1">Meds Given</p>
                 </div>
                 <div className="bg-[#2c2c2e] rounded-xl p-4 text-center">
                   <p className="text-[24px] font-bold text-white">--:--</p>
-                  <p className="text-[#636366] text-[13px] mt-1">Arrived At</p>
+                  <p className="text-[#8e8e93] text-[13px] mt-1">Arrived At</p>
                 </div>
                 <div className="bg-[#2c2c2e] rounded-xl p-4 text-center">
                   <p className="text-[24px] font-bold text-white">0</p>
-                  <p className="text-[#636366] text-[13px] mt-1">Incidents</p>
+                  <p className="text-[#8e8e93] text-[13px] mt-1">Incidents</p>
                 </div>
               </div>
             </div>
@@ -414,7 +414,7 @@ export const FamilyDashboard = ({
               <Heart className="w-5 h-5 text-[#ec4899]" fill="currentColor" />
             </div>
             <p className="text-base font-bold text-white text-center">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
-            <p className="text-[11px] text-stone-500 font-medium mt-0.5 text-center">BP</p>
+            <p className="text-[11px] text-[#8e8e93] font-medium mt-0.5 text-center">BP</p>
           </button>
 
           <button onClick={() => { setVitalsInitialTab('hr'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-heart">
@@ -422,7 +422,7 @@ export const FamilyDashboard = ({
               <Activity className="w-5 h-5 text-[#f59e0b]" />
             </div>
             <p className="text-base font-bold text-white text-center">{latestHR ? latestHR.value : '--'}</p>
-            <p className="text-[11px] text-stone-500 font-medium mt-0.5 text-center">Heart</p>
+            <p className="text-[11px] text-[#8e8e93] font-medium mt-0.5 text-center">Heart</p>
           </button>
 
           <button onClick={() => { setVitalsInitialTab('temp'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-temp">
@@ -430,7 +430,7 @@ export const FamilyDashboard = ({
               <Thermometer className="w-5 h-5 text-[#3b82f6]" />
             </div>
             <p className="text-base font-bold text-white text-center">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
-            <p className="text-[11px] text-stone-500 font-medium mt-0.5 text-center">Temp</p>
+            <p className="text-[11px] text-[#8e8e93] font-medium mt-0.5 text-center">Temp</p>
           </button>
 
           <button onClick={() => { setVitalsInitialTab('pain'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-pain">
@@ -438,7 +438,7 @@ export const FamilyDashboard = ({
               <Frown className="w-5 h-5 text-[#a855f7]" />
             </div>
             <p className="text-base font-bold text-white text-center">{latestPain ? `${latestPain.value}/10` : '--'}</p>
-            <p className="text-[11px] text-stone-500 font-medium mt-0.5 text-center">Pain</p>
+            <p className="text-[11px] text-[#8e8e93] font-medium mt-0.5 text-center">Pain</p>
           </button>
         </div>
       </div>
@@ -463,7 +463,7 @@ export const FamilyDashboard = ({
 
         <div className="flex items-center justify-between mb-2">
           <span className="text-base font-semibold text-white">Today&apos;s Progress</span>
-          <span className="text-base font-semibold text-stone-400">{completedTasks.length}/{totalTasks}</span>
+          <span className="text-base font-semibold text-[#ababab]">{completedTasks.length}/{totalTasks}</span>
         </div>
         <div className="h-1.5 bg-stone-800 rounded-full overflow-hidden">
           <div 
@@ -479,7 +479,7 @@ export const FamilyDashboard = ({
           {!viewingDate && (
             <>
               <button onClick={() => setActiveTaskTab('requests')} className="relative">
-                <span className={`text-base font-medium transition-colors ${activeTaskTab === 'requests' ? 'text-white' : 'text-stone-500'}`}>
+                <span className={`text-base font-medium transition-colors ${activeTaskTab === 'requests' ? 'text-white' : 'text-[#8e8e93]'}`}>
                   My Requests
                 </span>
                 {myRequests.length > 0 && (
@@ -491,7 +491,7 @@ export const FamilyDashboard = ({
               <div className="flex-1 h-px bg-stone-700 mx-4" />
             </>
           )}
-          <button onClick={() => setActiveTaskTab('timeline')} className={`text-base font-medium transition-colors ${activeTaskTab === 'timeline' || viewingDate ? 'text-white' : 'text-stone-500'}`}>
+          <button onClick={() => setActiveTaskTab('timeline')} className={`text-base font-medium transition-colors ${activeTaskTab === 'timeline' || viewingDate ? 'text-white' : 'text-[#8e8e93]'}`}>
             Care Timeline
           </button>
         </div>
@@ -501,7 +501,7 @@ export const FamilyDashboard = ({
       <div className="px-4 pb-4">
         {activeTaskTab === 'requests' && !viewingDate ? (
           <div className="space-y-3">
-            <button onClick={() => setShowRequestModal(true)} className="w-full p-4 border-2 border-dashed border-stone-700 text-stone-400 hover:border-[#25D366] hover:text-[#25D366] rounded-2xl flex items-center justify-center gap-2 transition-colors" data-testid="add-request-btn">
+            <button onClick={() => setShowRequestModal(true)} className="w-full p-4 border-2 border-dashed border-stone-700 text-[#ababab] hover:border-[#25D366] hover:text-[#25D366] rounded-2xl flex items-center justify-center gap-2 transition-colors" data-testid="add-request-btn">
               <Plus className="w-5 h-5" />
               <span className="font-semibold">Add New Request</span>
             </button>
@@ -514,23 +514,23 @@ export const FamilyDashboard = ({
                       <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                         request.priority === 'urgent' ? 'bg-rose-500/20 text-rose-400' 
                         : request.priority === 'high' ? 'bg-orange-500/20 text-orange-400'
-                        : 'bg-stone-800 text-stone-400'
+                        : 'bg-stone-800 text-[#ababab]'
                       }`}>{request.priority.toUpperCase()}</span>
                       <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-400">Pending</span>
                     </div>
-                    <span className="text-xs text-stone-600">{request.time}</span>
+                    <span className="text-xs text-[#8e8e93]">{request.time}</span>
                   </div>
                   <h3 className="font-semibold text-white mb-1">{request.title}</h3>
-                  {request.description && <p className="text-sm text-stone-400">{request.description}</p>}
+                  {request.description && <p className="text-sm text-[#ababab]">{request.description}</p>}
                 </div>
               ))
             ) : (
               <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-8 text-center">
                 <div className="w-16 h-16 bg-stone-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="w-8 h-8 text-stone-600" />
+                  <Sparkles className="w-8 h-8 text-[#8e8e93]" />
                 </div>
                 <h3 className="font-semibold text-white mb-1">No requests yet</h3>
-                <p className="text-stone-600 text-sm">Tap the button above to request tasks for the caregiver</p>
+                <p className="text-[#8e8e93] text-sm">Tap the button above to request tasks for the caregiver</p>
               </div>
             )}
           </div>
@@ -552,12 +552,12 @@ export const FamilyDashboard = ({
                       </div>
                     </div>
                     <div className="p-4">
-                      {task.completionNote && <p className="text-stone-400 text-sm mb-3">&quot;{task.completionNote}&quot;</p>}
+                      {task.completionNote && <p className="text-[#ababab] text-sm mb-3">&quot;{task.completionNote}&quot;</p>}
                       <div className="flex items-center gap-3">
                         <img src={CAREGIVER_PROFILE.photo} alt="Caregiver" className="w-10 h-10 rounded-xl object-cover" />
                         <div className="flex-1">
                           <p className="font-semibold text-white text-sm">Julia Martinez</p>
-                          <p className="text-stone-600 text-xs">Caregiver</p>
+                          <p className="text-[#8e8e93] text-xs">Caregiver</p>
                         </div>
                       </div>
                     </div>
@@ -567,10 +567,10 @@ export const FamilyDashboard = ({
             ) : (
               <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-10 text-center">
                 <div className="w-20 h-20 bg-[#2c2c2e] rounded-2xl flex items-center justify-center mx-auto mb-5">
-                  <Clock className="w-10 h-10 text-[#636366]" />
+                  <Clock className="w-10 h-10 text-[#8e8e93]" />
                 </div>
                 <h3 className="font-bold text-white text-xl mb-2">No care updates yet</h3>
-                <p className="text-[#636366] text-[15px] leading-relaxed">Tasks completed by caregivers will appear here with photos and notes</p>
+                <p className="text-[#8e8e93] text-[15px] leading-relaxed">Tasks completed by caregivers will appear here with photos and notes</p>
               </div>
             )}
           </div>
@@ -607,8 +607,8 @@ export const FamilyDashboard = ({
       {/* Upcoming Schedule */}
       <div className="px-5 mb-2">
         <div className="flex items-center gap-2 mb-3">
-          <Calendar className="w-4 h-4 text-[#636366]" />
-          <span className="text-xs font-bold text-[#636366] uppercase tracking-wider">Upcoming Schedule</span>
+          <Calendar className="w-4 h-4 text-[#8e8e93]" />
+          <span className="text-xs font-bold text-[#8e8e93] uppercase tracking-wider">Upcoming Schedule</span>
         </div>
       </div>
 
@@ -623,8 +623,8 @@ export const FamilyDashboard = ({
               <div className="flex-1">
                 <p className="text-white font-semibold text-[16px]">{item.title}</p>
                 <div className="flex items-center gap-1.5 mt-1.5">
-                  <Clock className="w-4 h-4 text-[#636366]" />
-                  <p className="text-[#636366] text-[14px]">{item.time}</p>
+                  <Clock className="w-4 h-4 text-[#8e8e93]" />
+                  <p className="text-[#8e8e93] text-[14px]">{item.time}</p>
                 </div>
               </div>
             </div>
@@ -635,8 +635,8 @@ export const FamilyDashboard = ({
       {/* Recent Alerts */}
       <div className="px-5 mb-2">
         <div className="flex items-center gap-2 mb-3">
-          <Bell className="w-4 h-4 text-[#636366]" />
-          <span className="text-xs font-bold text-[#636366] uppercase tracking-wider">Recent Alerts</span>
+          <Bell className="w-4 h-4 text-[#8e8e93]" />
+          <span className="text-xs font-bold text-[#8e8e93] uppercase tracking-wider">Recent Alerts</span>
         </div>
       </div>
 
@@ -645,7 +645,7 @@ export const FamilyDashboard = ({
           <div key={item.id} className={`rounded-2xl p-5 ${item.highlight ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-[#1c1c1e] border border-[#3a3a3c]'}`}>
             <p className="text-white font-bold text-[16px]">{item.title}</p>
             <p className="text-[#8e8e93] text-[14px] mt-1">{item.subtitle}</p>
-            <p className="text-[#48484a] text-[13px] mt-2">{item.time}</p>
+            <p className="text-[#8e8e93] text-[13px] mt-2">{item.time}</p>
           </div>
         ))}
       </div>
@@ -668,7 +668,7 @@ export const FamilyDashboard = ({
           <h3 className="font-bold text-white text-xl">Mary Smith</h3>
           <p className="text-[#8e8e93] text-[15px] mt-0.5">Family Guardian</p>
         </div>
-        <ChevronRight className="w-6 h-6 text-[#636366]" />
+        <ChevronRight className="w-6 h-6 text-[#8e8e93]" />
       </button>
 
       {/* Patient Quick Access */}
@@ -682,7 +682,7 @@ export const FamilyDashboard = ({
           <p className="font-bold text-white text-lg">{patient?.name}</p>
           <p className="text-[#8e8e93] text-[15px] mt-0.5">View Medical Profile</p>
         </div>
-        <ChevronRight className="w-6 h-6 text-[#636366]" />
+        <ChevronRight className="w-6 h-6 text-[#8e8e93]" />
       </button>
 
       {/* Menu Items */}
@@ -706,7 +706,7 @@ export const FamilyDashboard = ({
             <item.icon className="w-6 h-6 text-white" />
           </div>
           <span className="text-white text-lg flex-1 text-left">{item.label}</span>
-          <ChevronRight className="w-6 h-6 text-[#636366]" />
+          <ChevronRight className="w-6 h-6 text-[#8e8e93]" />
         </button>
       ))}
 
@@ -828,43 +828,43 @@ export const FamilyDashboard = ({
       {/* Add Request Modal */}
       {showRequestModal && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-end justify-center">
-          <div className="bg-stone-950 border-t border-stone-800 w-full max-w-md rounded-t-3xl p-6">
+          <div className="bg-black border-t border-[#3a3a3c] w-full max-w-md rounded-t-3xl p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-white">New Request</h2>
               <button onClick={() => setShowRequestModal(false)} className="p-2 hover:bg-stone-800 rounded-full transition-colors">
-                <X className="w-5 h-5 text-stone-500" />
+                <X className="w-5 h-5 text-[#8e8e93]" />
               </button>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-stone-400 mb-2">What do you need?</label>
+                <label className="block text-sm font-medium text-[#ababab] mb-2">What do you need?</label>
                 <input
                   type="text"
                   value={newRequest.title}
                   onChange={(e) => setNewRequest(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="e.g., Extra blanket, Call me back"
-                  className="w-full px-4 py-3 bg-stone-900 border border-stone-800 text-white placeholder-stone-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#25D366]"
+                  className="w-full px-4 py-3 bg-[#2c2c2e] border border-[#3a3a3c] text-white placeholder-[#636366] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#25D366]"
                   style={{ fontSize: '16px' }}
                   data-testid="request-title-input"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-400 mb-2">Additional details (optional)</label>
+                <label className="block text-sm font-medium text-[#ababab] mb-2">Additional details (optional)</label>
                 <textarea
                   value={newRequest.description}
                   onChange={(e) => setNewRequest(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Any specific instructions..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-stone-900 border border-stone-800 text-white placeholder-stone-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#25D366] resize-none"
+                  className="w-full px-4 py-3 bg-[#2c2c2e] border border-[#3a3a3c] text-white placeholder-[#636366] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#25D366] resize-none"
                   style={{ fontSize: '16px' }}
                   data-testid="request-description-input"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-stone-400 mb-2">Priority</label>
+                <label className="block text-sm font-medium text-[#ababab] mb-2">Priority</label>
                 <div className="flex gap-2">
                   {['standard', 'high', 'urgent'].map((priority) => (
                     <button
@@ -873,7 +873,7 @@ export const FamilyDashboard = ({
                       className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all ${
                         newRequest.priority === priority
                           ? priority === 'urgent' ? 'bg-rose-500 text-white' : priority === 'high' ? 'bg-orange-500 text-white' : 'bg-stone-700 text-white'
-                          : 'bg-stone-900 border border-stone-800 text-stone-400 hover:bg-stone-800'
+                          : 'bg-[#2c2c2e] border border-[#3a3a3c] text-[#ababab] hover:bg-stone-800'
                       }`}
                     >
                       {priority.charAt(0).toUpperCase() + priority.slice(1)}
@@ -898,17 +898,17 @@ export const FamilyDashboard = ({
       {/* Image Detail Modal */}
       {selectedTask && (
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => setSelectedTask(null)}>
-          <div className="bg-stone-950 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-4 border-b border-stone-800">
+          <div className="bg-black rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-[#3a3a3c]">
               <div>
                 <h2 className="text-lg font-bold text-white">{selectedTask.title}</h2>
-                <p className="text-sm text-stone-500 flex items-center gap-1 mt-0.5">
+                <p className="text-sm text-[#8e8e93] flex items-center gap-1 mt-0.5">
                   <Clock className="w-4 h-4" />
                   Completed at {selectedTask.completedAt}
                 </p>
               </div>
               <button onClick={() => setSelectedTask(null)} className="p-2 hover:bg-stone-800 rounded-full transition-colors">
-                <X className="w-5 h-5 text-stone-500" />
+                <X className="w-5 h-5 text-[#8e8e93]" />
               </button>
             </div>
             <div className="relative">
@@ -916,16 +916,16 @@ export const FamilyDashboard = ({
             </div>
             <div className="p-5 space-y-4">
               {selectedTask.completionNote && (
-                <div className="bg-stone-900 rounded-2xl p-4">
-                  <p className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-2">Caregiver Note</p>
+                <div className="bg-[#2c2c2e] rounded-2xl p-4">
+                  <p className="text-xs font-bold text-[#8e8e93] uppercase tracking-wider mb-2">Caregiver Note</p>
                   <p className="text-white text-sm leading-relaxed">&quot;{selectedTask.completionNote}&quot;</p>
                 </div>
               )}
-              <div className="flex items-center gap-3 pt-3 border-t border-stone-800">
+              <div className="flex items-center gap-3 pt-3 border-t border-[#3a3a3c]">
                 <img src={CAREGIVER_PROFILE.photo} alt="Caregiver" className="w-12 h-12 rounded-xl object-cover" />
                 <div className="flex-1">
                   <p className="font-semibold text-white">Julia Martinez</p>
-                  <p className="text-stone-500 text-sm">Certified Nursing Assistant</p>
+                  <p className="text-[#8e8e93] text-sm">Certified Nursing Assistant</p>
                 </div>
                 <div className="flex items-center gap-1 text-[#25D366] text-sm font-semibold">
                   <CheckCircle className="w-4 h-4" />

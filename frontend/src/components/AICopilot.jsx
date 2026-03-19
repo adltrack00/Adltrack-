@@ -76,7 +76,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
   if (!isOpen) return null;
 
   // Theme-aware colors
-  const userMsgBg = isDarkMode ? 'bg-[#25D366] text-white' : 'bg-stone-900 text-white';
+  const userMsgBg = isDarkMode ? 'bg-[#25D366] text-white' : 'bg-[#2c2c2e] text-white';
   const assistantMsgBg = isDarkMode ? 'bg-stone-800 text-stone-100' : 'bg-white text-stone-800 border border-stone-200';
   const userIconBg = isDarkMode ? 'bg-stone-700' : 'bg-stone-200';
   const assistantIconBg = isDarkMode ? 'bg-[#25D366]/20' : 'bg-emerald-100';
@@ -90,7 +90,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
       <div 
         ref={containerRef}
         className={`
-          ${isDarkMode ? 'bg-stone-950' : 'bg-white'} 
+          ${isDarkMode ? 'bg-black' : 'bg-white'} 
           fixed left-0 right-0 bottom-0
           sm:left-1/2 sm:-translate-x-1/2 sm:bottom-0
           sm:max-w-lg
@@ -105,7 +105,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header - matching mobile exactly */}
-        <div className={`flex-none ${isDarkMode ? 'border-stone-800' : 'border-stone-200'} border-b px-5 py-4 flex items-center justify-between`}>
+        <div className={`flex-none ${isDarkMode ? 'border-[#3a3a3c]' : 'border-stone-200'} border-b px-5 py-4 flex items-center justify-between`}>
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl bg-[#25D366]/20 flex items-center justify-center">
               <Cpu className="w-6 h-6 text-[#25D366]" />
@@ -114,7 +114,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
               <h2 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-stone-900'}`}>
                 Care Assistant
               </h2>
-              <p className={`text-xs ${isDarkMode ? 'text-stone-500' : 'text-stone-500'} font-medium`}>Powered by AI</p>
+              <p className={`text-xs ${isDarkMode ? 'text-[#8e8e93]' : 'text-[#8e8e93]'} font-medium`}>Powered by AI</p>
             </div>
           </div>
           <button 
@@ -122,13 +122,13 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
             className={`w-9 h-9 ${isDarkMode ? 'bg-stone-800 hover:bg-stone-700' : 'bg-stone-100 hover:bg-stone-200'} rounded-full flex items-center justify-center transition-colors`}
             data-testid="copilot-close"
           >
-            <X className={`w-5 h-5 ${isDarkMode ? 'text-stone-400' : 'text-stone-500'}`} />
+            <X className={`w-5 h-5 ${isDarkMode ? 'text-[#ababab]' : 'text-[#8e8e93]'}`} />
           </button>
         </div>
 
         {/* Messages Area */}
         <div 
-          className={`flex-1 overflow-y-auto overscroll-contain p-5 space-y-4 ${isDarkMode ? 'bg-stone-950' : 'bg-stone-50'}`}
+          className={`flex-1 overflow-y-auto overscroll-contain p-5 space-y-4 ${isDarkMode ? 'bg-black' : 'bg-stone-50'}`}
         >
           {messages.map((msg, idx) => (
             <div 
@@ -165,7 +165,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
         </div>
 
         {/* Input Area - matching mobile with green border on focus */}
-        <div className={`flex-none border-t ${isDarkMode ? 'border-stone-800 bg-stone-950' : 'border-stone-200 bg-white'} p-4`}>
+        <div className={`flex-none border-t ${isDarkMode ? 'border-[#3a3a3c] bg-black' : 'border-stone-200 bg-white'} p-4`}>
           <div className="flex gap-3 items-center">
             <input
               ref={inputRef}
@@ -176,7 +176,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               placeholder="Ask about care..."
-              className={`flex-1 px-4 py-3 ${isDarkMode ? 'bg-stone-900 text-white placeholder:text-stone-500' : 'bg-stone-100 text-stone-900 placeholder:text-stone-400'} rounded-xl text-base focus:outline-none font-medium transition-all ${
+              className={`flex-1 px-4 py-3 ${isDarkMode ? 'bg-[#2c2c2e] text-white placeholder:text-[#8e8e93]' : 'bg-stone-100 text-stone-900 placeholder:text-[#ababab]'} rounded-xl text-base focus:outline-none font-medium transition-all ${
                 isFocused ? 'ring-2 ring-[#25D366] border-[#25D366]' : 'border border-transparent'
               }`}
               style={{ fontSize: '16px' }}
@@ -191,7 +191,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
               <Send className="w-5 h-5" />
             </button>
           </div>
-          <p className={`text-[11px] ${isDarkMode ? 'text-stone-500' : 'text-stone-400'} text-center mt-3 font-medium`}>
+          <p className={`text-[11px] ${isDarkMode ? 'text-[#8e8e93]' : 'text-[#ababab]'} text-center mt-3 font-medium`}>
             AI care guidance • Not medical advice
           </p>
         </div>

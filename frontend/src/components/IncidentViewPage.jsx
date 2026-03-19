@@ -127,7 +127,7 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
         <PhotoViewerModal />
 
         {/* Header */}
-        <div className={`${isDarkMode ? 'bg-stone-900' : 'bg-white'} border-b ${border} px-5 py-4`}>
+        <div className={`${isDarkMode ? 'bg-[#2c2c2e]' : 'bg-white'} border-b ${border} px-5 py-4`}>
           <button 
             onClick={() => setSelectedIncident(null)}
             className={`flex items-center gap-2 ${textMuted} hover:${text} mb-3`}
@@ -275,20 +275,20 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
         <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-white text-lg">Summary</h3>
-            <span className="text-sm text-[#636366]">Last 30 days</span>
+            <span className="text-sm text-[#8e8e93]">Last 30 days</span>
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
               <p className="text-3xl font-bold text-white">{incidents.length}</p>
-              <p className="text-sm text-[#636366] mt-1">Total</p>
+              <p className="text-sm text-[#8e8e93] mt-1">Total</p>
             </div>
             <div className="text-center">
               <p className="text-3xl font-bold text-[#ff453a]">{incidents.filter(i => i.status === 'resolved').length}</p>
-              <p className="text-sm text-[#636366] mt-1">Resolved</p>
+              <p className="text-sm text-[#8e8e93] mt-1">Resolved</p>
             </div>
             <div className="text-center">
               <p className="text-3xl font-bold text-[#30d158]">{incidents.filter(i => i.status !== 'resolved').length}</p>
-              <p className="text-sm text-[#636366] mt-1">Open</p>
+              <p className="text-sm text-[#8e8e93] mt-1">Open</p>
             </div>
           </div>
         </div>
@@ -334,10 +334,10 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
                         {severityLevel?.label.toUpperCase()}
                       </span>
                     </div>
-                    <p className="text-sm text-[#636366] truncate">{incident.description}</p>
-                    <p className="text-xs text-[#48484a] mt-1">{incident.createdAt}</p>
+                    <p className="text-sm text-[#8e8e93] truncate">{incident.description}</p>
+                    <p className="text-xs text-[#8e8e93] mt-1">{incident.createdAt}</p>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-[#636366] flex-shrink-0" />
+                  <ChevronRight className="w-5 h-5 text-[#8e8e93] flex-shrink-0" />
                 </button>
               );
             })}
@@ -348,7 +348,7 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
               <Shield className="w-10 h-10 text-[#30d158]" fill="#30d158" stroke="#1c1c1e" strokeWidth={1.5} />
             </div>
             <h3 className="font-bold text-white text-xl mb-2">No incidents reported</h3>
-            <p className="text-[#636366] text-[15px] leading-relaxed">When caregivers report incidents, they will appear here with photos and details</p>
+            <p className="text-[#8e8e93] text-[15px] leading-relaxed">When caregivers report incidents, they will appear here with photos and details</p>
           </div>
         )}
       </div>

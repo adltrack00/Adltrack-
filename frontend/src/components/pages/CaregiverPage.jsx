@@ -20,9 +20,9 @@ export const CaregiverPage = ({ onBack }) => {
   };
 
   return (
-    <div className="min-h-screen bg-stone-950">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <div className="sticky top-0 bg-stone-900 border-b border-stone-800 px-4 py-4 flex items-center gap-3 z-10">
+      <div className="sticky top-0 bg-[#2c2c2e] border-b border-[#3a3a3c] px-4 py-4 flex items-center gap-3 z-10">
         <button onClick={onBack} className="p-2 hover:bg-stone-800 rounded-full">
           <ArrowLeft className="w-5 h-5 text-stone-300" />
         </button>
@@ -35,10 +35,10 @@ export const CaregiverPage = ({ onBack }) => {
           <img 
             src={caregiver.photo} 
             alt={caregiver.name}
-            className="w-24 h-24 rounded-full object-cover border-4 border-stone-800 shadow-lg"
+            className="w-24 h-24 rounded-full object-cover border-4 border-[#3a3a3c] shadow-lg"
           />
           <h2 className="text-xl font-bold text-white mt-4">{caregiver.name}</h2>
-          <p className="text-stone-400">{caregiver.role}</p>
+          <p className="text-[#ababab]">{caregiver.role}</p>
           
           {/* Shift Status */}
           <div className="mt-3 flex items-center gap-2 px-4 py-2 bg-[#25D366]/20 rounded-full">
@@ -49,20 +49,20 @@ export const CaregiverPage = ({ onBack }) => {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
+          <div className="bg-[#2c2c2e] border border-[#3a3a3c] rounded-xl p-4 text-center">
             <Star className="w-6 h-6 text-yellow-500 mx-auto mb-1" />
             <p className="text-xl font-bold text-white">{caregiver.rating}</p>
-            <p className="text-xs text-stone-400">Rating</p>
+            <p className="text-xs text-[#ababab]">Rating</p>
           </div>
-          <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
+          <div className="bg-[#2c2c2e] border border-[#3a3a3c] rounded-xl p-4 text-center">
             <Award className="w-6 h-6 text-blue-500 mx-auto mb-1" />
             <p className="text-xl font-bold text-white">{caregiver.yearsExperience}</p>
-            <p className="text-xs text-stone-400">Years Exp.</p>
+            <p className="text-xs text-[#ababab]">Years Exp.</p>
           </div>
-          <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 text-center">
+          <div className="bg-[#2c2c2e] border border-[#3a3a3c] rounded-xl p-4 text-center">
             <CheckCircle className="w-6 h-6 text-[#25D366] mx-auto mb-1" />
             <p className="text-xl font-bold text-white">{caregiver.shiftsCompleted}</p>
-            <p className="text-xs text-stone-400">Shifts</p>
+            <p className="text-xs text-[#ababab]">Shifts</p>
           </div>
         </div>
 
@@ -82,13 +82,13 @@ export const CaregiverPage = ({ onBack }) => {
         </div>
 
         {/* About */}
-        <div className="bg-stone-900 border border-stone-800 rounded-xl p-4">
+        <div className="bg-[#2c2c2e] border border-[#3a3a3c] rounded-xl p-4">
           <h3 className="font-semibold text-white mb-2">About</h3>
           <p className="text-sm text-stone-300">{caregiver.bio}</p>
         </div>
 
         {/* Certifications */}
-        <div className="bg-stone-900 border border-stone-800 rounded-xl p-4">
+        <div className="bg-[#2c2c2e] border border-[#3a3a3c] rounded-xl p-4">
           <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
             <Shield className="w-5 h-5 text-blue-500" />
             Verified Certifications

@@ -54,8 +54,8 @@ export const TaskRequestCard = ({ task, onAccept, onDecline }) => {
                     selectedReason === reason
                       ? 'bg-rose-500/20 border border-rose-500 text-rose-400'
                       : isDarkMode 
-                        ? 'bg-stone-800 border border-transparent text-stone-400 hover:bg-stone-700'
-                        : 'bg-stone-100 border border-transparent text-stone-600 hover:bg-stone-200'
+                        ? 'bg-stone-800 border border-transparent text-[#ababab] hover:bg-stone-700'
+                        : 'bg-stone-100 border border-transparent text-[#8e8e93] hover:bg-stone-200'
                   }`}
                 >
                   {reason}
@@ -65,14 +65,14 @@ export const TaskRequestCard = ({ task, onAccept, onDecline }) => {
             <div className="flex gap-2 pt-1">
               <button
                 onClick={() => setShowDeclineForm(false)}
-                className={`flex-1 py-2 border ${isDarkMode ? 'border-stone-700 text-stone-400 hover:bg-stone-800' : 'border-stone-300 text-stone-600 hover:bg-stone-100'} rounded-lg text-xs font-semibold`}
+                className={`flex-1 py-2 border ${isDarkMode ? 'border-stone-700 text-[#ababab] hover:bg-stone-800' : 'border-stone-300 text-[#8e8e93] hover:bg-stone-100'} rounded-lg text-xs font-semibold`}
               >
                 Cancel
               </button>
               <button
                 onClick={handleDecline}
                 disabled={!selectedReason}
-                className={`flex-1 py-2 bg-rose-500 text-white rounded-lg text-xs font-semibold hover:bg-rose-600 ${isDarkMode ? 'disabled:bg-stone-700 disabled:text-stone-500' : 'disabled:bg-stone-300 disabled:text-stone-400'} disabled:cursor-not-allowed`}
+                className={`flex-1 py-2 bg-rose-500 text-white rounded-lg text-xs font-semibold hover:bg-rose-600 ${isDarkMode ? 'disabled:bg-stone-700 disabled:text-[#8e8e93]' : 'disabled:bg-stone-300 disabled:text-[#ababab]'} disabled:cursor-not-allowed`}
               >
                 Confirm
               </button>

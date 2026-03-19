@@ -78,7 +78,7 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
 
         {/* Instructions */}
         <div className="bg-[#191919] rounded-2xl p-5 mb-6">
-          <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-2.5">Instructions</p>
+          <p className="text-xs font-bold text-[#8e8e93] uppercase tracking-[1.5px] mb-2.5">Instructions</p>
           <p className="text-[15px] text-[#8e8e93] leading-relaxed">{task.instructions || task.description}</p>
         </div>
 
@@ -86,7 +86,7 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
           <>
             {/* Photo Upload */}
             <div className="mb-6">
-              <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-3">
+              <p className="text-xs font-bold text-[#8e8e93] uppercase tracking-[1.5px] mb-3">
                 Photo Evidence ({task.requiresPhoto ? 'Required' : 'Optional'})
               </p>
               {photoPreview ? (
@@ -107,10 +107,10 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
                 <label className="block cursor-pointer">
                   <div className="border-2 border-dashed border-[#3a3a3c] rounded-2xl py-10 text-center bg-[#1c1c1e]/50">
                     <div className="w-16 h-16 bg-[#2c2c2e] rounded-2xl flex items-center justify-center mx-auto mb-3">
-                      <Camera className="w-8 h-8 text-[#636366]" />
+                      <Camera className="w-8 h-8 text-[#8e8e93]" />
                     </div>
                     <p className="text-base text-white font-semibold">Tap to add photo</p>
-                    <p className="text-sm text-[#636366] mt-1">Take a photo for documentation</p>
+                    <p className="text-sm text-[#8e8e93] mt-1">Take a photo for documentation</p>
                   </div>
                   <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
                 </label>
@@ -119,7 +119,7 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
 
             {/* Notes */}
             <div>
-              <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-3">Notes</p>
+              <p className="text-xs font-bold text-[#8e8e93] uppercase tracking-[1.5px] mb-3">Notes</p>
               <textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
@@ -164,7 +164,7 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
           className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2.5 transition-colors ${
             mode === 'complete'
               ? 'bg-[#25D366] text-white'
-              : 'bg-[#ef4444] text-white disabled:bg-[#3a3a3c] disabled:text-[#636366]'
+              : 'bg-[#ef4444] text-white disabled:bg-[#3a3a3c] disabled:text-[#8e8e93]'
           }`}
           data-testid="submit-task-completion"
         >

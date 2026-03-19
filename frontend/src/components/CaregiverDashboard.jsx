@@ -172,15 +172,15 @@ export const CaregiverDashboard = ({
               <div className="grid grid-cols-3 text-center">
                 <div>
                   <p className="text-4xl font-bold text-white">{medications.length}</p>
-                  <p className="text-[#636366] text-sm mt-1">Total Meds</p>
+                  <p className="text-[#8e8e93] text-sm mt-1">Total Meds</p>
                 </div>
                 <div>
                   <p className="text-4xl font-bold text-[#25D366]">{medLogs.length}</p>
-                  <p className="text-[#636366] text-sm mt-1">Given Today</p>
+                  <p className="text-[#8e8e93] text-sm mt-1">Given Today</p>
                 </div>
                 <div>
                   <p className="text-4xl font-bold text-white">{medications.length - medLogs.length}</p>
-                  <p className="text-[#636366] text-sm mt-1">Remaining</p>
+                  <p className="text-[#8e8e93] text-sm mt-1">Remaining</p>
                 </div>
               </div>
             </div>
@@ -206,8 +206,8 @@ export const CaregiverDashboard = ({
                       <p className="text-white font-bold text-[17px]">{med.name}</p>
                       <p className="text-[#8e8e93] text-[14px] mt-0.5">{med.dosage} - {med.frequency}</p>
                       <div className="flex items-center gap-1.5 mt-1">
-                        <Clock className="w-4 h-4 text-[#636366]" />
-                        <span className="text-[#636366] text-[13px]">{med.time}</span>
+                        <Clock className="w-4 h-4 text-[#8e8e93]" />
+                        <span className="text-[#8e8e93] text-[13px]">{med.time}</span>
                       </div>
                     </div>
                     <span className={`px-3 py-1.5 rounded-full text-[13px] font-bold ${isGiven ? 'bg-[#25D366]/20 text-[#25D366]' : 'bg-amber-600/20 text-amber-500'}`}>
@@ -349,7 +349,7 @@ export const CaregiverDashboard = ({
                 <Heart className="w-5 h-5 text-[#e91e7a]" fill="currentColor" />
               </div>
               <p className="text-base font-bold text-white text-center">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
-              <p className="text-[11px] text-stone-500 font-medium mt-0.5 text-center">BP</p>
+              <p className="text-[11px] text-[#8e8e93] font-medium mt-0.5 text-center">BP</p>
             </button>
 
             {/* Heart Card */}
@@ -361,7 +361,7 @@ export const CaregiverDashboard = ({
                 <Activity className="w-5 h-5 text-[#f97316]" />
               </div>
               <p className="text-base font-bold text-white text-center">{latestHR ? latestHR.value : '--'}</p>
-              <p className="text-[11px] text-stone-500 font-medium mt-0.5 text-center">Heart</p>
+              <p className="text-[11px] text-[#8e8e93] font-medium mt-0.5 text-center">Heart</p>
             </button>
 
             {/* Temp Card */}
@@ -373,7 +373,7 @@ export const CaregiverDashboard = ({
                 <Thermometer className="w-5 h-5 text-[#3b82f6]" />
               </div>
               <p className="text-base font-bold text-white text-center">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
-              <p className="text-[11px] text-stone-500 font-medium mt-0.5 text-center">Temp</p>
+              <p className="text-[11px] text-[#8e8e93] font-medium mt-0.5 text-center">Temp</p>
             </button>
 
             {/* Pain Card */}
@@ -387,7 +387,7 @@ export const CaregiverDashboard = ({
                 </div>
               </div>
               <p className="text-base font-bold text-white text-center">{latestPain ? `${latestPain.value}/10` : '--'}</p>
-              <p className="text-[11px] text-stone-500 font-medium mt-0.5 text-center">Pain</p>
+              <p className="text-[11px] text-[#8e8e93] font-medium mt-0.5 text-center">Pain</p>
             </button>
           </div>
         </div>
@@ -419,7 +419,7 @@ export const CaregiverDashboard = ({
             <span className="text-base font-semibold text-white">
               {viewingDate ? `${formatDateHeader(viewingDate)}'s Progress` : "Today's Progress"}
             </span>
-            <span className="text-base font-semibold text-stone-400">{completedCount}/{displayTasks.length}</span>
+            <span className="text-base font-semibold text-[#ababab]">{completedCount}/{displayTasks.length}</span>
           </div>
           <div className="h-1.5 bg-stone-800 rounded-full overflow-hidden">
             <div 
@@ -442,7 +442,7 @@ export const CaregiverDashboard = ({
                   <span className={`text-base font-medium transition-colors ${
                     activeTaskTab === 'requests'
                       ? 'text-white'
-                      : 'text-stone-500'
+                      : 'text-[#8e8e93]'
                   }`}>
                     Requests
                   </span>
@@ -464,7 +464,7 @@ export const CaregiverDashboard = ({
               className={`text-base font-medium transition-colors ${
                 activeTaskTab === 'today' || viewingDate
                   ? 'text-white'
-                  : 'text-stone-500'
+                  : 'text-[#8e8e93]'
               }`}
             >
               {viewingDate ? 'Completed Tasks' : "Today's Tasks"}
@@ -574,7 +574,7 @@ export const CaregiverDashboard = ({
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-[#636366]" />
+                    <Clock className="w-4 h-4 text-[#8e8e93]" />
                     <span className="text-[14px] text-[#8e8e93]">{shift.startTime} - {shift.endTime}</span>
                   </div>
                   {shift.status === 'completed' && (
@@ -695,7 +695,7 @@ export const CaregiverDashboard = ({
           <h3 className="font-bold text-white text-xl">Julia Martinez</h3>
           <p className="text-[#8e8e93] text-[15px] mt-0.5">Certified Nursing Assistant</p>
         </div>
-        <ChevronRight className="w-6 h-6 text-[#636366]" />
+        <ChevronRight className="w-6 h-6 text-[#8e8e93]" />
       </button>
 
       {/* Menu Items */}
@@ -722,7 +722,7 @@ export const CaregiverDashboard = ({
             )}
           </div>
           <span className="text-white text-lg flex-1 text-left">{item.label}</span>
-          <ChevronRight className="w-6 h-6 text-[#636366]" />
+          <ChevronRight className="w-6 h-6 text-[#8e8e93]" />
         </button>
       ))}
 

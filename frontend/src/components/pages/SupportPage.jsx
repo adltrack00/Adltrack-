@@ -49,7 +49,7 @@ export const SupportPage = ({ onBack }) => {
                   </div>
                   <div className="text-left">
                     <p className="text-[16px] font-medium text-white">{option.label}</p>
-                    <p className="text-[13px] text-[#636366] mt-0.5">{option.desc}</p>
+                    <p className="text-[13px] text-[#8e8e93] mt-0.5">{option.desc}</p>
                   </div>
                 </div>
                 <span className="text-[15px] font-semibold text-[#34C759]">{option.action}</span>
@@ -69,7 +69,7 @@ export const SupportPage = ({ onBack }) => {
                   data-testid={`faq-item-${idx}`}
                 >
                   <span className="text-[15px] font-medium text-white text-left">{faq}</span>
-                  <ChevronRight className="w-5 h-5 text-[#636366] flex-shrink-0 ml-3" />
+                  <ChevronRight className="w-5 h-5 text-[#8e8e93] flex-shrink-0 ml-3" />
                 </button>
                 {idx < faqItems.length - 1 && (
                   <div className="mx-4 border-t border-[#3a3a3c]" />
@@ -95,7 +95,7 @@ export const SupportPage = ({ onBack }) => {
                   </div>
                   <span className="text-[16px] font-medium text-white">{resource.label}</span>
                 </div>
-                <ExternalLink className="w-5 h-5 text-[#636366]" />
+                <ExternalLink className="w-5 h-5 text-[#8e8e93]" />
               </button>
             ))}
           </div>

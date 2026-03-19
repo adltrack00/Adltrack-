@@ -23,7 +23,7 @@ export const SignInPage = ({ onSelectRole }) => {
               <Sparkles className="w-8 h-8 text-rose-500" />
             </div>
             <h1 className="text-3xl font-bold text-stone-900 tracking-tight">Welcome back</h1>
-            <p className="text-stone-500 font-medium">Select your account type to continue</p>
+            <p className="text-[#8e8e93] font-medium">Select your account type to continue</p>
           </div>
 
           {/* Role Selection Cards */}
@@ -40,7 +40,7 @@ export const SignInPage = ({ onSelectRole }) => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-stone-900">I'm a Caregiver</h3>
-                  <p className="text-sm text-stone-500 font-medium">Manage shifts, tasks & documentation</p>
+                  <p className="text-sm text-[#8e8e93] font-medium">Manage shifts, tasks & documentation</p>
                 </div>
                 <ArrowRight className="w-5 h-5 text-stone-300 group-hover:text-teal-600 group-hover:translate-x-1 transition-all" />
               </div>
@@ -58,7 +58,7 @@ export const SignInPage = ({ onSelectRole }) => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-stone-900">I'm a Family Member</h3>
-                  <p className="text-sm text-stone-500 font-medium">Monitor care & stay connected</p>
+                  <p className="text-sm text-[#8e8e93] font-medium">Monitor care & stay connected</p>
                 </div>
                 <ArrowRight className="w-5 h-5 text-stone-300 group-hover:text-rose-600 group-hover:translate-x-1 transition-all" />
               </div>
@@ -76,7 +76,7 @@ export const SignInPage = ({ onSelectRole }) => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-bold text-stone-900">I'm an Agency</h3>
-                  <p className="text-sm text-stone-500 font-medium">Manage staff & compliance</p>
+                  <p className="text-sm text-[#8e8e93] font-medium">Manage staff & compliance</p>
                 </div>
                 <ArrowRight className="w-5 h-5 text-stone-300 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
               </div>
@@ -85,7 +85,7 @@ export const SignInPage = ({ onSelectRole }) => {
 
           {/* Demo Notice */}
           <div className="pt-4 text-center">
-            <p className="text-xs text-stone-400 font-medium">
+            <p className="text-xs text-[#ababab] font-medium">
               This is a demo environment. Select any role to explore.
             </p>
           </div>
@@ -94,7 +94,7 @@ export const SignInPage = ({ onSelectRole }) => {
 
       {/* Footer */}
       <footer className="p-6 text-center">
-        <p className="text-sm text-stone-400 font-medium">
+        <p className="text-sm text-[#ababab] font-medium">
           © {new Date().getFullYear()} ADLTrack. All rights reserved.
         </p>
       </footer>

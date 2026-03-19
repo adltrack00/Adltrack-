@@ -46,7 +46,7 @@ export const TaskCard = ({
               {task.title}
             </h3>
             
-            <div className={`flex items-center gap-2.5 ${isCompleted ? 'text-[#636366]' : 'text-[#8e8e93]'} text-[15px]`}>
+            <div className={`flex items-center gap-2.5 ${isCompleted ? 'text-[#8e8e93]' : 'text-[#8e8e93]'} text-[15px]`}>
               <span className="flex items-center gap-1.5 font-medium">
                 <Clock className="w-[18px] h-[18px]" />
                 {isCompleted && task.completedAt ? task.completedAt : task.scheduledTime}
@@ -60,7 +60,7 @@ export const TaskCard = ({
             </div>
             
             {isCompleted && task.completionNote && (
-              <p className="text-[15px] text-[#636366] mt-1.5 italic">&quot;{task.completionNote}&quot;</p>
+              <p className="text-[15px] text-[#8e8e93] mt-1.5 italic">&quot;{task.completionNote}&quot;</p>
             )}
           </div>
           
@@ -106,12 +106,12 @@ export const TaskCard = ({
         <div className="px-5 pb-5">
           <div className="space-y-4">
             <div className="bg-[#191919] rounded-2xl p-4">
-              <p className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px] mb-2">Instructions</p>
+              <p className="text-xs font-bold text-[#8e8e93] uppercase tracking-[1.5px] mb-2">Instructions</p>
               <p className="text-[15px] text-[#8e8e93] leading-relaxed">{task.instructions || task.description}</p>
             </div>
             <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-[#636366]" />
-              <span className="text-xs font-bold text-[#636366] uppercase tracking-[1.5px]">Time Window</span>
+              <Clock className="w-5 h-5 text-[#8e8e93]" />
+              <span className="text-xs font-bold text-[#8e8e93] uppercase tracking-[1.5px]">Time Window</span>
               <span className="text-[15px] text-white font-bold ml-1">{task.timeWindow}</span>
             </div>
             <button
