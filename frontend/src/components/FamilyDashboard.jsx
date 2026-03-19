@@ -784,9 +784,10 @@ export const FamilyDashboard = ({
                 data-testid={`nav-${tab.id}`}
               >
                 <tab.icon 
-                  className={`w-7 h-7 ${isActive ? 'text-[#25D366]' : 'text-[#8e8e93]'}`}
+                  className={`w-8 h-8 ${isActive ? 'text-[#25D366]' : 'text-[#8e8e93]'}`}
                   fill={isActive ? '#25D366' : 'none'}
-                  strokeWidth={isActive ? 0 : 1.5}
+                  stroke={isActive ? '#1c1c1e' : '#8e8e93'}
+                  strokeWidth={isActive ? 2 : 1.5}
                 />
                 <span className={`text-[11px] font-semibold mt-1 ${isActive ? 'text-[#25D366]' : 'text-[#8e8e93]'}`}>{tab.label}</span>
                 {tab.badge && (
