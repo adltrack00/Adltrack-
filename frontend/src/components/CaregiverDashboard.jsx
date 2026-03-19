@@ -14,7 +14,6 @@ import { AICopilot } from './AICopilot';
 import { IncidentReportPage } from './IncidentReportPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
-import { AccountsPage } from './pages/AccountsPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { SupportPage } from './pages/SupportPage';
 import { ChatPage } from './pages/ChatPage';
@@ -136,9 +135,6 @@ export const CaregiverDashboard = ({
   }
   if (activePage === 'settings') {
     return <SettingsPage onBack={() => setActivePage(null)} onNavigateToHelp={() => setActivePage('support')} />;
-  }
-  if (activePage === 'earnings') {
-    return <AccountsPage onBack={() => setActivePage(null)} role={UserRole.CAREGIVER} />;
   }
   if (activePage === 'history') {
     return <HistoryPage onBack={() => setActivePage(null)} role={UserRole.CAREGIVER} />;
@@ -654,16 +650,6 @@ export const CaregiverDashboard = ({
             
             <button 
               className="w-full flex items-center py-4"
-              onClick={() => setActivePage('earnings')}
-              data-testid="view-earnings-btn"
-            >
-              <span className="text-2xl mr-4">💰</span>
-              <span className="flex-1 text-lg text-white text-left">View Earnings</span>
-              <ChevronRight className="w-[22px] h-[22px] text-[#8e8e93]" />
-            </button>
-            
-            <button 
-              className="w-full flex items-center py-4"
               onClick={() => setShowShiftHistory(true)}
               data-testid="shift-history-btn"
             >
@@ -701,7 +687,6 @@ export const CaregiverDashboard = ({
       {/* Menu Items */}
       {[
         { label: 'Medications', icon: null, iconText: '✱', color: '#3b82f6', hasColor: true, action: () => setActivePage('medications') },
-        { label: 'Earnings', icon: Activity, color: '#636366', hasColor: false, action: () => setActivePage('earnings') },
         { label: 'Shift History', icon: Clock, color: '#636366', hasColor: false, action: () => setActivePage('history') },
         { label: 'Settings', icon: Settings, color: '#636366', hasColor: false, action: () => setActivePage('settings') },
         { label: 'Support', icon: Bell, color: '#636366', hasColor: false, action: () => setActivePage('support') },

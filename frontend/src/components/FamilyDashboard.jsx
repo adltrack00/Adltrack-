@@ -690,7 +690,6 @@ export const FamilyDashboard = ({
         { label: 'Care Plan', icon: FileText, hasColor: true, color: '#25D366', action: () => setActivePage('carePlan') },
         { label: 'Weekly Report', icon: TrendingUp, hasColor: true, color: '#f59e0b', action: () => setActivePage('weeklyReport') },
         { label: 'Current Caregiver', icon: Heart, hasColor: false, action: () => setActivePage('caregiver') },
-        { label: 'Billing', icon: Activity, hasColor: false, action: () => setActivePage('billing') },
         { label: 'Settings', icon: Settings, hasColor: false, action: () => setActivePage('settings') },
         { label: 'Support', icon: Bell, hasColor: false, action: () => setActivePage('support') },
       ].map((item, idx) => (
@@ -725,15 +724,11 @@ export const FamilyDashboard = ({
   );
 
   // ==========================================
-  // SETTINGS / BILLING / SUPPORT SUB-PAGES
+  // SETTINGS / SUPPORT SUB-PAGES
   // ==========================================
   if (activePage === 'settings') {
     const SettingsPage = require('./pages/SettingsPage').SettingsPage;
     return <SettingsPage onBack={() => setActivePage(null)} onNavigateToHelp={() => setActivePage('support')} />;
-  }
-  if (activePage === 'billing') {
-    const AccountsPage = require('./pages/AccountsPage').AccountsPage;
-    return <AccountsPage onBack={() => setActivePage(null)} role={UserRole.FAMILY} />;
   }
   if (activePage === 'support') {
     const SupportPage = require('./pages/SupportPage').SupportPage;
