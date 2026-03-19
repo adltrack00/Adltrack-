@@ -196,10 +196,6 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
             <div className={`${bgCard} border ${border} rounded-2xl p-5`}>
               <div className="flex items-center justify-between mb-3">
                 <h3 className={`text-xs font-bold ${textMuted} uppercase tracking-wider`}>Evidence Photos ({selectedIncident.photos.length})</h3>
-                <div className="flex items-center gap-1 text-[#25D366]">
-                  <ZoomIn className="w-3.5 h-3.5" />
-                  <span className="text-xs font-medium">Tap to view</span>
-                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {selectedIncident.photos.map((photo, index) => (
