@@ -8,7 +8,7 @@ export const AccountsPage = ({ onBack, role }) => {
   return (
     <div className="min-h-screen bg-black">
       {/* Header */}
-      <div className="sticky top-0 bg-[#2c2c2e] border-b border-[#3a3a3c] px-4 py-4 flex items-center gap-3 z-10">
+      <div className="sticky top-0 bg-[#2c2c2e] border-b border-[#2c2c2e] px-4 py-4 flex items-center gap-3 z-10">
         <button onClick={onBack} className="p-2 hover:bg-stone-800 rounded-full">
           <ArrowLeft className="w-5 h-5 text-stone-300" />
         </button>
@@ -19,7 +19,7 @@ export const AccountsPage = ({ onBack, role }) => {
 
       <div className="p-4 space-y-6">
         {/* Balance Card */}
-        <div className={`${isCaregiver ? 'bg-[#20bd5a]' : 'bg-[#2c2c2e] border border-[#3a3a3c]'} rounded-2xl p-6 text-white`}>
+        <div className={`${isCaregiver ? 'bg-[#20bd5a]' : 'bg-[#2c2c2e]'} rounded-2xl p-6 text-white`}>
           <p className="text-sm opacity-80 mb-1">
             {isCaregiver ? 'Available Balance' : 'Current Balance'}
           </p>
@@ -38,14 +38,14 @@ export const AccountsPage = ({ onBack, role }) => {
         {/* Quick Stats */}
         {isCaregiver && (
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[#2c2c2e] border border-[#3a3a3c] rounded-xl p-4">
+            <div className="bg-[#2c2c2e] rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="w-4 h-4 text-[#8e8e93]" />
                 <span className="text-xs text-[#ababab]">This Week</span>
               </div>
               <p className="text-xl font-bold text-white">$485.00</p>
             </div>
-            <div className="bg-[#2c2c2e] border border-[#3a3a3c] rounded-xl p-4">
+            <div className="bg-[#2c2c2e] rounded-xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="w-4 h-4 text-[#25D366]" />
                 <span className="text-xs text-[#ababab]">This Month</span>
@@ -56,7 +56,7 @@ export const AccountsPage = ({ onBack, role }) => {
         )}
 
         {/* Payment Method */}
-        <div className="bg-[#2c2c2e] border border-[#3a3a3c] rounded-xl p-4">
+        <div className="bg-[#2c2c2e] rounded-xl p-4">
           <h3 className="font-semibold text-white mb-4">Payment Method</h3>
           <button className="w-full flex items-center justify-between p-3 bg-stone-800 rounded-xl border border-stone-700 hover:border-stone-600 transition-colors">
             <div className="flex items-center gap-3">
@@ -81,7 +81,7 @@ export const AccountsPage = ({ onBack, role }) => {
               { desc: isCaregiver ? 'Shift Payment - Dec 14' : 'Care Service - Dec 14', amount: isCaregiver ? '+$150.00' : '-$150.00', status: 'Completed' },
               { desc: isCaregiver ? 'Shift Payment - Dec 13' : 'Care Service - Dec 13', amount: isCaregiver ? '+$100.00' : '-$100.00', status: 'Completed' },
             ].map((tx, idx) => (
-              <div key={idx} className="flex items-center justify-between p-4 bg-[#2c2c2e] border border-[#3a3a3c] rounded-xl">
+              <div key={idx} className="flex items-center justify-between p-4 bg-[#2c2c2e] rounded-xl">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                     isCaregiver ? 'bg-[#25D366]/20' : 'bg-stone-800'

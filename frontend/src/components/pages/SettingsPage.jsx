@@ -17,7 +17,7 @@ export const SettingsPage = ({ onBack, onNavigateToHelp }) => {
 
       <div className="px-5 pb-24 overflow-y-auto">
         {/* Toggle Settings Card */}
-        <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl overflow-hidden mb-4">
+        <div className="bg-[#1c1c1e] rounded-2xl overflow-hidden mb-4">
           {/* Push Notifications */}
           <div className="flex items-center justify-between px-4 py-4">
             <div className="flex items-center gap-3">
@@ -37,7 +37,7 @@ export const SettingsPage = ({ onBack, onNavigateToHelp }) => {
             </label>
           </div>
 
-          <div className="mx-4 border-t border-[#3a3a3c]" />
+          <div className="mx-4 border-t border-[#2c2c2e]" />
 
           {/* Dark Mode */}
           <div className="flex items-center justify-between px-4 py-4">
@@ -60,7 +60,7 @@ export const SettingsPage = ({ onBack, onNavigateToHelp }) => {
         </div>
 
         {/* Navigation Settings Card */}
-        <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl overflow-hidden">
+        <div className="bg-[#1c1c1e] rounded-2xl overflow-hidden">
           {/* Privacy & Security */}
           <button className="w-full flex items-center justify-between px-4 py-4" data-testid="privacy-security-btn">
             <div className="flex items-center gap-3">
@@ -72,7 +72,7 @@ export const SettingsPage = ({ onBack, onNavigateToHelp }) => {
             <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
           </button>
 
-          <div className="mx-4 border-t border-[#3a3a3c]" />
+          <div className="mx-4 border-t border-[#2c2c2e]" />
 
           {/* Language */}
           <button className="w-full flex items-center justify-between px-4 py-4" data-testid="language-btn">
@@ -88,7 +88,7 @@ export const SettingsPage = ({ onBack, onNavigateToHelp }) => {
             </div>
           </button>
 
-          <div className="mx-4 border-t border-[#3a3a3c]" />
+          <div className="mx-4 border-t border-[#2c2c2e]" />
 
           {/* Help & Support */}
           <button 

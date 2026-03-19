@@ -134,7 +134,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
             <div className="space-y-8">
               {features.map((feature, idx) => (
                 <div key={idx} className="flex items-start gap-5" data-testid={`copilot-feature-${idx}`}>
-                  <div className="w-12 h-12 rounded-2xl bg-[#1c1c1e] border border-[#3a3a3c] flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-[#1c1c1e] border border-[#2c2c2e] flex items-center justify-center flex-shrink-0">
                     <feature.icon className="w-6 h-6 text-[#25D366]" />
                   </div>
                   <div className="flex-1">
@@ -171,7 +171,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
     <div className="fixed inset-0 z-[100] font-['Manrope',sans-serif]">
       <div className={`${isDarkMode ? 'bg-black' : 'bg-white'} fixed inset-0 flex flex-col`}>
         {/* Header */}
-        <div className={`flex-none ${isDarkMode ? 'border-[#3a3a3c]' : 'border-stone-200'} border-b px-5 py-4 flex items-center gap-3`}>
+        <div className={`flex-none ${isDarkMode ? 'border-[#2c2c2e]' : 'border-stone-200'} border-b px-5 py-4 flex items-center gap-3`}>
           <button
             onClick={onClose}
             className="w-9 h-9 flex items-center justify-center"
@@ -218,7 +218,7 @@ export const AICopilot = ({ isOpen, onClose, role = 'caregiver', patientName = '
         </div>
 
         {/* Input Area */}
-        <div className={`flex-none border-t ${isDarkMode ? 'border-[#3a3a3c] bg-black' : 'border-stone-200 bg-white'} p-4`}>
+        <div className={`flex-none border-t ${isDarkMode ? 'border-[#2c2c2e] bg-black' : 'border-stone-200 bg-white'} p-4`}>
           <div className="flex gap-3 items-center">
             <input
               ref={inputRef}

@@ -314,7 +314,7 @@ export const PatientProfileModal = ({
               
               {/* Primary Care Physician */}
               {patient.primaryCarePhysician && (
-                <div className="pt-4 border-t border-[#3a3a3c]">
+                <div className="pt-4 border-t border-[#2c2c2e]">
                   <p className="text-xs text-[#8e8e93] font-bold uppercase tracking-wider mb-3">Primary Care Physician</p>
                   <div className="flex items-center justify-between">
                     <div>
@@ -347,7 +347,7 @@ export const PatientProfileModal = ({
         {/* Share Options Modal */}
         {showShareOptions && (
           <div className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center" onClick={() => setShowShareOptions(false)}>
-            <div className="bg-[#2c2c2e] border border-[#3a3a3c] rounded-3xl p-6 m-4 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-[#2c2c2e] rounded-3xl p-6 m-4 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
               <h3 className="text-lg font-bold text-white mb-3">Share Medical ID</h3>
               <p className="text-sm text-[#ababab] mb-5 font-medium">
                 This will generate a secure summary of the patient&apos;s critical medical information for emergency services.
@@ -377,11 +377,11 @@ export const PatientProfileModal = ({
             onClick={() => setShowCalendar(false)}
           >
             <div 
-              className="bg-black border border-[#3a3a3c] rounded-3xl w-full max-w-md overflow-hidden"
+              className="bg-black rounded-3xl w-full max-w-md overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Calendar Header */}
-              <div className="p-4 border-b border-[#3a3a3c]">
+              <div className="p-4 border-b border-[#2c2c2e]">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-bold text-white">Care History</h3>
                   <button 

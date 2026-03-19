@@ -144,7 +144,7 @@ export const VitalsModal = ({
           {/* Grid lines */}
           <div className="absolute inset-0 flex flex-col justify-between pb-6">
             {[0, 1, 2, 3, 4].map((_, i) => (
-              <div key={i} className="border-b border-dashed border-[#3a3a3c] w-full" />
+              <div key={i} className="border-b border-dashed border-[#2c2c2e] w-full" />
             ))}
           </div>
           
@@ -213,7 +213,7 @@ export const VitalsModal = ({
           {/* Grid lines */}
           <div className="absolute inset-0 flex flex-col justify-between pb-6">
             {[0, 1, 2, 3, 4].map((_, i) => (
-              <div key={i} className="border-b border-dashed border-[#3a3a3c] w-full" />
+              <div key={i} className="border-b border-dashed border-[#2c2c2e] w-full" />
             ))}
           </div>
           
@@ -362,7 +362,7 @@ export const VitalsModal = ({
                           placeholder="Systolic"
                           value={newVital.systolic}
                           onChange={(e) => setNewVital({...newVital, systolic: e.target.value})}
-                          className="w-full px-4 py-4 bg-[#2c2c2e] border border-[#3a3a3c] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full px-4 py-4 bg-[#2c2c2e] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                           style={{ fontSize: '16px' }}
                           data-testid="vital-systolic"
                         />
@@ -373,7 +373,7 @@ export const VitalsModal = ({
                           placeholder="Diastolic"
                           value={newVital.diastolic}
                           onChange={(e) => setNewVital({...newVital, diastolic: e.target.value})}
-                          className="w-full px-4 py-4 bg-[#2c2c2e] border border-[#3a3a3c] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                          className="w-full px-4 py-4 bg-[#2c2c2e] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                           style={{ fontSize: '16px' }}
                           data-testid="vital-diastolic"
                         />
@@ -387,7 +387,7 @@ export const VitalsModal = ({
                       placeholder="Heart Rate (BPM)"
                       value={newVital.heartRate}
                       onChange={(e) => setNewVital({...newVital, heartRate: e.target.value})}
-                      className="w-full px-4 py-4 bg-[#2c2c2e] border border-[#3a3a3c] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full px-4 py-4 bg-[#2c2c2e] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       style={{ fontSize: '16px' }}
                       data-testid="vital-heartrate"
                     />
@@ -400,7 +400,7 @@ export const VitalsModal = ({
                       placeholder="Temperature (°F)"
                       value={newVital.temperature}
                       onChange={(e) => setNewVital({...newVital, temperature: e.target.value})}
-                      className="w-full px-4 py-4 bg-[#2c2c2e] border border-[#3a3a3c] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full px-4 py-4 bg-[#2c2c2e] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       style={{ fontSize: '16px' }}
                       data-testid="vital-temperature"
                     />
@@ -414,7 +414,7 @@ export const VitalsModal = ({
                       placeholder="Pain Level (0-10)"
                       value={newVital.pain}
                       onChange={(e) => setNewVital({...newVital, pain: e.target.value})}
-                      className="w-full px-4 py-4 bg-[#2c2c2e] border border-[#3a3a3c] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full px-4 py-4 bg-[#2c2c2e] rounded-2xl text-lg font-semibold text-white placeholder-stone-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                       style={{ fontSize: '16px' }}
                       data-testid="vital-pain"
                     />
@@ -456,7 +456,7 @@ export const VitalsModal = ({
               {chartData.slice(-5).reverse().map((entry, idx) => (
                 <div 
                   key={idx} 
-                  className="flex items-center justify-between py-4 px-5 border-b border-[#3a3a3c] last:border-0"
+                  className="flex items-center justify-between py-4 px-5 border-b border-[#2c2c2e] last:border-0"
                 >
                   <span className="text-base text-white font-semibold">{entry.date} at {entry.time}</span>
                   <span className="text-lg font-bold" style={{ color: theme.primaryColor }}>

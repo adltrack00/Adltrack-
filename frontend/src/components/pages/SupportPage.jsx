@@ -40,7 +40,7 @@ export const SupportPage = ({ onBack }) => {
             {contactOptions.map((option, idx) => (
               <button
                 key={idx}
-                className="w-full flex items-center justify-between p-4 bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl"
+                className="w-full flex items-center justify-between p-4 bg-[#1c1c1e] rounded-2xl"
                 data-testid={`contact-${option.label.toLowerCase().replace(/\s/g, '-')}`}
               >
                 <div className="flex items-center gap-3">
@@ -61,7 +61,7 @@ export const SupportPage = ({ onBack }) => {
         {/* Frequently Asked Questions */}
         <div className="mb-6">
           <h2 className="text-xs font-semibold text-[#8e8e93] uppercase tracking-wider mb-3" data-testid="faq-heading">FREQUENTLY ASKED QUESTIONS</h2>
-          <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl overflow-hidden">
+          <div className="bg-[#1c1c1e] rounded-2xl overflow-hidden">
             {faqItems.map((faq, idx) => (
               <div key={idx}>
                 <button
@@ -72,7 +72,7 @@ export const SupportPage = ({ onBack }) => {
                   <ChevronRight className="w-5 h-5 text-[#8e8e93] flex-shrink-0 ml-3" />
                 </button>
                 {idx < faqItems.length - 1 && (
-                  <div className="mx-4 border-t border-[#3a3a3c]" />
+                  <div className="mx-4 border-t border-[#2c2c2e]" />
                 )}
               </div>
             ))}
@@ -86,7 +86,7 @@ export const SupportPage = ({ onBack }) => {
             {resources.map((resource, idx) => (
               <button
                 key={idx}
-                className="w-full flex items-center justify-between p-4 bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl"
+                className="w-full flex items-center justify-between p-4 bg-[#1c1c1e] rounded-2xl"
                 data-testid={`resource-${resource.label.toLowerCase().replace(/\s/g, '-')}`}
               >
                 <div className="flex items-center gap-3">

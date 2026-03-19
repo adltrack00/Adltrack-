@@ -179,7 +179,7 @@ export const CaregiverDashboard = ({
 
           {/* Summary Card */}
           <div className="px-5 mb-6">
-            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
+            <div className="bg-[#1c1c1e] rounded-2xl p-5">
               <div className="grid grid-cols-3 text-center">
                 <div>
                   <p className="text-4xl font-bold text-white">{medications.length}</p>
@@ -208,7 +208,7 @@ export const CaregiverDashboard = ({
             {medications.map((med, idx) => {
               const isGiven = medLogs.includes(med.name);
               return (
-                <div key={idx} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5" data-testid={`med-card-${idx}`}>
+                <div key={idx} className="bg-[#1c1c1e] rounded-2xl p-5" data-testid={`med-card-${idx}`}>
                   <div className="flex items-start gap-3 mb-3">
                     <div className="w-14 h-14 bg-[#1e3a5f] rounded-xl flex items-center justify-center flex-shrink-0">
                       <span className="text-[#3b82f6] text-2xl font-bold">✱</span>
@@ -498,7 +498,7 @@ export const CaregiverDashboard = ({
                 />
               ))
             ) : (
-              <div className="text-center py-12 bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl">
+              <div className="text-center py-12 bg-[#1c1c1e] rounded-2xl">
                 <CheckCircle className="w-12 h-12 text-[#25D366] mx-auto mb-3" />
                 <p className="text-white font-semibold">All done for today!</p>
                 <p className="text-[#8e8e93] text-sm">Great work, Julia</p>
@@ -515,7 +515,7 @@ export const CaregiverDashboard = ({
                 />
               ))
             ) : (
-              <div className="text-center py-12 bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl">
+              <div className="text-center py-12 bg-[#1c1c1e] rounded-2xl">
                 <Sparkles className="w-12 h-12 text-[#8e8e93] mx-auto mb-3" />
                 <p className="text-[#8e8e93]">No pending requests</p>
               </div>
@@ -602,7 +602,7 @@ export const CaregiverDashboard = ({
       ) : (
         <div className="px-5 pt-4 space-y-4">
           {/* Shift Status Card */}
-          <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5" data-testid="shift-status-card">
+          <div className="bg-[#1c1c1e] rounded-2xl p-5" data-testid="shift-status-card">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[18px] font-semibold text-white">Shift Status</h3>
@@ -649,7 +649,7 @@ export const CaregiverDashboard = ({
           {/* Active Client Selector */}
           <button 
             onClick={() => setShowClientList(true)}
-            className="w-full bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5 text-left"
+            className="w-full bg-[#1c1c1e] rounded-2xl p-5 text-left"
             data-testid="active-client-selector"
           >
             <p className="text-sm text-[#8e8e93] tracking-[1px]">ACTIVE CLIENT</p>
@@ -660,7 +660,7 @@ export const CaregiverDashboard = ({
           </button>
 
           {/* Quick Actions */}
-          <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5" data-testid="quick-actions-card">
+          <div className="bg-[#1c1c1e] rounded-2xl p-5" data-testid="quick-actions-card">
             <h3 className="text-xl font-bold text-white mb-5">Quick Actions</h3>
             
             <button 
@@ -684,7 +684,7 @@ export const CaregiverDashboard = ({
       {/* Profile Card */}
       <button 
         onClick={() => handlePageChange('profile')}
-        className="w-full bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 flex items-center gap-4 text-left"
+        className="w-full bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-4 text-left"
         data-testid="menu-profile"
       >
         <img 
@@ -709,7 +709,7 @@ export const CaregiverDashboard = ({
         <button
           key={idx}
           onClick={item.action}
-          className="w-full bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5 flex items-center gap-4"
+          className="w-full bg-[#1c1c1e] rounded-2xl p-5 flex items-center gap-4"
           data-testid={`menu-${item.label.toLowerCase().replace(' ', '-')}`}
         >
           <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center ${
@@ -841,7 +841,7 @@ export const CaregiverDashboard = ({
               <h3 className="text-lg font-bold text-white mb-2">{clockAlertTitle}</h3>
               <p className="text-[#8e8e93] text-sm leading-relaxed">{clockAlertMessage}</p>
             </div>
-            <div className="border-t border-[#3a3a3c]">
+            <div className="border-t border-[#2c2c2e]">
               <button 
                 onClick={() => setShowClockAlert(false)} 
                 className="w-full py-3 text-[#25D366] font-semibold text-base"

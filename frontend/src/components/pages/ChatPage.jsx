@@ -149,7 +149,7 @@ export const ChatPage = ({ onBack, role }) => {
     return (
       <div className="flex flex-col h-full bg-black" data-testid="chat-view">
         {/* Chat Header */}
-        <div className="flex items-center px-5 pt-2 pb-2.5 border-b border-[#3a3a3c]">
+        <div className="flex items-center px-5 pt-2 pb-2.5 border-b border-[#2c2c2e]">
           <button 
             onClick={() => setActiveConversation(null)} 
             className="mr-4 p-1"
@@ -206,7 +206,7 @@ export const ChatPage = ({ onBack, role }) => {
         </div>
 
         {/* Input Area - Fixed above bottom nav */}
-        <div className="fixed bottom-[76px] left-0 right-0 border-t border-[#3a3a3c] px-4 py-2.5 bg-black z-20">
+        <div className="fixed bottom-[76px] left-0 right-0 border-t border-[#2c2c2e] px-4 py-2.5 bg-black z-20">
           <div className="flex items-center gap-2.5">
             <input
               type="text"

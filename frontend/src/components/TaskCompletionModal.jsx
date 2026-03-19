@@ -105,7 +105,7 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
                 </div>
               ) : (
                 <label className="block cursor-pointer">
-                  <div className="border-2 border-dashed border-[#3a3a3c] rounded-2xl py-10 text-center bg-[#1c1c1e]/50">
+                  <div className="border-2 border-dashed border-[#2c2c2e] rounded-2xl py-10 text-center bg-[#1c1c1e]/50">
                     <div className="w-16 h-16 bg-[#2c2c2e] rounded-2xl flex items-center justify-center mx-auto mb-3">
                       <Camera className="w-8 h-8 text-[#8e8e93]" />
                     </div>
@@ -124,7 +124,7 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Add any relevant notes here..."
-                className="w-full p-4 bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl resize-none h-28 text-base text-white placeholder-[#636366] focus:outline-none focus:border-[#25D366] caret-white"
+                className="w-full p-4 bg-[#1c1c1e] rounded-2xl resize-none h-28 text-base text-white placeholder-[#636366] focus:outline-none focus:border-[#25D366] caret-white"
                 style={{ fontSize: '16px' }}
                 data-testid="task-note-input"
               />
@@ -157,7 +157,7 @@ export const TaskCompletionModal = ({ task, onClose, onComplete }) => {
       </div>
 
       {/* Fixed Bottom Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-5 bg-black border-t border-[#3a3a3c] z-10">
+      <div className="fixed bottom-0 left-0 right-0 p-5 bg-black border-t border-[#2c2c2e] z-10">
         <button
           onClick={handleComplete}
           disabled={mode === 'cantComplete' && !selectedReason}

@@ -71,7 +71,7 @@ export const TaskCard = ({
                 <div className="w-20 h-20 rounded-xl overflow-hidden">
                   <img src={task.evidenceUrl} alt="" className="w-full h-full object-cover" />
                 </div>
-                <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-[#2c2c2e] rounded-lg flex items-center justify-center border border-[#3a3a3c]">
+                <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-[#2c2c2e] rounded-lg flex items-center justify-center border border-[#2c2c2e]">
                   <Image className="w-4 h-4 text-[#8e8e93]" />
                 </div>
               </div>

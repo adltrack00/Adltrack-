@@ -272,7 +272,7 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
 
       {/* Summary Card */}
       <div className="px-5 mb-5">
-        <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
+        <div className="bg-[#1c1c1e] rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-white text-lg">Summary</h3>
             <span className="text-sm text-[#8e8e93]">Last 30 days</span>
@@ -306,7 +306,7 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
                 <button
                   key={incident.id}
                   onClick={() => setSelectedIncident(incident)}
-                  className="w-full bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 flex items-center gap-4 text-left"
+                  className="w-full bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-4 text-left"
                   data-testid={`family-incident-${incident.id}`}
                 >
                   <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
@@ -343,7 +343,7 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
             })}
           </div>
         ) : (
-          <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-10 text-center">
+          <div className="bg-[#1c1c1e] rounded-2xl p-10 text-center">
             <div className="w-20 h-20 bg-[#2c2c2e] rounded-2xl flex items-center justify-center mx-auto mb-5">
               <Shield className="w-10 h-10 text-[#30d158]" fill="#30d158" stroke="#1c1c1e" strokeWidth={1.5} />
             </div>

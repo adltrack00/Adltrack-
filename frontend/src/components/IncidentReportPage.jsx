@@ -127,7 +127,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
         ) : (
           <>
             {/* Header */}
-            <div className="px-5 py-4 border-b border-[#3a3a3c]">
+            <div className="px-5 py-4 border-b border-[#2c2c2e]">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h2 className="text-lg font-bold text-white">New Incident Report</h2>
@@ -213,7 +213,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Describe the incident..."
                       className={`w-full h-32 bg-[#2c2c2e] rounded-xl p-4 text-white placeholder:text-[#8e8e93] focus:outline-none ${
-                        description ? 'border-2 border-[#ff375f]' : 'border border-[#3a3a3c]'
+                        description ? 'border-2 border-[#ff375f]' : 'border border-[#2c2c2e]'
                       }`}
                       style={{ fontSize: '16px' }}
                     />
@@ -226,7 +226,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                       onChange={(e) => setActionsTaken(e.target.value)}
                       placeholder="What did you do to address this?"
                       className={`w-full h-28 bg-[#2c2c2e] rounded-xl p-4 text-white placeholder:text-[#8e8e93] focus:outline-none ${
-                        actionsTaken ? 'border-2 border-[#ff375f]' : 'border border-[#3a3a3c]'
+                        actionsTaken ? 'border-2 border-[#ff375f]' : 'border border-[#2c2c2e]'
                       }`}
                       style={{ fontSize: '16px' }}
                     />
@@ -253,7 +253,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                       disabled={noWitnesses}
                       className={`w-full h-32 bg-[#2c2c2e] rounded-xl p-4 text-white placeholder:text-[#8e8e93] focus:outline-none ${
                         noWitnesses ? 'opacity-50' : ''
-                      } ${witnessNames && !noWitnesses ? 'border-2 border-[#ff375f]' : 'border border-[#3a3a3c]'}`}
+                      } ${witnessNames && !noWitnesses ? 'border-2 border-[#ff375f]' : 'border border-[#2c2c2e]'}`}
                       style={{ fontSize: '16px' }}
                     />
                   </div>
@@ -328,7 +328,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                   <h3 className="text-2xl font-bold text-white">Review & Submit</h3>
                   
                   {/* Summary Card */}
-                  <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5 space-y-5">
+                  <div className="bg-[#1c1c1e] rounded-2xl p-5 space-y-5">
                     {/* Type + Severity Header */}
                     <div className="flex items-center gap-3">
                       {selectedType && (
@@ -378,7 +378,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                     <button
                       onClick={() => setNotifyFamily(!notifyFamily)}
                       className={`w-full p-5 rounded-2xl flex items-center gap-4 transition-colors ${
-                        notifyFamily ? 'bg-[#1a3d2a] border border-[#25D366]/40' : 'bg-[#1c1c1e] border border-[#3a3a3c]'
+                        notifyFamily ? 'bg-[#1a3d2a] border border-[#25D366]/40' : 'bg-[#1c1c1e]'
                       }`}
                     >
                       <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center ${
@@ -397,7 +397,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
                     <button
                       onClick={() => setFollowUpRequired(!followUpRequired)}
                       className={`w-full p-5 rounded-2xl flex items-center gap-4 transition-colors ${
-                        followUpRequired ? 'bg-[#1a3d2a] border border-[#25D366]/40' : 'bg-[#1c1c1e] border border-[#3a3a3c]'
+                        followUpRequired ? 'bg-[#1a3d2a] border border-[#25D366]/40' : 'bg-[#1c1c1e]'
                       }`}
                     >
                       <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center ${
@@ -508,7 +508,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
               const sev = SEVERITY_LEVELS.find(s => s.id === incident.severity);
               
               return (
-                <div key={incident.id} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5 flex items-center gap-4">
+                <div key={incident.id} className="bg-[#1c1c1e] rounded-2xl p-5 flex items-center gap-4">
                   <div className="w-12 h-12 bg-[#3d1a1a] rounded-[14px] flex items-center justify-center flex-shrink-0">
                     {type && <type.icon className="w-6 h-6 text-[#ff453a]" />}
                   </div>

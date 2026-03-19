@@ -62,17 +62,17 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
         {/* Stats - Caregiver Only */}
         {isCaregiver && (
           <div className="grid grid-cols-3 gap-3 mb-5">
-            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 text-center">
+            <div className="bg-[#1c1c1e] rounded-2xl p-4 text-center">
               <Star className="w-7 h-7 text-yellow-500 mx-auto mb-2" fill="#eab308" />
               <p className="text-3xl font-bold text-white">4.9</p>
               <p className="text-sm text-[#8e8e93] mt-1">Rating</p>
             </div>
-            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 text-center">
+            <div className="bg-[#1c1c1e] rounded-2xl p-4 text-center">
               <Award className="w-7 h-7 text-blue-500 mx-auto mb-2" />
               <p className="text-3xl font-bold text-white">5</p>
               <p className="text-sm text-[#8e8e93] mt-1">Years</p>
             </div>
-            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 text-center">
+            <div className="bg-[#1c1c1e] rounded-2xl p-4 text-center">
               <CheckCircle className="w-7 h-7 text-[#25D366] mx-auto mb-2" fill="#25D366" stroke="black" strokeWidth={2} />
               <p className="text-3xl font-bold text-white">234</p>
               <p className="text-sm text-[#8e8e93] mt-1">Shifts</p>
@@ -81,7 +81,7 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
         )}
 
         {/* Contact Info */}
-        <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5 mb-5">
+        <div className="bg-[#1c1c1e] rounded-2xl p-5 mb-5">
           <h3 className="text-xl font-bold text-white mb-4">Contact Information</h3>
           <div className="mb-4">
             <p className="text-xs text-[#8e8e93] uppercase tracking-[1.5px] mb-1">EMAIL</p>
@@ -95,7 +95,7 @@ export const ProfilePage = ({ onBack, role, onSignOut }) => {
 
         {/* Certifications - Caregiver Only */}
         {isCaregiver && (
-          <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
+          <div className="bg-[#1c1c1e] rounded-2xl p-5">
             <h3 className="text-xl font-bold text-white mb-4">Certifications</h3>
             <div className="flex flex-wrap gap-2.5">
               {['CNA', 'CPR/First Aid', 'Dementia Care'].map((cert, idx) => (

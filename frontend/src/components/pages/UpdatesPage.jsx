@@ -17,7 +17,7 @@ export const UpdatesPage = ({ onBack }) => {
   return (
     <div className="min-h-screen bg-black">
       {/* Header */}
-      <div className="sticky top-0 bg-[#2c2c2e] border-b border-[#3a3a3c] px-4 py-4 flex items-center gap-3 z-10">
+      <div className="sticky top-0 bg-[#2c2c2e] border-b border-[#2c2c2e] px-4 py-4 flex items-center gap-3 z-10">
         <button onClick={onBack} className="p-2 hover:bg-stone-800 rounded-full">
           <ArrowLeft className="w-5 h-5 text-stone-300" />
         </button>
@@ -35,7 +35,7 @@ export const UpdatesPage = ({ onBack }) => {
             {upcomingSchedule.map((item) => (
               <div 
                 key={item.id}
-                className="flex items-center gap-3 p-4 bg-[#2c2c2e] border border-[#3a3a3c] rounded-xl"
+                className="flex items-center gap-3 p-4 bg-[#2c2c2e] rounded-xl"
               >
                 <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
                   <item.icon className="w-5 h-5 text-blue-400" />
@@ -67,7 +67,7 @@ export const UpdatesPage = ({ onBack }) => {
                     ? 'bg-rose-500/10 border-rose-500/30' 
                     : alert.priority === 'medium'
                     ? 'bg-amber-500/10 border-amber-500/30'
-                    : 'bg-[#2c2c2e] border-[#3a3a3c]'
+                    : 'bg-[#2c2c2e] border-[#2c2c2e]'
                 }`}
               >
                 <div className="flex items-start justify-between">
