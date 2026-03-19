@@ -265,7 +265,7 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
   return (
     <div className="flex-1 overflow-y-auto bg-black pb-24 font-['Manrope',sans-serif]">
       {/* Header */}
-      <div className="px-5 pt-8 pb-4">
+      <div className="px-5 pt-3 pb-3">
         <h1 className="text-[28px] font-bold text-white mb-1">Incident Reports</h1>
         <p className="text-[#8e8e93] text-[15px]">Care incidents reported for {patientName}</p>
       </div>

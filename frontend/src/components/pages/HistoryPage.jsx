@@ -19,7 +19,7 @@ export const HistoryPage = ({ onBack }) => {
   return (
     <div className="min-h-screen bg-black font-['Manrope',sans-serif]" data-testid="shift-history-page">
       {/* Header */}
-      <div className="flex items-center px-5 pt-5 pb-4">
+      <div className="flex items-center px-5 pt-3 pb-3">
         <button onClick={onBack} className="mr-4 p-1" data-testid="history-back-btn">
           <ArrowLeft className="w-6 h-6 text-white" />
         </button>

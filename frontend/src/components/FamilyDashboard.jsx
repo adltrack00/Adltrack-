@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Activity, MessageSquare, Bell, Settings, Heart, Thermometer, 
   ChevronRight, ChevronLeft, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X, 
@@ -40,6 +40,9 @@ export const FamilyDashboard = ({
   // Historical date viewing
   const [viewingDate, setViewingDate] = useState(null);
   const [historicalTasks, setHistoricalTasks] = useState([]);
+
+  // Scroll to top when switching tabs or pages
+  useEffect(() => { window.scrollTo(0, 0); }, [activeTab, activePage]);
 
   const handleSelectHistoricalDate = (date, tasksForDate) => {
     setViewingDate(date);
@@ -92,7 +95,7 @@ export const FamilyDashboard = ({
     return (
       <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
         <div className="flex-1 overflow-y-auto pb-6">
-          <div className="px-5 pt-5">
+          <div className="px-5 pt-3">
             <button onClick={() => setActivePage(null)} className="flex items-center gap-1 text-[#8e8e93] mb-4" data-testid="care-plan-back">
               <ChevronLeft className="w-5 h-5" />
               <span className="text-[15px] font-medium">Back</span>
@@ -180,7 +183,7 @@ export const FamilyDashboard = ({
     return (
       <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
         <div className="flex-1 overflow-y-auto pb-6">
-          <div className="px-5 pt-5">
+          <div className="px-5 pt-3">
             <button onClick={() => setActivePage(null)} className="flex items-center gap-1 text-[#ababab] mb-4" data-testid="weekly-report-back">
               <ChevronLeft className="w-5 h-5" />
               <span className="text-sm font-medium">Back</span>
@@ -265,7 +268,7 @@ export const FamilyDashboard = ({
       <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
         <div className="flex-1 overflow-y-auto pb-6">
           {/* Header */}
-          <div className="flex items-center px-5 pt-5 pb-4">
+          <div className="flex items-center px-5 pt-3 pb-3">
             <button onClick={() => setActivePage(null)} className="mr-4 p-1" data-testid="caregiver-page-back">
               <ArrowLeft className="w-6 h-6 text-white" />
             </button>
@@ -597,7 +600,7 @@ export const FamilyDashboard = ({
   const renderAlertsContent = () => (
     <div className="flex-1 overflow-y-auto bg-black pb-20">
       {/* Header */}
-      <div className="flex items-center px-5 pt-5 pb-4">
+      <div className="flex items-center px-5 pt-3 pb-3">
         <button onClick={() => setActiveTab('home')} className="mr-4 p-1" data-testid="alerts-back-btn">
           <ArrowLeft className="w-6 h-6 text-white" />
         </button>

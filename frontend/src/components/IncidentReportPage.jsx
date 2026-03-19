@@ -467,7 +467,7 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
   // History View
   return (
     <div className="flex-1 overflow-y-auto bg-black pb-24 font-['Manrope',sans-serif]">
-      <div className="px-5 pt-6 pb-4">
+      <div className="px-5 pt-3 pb-3">
         <h1 className="text-2xl font-bold text-white mb-1">Incidents</h1>
         <p className="text-[#8e8e93] text-sm">Report and track incidents for {patientName}</p>
       </div>

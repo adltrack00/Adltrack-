@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Home, MessageSquare, Clock, Settings, Cpu, User, Heart, Activity, Thermometer,
   MapPin, Play, ChevronRight, Bell, CheckCircle, Sparkles, Frown, AlertTriangle,
@@ -65,6 +65,10 @@ export const CaregiverDashboard = ({
   const [clockOutTime, setClockOutTime] = useState(null);
 
   const today = new Date(2026, 0, 17); // Jan 17, 2026
+
+  // Scroll to top when switching tabs or pages
+  useEffect(() => { window.scrollTo(0, 0); }, [activeTab, activePage, showShiftHistory]);
+
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
                       'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -153,7 +157,7 @@ export const CaregiverDashboard = ({
     return (
       <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
         <div className="flex-1 overflow-y-auto pb-6">
-          <div className="px-5 pt-5">
+          <div className="px-5 pt-3">
             <button onClick={() => setActivePage(null)} className="flex items-center gap-1 text-[#8e8e93] mb-4" data-testid="meds-back-btn">
               <ChevronRight className="w-5 h-5 rotate-180" />
               <span className="text-sm font-medium">Back</span>
@@ -235,7 +239,7 @@ export const CaregiverDashboard = ({
       return (
         <div className={`flex-1 flex flex-col ${bg}`}>
           {/* Header with caregiver info */}
-          <div className="px-6 pt-6 pb-4">
+          <div className="px-6 pt-3 pb-4">
             <div className="flex items-center gap-4">
               <img 
                 src={CAREGIVER_PROFILE.photo} 
@@ -523,7 +527,7 @@ export const CaregiverDashboard = ({
   const renderShiftContent = () => (
     <div className="flex-1 overflow-y-auto bg-black pb-24">
       {showShiftHistory ? (
-        <div className="px-5 pt-5 pb-24">
+        <div className="px-5 pt-3 pb-24">
           {/* Shift History Header */}
           <div className="flex items-center mb-5">
             <button onClick={() => setShowShiftHistory(false)} className="mr-4 p-1" data-testid="inline-history-back">
