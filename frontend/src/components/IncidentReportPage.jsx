@@ -444,8 +444,8 @@ export const IncidentReportPage = ({ patientName = 'David Smith', incidents = []
               </div>
             </div>
 
-            {/* Footer - fixed at bottom with safe padding */}
-            <div className="flex-none px-5 pt-4 pb-20 bg-black" data-testid="incident-footer">
+            {/* Footer */}
+            <div className="flex-none px-5 py-4 bg-black" data-testid="incident-footer">
               <div className="flex gap-3">
                 {step > 1 && (
                   <button
