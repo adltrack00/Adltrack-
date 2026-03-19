@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Home, MessageSquare, Clock, Settings, Cpu, User, Heart, Activity, Thermometer,
   MapPin, Play, ChevronRight, Bell, CheckCircle, Sparkles, Frown, AlertTriangle,
@@ -66,8 +66,17 @@ export const CaregiverDashboard = ({
 
   const today = new Date(2026, 0, 17); // Jan 17, 2026
 
-  // Scroll to top when switching tabs or pages
-  useEffect(() => { window.scrollTo(0, 0); }, [activeTab, activePage, showShiftHistory]);
+  // Navigate to a tab with scroll-to-top (only on explicit user navigation)
+  const handleTabChange = (tabId) => {
+    window.scrollTo(0, 0);
+    setActiveTab(tabId);
+  };
+
+  // Navigate to a sub-page with scroll-to-top
+  const handlePageChange = (page) => {
+    window.scrollTo(0, 0);
+    setActivePage(page);
+  };
 
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
                       'July', 'August', 'September', 'October', 'November', 'December'];
@@ -135,19 +144,19 @@ export const CaregiverDashboard = ({
 
   // Render sub-pages
   if (activePage === 'profile') {
-    return <ProfilePage onBack={() => setActivePage(null)} role={UserRole.CAREGIVER} onSignOut={onSignOut} />;
+    return <ProfilePage onBack={() => handlePageChange(null)} role={UserRole.CAREGIVER} onSignOut={onSignOut} />;
   }
   if (activePage === 'settings') {
-    return <SettingsPage onBack={() => setActivePage(null)} onNavigateToHelp={() => setActivePage('support')} />;
+    return <SettingsPage onBack={() => handlePageChange(null)} onNavigateToHelp={() => handlePageChange('support')} />;
   }
   if (activePage === 'history') {
-    return <HistoryPage onBack={() => setActivePage(null)} role={UserRole.CAREGIVER} />;
+    return <HistoryPage onBack={() => handlePageChange(null)} role={UserRole.CAREGIVER} />;
   }
   if (activePage === 'support') {
-    return <SupportPage onBack={() => setActivePage(null)} />;
+    return <SupportPage onBack={() => handlePageChange(null)} />;
   }
   if (activePage === 'chat') {
-    return <ChatPage onBack={() => setActivePage(null)} role={UserRole.CAREGIVER} />;
+    return <ChatPage onBack={() => handlePageChange(null)} role={UserRole.CAREGIVER} />;
   }
 
   // Medications sub-screen
@@ -158,7 +167,7 @@ export const CaregiverDashboard = ({
       <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
         <div className="flex-1 overflow-y-auto pb-6">
           <div className="flex items-center px-5 pt-3 pb-1">
-            <button onClick={() => setActivePage(null)} className="mr-4 p-1" data-testid="meds-back-btn">
+            <button onClick={() => handlePageChange(null)} className="mr-4 p-1" data-testid="meds-back-btn">
               <ArrowLeft className="w-6 h-6 text-white" />
             </button>
             <div>
@@ -531,7 +540,7 @@ export const CaregiverDashboard = ({
         <div className="px-5 pt-3 pb-24">
           {/* Shift History Header */}
           <div className="flex items-center mb-5">
-            <button onClick={() => setShowShiftHistory(false)} className="mr-4 p-1" data-testid="inline-history-back">
+            <button onClick={() => { window.scrollTo(0, 0); setShowShiftHistory(false); }} className="mr-4 p-1" data-testid="inline-history-back">
               <ArrowLeft className="w-6 h-6 text-white" />
             </button>
             <h2 className="text-2xl font-bold text-white">Shift History</h2>
@@ -655,7 +664,7 @@ export const CaregiverDashboard = ({
             
             <button 
               className="w-full flex items-center py-4"
-              onClick={() => setShowShiftHistory(true)}
+              onClick={() => { window.scrollTo(0, 0); setShowShiftHistory(true); }}
               data-testid="shift-history-btn"
             >
               <span className="text-2xl mr-4">📋</span>
@@ -673,7 +682,7 @@ export const CaregiverDashboard = ({
     <div className="flex-1 overflow-y-auto bg-black px-5 pt-4 space-y-3 pb-24">
       {/* Profile Card */}
       <button 
-        onClick={() => setActivePage('profile')}
+        onClick={() => handlePageChange('profile')}
         className="w-full bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 flex items-center gap-4 text-left"
         data-testid="menu-profile"
       >
@@ -691,10 +700,10 @@ export const CaregiverDashboard = ({
 
       {/* Menu Items */}
       {[
-        { label: 'Medications', icon: null, iconText: '✱', color: '#3b82f6', hasColor: true, action: () => setActivePage('medications') },
-        { label: 'Shift History', icon: Clock, color: '#636366', hasColor: false, action: () => setActivePage('history') },
-        { label: 'Settings', icon: Settings, color: '#636366', hasColor: false, action: () => setActivePage('settings') },
-        { label: 'Support', icon: Bell, color: '#636366', hasColor: false, action: () => setActivePage('support') },
+        { label: 'Medications', icon: null, iconText: '✱', color: '#3b82f6', hasColor: true, action: () => handlePageChange('medications') },
+        { label: 'Shift History', icon: Clock, color: '#636366', hasColor: false, action: () => handlePageChange('history') },
+        { label: 'Settings', icon: Settings, color: '#636366', hasColor: false, action: () => handlePageChange('settings') },
+        { label: 'Support', icon: Bell, color: '#636366', hasColor: false, action: () => handlePageChange('support') },
       ].map((item, idx) => (
         <button
           key={idx}
@@ -735,7 +744,7 @@ export const CaregiverDashboard = ({
       {/* Main Content */}
       {activeTab === 'home' && renderHomeContent()}
       {activeTab === 'incident' && <IncidentReportPage patientName={patient?.name} incidents={incidents} onAddIncident={onAddIncident} />}
-      {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.CAREGIVER} />}
+      {activeTab === 'chat' && <ChatPage onBack={() => handleTabChange('home')} role={UserRole.CAREGIVER} />}
       {activeTab === 'shift' && renderShiftContent()}
       {activeTab === 'settings' && renderSettingsContent()}
 
@@ -768,7 +777,7 @@ export const CaregiverDashboard = ({
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 className="flex flex-col items-center px-4 py-1 transition-all relative"
                 data-testid={`nav-${tab.id}`}
               >

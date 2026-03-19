@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Activity, MessageSquare, Bell, Settings, Heart, Thermometer, 
   ChevronRight, ChevronLeft, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X, 
@@ -12,6 +12,8 @@ import { AICopilot } from './AICopilot';
 import { IncidentViewPage } from './IncidentViewPage';
 import { ChatPage } from './pages/ChatPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { SettingsPage } from './pages/SettingsPage';
+import { SupportPage } from './pages/SupportPage';
 import { CARE_IMAGES, CAREGIVER_PROFILE, FAMILY_ALERTS, CARE_PLAN, WEEKLY_REPORT } from '../services/mockData';
 
 export const FamilyDashboard = ({ 
@@ -41,8 +43,17 @@ export const FamilyDashboard = ({
   const [viewingDate, setViewingDate] = useState(null);
   const [historicalTasks, setHistoricalTasks] = useState([]);
 
-  // Scroll to top when switching tabs or pages
-  useEffect(() => { window.scrollTo(0, 0); }, [activeTab, activePage]);
+  // Navigate to a tab with scroll-to-top (only on explicit user navigation)
+  const handleTabChange = (tabId) => {
+    window.scrollTo(0, 0);
+    setActiveTab(tabId);
+  };
+
+  // Navigate to a sub-page with scroll-to-top
+  const handlePageChange = (page) => {
+    window.scrollTo(0, 0);
+    setActivePage(page);
+  };
 
   const handleSelectHistoricalDate = (date, tasksForDate) => {
     setViewingDate(date);
@@ -96,7 +107,7 @@ export const FamilyDashboard = ({
       <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
         <div className="flex-1 overflow-y-auto pb-6">
           <div className="flex items-center px-5 pt-3 pb-1">
-            <button onClick={() => setActivePage(null)} className="mr-4 p-1" data-testid="care-plan-back">
+            <button onClick={() => handlePageChange(null)} className="mr-4 p-1" data-testid="care-plan-back">
               <ArrowLeft className="w-6 h-6 text-white" />
             </button>
             <div>
@@ -185,7 +196,7 @@ export const FamilyDashboard = ({
       <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
         <div className="flex-1 overflow-y-auto pb-6">
           <div className="flex items-center px-5 pt-3 pb-1">
-            <button onClick={() => setActivePage(null)} className="mr-4 p-1" data-testid="weekly-report-back">
+            <button onClick={() => handlePageChange(null)} className="mr-4 p-1" data-testid="weekly-report-back">
               <ArrowLeft className="w-6 h-6 text-white" />
             </button>
             <div>
@@ -271,7 +282,7 @@ export const FamilyDashboard = ({
         <div className="flex-1 overflow-y-auto pb-6">
           {/* Header */}
           <div className="flex items-center px-5 pt-3 pb-3">
-            <button onClick={() => setActivePage(null)} className="mr-4 p-1" data-testid="caregiver-page-back">
+            <button onClick={() => handlePageChange(null)} className="mr-4 p-1" data-testid="caregiver-page-back">
               <ArrowLeft className="w-6 h-6 text-white" />
             </button>
             <h1 className="text-2xl font-bold text-white">Current Caregiver</h1>
@@ -393,7 +404,7 @@ export const FamilyDashboard = ({
 
             {/* Message Caregiver Button */}
             <button
-              onClick={() => { setActivePage(null); setActiveTab('messages'); }}
+              onClick={() => { handlePageChange(null); handleTabChange('messages'); }}
               className="w-full py-4 bg-[#25D366] text-white rounded-2xl font-bold text-[17px] flex items-center justify-center gap-2"
               data-testid="message-caregiver-btn"
             >
@@ -661,7 +672,7 @@ export const FamilyDashboard = ({
     <div className="flex-1 overflow-y-auto bg-black px-5 pt-4 space-y-3 pb-24">
       {/* Family Member Profile */}
       <button 
-        onClick={() => setActivePage('profile')}
+        onClick={() => handlePageChange('profile')}
         className="w-full bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-4 flex items-center gap-4 text-left"
         data-testid="menu-profile"
       >
@@ -689,11 +700,11 @@ export const FamilyDashboard = ({
 
       {/* Menu Items */}
       {[
-        { label: 'Care Plan', icon: FileText, hasColor: true, color: '#25D366', action: () => setActivePage('carePlan') },
-        { label: 'Weekly Report', icon: TrendingUp, hasColor: true, color: '#f59e0b', action: () => setActivePage('weeklyReport') },
-        { label: 'Current Caregiver', icon: Heart, hasColor: false, action: () => setActivePage('caregiver') },
-        { label: 'Settings', icon: Settings, hasColor: false, action: () => setActivePage('settings') },
-        { label: 'Support', icon: Bell, hasColor: false, action: () => setActivePage('support') },
+        { label: 'Care Plan', icon: FileText, hasColor: true, color: '#25D366', action: () => handlePageChange('carePlan') },
+        { label: 'Weekly Report', icon: TrendingUp, hasColor: true, color: '#f59e0b', action: () => handlePageChange('weeklyReport') },
+        { label: 'Current Caregiver', icon: Heart, hasColor: false, action: () => handlePageChange('caregiver') },
+        { label: 'Settings', icon: Settings, hasColor: false, action: () => handlePageChange('settings') },
+        { label: 'Support', icon: Bell, hasColor: false, action: () => handlePageChange('support') },
       ].map((item, idx) => (
         <button 
           key={idx} 
@@ -729,15 +740,13 @@ export const FamilyDashboard = ({
   // SETTINGS / SUPPORT SUB-PAGES
   // ==========================================
   if (activePage === 'settings') {
-    const SettingsPage = require('./pages/SettingsPage').SettingsPage;
-    return <SettingsPage onBack={() => setActivePage(null)} onNavigateToHelp={() => setActivePage('support')} />;
+    return <SettingsPage onBack={() => handlePageChange(null)} onNavigateToHelp={() => handlePageChange('support')} />;
   }
   if (activePage === 'support') {
-    const SupportPage = require('./pages/SupportPage').SupportPage;
-    return <SupportPage onBack={() => setActivePage(null)} />;
+    return <SupportPage onBack={() => handlePageChange(null)} />;
   }
   if (activePage === 'profile') {
-    return <ProfilePage onBack={() => setActivePage(null)} role={UserRole.FAMILY} />;
+    return <ProfilePage onBack={() => handlePageChange(null)} role={UserRole.FAMILY} />;
   }
 
   return (
@@ -745,7 +754,7 @@ export const FamilyDashboard = ({
       {/* Main Content */}
       {activeTab === 'home' && renderHomeContent()}
       {activeTab === 'incident' && <IncidentViewPage patientName={patient?.name} incidents={incidents} />}
-      {activeTab === 'chat' && <ChatPage onBack={() => setActiveTab('home')} role={UserRole.FAMILY} />}
+      {activeTab === 'chat' && <ChatPage onBack={() => handleTabChange('home')} role={UserRole.FAMILY} />}
       {activeTab === 'notifications' && renderAlertsContent()}
       {activeTab === 'settings' && renderMenuContent()}
 
@@ -776,7 +785,7 @@ export const FamilyDashboard = ({
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 className="flex flex-col items-center px-3 py-1 transition-all relative"
                 data-testid={`nav-${tab.id}`}
               >
