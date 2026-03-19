@@ -158,66 +158,67 @@ export const CaregiverDashboard = ({
       <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
         <div className="flex-1 overflow-y-auto pb-6">
           <div className="px-5 pt-5">
-            <button onClick={() => setActivePage(null)} className="flex items-center gap-1 text-stone-400 mb-4">
+            <button onClick={() => setActivePage(null)} className="flex items-center gap-1 text-[#8e8e93] mb-4" data-testid="meds-back-btn">
               <ChevronRight className="w-5 h-5 rotate-180" />
               <span className="text-sm font-medium">Back</span>
             </button>
-            <h1 className="text-2xl font-bold text-white mb-1">Medications</h1>
-            <p className="text-stone-400 text-sm mb-6">For {patient?.name}</p>
+            <h1 className="text-[28px] font-bold text-white mb-1">Medications</h1>
+            <p className="text-[#8e8e93] text-[15px] mb-6">For {patient?.name}</p>
           </div>
 
           {/* Summary Card */}
-          <div className="px-5 mb-5">
+          <div className="px-5 mb-6">
             <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
               <div className="grid grid-cols-3 text-center">
                 <div>
-                  <p className="text-2xl font-bold text-white">{medications.length}</p>
-                  <p className="text-stone-500 text-xs">Total Meds</p>
+                  <p className="text-4xl font-bold text-white">{medications.length}</p>
+                  <p className="text-[#636366] text-sm mt-1">Total Meds</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-[#25D366]">{medLogs.length}</p>
-                  <p className="text-stone-500 text-xs">Given Today</p>
+                  <p className="text-4xl font-bold text-[#25D366]">{medLogs.length}</p>
+                  <p className="text-[#636366] text-sm mt-1">Given Today</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-white">{medications.length - medLogs.length}</p>
-                  <p className="text-stone-500 text-xs">Remaining</p>
+                  <p className="text-4xl font-bold text-white">{medications.length - medLogs.length}</p>
+                  <p className="text-[#636366] text-sm mt-1">Remaining</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Schedule Header */}
-          <div className="px-5 mb-3 flex items-center gap-2">
-            <Heart className="w-5 h-5 text-[#25D366]" />
-            <span className="text-white font-semibold">Today&apos;s Schedule</span>
+          <div className="px-5 mb-4 flex items-center gap-2">
+            <span className="text-[#25D366] text-xl font-bold">✱</span>
+            <span className="text-white font-bold text-lg">Today's Schedule</span>
           </div>
 
           {/* Medication Cards */}
-          <div className="px-5 space-y-3">
+          <div className="px-5 space-y-4">
             {medications.map((med, idx) => {
               const isGiven = medLogs.includes(med.name);
               return (
-                <div key={idx} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Heart className="w-6 h-6 text-[#3b82f6]" />
+                <div key={idx} className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5" data-testid={`med-card-${idx}`}>
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-14 h-14 bg-[#1e3a5f] rounded-xl flex items-center justify-center flex-shrink-0">
+                      <span className="text-[#3b82f6] text-2xl font-bold">✱</span>
                     </div>
                     <div className="flex-1">
-                      <p className="text-white font-semibold">{med.name}</p>
-                      <p className="text-stone-400 text-xs">{med.dosage} - {med.frequency}</p>
-                      <div className="flex items-center gap-1 mt-1">
-                        <Clock className="w-3.5 h-3.5 text-stone-600" />
-                        <span className="text-stone-600 text-xs">{med.time}</span>
+                      <p className="text-white font-bold text-[17px]">{med.name}</p>
+                      <p className="text-[#8e8e93] text-[14px] mt-0.5">{med.dosage} - {med.frequency}</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <Clock className="w-4 h-4 text-[#636366]" />
+                        <span className="text-[#636366] text-[13px]">{med.time}</span>
                       </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${isGiven ? 'bg-[#25D366]/20 text-[#25D366]' : 'bg-amber-500/20 text-amber-400'}`}>
+                    <span className={`px-3 py-1.5 rounded-full text-[13px] font-bold ${isGiven ? 'bg-[#25D366]/20 text-[#25D366]' : 'bg-amber-600/20 text-amber-500'}`}>
                       {isGiven ? 'Given' : 'Pending'}
                     </span>
                   </div>
                   {!isGiven && (
                     <button 
                       onClick={() => setMedLogs(prev => [...prev, med.name])}
-                      className="w-full mt-3 py-3 bg-[#25D366] text-white font-semibold rounded-xl hover:bg-[#20bd5a] transition-colors text-sm"
+                      className="w-full py-3.5 bg-[#25D366] text-white font-bold rounded-xl text-[16px]"
+                      data-testid={`admin-med-${idx}`}
                     >
                       Mark as Administered
                     </button>

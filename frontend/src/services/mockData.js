@@ -466,9 +466,10 @@ export const CARE_PLAN = {
     'Monitor blood glucose levels',
   ],
   medications: [
-    { name: 'Metformin', dosage: '500mg', frequency: 'Twice daily', time: '8:00 AM, 6:00 PM', condition: 'Diabetes' },
-    { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', time: '8:00 AM', condition: 'Hypertension' },
-    { name: 'Aspirin', dosage: '81mg', frequency: 'Once daily', time: '8:00 AM', condition: 'Heart Health' },
+    { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', time: '7:00 AM', condition: 'Hypertension' },
+    { name: 'Metformin', dosage: '500mg', frequency: 'Twice daily', time: '7:00 AM, 6:00 PM', condition: 'Diabetes' },
+    { name: 'Aspirin', dosage: '81mg', frequency: 'Once daily', time: '7:00 AM', condition: 'Heart Health' },
+    { name: 'Vitamin D', dosage: '1000 IU', frequency: 'Once daily', time: '12:00 PM', condition: 'Bone Health' },
   ],
   dailySchedule: [
     { time: '7:00 AM', activity: 'Wake Up & Morning Routine' },
