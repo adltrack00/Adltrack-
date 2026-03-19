@@ -460,29 +460,31 @@ export const FAMILY_ALERTS = {
 // Care plan data
 export const CARE_PLAN = {
   goals: [
-    'Maintain blood pressure below 140/90',
-    'Complete daily physical therapy exercises',
+    'Maintain independence in daily activities',
+    'Manage chronic conditions effectively',
+    'Prevent falls and injuries',
     'Ensure medication compliance',
-    'Monitor blood glucose levels',
   ],
   medications: [
-    { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', time: '7:00 AM', condition: 'Hypertension' },
+    { name: 'Lisinopril', dosage: '10mg', frequency: 'Once daily', time: '7:00 AM', condition: 'Blood Pressure' },
     { name: 'Metformin', dosage: '500mg', frequency: 'Twice daily', time: '7:00 AM, 6:00 PM', condition: 'Diabetes' },
     { name: 'Aspirin', dosage: '81mg', frequency: 'Once daily', time: '7:00 AM', condition: 'Heart Health' },
     { name: 'Vitamin D', dosage: '1000 IU', frequency: 'Once daily', time: '12:00 PM', condition: 'Bone Health' },
   ],
   dailySchedule: [
-    { time: '7:00 AM', activity: 'Wake Up & Morning Routine' },
-    { time: '8:00 AM', activity: 'Breakfast & Morning Medications' },
-    { time: '10:00 AM', activity: 'Physical Therapy / Walk' },
-    { time: '12:00 PM', activity: 'Lunch' },
-    { time: '2:00 PM', activity: 'Rest Period' },
-    { time: '4:00 PM', activity: 'Afternoon Activities' },
-    { time: '6:00 PM', activity: 'Dinner & Evening Medications' },
-    { time: '8:00 PM', activity: 'Evening Routine & Bed' },
+    { time: '7:00 AM', activity: 'Morning Medication', priority: 'Required', type: 'medication' },
+    { time: '7:30 AM', activity: 'Breakfast Assistance', priority: 'Required', type: 'adl' },
+    { time: '8:30 AM', activity: 'Personal Hygiene', priority: 'Required', type: 'adl' },
+    { time: '10:00 AM', activity: 'Physical Therapy Exercises', priority: 'Required', type: 'exercise' },
+    { time: '12:00 PM', activity: 'Lunch & Midday Medication', priority: 'Required', type: 'medication' },
+    { time: '2:00 PM', activity: 'Vital Signs Check', priority: 'Required', type: 'vitals' },
+    { time: '3:00 PM', activity: 'Afternoon Activity', priority: 'Optional', type: 'adl' },
+    { time: '5:00 PM', activity: 'Dinner Preparation', priority: 'Required', type: 'adl' },
+    { time: '6:00 PM', activity: 'Evening Medication', priority: 'Required', type: 'medication' },
+    { time: '8:00 PM', activity: 'Bedtime Routine', priority: 'Required', type: 'adl' },
   ],
-  dietaryRestrictions: ['Low sodium', 'Diabetic diet', 'No shellfish (allergy)'],
-  emergencyProtocol: 'Call 911 immediately. Notify Mary Smith (POA) at (555) 234-5678. Patient is Full Code.',
+  dietaryRestrictions: ['Low sodium diet', 'No grapefruit (medication interaction)', 'Limited sugar intake'],
+  emergencyProtocol: 'Call 911 for chest pain, difficulty breathing, or falls with injury. Notify family immediately.',
 };
 
 // Weekly report data

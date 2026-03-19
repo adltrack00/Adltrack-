@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Activity, MessageSquare, Bell, Settings, Heart, Thermometer, 
   ChevronRight, ChevronLeft, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X, 
-  AlertTriangle, Home, Search, Users, Cpu, Star, Mail,
+  AlertTriangle, Home, Search, Users, Cpu, Star, Mail, AlertCircle,
   Calendar, Pill, Shield, TrendingUp, Phone, FileText, ArrowLeft
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
@@ -93,73 +93,79 @@ export const FamilyDashboard = ({
       <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
         <div className="flex-1 overflow-y-auto pb-6">
           <div className="px-5 pt-5">
-            <button onClick={() => setActivePage(null)} className="flex items-center gap-1 text-stone-400 mb-4" data-testid="care-plan-back">
+            <button onClick={() => setActivePage(null)} className="flex items-center gap-1 text-[#8e8e93] mb-4" data-testid="care-plan-back">
               <ChevronLeft className="w-5 h-5" />
-              <span className="text-sm font-medium">Back</span>
+              <span className="text-[15px] font-medium">Back</span>
             </button>
-            <h1 className="text-2xl font-bold text-white mb-1">Care Plan</h1>
-            <p className="text-stone-400 text-sm mb-6">For {patient?.name}</p>
+            <h1 className="text-[32px] font-bold text-white mb-1">Care Plan</h1>
+            <p className="text-[#8e8e93] text-[16px] mb-6">For {patient?.name}</p>
           </div>
 
-          <div className="px-5 space-y-4">
+          <div className="px-5 space-y-5">
             {/* Primary Goals */}
-            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
-              <h3 className="text-[#25D366] text-xs font-bold uppercase tracking-wider mb-4">Primary Goals</h3>
-              <div className="space-y-3">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-6">
+              <h3 className="text-[#25D366] text-sm font-bold uppercase tracking-wider mb-5">Primary Goals</h3>
+              <div className="space-y-4">
                 {CARE_PLAN.goals.map((goal, idx) => (
-                  <div key={idx} className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-[#25D366] mt-0.5 flex-shrink-0" />
-                    <p className="text-white text-sm">{goal}</p>
+                  <div key={idx} className="flex items-center gap-3">
+                    <CheckCircle className="w-6 h-6 text-[#25D366] flex-shrink-0" fill="#25D366" stroke="#1c1c1e" strokeWidth={2} />
+                    <p className="text-white text-[16px]">{goal}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Medications */}
-            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
-              <h3 className="text-[#25D366] text-xs font-bold uppercase tracking-wider mb-4">Medications</h3>
-              <div className="divide-y divide-stone-800">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-6">
+              <h3 className="text-[#25D366] text-sm font-bold uppercase tracking-wider mb-5">Medications</h3>
+              <div className="divide-y divide-[#3a3a3c]">
                 {CARE_PLAN.medications.map((med, idx) => (
-                  <div key={idx} className="py-3 first:pt-0 last:pb-0">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-white font-semibold text-sm">{med.name} {med.dosage}</p>
-                        <p className="text-stone-400 text-xs mt-0.5">{med.frequency} - {med.condition}</p>
-                      </div>
-                      <span className="text-[#25D366] text-xs font-semibold">{med.time}</span>
+                  <div key={idx} className="py-4 first:pt-0 last:pb-0 flex items-start justify-between">
+                    <div>
+                      <p className="text-white font-bold text-[17px]">{med.name} ({med.dosage})</p>
+                      <p className="text-[#8e8e93] text-[14px] mt-1">{med.frequency} - {med.condition}</p>
                     </div>
+                    <span className="text-[#25D366] text-[15px] font-semibold flex-shrink-0 ml-4">{med.time}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Daily Schedule */}
-            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
-              <h3 className="text-[#25D366] text-xs font-bold uppercase tracking-wider mb-4">Daily Schedule</h3>
-              <div className="space-y-3">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-6">
+              <h3 className="text-[#25D366] text-sm font-bold uppercase tracking-wider mb-5">Daily Schedule</h3>
+              <div className="divide-y divide-[#3a3a3c]">
                 {CARE_PLAN.dailySchedule.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-4">
-                    <span className="text-[#25D366] text-xs font-semibold w-16 flex-shrink-0">{item.time}</span>
-                    <p className="text-white text-sm">{item.activity}</p>
+                  <div key={idx} className="py-4 first:pt-0 last:pb-0 flex items-start justify-between">
+                    <div>
+                      <p className="text-white font-bold text-[17px]">{item.activity}</p>
+                      <p className="text-[#8e8e93] text-[14px] mt-1">{item.priority} - {item.type}</p>
+                    </div>
+                    <span className="text-[#25D366] text-[15px] font-semibold flex-shrink-0 ml-4">{item.time}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Dietary Restrictions */}
-            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-5">
-              <h3 className="text-[#25D366] text-xs font-bold uppercase tracking-wider mb-4">Dietary Restrictions</h3>
-              <div className="flex flex-wrap gap-2">
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-6">
+              <h3 className="text-[#ff453a] text-sm font-bold uppercase tracking-wider mb-5">Dietary Restrictions</h3>
+              <div className="space-y-3">
                 {CARE_PLAN.dietaryRestrictions.map((item, idx) => (
-                  <span key={idx} className="bg-stone-800 text-white text-xs font-medium px-3 py-1.5 rounded-full">{item}</span>
+                  <div key={idx} className="flex items-center gap-3">
+                    <AlertCircle className="w-6 h-6 text-[#ff453a] flex-shrink-0" fill="#ff453a" stroke="#1c1c1e" strokeWidth={2} />
+                    <p className="text-[#ff453a] text-[16px]">{item}</p>
+                  </div>
                 ))}
               </div>
             </div>
 
             {/* Emergency Protocol */}
-            <div className="bg-[#3d1a1a] border border-[#7f2d2d] rounded-2xl p-5">
-              <h3 className="text-red-400 text-xs font-bold uppercase tracking-wider mb-3">Emergency Protocol</h3>
-              <p className="text-white text-sm leading-relaxed">{CARE_PLAN.emergencyProtocol}</p>
+            <div className="bg-[#1c1c1e] border border-[#3a3a3c] rounded-2xl p-6">
+              <h3 className="text-[#ff453a] text-sm font-bold uppercase tracking-wider mb-4">Emergency Protocol</h3>
+              <div className="bg-[#3d1a1a]/60 border border-[#7f2d2d]/50 rounded-xl p-4">
+                <p className="text-[#e88e8e] text-[16px] leading-relaxed">{CARE_PLAN.emergencyProtocol}</p>
+              </div>
             </div>
           </div>
         </div>
