@@ -48,8 +48,8 @@ export const CaregiverDashboard = ({
   const [showVitals, setShowVitals] = useState(false);
   const [vitalsInitialTab, setVitalsInitialTab] = useState('bp');
   const [showCopilot, setShowCopilot] = useState(false);
-  const [isShiftActive, setIsShiftActive] = useState(skipStartShift); // Auto-start if skipStartShift
-  const [shiftStartTime, setShiftStartTime] = useState(skipStartShift ? new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : null);
+  const [isShiftActive, setIsShiftActive] = useState(true);
+  const [shiftStartTime, setShiftStartTime] = useState(new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }));
   const [activePage, setActivePage] = useState(null);
   
   // Historical date viewing
@@ -245,81 +245,7 @@ export const CaregiverDashboard = ({
 
   // Render Home Content
   const renderHomeContent = () => {
-    if (!isShiftActive) {
-      // Offline State - Uber-style GO interface
-      return (
-        <div className={`flex-1 flex flex-col ${bg}`}>
-          {/* Header with caregiver info */}
-          <div className="px-6 pt-3 pb-4">
-            <div className="flex items-center gap-4">
-              <img 
-                src={CAREGIVER_PROFILE.photo} 
-                alt="You"
-                className={`w-14 h-14 rounded-full object-cover ring-2 ${isDarkMode ? 'ring-stone-800' : 'ring-stone-200'} shadow-lg`}
-              />
-              <div>
-                <p className={`${textMuted} text-sm font-medium`}>Good morning,</p>
-                <h1 className={`text-xl font-bold ${text} tracking-tight`}>Julia</h1>
-              </div>
-            </div>
-          </div>
-
-          {/* Patient Card */}
-          <div className="px-6 mb-6">
-            <div className={`${bgCard} border ${border} rounded-3xl p-5`}>
-              <p className={`${textMuted} text-sm font-medium mb-3`}>Ready to care for</p>
-              <div className="flex items-center gap-4">
-                <img 
-                  src={patient?.photo || 'https://via.placeholder.com/80'} 
-                  alt={patient?.name}
-                  className="w-16 h-16 rounded-2xl object-cover"
-                />
-                <div className="flex-1">
-                  <h2 className={`text-lg font-bold ${text}`}>{patient?.name || 'Patient'}</h2>
-                  <p className={`${textSecondary} text-sm`}>{patient?.age} years old</p>
-                </div>
-                <button 
-                  onClick={() => setShowPatientProfile(true)}
-                  className={`p-3 ${isDarkMode ? 'bg-stone-800 hover:bg-stone-700' : 'bg-stone-100 hover:bg-stone-200'} rounded-full transition-colors`}
-                >
-                  <ChevronRight className={`w-5 h-5 ${textMuted}`} />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Start Shift Section */}
-          <div className="flex-1 flex flex-col items-center justify-center px-6 pb-32">
-            <p className={`${textMuted} font-medium mb-2`}>You&apos;re offline</p>
-            <h2 className={`text-2xl font-bold ${text} mb-8 text-center`}>
-              Tap to start your shift
-            </h2>
-            
-            {/* Uber-style GO Button */}
-            <button
-              onClick={handleStartShift}
-              className="relative group"
-              data-testid="start-shift-btn"
-            >
-              {/* Outer pulse ring */}
-              <div className="absolute inset-0 bg-rose-400 rounded-full animate-ping opacity-20 scale-110" />
-              {/* Middle glow */}
-              <div className="absolute inset-[-8px] bg-gradient-to-br from-rose-400 to-rose-500 rounded-full opacity-30 group-hover:opacity-50 transition-opacity blur-xl" />
-              {/* Main button */}
-              <div className="relative w-36 h-36 bg-gradient-to-br from-rose-500 to-rose-600 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(244,63,94,0.4)] group-hover:shadow-[0_12px_40px_rgba(244,63,94,0.5)] transition-all group-hover:scale-105">
-                <Play className="w-14 h-14 text-white ml-2" fill="white" />
-              </div>
-            </button>
-            
-            <p className={`${textMuted} text-sm mt-6`}>
-              {todayTasks.length} tasks scheduled for today
-            </p>
-          </div>
-        </div>
-      );
-    }
-
-    // Online State - Dashboard
+    // Dashboard
     return (
       <div className={`flex-1 overflow-y-auto ${bg} pb-20`}>
         {/* Patient Card - Rounded card with photo background */}
@@ -750,7 +676,7 @@ export const CaregiverDashboard = ({
       {activeTab === 'settings' && renderSettingsContent()}
 
       {/* Floating Action Button - AI Care Assistant */}
-      {activeTab === 'home' && isShiftActive && (
+      {activeTab === 'home' && (
         <div className="fixed bottom-24 right-5 z-40">
           <button
             onClick={() => setShowCopilot(true)}
