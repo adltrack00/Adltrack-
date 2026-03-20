@@ -1,5 +1,7 @@
 // API Configuration
-export const API_BASE_URL = 'https://caretrack-debug.preview.emergentagent.com/api';
+export const API_BASE_URL = process.env.REACT_APP_BACKEND_URL
+  ? `${process.env.REACT_APP_BACKEND_URL}/api`
+  : 'https://caretrack-debug.preview.emergentagent.com/api';
 
 export const ENDPOINTS = {
   // Auth
