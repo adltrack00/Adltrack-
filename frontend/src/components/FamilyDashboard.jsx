@@ -833,18 +833,22 @@ export const FamilyDashboard = ({
         patientName={patient?.name}
       />
 
-      {/* Add Request Modal */}
+      {/* Add Request Modal - Full screen */}
       {showRequestModal && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-end justify-center">
-          <div className="bg-black border-t border-[#2c2c2e] w-full max-w-md rounded-t-3xl p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-white">New Request</h2>
-              <button onClick={() => setShowRequestModal(false)} className="p-2 hover:bg-stone-800 rounded-full transition-colors">
-                <X className="w-5 h-5 text-[#8e8e93]" />
+        <div className="fixed inset-0 bg-black z-[70] flex flex-col font-['Manrope',sans-serif]">
+          {/* Header */}
+          <div className="flex-none flex items-center justify-between px-5 pt-3 pb-3 border-b border-[#2c2c2e]">
+            <div className="flex items-center gap-3">
+              <button onClick={() => setShowRequestModal(false)} className="p-1">
+                <X className="w-6 h-6 text-white" />
               </button>
+              <h2 className="text-xl font-bold text-white">New Request</h2>
             </div>
+          </div>
 
-            <div className="space-y-4">
+          {/* Scrollable content */}
+          <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-6">
+            <div className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-[#ababab] mb-2">What do you need?</label>
                 <input
