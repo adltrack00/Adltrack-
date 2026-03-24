@@ -127,15 +127,15 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
         <PhotoViewerModal />
 
         {/* Header */}
-        <div className={`${isDarkMode ? 'bg-[#2c2c2e]' : 'bg-white'} border-b ${border} px-5 py-4`}>
-          <button 
-            onClick={() => setSelectedIncident(null)}
-            className={`flex items-center gap-2 ${textMuted} hover:${text} mb-3`}
-          >
-            <ChevronRight className="w-5 h-5 rotate-180" />
-            <span className="text-sm font-medium">Back to Incidents</span>
-          </button>
+        <div className="px-5 pt-3 pb-3">
           <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setSelectedIncident(null)}
+              className="p-1"
+              data-testid="incident-detail-back"
+            >
+              <ChevronRight className="w-6 h-6 text-white rotate-180" />
+            </button>
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
               selectedIncident.severity === 'critical' ? 'bg-rose-500/20' :
               selectedIncident.severity === 'high' ? 'bg-orange-500/20' :
