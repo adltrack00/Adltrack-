@@ -107,7 +107,7 @@ export const TaskCard = ({
           <div className="space-y-4">
             <div className="bg-[#191919] rounded-2xl p-4">
               <p className="text-xs font-bold text-[#8e8e93] uppercase tracking-[1.5px] mb-2">Instructions</p>
-              <p className="text-[15px] text-[#8e8e93] leading-relaxed">{task.instructions || task.description}</p>
+              <p className="text-[15px] text-white leading-relaxed">{task.instructions || task.description}</p>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-[#8e8e93]" />
