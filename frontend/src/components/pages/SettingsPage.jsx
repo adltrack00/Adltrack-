@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Bell, Moon, Globe, Shield, HelpCircle, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Bell, Moon, Globe, Shield, ChevronRight } from 'lucide-react';
 
-export const SettingsPage = ({ onBack, onNavigateToHelp }) => {
+export const SettingsPage = ({ onBack }) => {
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(true);
 
@@ -86,23 +86,6 @@ export const SettingsPage = ({ onBack, onNavigateToHelp }) => {
               <span className="text-[15px] text-[#8e8e93]">English</span>
               <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
             </div>
-          </button>
-
-          <div className="mx-4 border-t border-[#2c2c2e]" />
-
-          {/* Help & Support */}
-          <button 
-            className="w-full flex items-center justify-between px-4 py-4" 
-            data-testid="help-support-btn"
-            onClick={onNavigateToHelp}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#2c2c2e] rounded-xl flex items-center justify-center">
-                <HelpCircle className="w-5 h-5 text-[#8e8e93]" />
-              </div>
-              <span className="text-[16px] font-medium text-white">Help & Support</span>
-            </div>
-            <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
           </button>
         </div>
 

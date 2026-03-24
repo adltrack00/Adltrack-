@@ -741,7 +741,7 @@ export const FamilyDashboard = ({
   // SETTINGS / SUPPORT SUB-PAGES
   // ==========================================
   if (activePage === 'settings') {
-    return <SettingsPage onBack={() => handlePageChange(null)} onNavigateToHelp={() => handlePageChange('support')} />;
+    return <SettingsPage onBack={() => handlePageChange(null)} />;
   }
   if (activePage === 'support') {
     return <SupportPage onBack={() => handlePageChange(null)} role="family" />;
