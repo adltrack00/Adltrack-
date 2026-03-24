@@ -154,7 +154,7 @@ export const CaregiverDashboard = ({
     return <HistoryPage onBack={() => handlePageChange(null)} role={UserRole.CAREGIVER} />;
   }
   if (activePage === 'support') {
-    return <SupportPage onBack={() => handlePageChange(null)} />;
+    return <SupportPage onBack={() => handlePageChange(null)} role="caregiver" />;
   }
   if (activePage === 'chat') {
     return <ChatPage onBack={() => handlePageChange(null)} role={UserRole.CAREGIVER} />;

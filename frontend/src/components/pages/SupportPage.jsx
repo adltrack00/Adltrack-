@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, MessageCircle, Phone, Mail, FileText, ChevronRight, ChevronDown, ExternalLink } from 'lucide-react';
 
-export const SupportPage = ({ onBack }) => {
+export const SupportPage = ({ onBack, role = 'caregiver' }) => {
   const [expandedFaq, setExpandedFaq] = useState(null);
 
   const contactOptions = [
@@ -10,7 +10,7 @@ export const SupportPage = ({ onBack }) => {
     { icon: Mail, label: 'Email Support', desc: 'support@adltrack.com', action: 'Send Email' },
   ];
 
-  const faqItems = [
+  const caregiverFaqs = [
     {
       question: 'How do I complete a task?',
       answer: 'Navigate to the Home tab on your Caregiver Dashboard where you\'ll see "Today\'s Tasks" listed. Tap on any task to view its details. Once you\'ve performed the activity (bathing, grooming, meal prep, etc.), tap the "Mark Complete" button. You can add a completion note and attach a photo as documentation. Completed tasks are automatically logged and visible to the family member\'s dashboard.'
@@ -36,14 +36,51 @@ export const SupportPage = ({ onBack }) => {
       answer: 'The AI Care Assistant is your intelligent helper available via the floating button on the Home tab. It can answer questions about care protocols, medication schedules, help with documentation, provide guidance on emergency procedures, and offer best-practice recommendations for ADL (Activities of Daily Living) tasks. It\'s designed to support you during your shifts, but remember — it provides care guidance only and does not replace professional medical advice.'
     },
     {
-      question: 'How does the Care Plan work?',
-      answer: 'The Care Plan is accessible to family members from their Menu tab. It outlines the patient\'s daily care schedule including all ADL tasks, medication timings, meal plans, and therapy sessions. Caregivers follow this plan during their shifts. The plan is set up by the care coordinator and can be updated by authorized family members or agency staff. Task completion is tracked against the care plan for compliance reporting.'
+      question: 'How do I administer medications?',
+      answer: 'From the Home tab, you\'ll see the Medications section listing all scheduled medications with their times and dosages. When it\'s time to give a medication, tap the "Give Medication" button next to it. Confirm the medication name, dosage, and time. Once administered, it\'s marked as complete and logged for family and agency records. Always double-check the patient\'s medication list before administering.'
     },
     {
-      question: 'How do I view the Weekly Report?',
-      answer: 'Family members can access the Weekly Report from the Menu tab. It provides a comprehensive overview of the past week including: overall care compliance percentage, tasks completed vs. total tasks, medication adherence rate, number of incidents, missed tasks, caregiver notes summarizing the week, and a performance trend chart. This helps families stay informed about their loved one\'s care quality.'
+      question: 'What should I do in an emergency?',
+      answer: 'In a medical emergency, always call 911 first. Then use the Incidents tab to file an urgent incident report — select "Critical" severity so that family members and the agency are immediately notified. Document what happened, actions taken, and any witness information. The AI Care Assistant can also provide quick guidance on emergency protocols while you wait for help.'
     },
   ];
+
+  const familyFaqs = [
+    {
+      question: 'How do I monitor my loved one\'s care?',
+      answer: 'Your Home tab provides a real-time overview of your loved one\'s care. You\'ll see today\'s completed tasks with photos and notes from the caregiver, current vital signs, and any recent alerts. For a broader view, check the Weekly Report from the Menu tab which shows overall compliance, task completion rates, and caregiver notes summarizing the week.'
+    },
+    {
+      question: 'How do I view incident reports?',
+      answer: 'When a caregiver files an incident report, you\'ll receive a notification in your Alerts tab. Tap on any alert to see the full incident details including the type, severity, description, actions taken, witness information, and any attached photos. You can also view all past incidents from the Alerts tab history.'
+    },
+    {
+      question: 'How do I message the caregiver?',
+      answer: 'Use the Messages tab from the bottom navigation bar to chat directly with the assigned caregiver. You can ask questions about your loved one\'s day, request updates, or discuss care needs. Messages are delivered in real-time. For urgent matters, you can also call the caregiver directly from their profile page.'
+    },
+    {
+      question: 'How do I read the Weekly Report?',
+      answer: 'Go to the Menu tab and tap "Weekly Report". The report shows: overall care compliance percentage, tasks completed vs. total scheduled, medication adherence rate, number of incidents, missed tasks, detailed caregiver notes, and a performance trend chart. This gives you a comprehensive view of how your loved one\'s care is progressing week over week.'
+    },
+    {
+      question: 'How do I view the Care Plan?',
+      answer: 'From the Menu tab, tap "Care Plan" to see your loved one\'s complete care schedule. This includes all daily ADL tasks (bathing, grooming, meals, exercise), medication timings and dosages, therapy sessions, and special instructions. The care plan is managed by the care coordinator and updated as your loved one\'s needs change.'
+    },
+    {
+      question: 'How do I check my loved one\'s vitals?',
+      answer: 'On the Home tab, you\'ll see the latest vital readings (Blood Pressure, Heart Rate, Temperature, Pain Level) displayed at the top. Tap on any vital card to open the detailed view with historical trends and charts. Vitals are recorded by the caregiver during their shifts and updated in real-time so you always have the latest information.'
+    },
+    {
+      question: 'How do I view caregiver information?',
+      answer: 'From the Menu tab, tap "Current Caregiver" to see your assigned caregiver\'s full profile including their photo, qualifications, certifications, experience, and contact details. You can also see their shift schedule and ratings. If you need to message or call them, you can do so directly from their profile page.'
+    },
+    {
+      question: 'What is the AI Care Assistant?',
+      answer: 'The AI Care Assistant is available via the floating button on the Home tab. As a family member, you can ask it questions about your loved one\'s care routine, medication details, what specific vitals mean, or get summaries of recent care activity. It\'s designed to help you stay informed and understand your loved one\'s care better. Note: it provides guidance only and does not replace professional medical advice.'
+    },
+  ];
+
+  const faqItems = role === 'family' ? familyFaqs : caregiverFaqs;
 
   const resources = [
     { label: 'User Guide' },
