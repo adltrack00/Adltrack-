@@ -246,7 +246,7 @@ export const FamilyDashboard = ({
             {/* Caregiver Notes */}
             <div className="bg-[#1c1c1e] rounded-2xl p-5">
               <h3 className="text-[#25D366] text-xs font-bold uppercase tracking-wider mb-3">Caregiver Notes</h3>
-              <p className="text-stone-300 text-sm leading-relaxed">{WEEKLY_REPORT.caregiverNotes}</p>
+              <p className="text-white text-base leading-relaxed">{WEEKLY_REPORT.caregiverNotes}</p>
             </div>
 
             {/* Performance Trend */}
