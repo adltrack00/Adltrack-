@@ -1,113 +1,195 @@
-import React from 'react';
-import { Activity, Heart, Users, Briefcase, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Heart, Users, Briefcase } from 'lucide-react';
 import { UserRole } from '../types';
+
+const C = {
+  dark:   '#0a1929',
+  yellow: '#FFFC00',
+  black:  '#000000',
+  white:  '#FFFFFF',
+  muted:  'rgba(255,255,255,0.50)',
+  card:   'rgba(255,255,255,0.05)',
+  border: 'rgba(255,255,255,0.08)',
+};
+
+const ROLES = [
+  {
+    role:        UserRole.CAREGIVER,
+    title:       'Caregiver',
+    subtitle:    'Manage shifts, tasks & documentation',
+    icon:        Heart,
+    accentColor: '#00c896',
+    accentRgb:   '0,200,150',
+    testId:      'caregiver',
+  },
+  {
+    role:        UserRole.FAMILY,
+    title:       'Family Member',
+    subtitle:    'Monitor care & stay connected',
+    icon:        Users,
+    accentColor: '#a78bfa',
+    accentRgb:   '167,139,250',
+    testId:      'family',
+  },
+  {
+    role:        UserRole.ENTERPRISE,
+    title:       'Care Agency',
+    subtitle:    'Manage staff & compliance',
+    icon:        Briefcase,
+    accentColor: '#38bdf8',
+    accentRgb:   '56,189,248',
+    testId:      'enterprise',
+  },
+];
 
 export const RoleSelectionPage = ({ onSelectRole, onBack, mode = 'signin' }) => {
   const isSignUp = mode === 'signup';
-
-  const roles = [
-    {
-      role: UserRole.CAREGIVER,
-      title: "I'm a Caregiver",
-      description: 'Manage shifts, tasks & documentation',
-      icon: Heart,
-      iconColor: 'text-teal-600',
-      iconBg: 'bg-teal-50 group-hover:bg-teal-100',
-      hoverBorder: 'hover:border-teal-400',
-      hoverArrow: 'group-hover:text-teal-600'
-    },
-    {
-      role: UserRole.FAMILY,
-      title: "I'm a Family Member",
-      description: 'Monitor care & stay connected',
-      icon: Users,
-      iconColor: 'text-rose-600',
-      iconBg: 'bg-rose-50 group-hover:bg-rose-100',
-      hoverBorder: 'hover:border-rose-400',
-      hoverArrow: 'group-hover:text-rose-600'
-    },
-    {
-      role: UserRole.ENTERPRISE,
-      title: "I'm an Agency",
-      description: 'Manage staff & compliance',
-      icon: Briefcase,
-      iconColor: 'text-indigo-600',
-      iconBg: 'bg-indigo-50 group-hover:bg-indigo-100',
-      hoverBorder: 'hover:border-indigo-400',
-      hoverArrow: 'group-hover:text-indigo-600'
-    }
-  ];
+  const [hoveredRole, setHoveredRole] = useState(null);
 
   return (
-    <div className="min-h-screen bg-white font-['Manrope',sans-serif] flex flex-col">
-      {/* Header - Logo with green text, clickable to go back */}
-      <header className="p-6 flex items-center justify-center border-b border-stone-200">
-        <button 
+    <div style={{
+      minHeight: '100vh', display: 'flex', flexDirection: 'column',
+      background: C.dark, fontFamily: "'Inter','Figtree','Manrope',system-ui,sans-serif",
+      overflowX: 'hidden',
+    }}>
+      <style>{`
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(18px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .rsp-fade { animation: fadeUp 0.55s ease-out forwards; opacity: 0; }
+        .rsp-root * { box-sizing: border-box; margin: 0; padding: 0; }
+      `}</style>
+
+      {/* Ambient glows */}
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0 }}>
+        <div style={{
+          position: 'absolute', top: -80, left: '50%', transform: 'translateX(-50%)',
+          width: 600, height: 320, borderRadius: '50%',
+          background: 'radial-gradient(ellipse, rgba(255,252,0,0.06) 0%, transparent 70%)',
+          filter: 'blur(40px)',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: 0, right: 0, width: 320, height: 320, borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(255,252,0,0.03) 0%, transparent 70%)',
+          filter: 'blur(60px)',
+        }} />
+      </div>
+
+      {/* Header */}
+      <header style={{ position: 'relative', zIndex: 10, padding: '44px 24px 0', display: 'flex', justifyContent: 'center' }}>
+        <button
           onClick={onBack}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', transition: 'opacity 0.2s' }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.7'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
           data-testid="role-logo-btn"
         >
-          <div className="w-8 h-8 rounded-xl bg-[#25D366] flex items-center justify-center">
-            <Activity className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-lg font-bold tracking-tight text-[#25D366]">Adltrack</span>
+          <span style={{ color: C.white, fontWeight: 700, fontSize: 18, letterSpacing: '-0.03em' }}>One Permit</span>
         </button>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 pb-12">
-        <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl space-y-8">
-          {/* Welcome Text */}
-          <div className="text-center space-y-3">
-            <h1 className="text-3xl lg:text-4xl font-bold text-stone-900 tracking-tight">
-              {isSignUp ? 'Create your account' : 'Welcome back'}
+      {/* Main */}
+      <main style={{ position: 'relative', zIndex: 10, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 20px 44px' }}>
+        <div style={{ width: '100%', maxWidth: 380 }}>
+
+          {/* Headline */}
+          <div className="rsp-fade" style={{ textAlign: 'center', marginBottom: 32 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '-0.03em', color: C.yellow, textTransform: 'uppercase', marginBottom: 12 }}>
+              {isSignUp ? 'Getting started' : 'Welcome back'}
+            </p>
+            <h1 style={{ fontSize: 'clamp(1.9rem,4vw,2.5rem)', fontWeight: 700, letterSpacing: '-0.03em', color: C.white, lineHeight: 1.1, marginBottom: 8 }}>
+              {isSignUp ? 'Who are you?' : 'Continue as'}
             </h1>
-            <p className="text-[#8e8e93] font-medium lg:text-lg">
-              Select your account type to {isSignUp ? 'get started' : 'continue'}
+            <p style={{ fontSize: 14, fontWeight: 700, letterSpacing: '-0.03em', color: C.muted }}>
+              Choose your account type to {isSignUp ? 'get started' : 'sign in'}
             </p>
           </div>
 
-          {/* Role Selection Cards */}
-          <div className="space-y-4">
-            {roles.map(({ role, title, description, icon: Icon, iconColor, iconBg, hoverBorder, hoverArrow }) => (
-              <button
-                key={role}
-                onClick={() => onSelectRole(role)}
-                className={`w-full p-5 lg:p-6 bg-white border-2 border-stone-200 rounded-2xl ${hoverBorder} hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all duration-200 group text-left`}
-                data-testid={`role-select-${role}`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className={`w-14 h-14 lg:w-16 lg:h-16 rounded-xl ${iconBg} flex items-center justify-center transition-colors`}>
-                    <Icon className={`w-7 h-7 lg:w-8 lg:h-8 ${iconColor}`} />
+          {/* Role cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {ROLES.map(({ role, title, subtitle, icon: Icon, accentColor, accentRgb, testId }, idx) => {
+              const isHov = hoveredRole === role;
+              return (
+                <button
+                  key={role}
+                  data-testid={`role-select-${testId}`}
+                  onClick={() => onSelectRole(role)}
+                  onMouseEnter={() => setHoveredRole(role)}
+                  onMouseLeave={() => setHoveredRole(null)}
+                  className="rsp-fade"
+                  style={{
+                    animationDelay: `${0.08 + idx * 0.08}s`,
+                    background: isHov ? `rgba(${accentRgb},0.08)` : C.card,
+                    border: `1.5px solid ${isHov ? `rgba(${accentRgb},0.30)` : C.border}`,
+                    borderRadius: 16,
+                    padding: '18px 20px',
+                    cursor: 'pointer',
+                    transition: 'all 0.25s',
+                    transform: isHov ? 'translateY(-2px)' : 'translateY(0)',
+                    backdropFilter: 'blur(8px)',
+                    textAlign: 'left',
+                    width: '100%',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                    {/* Icon orb */}
+                    <div style={{
+                      width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: isHov ? `rgba(${accentRgb},0.15)` : 'rgba(255,255,255,0.06)',
+                      border: `1px solid ${isHov ? `rgba(${accentRgb},0.25)` : 'rgba(255,255,255,0.08)'}`,
+                      transition: 'all 0.25s',
+                    }}>
+                      <Icon style={{ width: 20, height: 20, color: isHov ? accentColor : 'rgba(255,255,255,0.55)' }} />
+                    </div>
+
+                    {/* Text */}
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 15, fontWeight: 700, letterSpacing: '-0.03em', color: C.white, marginBottom: 3 }}>{title}</p>
+                      <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: '-0.03em', color: C.muted }}>{subtitle}</p>
+                    </div>
+
+                    {/* Arrow box */}
+                    <div style={{
+                      width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: isHov ? C.yellow : 'rgba(255,255,255,0.06)',
+                      transition: 'all 0.25s',
+                    }}>
+                      <svg
+                        style={{ width: 14, height: 14, color: isHov ? C.black : 'rgba(255,255,255,0.35)', transition: 'transform 0.2s', transform: isHov ? 'translateX(1px)' : 'translateX(0)' }}
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg lg:text-xl font-bold text-stone-900">{title}</h3>
-                    <p className="text-sm lg:text-base text-[#8e8e93] font-medium">{description}</p>
-                  </div>
-                  <ArrowRight className={`w-5 h-5 lg:w-6 lg:h-6 text-stone-300 ${hoverArrow} group-hover:translate-x-1 transition-all`} />
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Mode Switch */}
-          <p className="text-center text-[#8e8e93] pt-4">
+          {/* Mode switch */}
+          <p className="rsp-fade" style={{ animationDelay: '0.32s', textAlign: 'center', fontSize: 14, fontWeight: 700, letterSpacing: '-0.03em', color: C.muted, marginTop: 28 }}>
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
             <button
               onClick={() => onSelectRole(null, !isSignUp)}
-              className="font-bold text-emerald-600 hover:underline"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.yellow, fontWeight: 700, letterSpacing: '-0.03em', fontSize: 14, transition: 'opacity 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '0.7'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
               data-testid="role-switch-mode-btn"
             >
-              {isSignUp ? 'Sign in' : 'Sign up'}
+              {isSignUp ? 'Sign in' : 'Sign up free'}
             </button>
           </p>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="p-6 text-center border-t border-stone-200">
-        <p className="text-sm text-[#8e8e93] font-medium">
-          © {new Date().getFullYear()} Adltrack. Secure care coordination.
+      <footer style={{ position: 'relative', zIndex: 10, paddingBottom: 28, textAlign: 'center' }}>
+        <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '-0.03em', color: 'rgba(255,255,255,0.22)' }}>
+          © {new Date().getFullYear()} One Permit · Secure care coordination
         </p>
       </footer>
     </div>

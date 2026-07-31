@@ -2,98 +2,108 @@ import React from 'react';
 import { ArrowLeft, CreditCard, DollarSign, Calendar, ChevronRight, TrendingUp } from 'lucide-react';
 import { UserRole } from '../../types';
 
+const D = {
+  bg: '#0a1929', card: 'rgba(255,255,255,0.05)', bdr: 'rgba(255,255,255,0.08)',
+  h: '#FFFFFF', body: 'rgba(255,255,255,0.55)', muted: 'rgba(255,255,255,0.36)',
+  brand: '#00c896', brandText: '#FFFFFF',
+  shadow: '0 4px 24px rgba(0,0,0,0.24)',
+};
+
 export const AccountsPage = ({ onBack, role }) => {
   const isCaregiver = role === UserRole.CAREGIVER;
 
   return (
-    <div className="min-h-screen bg-black">
+    <div style={{ minHeight: '100vh', background: D.bg, fontFamily: "'Inter','Figtree','Manrope',system-ui,sans-serif", letterSpacing: '-0.03em' }}>
       {/* Header */}
-      <div className="sticky top-0 bg-[#2c2c2e] border-b border-[#2c2c2e] px-4 py-4 flex items-center gap-3 z-10">
-        <button onClick={onBack} className="p-2 hover:bg-stone-800 rounded-full">
-          <ArrowLeft className="w-5 h-5 text-stone-300" />
+      <div style={{ position: 'sticky', top: 0, background: 'rgba(10,25,41,0.95)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${D.bdr}`, padding: '16px', display: 'flex', alignItems: 'center', gap: 12, zIndex: 10 }}>
+        <button
+          onClick={onBack}
+          style={{ background: 'rgba(255,255,255,0.06)', border: `1px solid ${D.bdr}`, borderRadius: 8, padding: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <ArrowLeft style={{ width: 20, height: 20, color: D.body }} />
         </button>
-        <h1 className="text-lg font-semibold text-white">
+        <h1 style={{ fontSize: 18, fontWeight: 700, color: D.h, margin: 0 }}>
           {isCaregiver ? 'Earnings' : 'Billing'}
         </h1>
       </div>
 
-      <div className="p-4 space-y-6">
+      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 20 }}>
         {/* Balance Card */}
-        <div className={`${isCaregiver ? 'bg-[#20bd5a]' : 'bg-[#2c2c2e]'} rounded-2xl p-6 text-white`}>
-          <p className="text-sm opacity-80 mb-1">
+        <div style={{
+          background: isCaregiver ? 'linear-gradient(135deg,rgba(0,200,150,0.15),rgba(0,200,150,0.06))' : D.card,
+          border: `1px solid ${isCaregiver ? 'rgba(0,200,150,0.25)' : D.bdr}`,
+          borderRadius: 20, padding: 24, backdropFilter: 'blur(8px)',
+        }}>
+          <p style={{ fontSize: 13, color: D.body, marginBottom: 4 }}>
             {isCaregiver ? 'Available Balance' : 'Current Balance'}
           </p>
-          <p className="text-4xl font-bold mb-4">
+          <p style={{ fontSize: 36, fontWeight: 700, color: D.h, marginBottom: 16 }}>
             {isCaregiver ? '$1,247.50' : '$0.00'}
           </p>
           {isCaregiver ? (
-            <button className="w-full py-3 bg-white text-[#20bd5a] rounded-xl font-semibold hover:bg-stone-100 transition-colors">
+            <button style={{ width: '100%', padding: '12px', background: D.brand, color: D.brandText, borderRadius: 12, fontWeight: 700, fontSize: 15, border: 'none', cursor: 'pointer' }}>
               Withdraw Funds
             </button>
           ) : (
-            <p className="text-sm opacity-80">No outstanding balance</p>
+            <p style={{ fontSize: 13, color: D.muted }}>No outstanding balance</p>
           )}
         </div>
 
         {/* Quick Stats */}
         {isCaregiver && (
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-[#2c2c2e] rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-4 h-4 text-[#8e8e93]" />
-                <span className="text-xs text-[#ababab]">This Week</span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            {[
+              { icon: Calendar, label: 'This Week', value: '$485.00', color: '#38bdf8' },
+              { icon: TrendingUp, label: 'This Month', value: '$1,892.50', color: '#00c896' },
+            ].map(({ icon: Icon, label, value, color }) => (
+              <div key={label} style={{ background: D.card, border: `1px solid ${D.bdr}`, borderRadius: 14, padding: 16, backdropFilter: 'blur(8px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <Icon style={{ width: 16, height: 16, color }} />
+                  <span style={{ fontSize: 12, color: D.muted }}>{label}</span>
+                </div>
+                <p style={{ fontSize: 20, fontWeight: 700, color: D.h, margin: 0 }}>{value}</p>
               </div>
-              <p className="text-xl font-bold text-white">$485.00</p>
-            </div>
-            <div className="bg-[#2c2c2e] rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-4 h-4 text-[#25D366]" />
-                <span className="text-xs text-[#ababab]">This Month</span>
-              </div>
-              <p className="text-xl font-bold text-white">$1,892.50</p>
-            </div>
+            ))}
           </div>
         )}
 
         {/* Payment Method */}
-        <div className="bg-[#2c2c2e] rounded-xl p-4">
-          <h3 className="font-semibold text-white mb-4">Payment Method</h3>
-          <button className="w-full flex items-center justify-between p-3 bg-stone-800 rounded-xl border border-stone-700 hover:border-stone-600 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                <CreditCard className="w-5 h-5 text-blue-400" />
+        <div style={{ background: D.card, border: `1px solid ${D.bdr}`, borderRadius: 14, padding: 16, backdropFilter: 'blur(8px)' }}>
+          <h3 style={{ fontWeight: 700, color: D.h, marginBottom: 16, fontSize: 15 }}>Payment Method</h3>
+          <button style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 12, background: 'rgba(255,255,255,0.04)', border: `1px solid ${D.bdr}`, borderRadius: 12, cursor: 'pointer' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 40, height: 40, background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.2)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CreditCard style={{ width: 20, height: 20, color: '#38bdf8' }} />
               </div>
-              <div className="text-left">
-                <p className="font-medium text-white">•••• 4242</p>
-                <p className="text-xs text-[#ababab]">Visa ending in 4242</p>
+              <div style={{ textAlign: 'left' }}>
+                <p style={{ fontWeight: 700, color: D.h, margin: 0, fontSize: 14 }}>•••• 4242</p>
+                <p style={{ fontSize: 12, color: D.muted, margin: 0 }}>Visa ending in 4242</p>
               </div>
             </div>
-            <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
+            <ChevronRight style={{ width: 18, height: 18, color: D.muted }} />
           </button>
         </div>
 
         {/* Recent Transactions */}
         <div>
-          <h3 className="font-semibold text-white mb-4">Recent Transactions</h3>
-          <div className="space-y-3">
+          <h3 style={{ fontWeight: 700, color: D.h, marginBottom: 16, fontSize: 15 }}>Recent Transactions</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
-              { desc: isCaregiver ? 'Shift Payment - Dec 15' : 'Care Service - Dec 15', amount: isCaregiver ? '+$125.00' : '-$125.00', status: 'Completed' },
-              { desc: isCaregiver ? 'Shift Payment - Dec 14' : 'Care Service - Dec 14', amount: isCaregiver ? '+$150.00' : '-$150.00', status: 'Completed' },
-              { desc: isCaregiver ? 'Shift Payment - Dec 13' : 'Care Service - Dec 13', amount: isCaregiver ? '+$100.00' : '-$100.00', status: 'Completed' },
+              { desc: isCaregiver ? 'Shift Payment — Dec 15' : 'Care Service — Dec 15', amount: isCaregiver ? '+$125.00' : '−$125.00', status: 'Completed' },
+              { desc: isCaregiver ? 'Shift Payment — Dec 14' : 'Care Service — Dec 14', amount: isCaregiver ? '+$150.00' : '−$150.00', status: 'Completed' },
+              { desc: isCaregiver ? 'Shift Payment — Dec 13' : 'Care Service — Dec 13', amount: isCaregiver ? '+$100.00' : '−$100.00', status: 'Completed' },
             ].map((tx, idx) => (
-              <div key={idx} className="flex items-center justify-between p-4 bg-[#2c2c2e] rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    isCaregiver ? 'bg-[#25D366]/20' : 'bg-stone-800'
-                  }`}>
-                    <DollarSign className={`w-5 h-5 ${isCaregiver ? 'text-[#25D366]' : 'text-[#ababab]'}`} />
+              <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, background: D.card, border: `1px solid ${D.bdr}`, borderRadius: 14, backdropFilter: 'blur(8px)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: isCaregiver ? 'rgba(0,200,150,0.12)' : 'rgba(255,255,255,0.06)', border: `1px solid ${isCaregiver ? 'rgba(0,200,150,0.2)' : D.bdr}` }}>
+                    <DollarSign style={{ width: 18, height: 18, color: isCaregiver ? '#00c896' : D.muted }} />
                   </div>
                   <div>
-                    <p className="font-medium text-white">{tx.desc}</p>
-                    <p className="text-xs text-[#ababab]">{tx.status}</p>
+                    <p style={{ fontWeight: 700, color: D.h, margin: '0 0 2px', fontSize: 14 }}>{tx.desc}</p>
+                    <p style={{ fontSize: 12, color: D.muted, margin: 0 }}>{tx.status}</p>
                   </div>
                 </div>
-                <span className={`font-semibold ${isCaregiver ? 'text-[#25D366]' : 'text-white'}`}>
+                <span style={{ fontWeight: 700, fontSize: 14, color: isCaregiver ? '#00c896' : D.body }}>
                   {tx.amount}
                 </span>
               </div>

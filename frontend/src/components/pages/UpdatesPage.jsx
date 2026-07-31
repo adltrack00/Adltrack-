@@ -1,6 +1,12 @@
 import React from 'react';
 import { ArrowLeft, Calendar, Bell, AlertTriangle, Clock, Pill, Activity } from 'lucide-react';
 
+const D = {
+  bg: '#0a1929', card: 'rgba(255,255,255,0.05)', bdr: 'rgba(255,255,255,0.08)',
+  h: '#FFFFFF', body: 'rgba(255,255,255,0.55)', muted: 'rgba(255,255,255,0.36)',
+  brand: '#00c896',
+};
+
 export const UpdatesPage = ({ onBack }) => {
   const upcomingSchedule = [
     { id: 1, title: 'Physical Therapy', time: '10:00 AM Tomorrow', type: 'appointment', icon: Activity },
@@ -14,36 +20,45 @@ export const UpdatesPage = ({ onBack }) => {
     { id: 3, title: 'Caregiver Assignment', desc: 'Julia will cover weekend shifts', time: '2 days ago', priority: 'low' },
   ];
 
+  const alertStyle = (priority) => {
+    if (priority === 'high') return { background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.20)' };
+    if (priority === 'medium') return { background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.15)' };
+    return { background: D.card, border: `1px solid ${D.bdr}` };
+  };
+
   return (
-    <div className="min-h-screen bg-black">
+    <div style={{ minHeight: '100vh', background: D.bg, fontFamily: "'Inter','Figtree','Manrope',system-ui,sans-serif", letterSpacing: '-0.03em' }}>
       {/* Header */}
-      <div className="sticky top-0 bg-[#2c2c2e] border-b border-[#2c2c2e] px-4 py-4 flex items-center gap-3 z-10">
-        <button onClick={onBack} className="p-2 hover:bg-stone-800 rounded-full">
-          <ArrowLeft className="w-5 h-5 text-stone-300" />
+      <div style={{ position: 'sticky', top: 0, background: 'rgba(10,25,41,0.95)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${D.bdr}`, padding: '16px', display: 'flex', alignItems: 'center', gap: 12, zIndex: 10 }}>
+        <button
+          onClick={onBack}
+          style={{ background: 'rgba(255,255,255,0.06)', border: `1px solid ${D.bdr}`, borderRadius: 8, padding: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <ArrowLeft style={{ width: 20, height: 20, color: D.body }} />
         </button>
-        <h1 className="text-lg font-semibold text-white">Notifications</h1>
+        <h1 style={{ fontSize: 18, fontWeight: 700, color: D.h, margin: 0 }}>Notifications</h1>
       </div>
 
-      <div className="p-4 space-y-6">
+      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 24 }}>
         {/* Upcoming Schedule */}
         <div>
-          <h2 className="text-sm font-semibold text-[#ababab] uppercase tracking-wider mb-3 flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
+          <h2 style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: D.brand, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Calendar style={{ width: 14, height: 14 }} />
             Upcoming Schedule
           </h2>
-          <div className="space-y-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {upcomingSchedule.map((item) => (
-              <div 
+              <div
                 key={item.id}
-                className="flex items-center gap-3 p-4 bg-[#2c2c2e] rounded-xl"
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: D.card, border: `1px solid ${D.bdr}`, borderRadius: 14, backdropFilter: 'blur(8px)' }}
               >
-                <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
-                  <item.icon className="w-5 h-5 text-blue-400" />
+                <div style={{ width: 40, height: 40, background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <item.icon style={{ width: 18, height: 18, color: '#38bdf8' }} />
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium text-white">{item.title}</p>
-                  <p className="text-sm text-[#ababab] flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: D.h, margin: '0 0 2px' }}>{item.title}</p>
+                  <p style={{ fontSize: 13, color: D.muted, margin: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Clock style={{ width: 11, height: 11 }} />
                     {item.time}
                   </p>
                 </div>
@@ -54,30 +69,24 @@ export const UpdatesPage = ({ onBack }) => {
 
         {/* Alerts */}
         <div>
-          <h2 className="text-sm font-semibold text-[#ababab] uppercase tracking-wider mb-3 flex items-center gap-2">
-            <Bell className="w-4 h-4" />
+          <h2 style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: D.brand, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Bell style={{ width: 14, height: 14 }} />
             Recent Alerts
           </h2>
-          <div className="space-y-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {alerts.map((alert) => (
-              <div 
+              <div
                 key={alert.id}
-                className={`p-4 rounded-xl border ${
-                  alert.priority === 'high' 
-                    ? 'bg-rose-500/10 border-rose-500/30' 
-                    : alert.priority === 'medium'
-                    ? 'bg-amber-500/10 border-amber-500/30'
-                    : 'bg-[#2c2c2e] border-[#2c2c2e]'
-                }`}
+                style={{ padding: 16, borderRadius: 14, backdropFilter: 'blur(8px)', ...alertStyle(alert.priority) }}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="font-medium text-white">{alert.title}</p>
-                    <p className="text-sm text-[#ababab] mt-1">{alert.desc}</p>
-                    <p className="text-xs text-[#8e8e93] mt-2">{alert.time}</p>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: 15, fontWeight: 700, color: D.h, margin: '0 0 4px' }}>{alert.title}</p>
+                    <p style={{ fontSize: 13, color: D.body, margin: '0 0 8px' }}>{alert.desc}</p>
+                    <p style={{ fontSize: 12, color: D.muted, margin: 0 }}>{alert.time}</p>
                   </div>
                   {alert.priority === 'high' && (
-                    <AlertTriangle className="w-5 h-5 text-rose-400" />
+                    <AlertTriangle style={{ width: 18, height: 18, color: 'rgba(244,63,94,0.8)', flexShrink: 0, marginLeft: 8 }} />
                   )}
                 </div>
               </div>

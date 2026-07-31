@@ -1,85 +1,152 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../context/ThemeContext';
 
-export default function RoleSelectionScreen({ navigation }) {
-  const { theme, setDarkMode } = useTheme();
+const ROLES = [
+  {
+    id: 'caregiver',
+    title: 'Caregiver',
+    description: 'Manage shifts, tasks & documentation',
+    icon: 'heart-circle',
+    accent: '#00c896',
+    accentRgb: '0,200,150',
+    gradientFrom: '#00c896',
+    gradientTo: '#00a87a',
+    darkMode: true,
+  },
+  {
+    id: 'family',
+    title: 'Family Member',
+    description: 'Monitor care & stay connected',
+    icon: 'people',
+    accent: '#a78bfa',
+    accentRgb: '167,139,250',
+    gradientFrom: '#7c6ef5',
+    gradientTo: '#a78bfa',
+    darkMode: true,
+  },
+  {
+    id: 'agency',
+    title: 'Care Agency',
+    description: 'Manage staff & compliance',
+    icon: 'business',
+    accent: '#38bdf8',
+    accentRgb: '56,189,248',
+    gradientFrom: '#38bdf8',
+    gradientTo: '#0284c7',
+    darkMode: true,
+  },
+];
 
-  const roles = [
-    {
-      id: 'caregiver',
-      title: 'Caregiver',
-      description: 'Professional caregivers managing patient care',
-      icon: 'heart-circle',
-      color: '#25D366',
-      darkMode: true,
-    },
-    {
-      id: 'family',
-      title: 'Family Member',
-      description: 'Family guardians monitoring loved ones',
-      icon: 'people',
-      color: '#3b82f6',
-      darkMode: false,
-    },
-    {
-      id: 'agency',
-      title: 'Agency',
-      description: 'Healthcare agencies managing staff',
-      icon: 'business',
-      color: '#8b5cf6',
-      darkMode: false,
-    },
-  ];
+export default function RoleSelectionScreen({ navigation }) {
+  const { setDarkMode } = useTheme();
+  const [hoveredRole, setHoveredRole] = useState(null);
 
   const handleRoleSelect = async (role) => {
-    // Set dark mode based on role preference
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     await setDarkMode(role.darkMode);
     navigation.navigate('Auth', { role: role.id });
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: '#ffffff' }]}>
+    <SafeAreaView style={styles.container}>
+      {/* Ambient glows */}
+      <View style={styles.glowTop} pointerEvents="none" />
+      <View style={styles.glowBottomLeft} pointerEvents="none" />
+
       <View style={styles.content}>
-        {/* Header */}
-        <TouchableOpacity 
+        {/* Back button */}
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
+          activeOpacity={0.75}
         >
-          <Ionicons name="arrow-back" size={24} color="#1c1917" />
+          <Ionicons name="arrow-back" size={20} color="rgba(255,255,255,0.60)" />
         </TouchableOpacity>
 
-        <Text style={styles.title}>Choose Your Role</Text>
-        <Text style={styles.subtitle}>
-          Select how you'll be using ADLTrack
-        </Text>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.eyebrow}>Welcome back</Text>
+          <Text style={styles.title}>Continue as</Text>
+          <Text style={styles.subtitle}>Choose your account type to sign in</Text>
+        </View>
 
         {/* Role Cards */}
         <View style={styles.rolesContainer}>
-          {roles.map((role) => (
-            <TouchableOpacity
-              key={role.id}
-              style={styles.roleCard}
-              onPress={() => handleRoleSelect(role)}
-              activeOpacity={0.7}
-            >
-              <View style={[styles.roleIconContainer, { backgroundColor: `${role.color}15` }]}>
-                <Ionicons name={role.icon} size={32} color={role.color} />
-              </View>
-              <View style={styles.roleTextContainer}>
-                <Text style={styles.roleTitle}>{role.title}</Text>
-                <Text style={styles.roleDescription}>{role.description}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={24} color="#a8a29e" />
-            </TouchableOpacity>
-          ))}
+          {ROLES.map((role) => {
+            const active = hoveredRole === role.id;
+            return (
+              <TouchableOpacity
+                key={role.id}
+                style={[
+                  styles.roleCard,
+                  {
+                    backgroundColor: active
+                      ? `rgba(${role.accentRgb},0.09)`
+                      : 'rgba(255,255,255,0.04)',
+                    borderColor: active
+                      ? `rgba(${role.accentRgb},0.30)`
+                      : 'rgba(255,255,255,0.07)',
+                  },
+                ]}
+                onPress={() => handleRoleSelect(role)}
+                onPressIn={() => setHoveredRole(role.id)}
+                onPressOut={() => setHoveredRole(null)}
+                activeOpacity={0.85}
+              >
+                {/* Icon orb */}
+                <View
+                  style={[
+                    styles.iconOrb,
+                    {
+                      backgroundColor: `rgba(${role.accentRgb},0.14)`,
+                      borderColor: `rgba(${role.accentRgb},0.20)`,
+                    },
+                  ]}
+                >
+                  <Ionicons name={role.icon} size={26} color={role.accent} />
+                </View>
+
+                {/* Text */}
+                <View style={styles.roleText}>
+                  <Text style={styles.roleTitle}>{role.title}</Text>
+                  <Text style={styles.roleDesc}>{role.description}</Text>
+                </View>
+
+                {/* Arrow */}
+                <View
+                  style={[
+                    styles.arrowBox,
+                    active
+                      ? { backgroundColor: role.gradientFrom }
+                      : { backgroundColor: 'rgba(255,255,255,0.07)' },
+                  ]}
+                >
+                  <Ionicons
+                    name="chevron-forward"
+                    size={16}
+                    color={active ? '#ffffff' : 'rgba(255,255,255,0.30)'}
+                  />
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            You can switch roles anytime from settings
+            Don't have an account?{' '}
+            <Text style={styles.footerLink}>Sign up free</Text>
           </Text>
         </View>
       </View>
@@ -90,79 +157,121 @@ export default function RoleSelectionScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000000',
+  },
+  glowTop: {
+    position: 'absolute',
+    top: -80,
+    alignSelf: 'center',
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    backgroundColor: 'rgba(0,200,150,0.06)',
+  },
+  glowBottomLeft: {
+    position: 'absolute',
+    bottom: 0,
+    left: -60,
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    backgroundColor: 'rgba(111,94,245,0.05)',
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 22,
   },
   backButton: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
     borderRadius: 12,
-    backgroundColor: '#f5f5f4',
+    backgroundColor: 'rgba(255,255,255,0.07)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.09)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 14,
+  },
+  header: {
+    marginTop: 28,
+    marginBottom: 32,
+  },
+  eyebrow: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#00c896',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    marginBottom: 10,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#1c1917',
-    marginTop: 32,
+    fontSize: 30,
+    fontWeight: '800',
+    color: 'rgba(255,255,255,0.94)',
+    letterSpacing: -0.4,
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 18,
-    color: '#78716c',
-    marginTop: 8,
-    marginBottom: 40,
+    fontSize: 14,
+    fontWeight: '500',
+    color: 'rgba(255,255,255,0.38)',
   },
   rolesContainer: {
-    gap: 16,
+    gap: 12,
   },
   roleCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
     borderRadius: 20,
-    padding: 20,
+    padding: 18,
     borderWidth: 1,
-    borderColor: '#e7e5e4',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    gap: 14,
   },
-  roleIconContainer: {
-    width: 64,
-    height: 64,
+  iconOrb: {
+    width: 52,
+    height: 52,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    flexShrink: 0,
   },
-  roleTextContainer: {
+  roleText: {
     flex: 1,
-    marginLeft: 16,
+    minWidth: 0,
   },
   roleTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#1c1917',
-    marginBottom: 4,
+    fontSize: 15,
+    fontWeight: '700',
+    color: 'rgba(255,255,255,0.92)',
+    marginBottom: 3,
+    letterSpacing: -0.1,
   },
-  roleDescription: {
-    fontSize: 14,
-    color: '#78716c',
-    lineHeight: 20,
+  roleDesc: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: 'rgba(255,255,255,0.38)',
+  },
+  arrowBox: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexShrink: 0,
   },
   footer: {
     marginTop: 'auto',
-    marginBottom: 32,
+    marginBottom: 28,
     alignItems: 'center',
   },
   footerText: {
-    fontSize: 14,
-    color: '#a8a29e',
-    textAlign: 'center',
+    fontSize: 13,
+    fontWeight: '500',
+    color: 'rgba(255,255,255,0.32)',
+  },
+  footerLink: {
+    color: '#00c896',
+    fontWeight: '700',
   },
 });

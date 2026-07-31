@@ -10,13 +10,18 @@ export default function AICopilotButton({ navigation, theme }) {
   };
 
   return (
-    <TouchableOpacity 
-      style={[styles.fab, { backgroundColor: theme.primary }]}
+    <TouchableOpacity
+      style={styles.fab}
       onPress={handlePress}
-      activeOpacity={0.8}
+      activeOpacity={0.85}
     >
-      <View style={styles.sparkleContainer}>
-        <Ionicons name="sparkles" size={24} color="#ffffff" />
+      {/* Outer glow ring */}
+      <View style={styles.glowRing} />
+      {/* Button body */}
+      <View style={styles.inner}>
+        <View style={styles.sparkleContainer}>
+          <Ionicons name="sparkles" size={22} color="#ffffff" />
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -26,17 +31,37 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
-    bottom: 24,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    bottom: 96,
+    width: 56,
+    height: 56,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#25D366',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+  },
+  glowRing: {
+    position: 'absolute',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(0,200,150,0.18)',
+    shadowColor: '#00c896',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 16,
+    elevation: 12,
+  },
+  inner: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // gradient simulated via background
+    backgroundColor: '#00c896',
+    shadowColor: '#00c896',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.45,
+    shadowRadius: 12,
+    elevation: 10,
   },
   sparkleContainer: {
     transform: [{ rotate: '-15deg' }],

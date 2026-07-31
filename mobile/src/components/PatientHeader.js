@@ -4,22 +4,43 @@ import { Ionicons } from '@expo/vector-icons';
 
 export default function PatientHeader({ patient, onPress, theme }) {
   return (
-    <TouchableOpacity 
-      style={[styles.container, { backgroundColor: theme.card }]}
+    <TouchableOpacity
+      style={[
+        styles.container,
+        {
+          backgroundColor: theme.card,
+          borderColor: theme.border,
+        },
+      ]}
       onPress={onPress}
-      activeOpacity={0.7}
+      activeOpacity={0.75}
     >
-      <Image 
-        source={{ uri: patient.photo }} 
-        style={styles.photo}
-      />
+      <View style={styles.photoWrapper}>
+        <Image source={{ uri: patient.photo }} style={styles.photo} />
+        {/* Online indicator */}
+        <View
+          style={[
+            styles.onlineDot,
+            { backgroundColor: theme.primary, shadowColor: theme.primary },
+          ]}
+        />
+      </View>
+
       <View style={styles.info}>
         <Text style={[styles.name, { color: theme.text }]}>{patient.name}</Text>
         <Text style={[styles.details, { color: theme.textSecondary }]}>
-          {patient.age} years • {patient.conditions[0]}
+          {patient.age} yrs · {patient.conditions[0]}
         </Text>
       </View>
-      <Ionicons name="chevron-forward" size={20} color={theme.textSecondary} />
+
+      <View
+        style={[
+          styles.chevronBox,
+          { backgroundColor: `${theme.primary}14`, borderColor: `${theme.primary}22` },
+        ]}
+      >
+        <Ionicons name="chevron-forward" size={16} color={theme.primary} />
+      </View>
     </TouchableOpacity>
   );
 }
@@ -28,25 +49,53 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 20,
+    padding: 14,
+    borderRadius: 22,
     marginTop: 16,
+    borderWidth: 1,
+  },
+  photoWrapper: {
+    position: 'relative',
   },
   photo: {
-    width: 56,
-    height: 56,
+    width: 54,
+    height: 54,
     borderRadius: 16,
+  },
+  onlineDot: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: '#000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 4,
+    elevation: 4,
   },
   info: {
     flex: 1,
-    marginLeft: 16,
+    marginLeft: 14,
   },
   name: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 4,
+    fontSize: 17,
+    fontWeight: '700',
+    marginBottom: 3,
+    letterSpacing: -0.2,
   },
   details: {
-    fontSize: 14,
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  chevronBox: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
   },
 });

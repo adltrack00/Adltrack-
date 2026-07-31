@@ -1,225 +1,164 @@
 import React, { useState } from 'react';
-import { 
-  AlertTriangle, Clock, ChevronRight, ChevronDown, Shield, Heart,
-  Thermometer, Brain, Pill, HelpCircle, FileText, CheckCircle, User, X, ZoomIn, ChevronLeft
+import {
+  AlertTriangle, ChevronRight, Shield, Heart,
+  Thermometer, Brain, Pill, HelpCircle, CheckCircle, X, ZoomIn, ChevronLeft
 } from 'lucide-react';
-import { CAREGIVER_PROFILE } from '../services/mockData';
 import { useTheme } from '../context/ThemeContext';
 
-// Incident types with icons
+const INTER = `'Inter','Plus Jakarta Sans',sans-serif`;
+
 const INCIDENT_TYPES = [
-  { id: 'fall', label: 'Fall', icon: AlertTriangle },
-  { id: 'medication', label: 'Medication Issue', icon: Pill },
-  { id: 'behavioral', label: 'Behavioral Change', icon: Brain },
-  { id: 'injury', label: 'Injury', icon: Heart },
-  { id: 'vital', label: 'Vital Sign Concern', icon: Thermometer },
-  { id: 'other', label: 'Other', icon: HelpCircle },
+  { id: 'fall',       label: 'Fall',               icon: AlertTriangle },
+  { id: 'medication', label: 'Medication Issue',    icon: Pill          },
+  { id: 'behavioral', label: 'Behavioral Change',   icon: Brain         },
+  { id: 'injury',     label: 'Injury',              icon: Heart         },
+  { id: 'vital',      label: 'Vital Sign Concern',  icon: Thermometer   },
+  { id: 'other',      label: 'Other',               icon: HelpCircle    },
 ];
 
+const SEVERITY_STYLES = {
+  critical: { bg: 'rgba(255,59,48,0.10)',  text: '#FF3B30' },
+  high:     { bg: 'rgba(255,149,0,0.10)',  text: '#FF9500' },
+  medium:   { bg: 'rgba(255,204,0,0.12)',  text: '#B8860B' },
+  low:      { bg: 'rgba(52,199,89,0.10)',  text: '#34C759' },
+};
+
 const SEVERITY_LEVELS = [
-  { id: 'low', label: 'Low', color: 'emerald' },
-  { id: 'medium', label: 'Medium', color: 'amber' },
-  { id: 'high', label: 'High', color: 'orange' },
-  { id: 'critical', label: 'Critical', color: 'rose' },
+  { id: 'low',      label: 'Low'      },
+  { id: 'medium',   label: 'Medium'   },
+  { id: 'high',     label: 'High'     },
+  { id: 'critical', label: 'Critical' },
 ];
 
 export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [] }) => {
-  const { isDarkMode, bg, bgCard, bgCardHover, border, text, textSecondary, textMuted } = useTheme();
-  const [selectedIncident, setSelectedIncident] = useState(null);
-  const [viewingPhoto, setViewingPhoto] = useState(null);
+  const { colors: C } = useTheme();
+  const [selectedIncident, setSelectedIncident]   = useState(null);
+  const [viewingPhoto, setViewingPhoto]           = useState(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
-  // Photo viewer navigation
-  const navigatePhoto = (direction) => {
+  const card = {
+    background: C.CARD,
+    border: `1px solid ${C.BORDER}`,
+    boxShadow: C.SHADOW,
+    borderRadius: 16,
+  };
+
+  const navigatePhoto = (dir) => {
     if (!selectedIncident?.photos) return;
-    const newIndex = currentPhotoIndex + direction;
-    if (newIndex >= 0 && newIndex < selectedIncident.photos.length) {
-      setCurrentPhotoIndex(newIndex);
-      setViewingPhoto(selectedIncident.photos[newIndex]);
+    const next = currentPhotoIndex + dir;
+    if (next >= 0 && next < selectedIncident.photos.length) {
+      setCurrentPhotoIndex(next);
+      setViewingPhoto(selectedIncident.photos[next]);
     }
   };
 
-  // Photo Viewer Modal
-  const PhotoViewerModal = () => {
+  // ── Photo viewer overlay ──
+  const PhotoViewer = () => {
     if (!viewingPhoto) return null;
-    
-    const hasMultiple = selectedIncident?.photos?.length > 1;
-    const canGoBack = currentPhotoIndex > 0;
-    const canGoForward = currentPhotoIndex < (selectedIncident?.photos?.length || 1) - 1;
-
+    const multi   = (selectedIncident?.photos?.length || 0) > 1;
+    const canBack = currentPhotoIndex > 0;
+    const canFwd  = currentPhotoIndex < (selectedIncident?.photos?.length || 1) - 1;
     return (
-      <div 
-        className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center"
-        onClick={() => setViewingPhoto(null)}
-      >
-        {/* Close button */}
-        <button
-          onClick={() => setViewingPhoto(null)}
-          className="absolute top-4 right-4 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors z-10"
-          data-testid="close-photo-viewer"
-        >
+      <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center" onClick={() => setViewingPhoto(null)}>
+        <button onClick={() => setViewingPhoto(null)} data-testid="close-photo-viewer"
+          className="absolute top-4 right-4 p-3 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }}>
           <X className="w-6 h-6 text-white" />
         </button>
-
-        {/* Photo counter */}
-        {hasMultiple && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/50 rounded-full">
-            <span className="text-white text-sm font-medium">
-              {currentPhotoIndex + 1} / {selectedIncident.photos.length}
-            </span>
+        {multi && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full" style={{ background: 'rgba(0,0,0,0.5)' }}>
+            <span className="text-white text-sm font-semibold" style={{ fontFamily: INTER }}>{currentPhotoIndex + 1} / {selectedIncident.photos.length}</span>
           </div>
         )}
-
-        {/* Navigation arrows */}
-        {hasMultiple && canGoBack && (
-          <button
-            onClick={(e) => { e.stopPropagation(); navigatePhoto(-1); }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
-            data-testid="photo-prev"
-          >
+        {multi && canBack && (
+          <button onClick={(e) => { e.stopPropagation(); navigatePhoto(-1); }} data-testid="photo-prev"
+            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }}>
             <ChevronLeft className="w-6 h-6 text-white" />
           </button>
         )}
-        
-        {hasMultiple && canGoForward && (
-          <button
-            onClick={(e) => { e.stopPropagation(); navigatePhoto(1); }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
-            data-testid="photo-next"
-          >
+        {multi && canFwd && (
+          <button onClick={(e) => { e.stopPropagation(); navigatePhoto(1); }} data-testid="photo-next"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }}>
             <ChevronRight className="w-6 h-6 text-white" />
           </button>
         )}
-
-        {/* Image */}
-        <div 
-          className="max-w-[90vw] max-h-[85vh] flex items-center justify-center p-4"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <img
-            src={viewingPhoto.url}
-            alt={viewingPhoto.name || 'Evidence photo'}
-            className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
-          />
+        <div className="max-w-[90vw] max-h-[85vh] flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
+          <img src={viewingPhoto.url} alt={viewingPhoto.name || 'Evidence'} className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl" />
         </div>
-
-        {/* Photo info */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center">
-          <p className="text-white/70 text-sm">
-            {viewingPhoto.name || 'Evidence Photo'}
-          </p>
-          <p className="text-white/50 text-xs mt-1">
-            Tap outside or press X to close
-          </p>
+          <p style={{ fontFamily: INTER, color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>{viewingPhoto.name || 'Evidence Photo'}</p>
         </div>
       </div>
     );
   };
 
-  // Detailed incident view
+  // ── Detail view ──
   if (selectedIncident) {
-    const type = INCIDENT_TYPES.find(t => t.id === selectedIncident.type);
-    const severityLevel = SEVERITY_LEVELS.find(s => s.id === selectedIncident.severity);
-    
+    const type     = INCIDENT_TYPES.find(t => t.id === selectedIncident.type);
+    const sevStyle = SEVERITY_STYLES[selectedIncident.severity] || SEVERITY_STYLES.low;
+    const sevLevel = SEVERITY_LEVELS.find(s => s.id === selectedIncident.severity);
+
     return (
-      <div className={`flex-1 overflow-y-auto ${bg} pb-24`}>
-        {/* Photo Viewer */}
-        <PhotoViewerModal />
+      <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 96, background: C.BG, fontFamily: INTER }}>
+        <PhotoViewer />
 
         {/* Header */}
-        <div className="px-5 pt-3 pb-3">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setSelectedIncident(null)}
-              className="p-1"
-              data-testid="incident-detail-back"
-            >
-              <ChevronRight className="w-6 h-6 text-white rotate-180" />
-            </button>
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-              selectedIncident.severity === 'critical' ? 'bg-rose-500/20' :
-              selectedIncident.severity === 'high' ? 'bg-orange-500/20' :
-              selectedIncident.severity === 'medium' ? 'bg-amber-500/20' :
-              'bg-emerald-500/20'
-            }`}>
-              {type && <type.icon className={`w-6 h-6 ${
-                selectedIncident.severity === 'critical' ? 'text-rose-400' :
-                selectedIncident.severity === 'high' ? 'text-orange-400' :
-                selectedIncident.severity === 'medium' ? 'text-amber-400' :
-                'text-emerald-400'
-              }`} />}
-            </div>
-            <div>
-              <h1 className={`text-xl font-bold ${text}`}>{type?.label || 'Incident'}</h1>
-              <p className={`text-sm ${textMuted}`}>{selectedIncident.createdAt}</p>
-            </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '20px 20px 16px', borderBottom: `1px solid ${C.BORDER}`, background: C.CARD }}>
+          <button onClick={() => setSelectedIncident(null)} data-testid="incident-detail-back"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.MUTED, display: 'flex' }}>
+            <ChevronLeft size={22} />
+          </button>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: sevStyle.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            {type && <type.icon size={22} color={sevStyle.text} />}
+          </div>
+          <div>
+            <h1 style={{ fontFamily: INTER, fontSize: '1.25rem', fontWeight: 700, color: C.TEXT, margin: '0 0 2px' }}>{type?.label || 'Incident'}</h1>
+            <p style={{ fontFamily: INTER, fontSize: 13, color: C.MUTED, margin: 0 }}>{selectedIncident.createdAt}</p>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-5 space-y-5">
-          {/* Severity Badge */}
-          <div className="flex items-center gap-2">
-            <span className={`px-3 py-1.5 rounded-full text-sm font-bold ${
-              selectedIncident.severity === 'critical' ? 'bg-rose-500/20 text-rose-400' :
-              selectedIncident.severity === 'high' ? 'bg-orange-500/20 text-orange-400' :
-              selectedIncident.severity === 'medium' ? 'bg-amber-500/20 text-amber-400' :
-              'bg-emerald-500/20 text-emerald-400'
-            }`}>
-              {severityLevel?.label} Severity
+        <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Badges */}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <span style={{ fontFamily: INTER, fontSize: 13, fontWeight: 700, padding: '6px 14px', borderRadius: 999, background: sevStyle.bg, color: sevStyle.text }}>
+              {sevLevel?.label} Severity
             </span>
-            <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${
-              selectedIncident.status === 'resolved' 
-                ? 'bg-[#25D366]/20 text-[#25D366]' 
-                : 'bg-amber-500/20 text-amber-400'
-            }`}>
+            <span style={{
+              fontFamily: INTER, fontSize: 13, fontWeight: 700, padding: '6px 14px', borderRadius: 999,
+              background: selectedIncident.status === 'resolved' ? `${C.GREEN}14` : `${C.ORANGE}14`,
+              color: selectedIncident.status === 'resolved' ? C.GREEN : C.ORANGE,
+            }}>
               {selectedIncident.status === 'resolved' ? 'Resolved' : 'Open'}
             </span>
           </div>
 
-          {/* Description */}
-          <div className={`${bgCard} border ${border} rounded-2xl p-5`}>
-            <h3 className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-2`}>What Happened</h3>
-            <p className={`${text} leading-relaxed`}>{selectedIncident.description}</p>
+          {/* What Happened */}
+          <div style={{ ...card, padding: 20 }}>
+            <p style={{ fontFamily: INTER, fontSize: 10, fontWeight: 700, color: C.MUTED, textTransform: 'uppercase', letterSpacing: '0.14em', margin: '0 0 10px' }}>What Happened</p>
+            <p style={{ fontFamily: INTER, fontSize: 15, color: C.TEXT, lineHeight: 1.7, margin: 0 }}>{selectedIncident.description}</p>
           </div>
 
           {/* Actions Taken */}
           {selectedIncident.actionsTaken && (
-            <div className={`${bgCard} border ${border} rounded-2xl p-5`}>
-              <h3 className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-2`}>Actions Taken</h3>
-              <p className={`${text} leading-relaxed`}>{selectedIncident.actionsTaken}</p>
+            <div style={{ ...card, padding: 20 }}>
+              <p style={{ fontFamily: INTER, fontSize: 10, fontWeight: 700, color: C.MUTED, textTransform: 'uppercase', letterSpacing: '0.14em', margin: '0 0 10px' }}>Actions Taken</p>
+              <p style={{ fontFamily: INTER, fontSize: 15, color: C.TEXT, lineHeight: 1.7, margin: 0 }}>{selectedIncident.actionsTaken}</p>
             </div>
           )}
 
-          {/* Photos - Clickable */}
-          {selectedIncident.photos && selectedIncident.photos.length > 0 && (
-            <div className={`${bgCard} border ${border} rounded-2xl p-5`}>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className={`text-xs font-bold ${textMuted} uppercase tracking-wider`}>Evidence Photos ({selectedIncident.photos.length})</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                {selectedIncident.photos.map((photo, index) => (
-                  <button
-                    key={photo.id}
-                    onClick={() => {
-                      setCurrentPhotoIndex(index);
-                      setViewingPhoto(photo);
-                    }}
-                    className="relative group aspect-square rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-[#25D366]"
+          {/* Photos */}
+          {selectedIncident.photos?.length > 0 && (
+            <div style={{ ...card, padding: 20 }}>
+              <p style={{ fontFamily: INTER, fontSize: 10, fontWeight: 700, color: C.MUTED, textTransform: 'uppercase', letterSpacing: '0.14em', margin: '0 0 12px' }}>
+                Evidence Photos ({selectedIncident.photos.length})
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                {selectedIncident.photos.map((photo, i) => (
+                  <button key={photo.id} onClick={() => { setCurrentPhotoIndex(i); setViewingPhoto(photo); }}
                     data-testid={`view-photo-${photo.id}`}
-                  >
-                    <img 
-                      src={photo.url} 
-                      alt={photo.name || 'Incident evidence'}
-                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                    />
-                    {/* Hover overlay */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                          <ZoomIn className="w-5 h-5 text-white" />
-                        </div>
-                      </div>
+                    style={{ position: 'relative', aspectRatio: '1', borderRadius: 12, overflow: 'hidden', border: `1px solid ${C.BORDER}`, cursor: 'pointer', padding: 0 }}>
+                    <img src={photo.url} alt={photo.name || 'Evidence'} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <ZoomIn size={20} color="white" />
                     </div>
                   </button>
                 ))}
@@ -227,33 +166,30 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
             </div>
           )}
 
-          {/* Caregiver Info */}
+          {/* Reported By */}
           {selectedIncident.createdBy && (
-            <div className={`${bgCard} border ${border} rounded-2xl p-5`}>
-              <h3 className={`text-xs font-bold ${textMuted} uppercase tracking-wider mb-3`}>Reported By</h3>
-              <div className="flex items-center gap-4">
-                <img 
-                  src={selectedIncident.createdBy.photo}
-                  alt={selectedIncident.createdBy.name}
-                  className="w-14 h-14 rounded-xl object-cover"
-                />
-                <div className="flex-1">
-                  <p className={`font-semibold ${text}`}>{selectedIncident.createdBy.name}</p>
-                  <p className={`text-sm ${textMuted}`}>{selectedIncident.createdBy.title}</p>
+            <div style={{ ...card, padding: 20 }}>
+              <p style={{ fontFamily: INTER, fontSize: 10, fontWeight: 700, color: C.MUTED, textTransform: 'uppercase', letterSpacing: '0.14em', margin: '0 0 12px' }}>Reported By</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <img src={selectedIncident.createdBy.photo} alt={selectedIncident.createdBy.name}
+                  style={{ width: 52, height: 52, borderRadius: 12, objectFit: 'cover' }} />
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 15, color: C.TEXT, margin: '0 0 3px' }}>{selectedIncident.createdBy.name}</p>
+                  <p style={{ fontFamily: INTER, fontSize: 13, color: C.MUTED, margin: 0 }}>{selectedIncident.createdBy.title}</p>
                 </div>
-                <div className="flex items-center gap-1 text-[#25D366]">
-                  <CheckCircle className="w-4 h-4" />
-                  <span className="text-sm font-medium">Verified</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <CheckCircle size={15} color={C.GREEN} />
+                  <span style={{ fontFamily: INTER, fontSize: 13, fontWeight: 700, color: C.GREEN }}>Verified</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Notification Status */}
+          {/* Family notified */}
           {selectedIncident.familyNotified && (
-            <div className="flex items-center gap-3 p-4 bg-[#25D366]/10 border border-[#25D366]/30 rounded-2xl">
-              <Shield className="w-5 h-5 text-[#25D366]" />
-              <p className={`text-sm ${text}`}>You were notified about this incident when it was reported.</p>
+            <div style={{ padding: '14px 16px', borderRadius: 14, background: `${C.GREEN}08`, border: `1px solid ${C.GREEN}22`, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Shield size={18} color={C.GREEN} />
+              <p style={{ fontFamily: INTER, fontSize: 14, color: C.TEXT, margin: 0 }}>You were notified about this incident when it was reported.</p>
             </div>
           )}
         </div>
@@ -261,94 +197,82 @@ export const IncidentViewPage = ({ patientName = 'Your loved one', incidents = [
     );
   }
 
-  // List view
+  // ── List view ──
+  const resolved = incidents.filter(i => i.status === 'resolved').length;
+  const open     = incidents.filter(i => i.status !== 'resolved').length;
+
   return (
-    <div className="flex-1 overflow-y-auto bg-black pb-24 font-['Manrope',sans-serif]">
+    <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 96, background: C.BG, fontFamily: INTER }}>
       {/* Header */}
-      <div className="px-5 pt-3 pb-3">
-        <h1 className="text-[28px] font-bold text-white mb-1">Incident Reports</h1>
-        <p className="text-[#8e8e93] text-[15px]">Care incidents reported for {patientName}</p>
+      <div style={{ padding: '20px 20px 16px' }}>
+        <h1 style={{ fontFamily: INTER, fontSize: '1.7rem', fontWeight: 700, color: C.TEXT, letterSpacing: '-0.01em', margin: '0 0 4px' }}>Incident Reports</h1>
+        <p style={{ fontFamily: INTER, fontSize: 14, color: C.MUTED, margin: 0 }}>Care incidents reported for {patientName}</p>
       </div>
 
-      {/* Summary Card */}
-      <div className="px-5 mb-5">
-        <div className="bg-[#1c1c1e] rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-white text-lg">Summary</h3>
-            <span className="text-sm text-[#8e8e93]">Last 30 days</span>
+      {/* Summary card */}
+      <div style={{ padding: '0 20px 16px' }}>
+        <div style={{ ...card, padding: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 16, color: C.TEXT, margin: 0 }}>Summary</p>
+            <span style={{ fontFamily: INTER, fontSize: 13, color: C.MUTED }}>Last 30 days</span>
           </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center">
-              <p className="text-3xl font-bold text-white">{incidents.length}</p>
-              <p className="text-sm text-[#8e8e93] mt-1">Total</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-[#ff453a]">{incidents.filter(i => i.status === 'resolved').length}</p>
-              <p className="text-sm text-[#8e8e93] mt-1">Resolved</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-[#30d158]">{incidents.filter(i => i.status !== 'resolved').length}</p>
-              <p className="text-sm text-[#8e8e93] mt-1">Open</p>
-            </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', textAlign: 'center' }}>
+            {[
+              { value: incidents.length, label: 'Total',    color: C.TEXT  },
+              { value: resolved,         label: 'Resolved', color: C.GREEN },
+              { value: open,             label: 'Open',     color: C.ORANGE },
+            ].map((s, i) => (
+              <div key={i} style={{ borderRight: i < 2 ? `1px solid ${C.BORDER}` : 'none' }}>
+                <p style={{ fontFamily: INTER, fontSize: '1.9rem', fontWeight: 700, color: s.color, margin: '0 0 4px' }}>{s.value}</p>
+                <p style={{ fontFamily: INTER, fontSize: 13, color: C.MUTED, margin: 0 }}>{s.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Incidents List */}
-      <div className="px-5">
+      {/* List */}
+      <div style={{ padding: '0 20px' }}>
         {incidents.length > 0 ? (
-          <div className="space-y-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {incidents.map((incident) => {
-              const type = INCIDENT_TYPES.find(t => t.id === incident.type);
-              const severityLevel = SEVERITY_LEVELS.find(s => s.id === incident.severity);
-              
+              const type     = INCIDENT_TYPES.find(t => t.id === incident.type);
+              const sevStyle = SEVERITY_STYLES[incident.severity] || SEVERITY_STYLES.low;
+              const sevLevel = SEVERITY_LEVELS.find(s => s.id === incident.severity);
               return (
                 <button
                   key={incident.id}
                   onClick={() => setSelectedIncident(incident)}
-                  className="w-full bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-4 text-left"
                   data-testid={`family-incident-${incident.id}`}
+                  style={{ ...card, width: '100%', padding: 16, display: 'flex', alignItems: 'center', gap: 14, textAlign: 'left', border: 'none', cursor: 'pointer', borderLeft: `4px solid ${sevStyle.text}` }}
                 >
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                    incident.severity === 'critical' ? 'bg-rose-500/20' :
-                    incident.severity === 'high' ? 'bg-orange-500/20' :
-                    incident.severity === 'medium' ? 'bg-amber-500/20' :
-                    'bg-emerald-500/20'
-                  }`}>
-                    {type && <type.icon className={`w-5 h-5 ${
-                      incident.severity === 'critical' ? 'text-rose-400' :
-                      incident.severity === 'high' ? 'text-orange-400' :
-                      incident.severity === 'medium' ? 'text-amber-400' :
-                      'text-emerald-400'
-                    }`} />}
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: sevStyle.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {type && <type.icon size={20} color={sevStyle.text} />}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-semibold text-white">{type?.label || 'Incident'}</p>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        incident.severity === 'critical' ? 'bg-rose-500/20 text-rose-400' :
-                        incident.severity === 'high' ? 'bg-orange-500/20 text-orange-400' :
-                        incident.severity === 'medium' ? 'bg-amber-500/20 text-amber-400' :
-                        'bg-emerald-500/20 text-emerald-400'
-                      }`}>
-                        {severityLevel?.label.toUpperCase()}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                      <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 15, color: C.TEXT, margin: 0 }}>{type?.label || 'Incident'}</p>
+                      <span style={{ fontFamily: INTER, fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: sevStyle.bg, color: sevStyle.text, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {sevLevel?.label}
                       </span>
                     </div>
-                    <p className="text-sm text-[#8e8e93] truncate">{incident.description}</p>
-                    <p className="text-xs text-[#8e8e93] mt-1">{incident.createdAt}</p>
+                    <p style={{ fontFamily: INTER, fontSize: 13, color: C.MUTED, margin: '0 0 3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{incident.description}</p>
+                    <p style={{ fontFamily: INTER, fontSize: 12, color: C.MUTED, margin: 0 }}>{incident.createdAt}</p>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-[#8e8e93] flex-shrink-0" />
+                  <ChevronRight size={18} color={C.MUTED} style={{ flexShrink: 0 }} />
                 </button>
               );
             })}
           </div>
         ) : (
-          <div className="bg-[#1c1c1e] rounded-2xl p-10 text-center">
-            <div className="w-20 h-20 bg-[#2c2c2e] rounded-2xl flex items-center justify-center mx-auto mb-5">
-              <Shield className="w-10 h-10 text-[#30d158]" fill="#30d158" stroke="#1c1c1e" strokeWidth={1.5} />
+          <div style={{ ...card, padding: 48, textAlign: 'center' }}>
+            <div style={{ width: 72, height: 72, borderRadius: 20, background: `${C.GREEN}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
+              <Shield size={36} color={C.GREEN} />
             </div>
-            <h3 className="font-bold text-white text-xl mb-2">No incidents reported</h3>
-            <p className="text-[#8e8e93] text-[15px] leading-relaxed">When caregivers report incidents, they will appear here with photos and details</p>
+            <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 18, color: C.TEXT, margin: '0 0 8px' }}>No incidents reported</p>
+            <p style={{ fontFamily: INTER, fontSize: 14, color: C.MUTED, margin: 0, lineHeight: 1.6 }}>
+              When caregivers report incidents, they will appear here with photos and details
+            </p>
           </div>
         )}
       </div>

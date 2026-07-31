@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  Activity, MessageSquare, Bell, Settings, Heart, Thermometer, 
-  ChevronRight, ChevronLeft, User, Clock, CheckCircle, Camera, Frown, Sparkles, Plus, X, 
-  AlertTriangle, Home, Search, Users, Star, Mail, AlertCircle,
-  Calendar, Pill, Shield, TrendingUp, Phone, FileText, ArrowLeft
+import {
+  Home, MessageSquare, Bell, User, Heart, Activity, Thermometer,
+  ChevronRight, Clock, CheckCircle, Frown, Sparkles, Plus, X,
+  AlertTriangle, Star, Mail, AlertCircle, Calendar, Shield,
+  TrendingUp, Phone, FileText, ArrowLeft, Settings,
 } from 'lucide-react';
 import { TaskStatus, UserRole } from '../types';
 import { PatientProfileModal } from './PatientProfileModal';
@@ -16,9 +16,31 @@ import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { SupportPage } from './pages/SupportPage';
 import { CARE_IMAGES, CAREGIVER_PROFILE, FAMILY_ALERTS, CARE_PLAN, WEEKLY_REPORT } from '../services/mockData';
+import { useTheme } from '../context/ThemeContext';
 
-export const FamilyDashboard = ({ 
-  onBack, 
+// ─── Design tokens (repo design system) ─────────────────────────────────────
+const INTER = `'Inter','Plus Jakarta Sans',sans-serif`;
+const ACCENT = '#3A7BD5'; // family blue accent
+
+const glassCard = (C) => ({
+  background: C.CARD,
+  border: `1px solid ${C.BORDER}`,
+  boxShadow: C.SHADOW,
+  borderRadius: 16,
+});
+
+const sectionLabel = (C) => ({
+  fontSize: 10,
+  fontWeight: 700,
+  color: C.MUTED,
+  textTransform: 'uppercase',
+  letterSpacing: '0.14em',
+  fontFamily: INTER,
+  marginBottom: 10,
+});
+
+export const FamilyDashboard = ({
+  onBack,
   onSignOut,
   onRoleSwitch,
   currentRole,
@@ -26,242 +48,216 @@ export const FamilyDashboard = ({
   patient,
   vitalsData,
   incidents = [],
-  onAddRequest
+  onAddRequest,
 }) => {
-  const [activeTab, setActiveTab] = useState('home');
-  const [activeTaskTab, setActiveTaskTab] = useState('timeline');
+  const { colors: C } = useTheme();
+
+  const [activeTab, setActiveTab]               = useState('home');
+  const [activeTaskTab, setActiveTaskTab]       = useState('timeline');
   const [showPatientProfile, setShowPatientProfile] = useState(false);
-  const [showVitals, setShowVitals] = useState(false);
+  const [showVitals, setShowVitals]             = useState(false);
   const [vitalsInitialTab, setVitalsInitialTab] = useState('bp');
-  const [showCopilot, setShowCopilot] = useState(false);
+  const [showCopilot, setShowCopilot]           = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
-  const [activePage, setActivePage] = useState(null);
-  const [newRequest, setNewRequest] = useState({ title: '', description: '', priority: 'standard' });
-  const [myRequests, setMyRequests] = useState([]);
-  const [selectedTask, setSelectedTask] = useState(null);
+  const [activePage, setActivePage]             = useState(null);
+  const [newRequest, setNewRequest]             = useState({ title: '', description: '', priority: 'standard' });
+  const [myRequests, setMyRequests]             = useState([]);
+  const [selectedTask, setSelectedTask]         = useState(null);
+  const [viewingDate, setViewingDate]           = useState(null);
+  const [historicalTasks, setHistoricalTasks]   = useState([]);
 
-  // Historical date viewing
-  const [viewingDate, setViewingDate] = useState(null);
-  const [historicalTasks, setHistoricalTasks] = useState([]);
-
-  // Navigate to a tab with scroll-to-top (only on explicit user navigation)
-  const handleTabChange = (tabId) => {
-    window.scrollTo(0, 0);
-    setActiveTab(tabId);
-  };
-
-  // Navigate to a sub-page with scroll-to-top
-  const handlePageChange = (page) => {
-    window.scrollTo(0, 0);
-    setActivePage(page);
-  };
+  const handleTabChange = (tabId) => { window.scrollTo(0, 0); setActiveTab(tabId); };
+  const handlePageChange = (page) => { window.scrollTo(0, 0); setActivePage(page); };
 
   const handleSelectHistoricalDate = (date, tasksForDate) => {
     setViewingDate(date);
     setHistoricalTasks(tasksForDate);
     setActiveTab('home');
   };
+  const handleReturnToToday = () => { setViewingDate(null); setHistoricalTasks([]); };
 
-  const handleReturnToToday = () => {
-    setViewingDate(null);
-    setHistoricalTasks([]);
-  };
-
-  // Get latest vitals
-  const latestBP = vitalsData?.bloodPressure?.[vitalsData.bloodPressure.length - 1];
-  const latestHR = vitalsData?.heartRate?.[vitalsData.heartRate.length - 1];
+  const latestBP   = vitalsData?.bloodPressure?.[vitalsData.bloodPressure.length - 1];
+  const latestHR   = vitalsData?.heartRate?.[vitalsData.heartRate.length - 1];
   const latestTemp = vitalsData?.temperature?.[vitalsData.temperature.length - 1];
   const latestPain = vitalsData?.pain?.[vitalsData.pain.length - 1];
 
-  const displayTasks = viewingDate ? historicalTasks : tasks.filter(t => t.status === TaskStatus.COMPLETED);
-  const completedTasks = tasks.filter(t => t.status === TaskStatus.COMPLETED);
-  const totalTasks = tasks.filter(t => t.status !== TaskStatus.PROPOSED).length;
+  const displayTasks    = viewingDate ? historicalTasks : tasks.filter(t => t.status === TaskStatus.COMPLETED);
+  const completedTasks  = tasks.filter(t => t.status === TaskStatus.COMPLETED);
+  const totalTasks      = tasks.filter(t => t.status !== TaskStatus.PROPOSED).length;
 
   const handleAddRequest = () => {
-    if (newRequest.title.trim()) {
-      const request = {
-        id: Date.now(),
-        ...newRequest,
-        status: 'pending',
-        time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-      };
-      setMyRequests(prev => [request, ...prev]);
-      setNewRequest({ title: '', description: '', priority: 'standard' });
-      setShowRequestModal(false);
-    }
+    if (!newRequest.title.trim()) return;
+    const request = {
+      id: Date.now(),
+      ...newRequest,
+      status: 'pending',
+      time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+    };
+    setMyRequests(prev => [request, ...prev]);
+    setNewRequest({ title: '', description: '', priority: 'standard' });
+    setShowRequestModal(false);
   };
 
   const getTaskImage = (task) => {
     if (task.evidenceUrl) return task.evidenceUrl;
-    const title = task.title.toLowerCase();
-    if (title.includes('medication') || title.includes('med')) return CARE_IMAGES.medication;
-    if (title.includes('breakfast') || title.includes('lunch') || title.includes('dinner') || title.includes('meal')) return CARE_IMAGES.meal;
-    if (title.includes('walk') || title.includes('exercise')) return CARE_IMAGES.walk;
+    const t = task.title.toLowerCase();
+    if (t.includes('medication') || t.includes('med')) return CARE_IMAGES.medication;
+    if (t.includes('breakfast') || t.includes('lunch') || t.includes('dinner') || t.includes('meal')) return CARE_IMAGES.meal;
+    if (t.includes('walk') || t.includes('exercise')) return CARE_IMAGES.walk;
     return CARE_IMAGES.vitals;
   };
 
-  // ==========================================
-  // CARE PLAN SUB-SCREEN
-  // ==========================================
+  // ── Sub-pages ──────────────────────────────────────────────────────────────
+
+  if (activePage === 'profile')
+    return <ProfilePage onBack={() => handlePageChange(null)} role={UserRole.FAMILY} />;
+
+  if (activePage === 'settings')
+    return <SettingsPage onBack={() => handlePageChange(null)} />;
+
+  if (activePage === 'support')
+    return <SupportPage onBack={() => handlePageChange(null)} role="family" />;
+
   if (activePage === 'carePlan') {
     return (
-      <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
-        <div className="flex-1 overflow-y-auto pb-6">
-          <div className="flex items-center px-5 pt-3 pb-1">
-            <button onClick={() => handlePageChange(null)} className="mr-4 p-1" data-testid="care-plan-back">
-              <ArrowLeft className="w-6 h-6 text-white" />
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Care Plan</h1>
-              <p className="text-[#8e8e93] text-[14px]">For {patient?.name}</p>
-            </div>
+      <div style={{ minHeight: '100vh', background: C.BG, fontFamily: INTER }}>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '20px 20px 16px', borderBottom: `1px solid ${C.BORDER}`, background: C.CARD }}>
+          <button onClick={() => handlePageChange(null)} data-testid="care-plan-back"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.MUTED, display: 'flex' }}>
+            <ArrowLeft size={22} />
+          </button>
+          <div>
+            <h1 style={{ fontFamily: INTER, fontSize: '1.4rem', color: C.TEXT, letterSpacing: '-0.01em', margin: 0 }}>Care Plan</h1>
+            <p style={{ fontSize: 13, color: C.MUTED, margin: '2px 0 0', fontFamily: INTER }}>For {patient?.name}</p>
+          </div>
+        </div>
+
+        <div style={{ padding: '20px 20px 100px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Goals */}
+          <p style={sectionLabel(C)}>Primary Goals</p>
+          <div style={{ ...glassCard(C), padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {(CARE_PLAN.goals || []).map((goal, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <CheckCircle size={20} color={ACCENT} />
+                <p style={{ fontSize: 15, color: C.TEXT, margin: 0, fontFamily: INTER }}>{goal}</p>
+              </div>
+            ))}
           </div>
 
-          <div className="px-5 space-y-5">
-            {/* Primary Goals */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-6">
-              <h3 className="text-[#25D366] text-sm font-bold uppercase tracking-wider mb-5">Primary Goals</h3>
-              <div className="space-y-4">
-                {CARE_PLAN.goals.map((goal, idx) => (
-                  <div key={idx} className="flex items-center gap-3">
-                    <CheckCircle className="w-6 h-6 text-[#25D366] flex-shrink-0" fill="#25D366" stroke="#1c1c1e" strokeWidth={2} />
-                    <p className="text-white text-[16px]">{goal}</p>
-                  </div>
-                ))}
+          {/* Medications */}
+          <p style={{ ...sectionLabel(C), marginTop: 8 }}>Medications</p>
+          <div style={glassCard(C)}>
+            {(CARE_PLAN.medications || []).map((med, i, arr) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', padding: '14px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${C.BORDER}` : 'none' }}>
+                <div>
+                  <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 15, color: C.TEXT, margin: '0 0 3px' }}>{med.name} ({med.dosage})</p>
+                  <p style={{ fontFamily: INTER, fontSize: 12, color: C.MUTED, margin: 0 }}>{med.frequency} · {med.condition}</p>
+                </div>
+                <span style={{ fontFamily: INTER, fontSize: 14, fontWeight: 700, color: ACCENT, flexShrink: 0, marginLeft: 12 }}>{med.time}</span>
               </div>
-            </div>
+            ))}
+          </div>
 
-            {/* Medications */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-6">
-              <h3 className="text-[#25D366] text-sm font-bold uppercase tracking-wider mb-5">Medications</h3>
-              <div className="divide-y divide-[#2c2c2e]">
-                {CARE_PLAN.medications.map((med, idx) => (
-                  <div key={idx} className="py-4 first:pt-0 last:pb-0 flex items-start justify-between">
-                    <div>
-                      <p className="text-white font-bold text-[17px]">{med.name} ({med.dosage})</p>
-                      <p className="text-[#8e8e93] text-[14px] mt-1">{med.frequency} - {med.condition}</p>
-                    </div>
-                    <span className="text-[#25D366] text-[15px] font-semibold flex-shrink-0 ml-4">{med.time}</span>
-                  </div>
-                ))}
+          {/* Daily Schedule */}
+          <p style={{ ...sectionLabel(C), marginTop: 8 }}>Daily Schedule</p>
+          <div style={glassCard(C)}>
+            {(CARE_PLAN.dailySchedule || []).map((item, i, arr) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', padding: '14px 20px', borderBottom: i < arr.length - 1 ? `1px solid ${C.BORDER}` : 'none' }}>
+                <div>
+                  <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 15, color: C.TEXT, margin: '0 0 3px' }}>{item.activity}</p>
+                  <p style={{ fontFamily: INTER, fontSize: 12, color: C.MUTED, margin: 0 }}>{item.priority} · {item.type}</p>
+                </div>
+                <span style={{ fontFamily: INTER, fontSize: 14, fontWeight: 700, color: ACCENT, flexShrink: 0, marginLeft: 12 }}>{item.time}</span>
               </div>
-            </div>
+            ))}
+          </div>
 
-            {/* Daily Schedule */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-6">
-              <h3 className="text-[#25D366] text-sm font-bold uppercase tracking-wider mb-5">Daily Schedule</h3>
-              <div className="divide-y divide-[#2c2c2e]">
-                {CARE_PLAN.dailySchedule.map((item, idx) => (
-                  <div key={idx} className="py-4 first:pt-0 last:pb-0 flex items-start justify-between">
-                    <div>
-                      <p className="text-white font-bold text-[17px]">{item.activity}</p>
-                      <p className="text-[#8e8e93] text-[14px] mt-1">{item.priority} - {item.type}</p>
-                    </div>
-                    <span className="text-[#25D366] text-[15px] font-semibold flex-shrink-0 ml-4">{item.time}</span>
-                  </div>
-                ))}
+          {/* Dietary Restrictions */}
+          <p style={{ ...sectionLabel(C), marginTop: 8, color: C.RED }}>Dietary Restrictions</p>
+          <div style={{ ...glassCard(C), padding: 20, display: 'flex', flexDirection: 'column', gap: 12, border: `1px solid ${C.RED}22` }}>
+            {(CARE_PLAN.dietaryRestrictions || []).map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <AlertCircle size={18} color={C.RED} />
+                <p style={{ fontSize: 15, color: C.RED, margin: 0, fontFamily: INTER }}>{item}</p>
               </div>
-            </div>
+            ))}
+          </div>
 
-            {/* Dietary Restrictions */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-6">
-              <h3 className="text-[#ff453a] text-sm font-bold uppercase tracking-wider mb-5">Dietary Restrictions</h3>
-              <div className="space-y-3">
-                {CARE_PLAN.dietaryRestrictions.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-3">
-                    <AlertCircle className="w-6 h-6 text-[#ff453a] flex-shrink-0" fill="#ff453a" stroke="#1c1c1e" strokeWidth={2} />
-                    <p className="text-[#ff453a] text-[16px]">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Emergency Protocol */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-6">
-              <h3 className="text-[#ff453a] text-sm font-bold uppercase tracking-wider mb-4">Emergency Protocol</h3>
-              <div className="bg-[#3d1a1a]/60 border border-[#7f2d2d]/50 rounded-xl p-4">
-                <p className="text-[#e88e8e] text-[16px] leading-relaxed">{CARE_PLAN.emergencyProtocol}</p>
-              </div>
-            </div>
+          {/* Emergency Protocol */}
+          <p style={{ ...sectionLabel(C), marginTop: 8, color: C.RED }}>Emergency Protocol</p>
+          <div style={{ ...glassCard(C), padding: 16, background: `${C.RED}08`, border: `1px solid ${C.RED}22` }}>
+            <p style={{ fontSize: 14, color: C.RED, lineHeight: 1.7, margin: 0, fontFamily: INTER }}>{CARE_PLAN.emergencyProtocol}</p>
           </div>
         </div>
       </div>
     );
   }
 
-  // ==========================================
-  // WEEKLY REPORT SUB-SCREEN
-  // ==========================================
   if (activePage === 'weeklyReport') {
     return (
-      <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
-        <div className="flex-1 overflow-y-auto pb-6">
-          <div className="flex items-center px-5 pt-3 pb-1">
-            <button onClick={() => handlePageChange(null)} className="mr-4 p-1" data-testid="weekly-report-back">
-              <ArrowLeft className="w-6 h-6 text-white" />
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Weekly Report</h1>
-              <p className="text-[#8e8e93] text-[14px]">Week of Dec 9-15</p>
+      <div style={{ minHeight: '100vh', background: C.BG, fontFamily: INTER }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '20px 20px 16px', borderBottom: `1px solid ${C.BORDER}`, background: C.CARD }}>
+          <button onClick={() => handlePageChange(null)} data-testid="weekly-report-back"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.MUTED, display: 'flex' }}>
+            <ArrowLeft size={22} />
+          </button>
+          <div>
+            <h1 style={{ fontFamily: INTER, fontSize: '1.4rem', color: C.TEXT, letterSpacing: '-0.01em', margin: 0 }}>Weekly Report</h1>
+            <p style={{ fontSize: 13, color: C.MUTED, margin: '2px 0 0', fontFamily: INTER }}>Week of Dec 9–15</p>
+          </div>
+        </div>
+
+        <div style={{ padding: '20px 20px 100px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Compliance ring */}
+          <div style={{ ...glassCard(C), padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ position: 'relative', width: 112, height: 112, marginBottom: 12 }}>
+              <svg style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }} viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="50" fill="none" stroke={C.BORDER} strokeWidth="10" />
+                <circle cx="60" cy="60" r="50" fill="none" stroke={ACCENT} strokeWidth="10"
+                  strokeDasharray={`${WEEKLY_REPORT.overallCompliance * 3.14} ${314 - WEEKLY_REPORT.overallCompliance * 3.14}`}
+                  strokeLinecap="round" />
+              </svg>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontFamily: INTER, fontSize: '1.8rem', fontWeight: 700, color: C.TEXT }}>{WEEKLY_REPORT.overallCompliance}%</span>
+              </div>
             </div>
+            <p style={{ fontSize: 13, color: C.MUTED, fontFamily: INTER }}>Overall Compliance</p>
           </div>
 
-          <div className="px-5 space-y-4">
-            {/* Overall Compliance Circle */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-6 flex flex-col items-center">
-              <div className="relative w-28 h-28 mb-3">
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#2a2a2e" strokeWidth="10" />
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#25D366" strokeWidth="10" 
-                    strokeDasharray={`${WEEKLY_REPORT.overallCompliance * 3.14} ${314 - WEEKLY_REPORT.overallCompliance * 3.14}`}
-                    strokeLinecap="round" />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-3xl font-bold text-white">{WEEKLY_REPORT.overallCompliance}%</span>
-                </div>
+          {/* Stats grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            {[
+              { value: `${WEEKLY_REPORT.tasksCompleted}/${WEEKLY_REPORT.totalTasks}`, label: 'Tasks', color: ACCENT },
+              { value: `${WEEKLY_REPORT.medsOnTime}%`, label: 'Meds On Time', color: ACCENT },
+              { value: WEEKLY_REPORT.incidents, label: 'Incidents', color: C.ORANGE },
+              { value: WEEKLY_REPORT.missedTasks, label: 'Missed Tasks', color: C.RED },
+            ].map((s, i) => (
+              <div key={i} style={{ ...glassCard(C), padding: '16px 12px', textAlign: 'center' }}>
+                <p style={{ fontFamily: INTER, fontSize: '1.6rem', fontWeight: 700, color: s.color, margin: '0 0 4px' }}>{s.value}</p>
+                <p style={{ fontSize: 12, color: C.MUTED, margin: 0, fontFamily: INTER }}>{s.label}</p>
               </div>
-              <p className="text-[#ababab] text-sm">Overall Compliance</p>
-            </div>
+            ))}
+          </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-[#1c1c1e] rounded-2xl p-4 text-center">
-                <p className="text-2xl font-bold text-[#25D366]">{WEEKLY_REPORT.tasksCompleted}/{WEEKLY_REPORT.totalTasks}</p>
-                <p className="text-[#ababab] text-xs mt-1">Tasks</p>
-              </div>
-              <div className="bg-[#1c1c1e] rounded-2xl p-4 text-center">
-                <p className="text-2xl font-bold text-[#25D366]">{WEEKLY_REPORT.medsOnTime}%</p>
-                <p className="text-[#ababab] text-xs mt-1">Meds On Time</p>
-              </div>
-              <div className="bg-[#1c1c1e] rounded-2xl p-4 text-center">
-                <p className="text-2xl font-bold text-amber-400">{WEEKLY_REPORT.incidents}</p>
-                <p className="text-[#ababab] text-xs mt-1">Incidents</p>
-              </div>
-              <div className="bg-[#1c1c1e] rounded-2xl p-4 text-center">
-                <p className="text-2xl font-bold text-rose-400">{WEEKLY_REPORT.missedTasks}</p>
-                <p className="text-[#ababab] text-xs mt-1">Missed Tasks</p>
-              </div>
-            </div>
+          {/* Caregiver notes */}
+          <div style={{ ...glassCard(C), padding: 20 }}>
+            <p style={sectionLabel(C)}>Caregiver Notes</p>
+            <p style={{ fontSize: 14, color: C.TEXT, lineHeight: 1.7, margin: 0, fontFamily: INTER }}>{WEEKLY_REPORT.caregiverNotes}</p>
+          </div>
 
-            {/* Caregiver Notes */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
-              <h3 className="text-[#25D366] text-xs font-bold uppercase tracking-wider mb-3">Caregiver Notes</h3>
-              <p className="text-white text-base leading-relaxed">{WEEKLY_REPORT.caregiverNotes}</p>
-            </div>
-
-            {/* Performance Trend */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
-              <h3 className="text-[#25D366] text-xs font-bold uppercase tracking-wider mb-4">Performance Trend</h3>
-              <div className="flex items-end justify-between h-24 gap-2">
-                {WEEKLY_REPORT.performanceTrend.map((d, idx) => (
-                  <div key={idx} className="flex-1 flex flex-col items-center gap-1">
-                    <div className="w-full bg-stone-800 rounded-full overflow-hidden" style={{ height: '80px' }}>
-                      <div className="w-full bg-[#25D366] rounded-full mt-auto" style={{ height: `${d.score}%`, marginTop: `${100 - d.score}%` }} />
-                    </div>
-                    <span className="text-[#8e8e93] text-[10px]">{d.day}</span>
+          {/* Performance trend */}
+          <div style={{ ...glassCard(C), padding: 20 }}>
+            <p style={sectionLabel(C)}>Performance Trend</p>
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: 80, gap: 6 }}>
+              {(WEEKLY_REPORT.performanceTrend || []).map((d, i) => (
+                <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                  <div style={{ width: '100%', height: 64, background: C.BG, borderRadius: 6, overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                    <div style={{ width: '100%', background: ACCENT, height: `${d.score}%`, borderRadius: 6, opacity: 0.85 }} />
                   </div>
-                ))}
-              </div>
+                  <span style={{ fontSize: 10, color: C.MUTED, fontFamily: INTER }}>{d.day}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -269,312 +265,292 @@ export const FamilyDashboard = ({
     );
   }
 
-  // ==========================================
-  // CURRENT CAREGIVER SUB-SCREEN
-  // ==========================================
   if (activePage === 'caregiver') {
     const today = new Date();
-    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     const todayStr = `${dayNames[today.getDay()]}, ${monthNames[today.getMonth()]} ${today.getDate()}`;
 
     return (
-      <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
-        <div className="flex-1 overflow-y-auto pb-6">
-          {/* Header */}
-          <div className="flex items-center px-5 pt-3 pb-3">
-            <button onClick={() => handlePageChange(null)} className="mr-4 p-1" data-testid="caregiver-page-back">
-              <ArrowLeft className="w-6 h-6 text-white" />
-            </button>
-            <h1 className="text-2xl font-bold text-white">Current Caregiver</h1>
+      <div style={{ minHeight: '100vh', background: C.BG, fontFamily: INTER }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '20px 20px 16px', borderBottom: `1px solid ${C.BORDER}`, background: C.CARD }}>
+          <button onClick={() => handlePageChange(null)} data-testid="caregiver-page-back"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.MUTED, display: 'flex' }}>
+            <ArrowLeft size={22} />
+          </button>
+          <h1 style={{ fontFamily: INTER, fontSize: '1.4rem', color: C.TEXT, letterSpacing: '-0.01em', margin: 0 }}>Current Caregiver</h1>
+        </div>
+
+        <div style={{ padding: '0 20px 100px' }}>
+          {/* Photo & name */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '32px 0 24px' }}>
+            <div style={{ position: 'relative', marginBottom: 16 }}>
+              <img src={CAREGIVER_PROFILE.photo} alt={CAREGIVER_PROFILE.name}
+                style={{ width: 140, height: 140, borderRadius: '50%', objectFit: 'cover', border: `3px solid ${ACCENT}` }} />
+            </div>
+            <h2 style={{ fontFamily: INTER, fontSize: '1.8rem', fontWeight: 700, color: C.TEXT, letterSpacing: '-0.01em', marginBottom: 6 }}>{CAREGIVER_PROFILE.name}</h2>
+            <p style={{ color: C.MUTED, fontSize: 15, fontFamily: INTER }}>{CAREGIVER_PROFILE.role}</p>
           </div>
 
-          <div className="px-5 space-y-5">
-            {/* Photo & Info */}
-            <div className="flex flex-col items-center pt-2">
-              <div className="w-36 h-36 rounded-full overflow-hidden ring-[3px] ring-[#25D366] mb-4">
-                <img src={CAREGIVER_PROFILE.photo} alt={CAREGIVER_PROFILE.name} className="w-full h-full object-cover" />
+          {/* Stats */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 16 }}>
+            {[
+              { icon: Star,        value: CAREGIVER_PROFILE.rating,           label: 'Rating', color: C.ORANGE },
+              { icon: Clock,       value: CAREGIVER_PROFILE.yearsExperience,  label: 'Years',  color: ACCENT  },
+              { icon: CheckCircle, value: CAREGIVER_PROFILE.shiftsCompleted,  label: 'Shifts', color: C.GREEN },
+            ].map(({ icon: Icon, value, label, color }, i) => (
+              <div key={i} style={{ ...glassCard(C), padding: '16px 12px', textAlign: 'center' }}>
+                <Icon size={22} color={color} style={{ display: 'block', margin: '0 auto 8px' }} />
+                <p style={{ fontFamily: INTER, fontSize: '1.5rem', fontWeight: 700, color: C.TEXT, margin: '0 0 4px' }}>{value}</p>
+                <p style={{ fontSize: 12, color: C.MUTED, margin: 0, fontFamily: INTER }}>{label}</p>
               </div>
-              <h2 className="text-[26px] font-bold text-white">{CAREGIVER_PROFILE.name}</h2>
-              <p className="text-[#8e8e93] text-[16px] mt-1">{CAREGIVER_PROFILE.role}</p>
-            </div>
+            ))}
+          </div>
 
-            {/* Stats Row - Icons + Numbers */}
-            <div className="flex justify-center gap-10 py-2">
-              <div className="flex flex-col items-center">
-                <div className="w-14 h-14 bg-[#2c2c2e] rounded-full flex items-center justify-center mb-2">
-                  <Star className="w-7 h-7 text-amber-400" fill="#fbbf24" />
-                </div>
-                <p className="text-[22px] font-bold text-white">{CAREGIVER_PROFILE.rating}</p>
-                <p className="text-[#8e8e93] text-sm">Rating</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-14 h-14 bg-[#2c2c2e] rounded-full flex items-center justify-center mb-2">
-                  <Clock className="w-7 h-7 text-[#25D366]" />
-                </div>
-                <p className="text-[22px] font-bold text-white">{CAREGIVER_PROFILE.yearsExperience}</p>
-                <p className="text-[#8e8e93] text-sm">Years</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="w-14 h-14 bg-[#2c2c2e] rounded-full flex items-center justify-center mb-2">
-                  <Calendar className="w-7 h-7 text-[#3b82f6]" />
-                </div>
-                <p className="text-[22px] font-bold text-white">{CAREGIVER_PROFILE.shiftsCompleted}</p>
-                <p className="text-[#8e8e93] text-sm">Shifts</p>
-              </div>
-            </div>
-
-            {/* Certifications */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
-              <h3 className="text-[17px] font-bold text-white mb-4">Certifications</h3>
-              <div className="flex flex-wrap gap-2">
-                {CAREGIVER_PROFILE.certifications.map((cert, idx) => (
-                  <span key={idx} className="bg-[#25D366]/15 text-[#25D366] text-[14px] font-semibold px-4 py-2 rounded-full flex items-center gap-1.5">
-                    <Shield className="w-4 h-4" />
-                    {cert}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
-              <h3 className="text-[17px] font-bold text-white mb-4">Contact Information</h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-[#8e8e93]" />
-                  <span className="text-white text-[15px]">{CAREGIVER_PROFILE.email}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-[#8e8e93]" />
-                  <span className="text-white text-[15px]">{CAREGIVER_PROFILE.phone}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Caregiver Performance */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="text-[17px] font-bold text-white">Caregiver Performance</h3>
-                <span className="bg-[#25D366]/15 text-[#25D366] text-[14px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
-                  <Star className="w-4 h-4" fill="#25D366" />
-                  96%
+          {/* Certifications */}
+          <div style={{ ...glassCard(C), padding: 20, marginBottom: 12 }}>
+            <p style={{ ...sectionLabel(C), marginBottom: 14 }}>Certifications</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {(CAREGIVER_PROFILE.certifications || []).map((cert, i) => (
+                <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: `${ACCENT}18`, border: `1px solid ${ACCENT}35`, color: ACCENT, borderRadius: 999, fontSize: 13, fontWeight: 700, fontFamily: INTER }}>
+                  <Shield size={13} /> {cert}
                 </span>
-              </div>
-              <div className="grid grid-cols-3 text-center">
-                <div>
-                  <p className="text-[24px] font-bold text-white">94%</p>
-                  <p className="text-[#8e8e93] text-[13px] mt-1">Tasks<br/>Completed</p>
-                </div>
-                <div className="border-x border-[#2c2c2e]">
-                  <p className="text-[24px] font-bold text-white">98%</p>
-                  <p className="text-[#8e8e93] text-[13px] mt-1">On-Time<br/>Rate</p>
-                </div>
-                <div>
-                  <p className="text-[24px] font-bold text-white">4.8</p>
-                  <p className="text-[#8e8e93] text-[13px] mt-1">Family<br/>Rating</p>
-                </div>
-              </div>
+              ))}
             </div>
-
-            {/* Today's Summary */}
-            <div className="bg-[#1c1c1e] rounded-2xl p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[17px] font-bold text-white">Today's Summary</h3>
-                <span className="text-[#8e8e93] text-[14px]">{todayStr}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-[#2c2c2e] rounded-xl p-4 text-center">
-                  <p className="text-[24px] font-bold text-white">{completedTasks.length}/{totalTasks}</p>
-                  <p className="text-[#8e8e93] text-[13px] mt-1">Tasks Done</p>
-                </div>
-                <div className="bg-[#2c2c2e] rounded-xl p-4 text-center">
-                  <p className="text-[24px] font-bold text-white">0/4</p>
-                  <p className="text-[#8e8e93] text-[13px] mt-1">Meds Given</p>
-                </div>
-                <div className="bg-[#2c2c2e] rounded-xl p-4 text-center">
-                  <p className="text-[24px] font-bold text-white">--:--</p>
-                  <p className="text-[#8e8e93] text-[13px] mt-1">Arrived At</p>
-                </div>
-                <div className="bg-[#2c2c2e] rounded-xl p-4 text-center">
-                  <p className="text-[24px] font-bold text-white">0</p>
-                  <p className="text-[#8e8e93] text-[13px] mt-1">Incidents</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Message Caregiver Button */}
-            <button
-              onClick={() => { handlePageChange(null); handleTabChange('messages'); }}
-              className="w-full py-4 bg-[#25D366] text-white rounded-2xl font-bold text-[17px] flex items-center justify-center gap-2"
-              data-testid="message-caregiver-btn"
-            >
-              <MessageSquare className="w-5 h-5" />
-              Message Caregiver
-            </button>
           </div>
+
+          {/* Contact */}
+          <div style={{ ...glassCard(C), padding: 20, marginBottom: 12 }}>
+            <p style={{ ...sectionLabel(C), marginBottom: 14 }}>Contact Information</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <Mail size={18} color={C.MUTED} />
+                <span style={{ fontSize: 15, color: C.TEXT, fontFamily: INTER }}>{CAREGIVER_PROFILE.email}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <Phone size={18} color={C.MUTED} />
+                <span style={{ fontSize: 15, color: C.TEXT, fontFamily: INTER }}>{CAREGIVER_PROFILE.phone}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Performance */}
+          <div style={{ ...glassCard(C), padding: 20, marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <p style={{ fontFamily: INTER, fontSize: '1.05rem', fontWeight: 700, color: C.TEXT, margin: 0 }}>Performance</p>
+              <span style={{ fontSize: 13, fontWeight: 700, color: ACCENT, background: `${ACCENT}14`, borderRadius: 999, padding: '4px 12px', fontFamily: INTER }}>96%</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', textAlign: 'center' }}>
+              {[
+                { value: '94%', label: 'Tasks\nCompleted' },
+                { value: '98%', label: 'On-Time\nRate' },
+                { value: '4.8', label: 'Family\nRating' },
+              ].map((s, i) => (
+                <div key={i} style={{ borderRight: i < 2 ? `1px solid ${C.BORDER}` : 'none' }}>
+                  <p style={{ fontFamily: INTER, fontSize: '1.5rem', fontWeight: 700, color: C.TEXT, margin: '0 0 4px' }}>{s.value}</p>
+                  <p style={{ fontSize: 12, color: C.MUTED, margin: 0, whiteSpace: 'pre-line', fontFamily: INTER }}>{s.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Today's summary */}
+          <div style={{ ...glassCard(C), padding: 20, marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <p style={{ fontFamily: INTER, fontSize: '1.05rem', fontWeight: 700, color: C.TEXT, margin: 0 }}>Today's Summary</p>
+              <span style={{ fontSize: 12, color: C.MUTED, fontFamily: INTER }}>{todayStr}</span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {[
+                { value: `${completedTasks.length}/${totalTasks}`, label: 'Tasks Done' },
+                { value: '0/4', label: 'Meds Given' },
+                { value: '--:--', label: 'Arrived At' },
+                { value: '0', label: 'Incidents' },
+              ].map((s, i) => (
+                <div key={i} style={{ background: C.BG, border: `1px solid ${C.BORDER}`, borderRadius: 12, padding: '14px 12px', textAlign: 'center' }}>
+                  <p style={{ fontFamily: INTER, fontSize: '1.5rem', fontWeight: 700, color: C.TEXT, margin: '0 0 4px' }}>{s.value}</p>
+                  <p style={{ fontSize: 12, color: C.MUTED, margin: 0, fontFamily: INTER }}>{s.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Message button */}
+          <button
+            onClick={() => { handlePageChange(null); handleTabChange('chat'); }}
+            data-testid="message-caregiver-btn"
+            style={{ width: '100%', padding: '16px', background: ACCENT, border: 'none', borderRadius: 14, fontFamily: INTER, fontSize: 16, fontWeight: 700, color: '#FFFFFF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: `0 4px 14px ${ACCENT}44` }}
+          >
+            <MessageSquare size={18} /> Message Caregiver
+          </button>
         </div>
       </div>
     );
   }
 
-  // ==========================================
-  // HOME TAB
-  // ==========================================
+  // ── Home tab ───────────────────────────────────────────────────────────────
   const renderHomeContent = () => (
-    <div className="flex-1 overflow-y-auto bg-black pb-20">
-      {/* Vitals Grid */}
-      <div className="px-4 pt-4">
-        <div className="grid grid-cols-4 gap-2">
-          <button onClick={() => { setVitalsInitialTab('bp'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-bp">
-            <div className="w-11 h-11 bg-[#6b1c3b] rounded-xl flex items-center justify-center mb-2 mx-auto">
-              <Heart className="w-5 h-5 text-[#ec4899]" fill="currentColor" />
+    <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 120, background: C.BG }}>
+      {/* Patient hero card */}
+      <div style={{ padding: '16px 16px 0' }}>
+        <button
+          onClick={() => setShowPatientProfile(true)}
+          style={{ position: 'relative', width: '100%', height: 192, borderRadius: 24, overflow: 'hidden', border: 'none', cursor: 'pointer', padding: 0 }}
+          data-testid="patient-hero-card"
+        >
+          <img
+            src={patient?.photo || 'https://via.placeholder.com/400'}
+            alt={patient?.name}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }}
+          />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)' }} />
+          <div style={{ position: 'absolute', bottom: 16, left: 20, right: 20, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+            <div>
+              <h2 style={{ fontFamily: INTER, fontSize: '1.5rem', fontWeight: 700, color: '#FFFFFF', margin: '0 0 2px' }}>{patient?.name || 'Patient'}</h2>
+              <p style={{ fontFamily: INTER, fontSize: 13, color: 'rgba(255,255,255,0.75)', margin: 0 }}>{patient?.age} years old</p>
             </div>
-            <p className="text-base font-bold text-white text-center">{latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : '--'}</p>
-            <p className="text-[11px] text-[#8e8e93] font-medium mt-0.5 text-center">BP</p>
-          </button>
+            <ChevronRight size={22} color="rgba(255,255,255,0.6)" />
+          </div>
+        </button>
+      </div>
 
-          <button onClick={() => { setVitalsInitialTab('hr'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-heart">
-            <div className="w-11 h-11 bg-[#5c3d1e] rounded-xl flex items-center justify-center mb-2 mx-auto">
-              <Activity className="w-5 h-5 text-[#f59e0b]" />
-            </div>
-            <p className="text-base font-bold text-white text-center">{latestHR ? latestHR.value : '--'}</p>
-            <p className="text-[11px] text-[#8e8e93] font-medium mt-0.5 text-center">Heart</p>
-          </button>
-
-          <button onClick={() => { setVitalsInitialTab('temp'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-temp">
-            <div className="w-11 h-11 bg-[#1e3a5f] rounded-xl flex items-center justify-center mb-2 mx-auto">
-              <Thermometer className="w-5 h-5 text-[#3b82f6]" />
-            </div>
-            <p className="text-base font-bold text-white text-center">{latestTemp ? `${latestTemp.value}°` : '--'}</p>
-            <p className="text-[11px] text-[#8e8e93] font-medium mt-0.5 text-center">Temp</p>
-          </button>
-
-          <button onClick={() => { setVitalsInitialTab('pain'); setShowVitals(true); }} className="bg-[#1c1c1e] rounded-2xl py-3.5 px-1.5 hover:bg-[#2c2c2e] transition-colors" data-testid="vital-pain">
-            <div className="w-11 h-11 bg-[#4a1d6b] rounded-xl flex items-center justify-center mb-2 mx-auto">
-              <Frown className="w-5 h-5 text-[#a855f7]" />
-            </div>
-            <p className="text-base font-bold text-white text-center">{latestPain ? `${latestPain.value}/10` : '--'}</p>
-            <p className="text-[11px] text-[#8e8e93] font-medium mt-0.5 text-center">Pain</p>
-          </button>
+      {/* Vitals grid */}
+      <div style={{ padding: '12px 16px 0' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+          {[
+            { tab: 'bp',   label: 'BP',    value: latestBP   ? `${latestBP.systolic}/${latestBP.diastolic}` : '--', iconColor: '#ec4899', iconBg: 'rgba(236,72,153,0.10)', icon: Heart,       fill: true,  testId: 'vital-bp'    },
+            { tab: 'hr',   label: 'Heart', value: latestHR   ? latestHR.value : '--',                                iconColor: '#f97316', iconBg: 'rgba(249,115,22,0.10)',  icon: Activity,    fill: false, testId: 'vital-heart' },
+            { tab: 'temp', label: 'Temp',  value: latestTemp ? `${latestTemp.value}°` : '--',                        iconColor: '#60a5fa', iconBg: 'rgba(96,165,250,0.10)',   icon: Thermometer, fill: false, testId: 'vital-temp'  },
+            { tab: 'pain', label: 'Pain',  value: latestPain ? `${latestPain.value}/10` : '--',                      iconColor: '#a78bfa', iconBg: 'rgba(167,139,250,0.10)', icon: Frown,       fill: false, testId: 'vital-pain'  },
+          ].map(({ tab, label, value, icon: Icon, fill, iconColor, iconBg, testId }) => (
+            <button
+              key={tab}
+              onClick={() => { setVitalsInitialTab(tab); setShowVitals(true); }}
+              data-testid={testId}
+              style={{ ...glassCard(C), padding: '12px 4px 10px', display: 'flex', flexDirection: 'column', alignItems: 'center', border: `1px solid ${C.BORDER}`, cursor: 'pointer' }}
+            >
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                <Icon size={20} color={iconColor} fill={fill ? iconColor : 'none'} />
+              </div>
+              <p style={{ fontFamily: INTER, fontSize: 13, fontWeight: 700, color: C.TEXT, margin: '0 0 3px', textAlign: 'center' }}>{value}</p>
+              <p style={{ fontFamily: INTER, fontSize: 10, color: C.MUTED, margin: 0, textAlign: 'center' }}>{label}</p>
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Progress Section */}
-      <div className="px-4 py-4">
+      {/* Progress */}
+      <div style={{ padding: '16px 16px 0' }}>
         {viewingDate && (
-          <div className="mb-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center">
-                <Clock className="w-5 h-5 text-amber-400" />
+          <div style={{ marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: `${C.ORANGE}08`, border: `1px solid ${C.ORANGE}22`, borderRadius: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 36, height: 36, background: `${C.ORANGE}14`, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Clock size={16} color={C.ORANGE} />
               </div>
-              <div>
-                <p className="text-xs text-amber-400 font-bold uppercase tracking-wider">Viewing History</p>
-              </div>
+              <p style={{ fontFamily: INTER, fontSize: 10, fontWeight: 700, color: C.ORANGE, textTransform: 'uppercase', letterSpacing: '0.14em', margin: 0 }}>Viewing History</p>
             </div>
-            <button onClick={handleReturnToToday} className="px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-bold">
-              Back to Today
+            <button onClick={handleReturnToToday}
+              style={{ fontFamily: INTER, fontSize: 12, fontWeight: 700, color: C.ORANGE, background: `${C.ORANGE}14`, border: `1px solid ${C.ORANGE}22`, borderRadius: 999, padding: '5px 14px', cursor: 'pointer' }}>
+              Today
             </button>
           </div>
         )}
 
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-base font-semibold text-white">Today&apos;s Progress</span>
-          <span className="text-base font-semibold text-[#ababab]">{completedTasks.length}/{totalTasks}</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <span style={{ fontFamily: INTER, fontSize: 13, fontWeight: 600, color: C.TEXT }}>Today's Progress</span>
+          <span style={{ fontFamily: INTER, fontSize: 13, fontWeight: 700, color: ACCENT }}>
+            {completedTasks.length}<span style={{ color: C.MUTED, fontWeight: 400 }}>/{totalTasks}</span>
+          </span>
         </div>
-        <div className="h-1.5 bg-stone-800 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-[#25D366] rounded-full transition-all duration-500"
-            style={{ width: totalTasks > 0 ? `${(completedTasks.length / totalTasks) * 100}%` : '0%' }}
-          />
+        <div style={{ height: 4, background: C.BORDER, borderRadius: 999, overflow: 'hidden' }}>
+          <div style={{ height: '100%', background: ACCENT, borderRadius: 999, width: totalTasks > 0 ? `${(completedTasks.length / totalTasks) * 100}%` : '0%', transition: 'width 0.6s ease' }} />
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="px-4 mb-3">
-        <div className="flex items-center">
+      {/* Task tab switcher */}
+      <div style={{ padding: '16px 16px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', background: C.CARD2, borderRadius: 12, padding: 4 }}>
           {!viewingDate && (
-            <>
-              <button onClick={() => setActiveTaskTab('requests')} className="relative">
-                <span className={`text-base font-medium transition-colors ${activeTaskTab === 'requests' ? 'text-white' : 'text-[#8e8e93]'}`}>
-                  My Requests
-                </span>
-                {myRequests.length > 0 && (
-                  <span className="absolute -top-1.5 -right-3 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {myRequests.length}
-                  </span>
-                )}
-              </button>
-              <div className="flex-1 h-px bg-stone-700 mx-4" />
-            </>
+            <button
+              onClick={() => setActiveTaskTab('requests')}
+              style={{ flex: 1, padding: '8px 0', borderRadius: 10, fontFamily: INTER, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none', background: activeTaskTab === 'requests' ? C.CARD : 'transparent', color: activeTaskTab === 'requests' ? C.TEXT : C.MUTED, boxShadow: activeTaskTab === 'requests' ? C.SHADOW : 'none', position: 'relative', transition: 'all 200ms' }}
+            >
+              My Requests
+              {myRequests.length > 0 && (
+                <span style={{ position: 'absolute', top: 2, right: 8, background: C.RED, color: '#fff', fontSize: 10, fontWeight: 700, borderRadius: 999, width: 16, height: 16, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{myRequests.length}</span>
+              )}
+            </button>
           )}
-          <button onClick={() => setActiveTaskTab('timeline')} className={`text-base font-medium transition-colors ${activeTaskTab === 'timeline' || viewingDate ? 'text-white' : 'text-[#8e8e93]'}`}>
+          <button
+            onClick={() => setActiveTaskTab('timeline')}
+            style={{ flex: 1, padding: '8px 0', borderRadius: 10, fontFamily: INTER, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none', background: activeTaskTab === 'timeline' || viewingDate ? C.CARD : 'transparent', color: activeTaskTab === 'timeline' || viewingDate ? C.TEXT : C.MUTED, boxShadow: activeTaskTab === 'timeline' || viewingDate ? C.SHADOW : 'none', transition: 'all 200ms' }}
+          >
             Care Timeline
           </button>
         </div>
       </div>
 
-      {/* Tab Content */}
-      <div className="px-4 pb-4">
+      {/* Tab content */}
+      <div style={{ padding: '12px 16px 0' }}>
         {activeTaskTab === 'requests' && !viewingDate ? (
-          <div className="space-y-3">
-            <button onClick={() => setShowRequestModal(true)} className="w-full p-4 border-2 border-dashed border-stone-700 text-[#ababab] hover:border-[#25D366] hover:text-[#25D366] rounded-2xl flex items-center justify-center gap-2 transition-colors" data-testid="add-request-btn">
-              <Plus className="w-5 h-5" />
-              <span className="font-semibold">Add New Request</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <button
+              onClick={() => setShowRequestModal(true)}
+              data-testid="add-request-btn"
+              style={{ width: '100%', padding: '16px', border: `2px dashed ${C.BORDER}`, borderRadius: 14, background: 'none', fontFamily: INTER, fontSize: 14, fontWeight: 600, color: C.MUTED, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+            >
+              <Plus size={18} /> Add New Request
             </button>
 
-            {myRequests.length > 0 ? (
-              myRequests.map((request) => (
-                <div key={request.id} className="bg-[#1c1c1e] rounded-2xl p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                        request.priority === 'urgent' ? 'bg-rose-500/20 text-rose-400' 
-                        : request.priority === 'high' ? 'bg-orange-500/20 text-orange-400'
-                        : 'bg-stone-800 text-[#ababab]'
-                      }`}>{request.priority.toUpperCase()}</span>
-                      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-400">Pending</span>
-                    </div>
-                    <span className="text-xs text-[#8e8e93]">{request.time}</span>
+            {myRequests.length > 0 ? myRequests.map((req) => (
+              <div key={req.id} style={{ ...glassCard(C), padding: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontFamily: INTER, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: req.priority === 'urgent' ? `${C.RED}18` : req.priority === 'high' ? `${C.ORANGE}18` : C.CARD2, color: req.priority === 'urgent' ? C.RED : req.priority === 'high' ? C.ORANGE : C.MUTED, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{req.priority}</span>
+                    <span style={{ fontFamily: INTER, fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 6, background: `${C.ORANGE}18`, color: C.ORANGE }}>Pending</span>
                   </div>
-                  <h3 className="font-semibold text-white mb-1">{request.title}</h3>
-                  {request.description && <p className="text-sm text-[#ababab]">{request.description}</p>}
+                  <span style={{ fontFamily: INTER, fontSize: 12, color: C.MUTED }}>{req.time}</span>
                 </div>
-              ))
-            ) : (
-              <div className="bg-[#1c1c1e] rounded-2xl p-8 text-center">
-                <div className="w-16 h-16 bg-stone-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="w-8 h-8 text-[#8e8e93]" />
+                <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 15, color: C.TEXT, margin: '0 0 4px' }}>{req.title}</p>
+                {req.description && <p style={{ fontFamily: INTER, fontSize: 13, color: C.MUTED, margin: 0 }}>{req.description}</p>}
+              </div>
+            )) : (
+              <div style={{ ...glassCard(C), padding: 40, textAlign: 'center' }}>
+                <div style={{ width: 56, height: 56, borderRadius: 16, background: C.BG, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                  <Sparkles size={28} color={C.MUTED} />
                 </div>
-                <h3 className="font-semibold text-white mb-1">No requests yet</h3>
-                <p className="text-[#8e8e93] text-sm">Tap the button above to request tasks for the caregiver</p>
+                <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 16, color: C.TEXT, margin: '0 0 6px' }}>No requests yet</p>
+                <p style={{ fontFamily: INTER, fontSize: 13, color: C.MUTED, margin: 0 }}>Tap the button above to request tasks for the caregiver</p>
               </div>
             )}
           </div>
         ) : (
           <div>
             {displayTasks.length > 0 ? (
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {displayTasks.map((task) => (
-                  <div key={task.id} className="bg-[#1c1c1e] rounded-2xl overflow-hidden" onClick={() => setSelectedTask(task)}>
-                    <div className="relative aspect-[16/9] cursor-pointer">
-                      <img src={getTaskImage(task)} alt={task.title} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <h3 className="text-white font-bold text-lg">{task.title}</h3>
-                        <p className="text-white/80 text-sm flex items-center gap-1 mt-1">
-                          <Clock className="w-4 h-4" />
-                          Completed at {task.completedAt}
+                  <div key={task.id} style={{ ...glassCard(C), overflow: 'hidden', cursor: 'pointer' }} onClick={() => setSelectedTask(task)}>
+                    <div style={{ position: 'relative', aspectRatio: '16/9' }}>
+                      <img src={getTaskImage(task)} alt={task.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%)' }} />
+                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16 }}>
+                        <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 17, color: '#FFFFFF', margin: '0 0 4px' }}>{task.title}</p>
+                        <p style={{ fontFamily: INTER, fontSize: 13, color: 'rgba(255,255,255,0.8)', margin: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <Clock size={12} /> Completed at {task.completedAt}
                         </p>
                       </div>
                     </div>
-                    <div className="p-4">
-                      {task.completionNote && <p className="text-[#ababab] text-sm mb-3">&quot;{task.completionNote}&quot;</p>}
-                      <div className="flex items-center gap-3">
-                        <img src={CAREGIVER_PROFILE.photo} alt="Caregiver" className="w-10 h-10 rounded-xl object-cover" />
-                        <div className="flex-1">
-                          <p className="font-semibold text-white text-sm">Julia Martinez</p>
-                          <p className="text-[#8e8e93] text-xs">Caregiver</p>
+                    <div style={{ padding: 16 }}>
+                      {task.completionNote && <p style={{ fontFamily: INTER, fontSize: 13, color: C.MUTED, margin: '0 0 12px' }}>"{task.completionNote}"</p>}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <img src={CAREGIVER_PROFILE.photo} alt="Caregiver" style={{ width: 40, height: 40, borderRadius: 10, objectFit: 'cover' }} />
+                        <div style={{ flex: 1 }}>
+                          <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 14, color: C.TEXT, margin: '0 0 2px' }}>Julia Martinez</p>
+                          <p style={{ fontFamily: INTER, fontSize: 12, color: C.MUTED, margin: 0 }}>Caregiver</p>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <CheckCircle size={14} color={C.GREEN} />
+                          <span style={{ fontFamily: INTER, fontSize: 12, fontWeight: 700, color: C.GREEN }}>Verified</span>
                         </div>
                       </div>
                     </div>
@@ -582,12 +558,12 @@ export const FamilyDashboard = ({
                 ))}
               </div>
             ) : (
-              <div className="bg-[#1c1c1e] rounded-2xl p-10 text-center">
-                <div className="w-20 h-20 bg-[#2c2c2e] rounded-2xl flex items-center justify-center mx-auto mb-5">
-                  <Clock className="w-10 h-10 text-[#8e8e93]" />
+              <div style={{ ...glassCard(C), padding: 48, textAlign: 'center' }}>
+                <div style={{ width: 64, height: 64, borderRadius: 18, background: C.BG, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                  <Clock size={32} color={C.MUTED} />
                 </div>
-                <h3 className="font-bold text-white text-xl mb-2">No care updates yet</h3>
-                <p className="text-[#8e8e93] text-[15px] leading-relaxed">Tasks completed by caregivers will appear here with photos and notes</p>
+                <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 18, color: C.TEXT, margin: '0 0 8px' }}>No care updates yet</p>
+                <p style={{ fontFamily: INTER, fontSize: 14, color: C.MUTED, margin: 0, lineHeight: 1.6 }}>Tasks completed by caregivers will appear here with photos and notes</p>
               </div>
             )}
           </div>
@@ -596,210 +572,180 @@ export const FamilyDashboard = ({
     </div>
   );
 
-  // ==========================================
-  // MESSAGES TAB
-  // ==========================================
-  // ==========================================
-  // ALERTS TAB
-  // ==========================================
-  const getScheduleIcon = (iconType) => {
-    switch (iconType) {
-      case 'pulse': return Activity;
-      case 'calendar': return Calendar;
-      case 'pill': return Pill;
-      default: return Activity;
-    }
-  };
-
-  const renderAlertsContent = () => (
-    <div className="flex-1 overflow-y-auto bg-black pb-28">
-      {/* Header */}
-      <div className="px-5 pt-3 pb-3">
-        <h1 className="text-2xl font-bold text-white">Notifications</h1>
+  // ── Notifications tab ──────────────────────────────────────────────────────
+  const renderNotificationsContent = () => (
+    <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 120, background: C.BG }}>
+      <div style={{ padding: '20px 20px 16px' }}>
+        <h1 style={{ fontFamily: INTER, fontSize: '1.7rem', fontWeight: 700, color: C.TEXT, letterSpacing: '-0.01em', margin: 0 }}>Notifications</h1>
       </div>
 
-      {/* Upcoming Schedule */}
-      <div className="px-5 mb-2">
-        <div className="flex items-center gap-2 mb-3">
-          <Calendar className="w-4 h-4 text-[#8e8e93]" />
-          <span className="text-xs font-bold text-[#8e8e93] uppercase tracking-wider">Upcoming Schedule</span>
-        </div>
-      </div>
-
-      <div className="px-5 space-y-3 mb-6">
-        {FAMILY_ALERTS.upcoming.map((item) => {
-          const IconComp = getScheduleIcon(item.icon);
-          return (
-            <div key={item.id} className="bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-4">
-              <div className="w-14 h-14 bg-[#1e3a5f] rounded-full flex items-center justify-center flex-shrink-0">
-                <IconComp className="w-7 h-7 text-[#3b82f6]" />
+      {/* Upcoming schedule */}
+      <div style={{ padding: '0 20px' }}>
+        <p style={sectionLabel(C)}>Upcoming Schedule</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {(FAMILY_ALERTS.upcoming || []).map((item) => (
+            <div key={item.id} style={{ ...glassCard(C), padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: `${ACCENT}14`, border: `1px solid ${ACCENT}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Calendar size={22} color={ACCENT} />
               </div>
-              <div className="flex-1">
-                <p className="text-white font-semibold text-[16px]">{item.title}</p>
-                <div className="flex items-center gap-1.5 mt-1.5">
-                  <Clock className="w-4 h-4 text-[#8e8e93]" />
-                  <p className="text-[#8e8e93] text-[14px]">{item.time}</p>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 15, color: C.TEXT, margin: '0 0 4px' }}>{item.title}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <Clock size={13} color={C.MUTED} />
+                  <p style={{ fontFamily: INTER, fontSize: 13, color: C.MUTED, margin: 0 }}>{item.time}</p>
                 </div>
               </div>
             </div>
-          );
-        })}
-      </div>
-
-      {/* Recent Alerts */}
-      <div className="px-5 mb-2">
-        <div className="flex items-center gap-2 mb-3">
-          <Bell className="w-4 h-4 text-[#8e8e93]" />
-          <span className="text-xs font-bold text-[#8e8e93] uppercase tracking-wider">Recent Alerts</span>
+          ))}
         </div>
       </div>
 
-      <div className="px-5 space-y-3">
-        {FAMILY_ALERTS.recent.map((item) => (
-          <div key={item.id} className={`rounded-2xl p-5 ${item.highlight ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-[#1c1c1e]'}`}>
-            <p className="text-white font-bold text-[16px]">{item.title}</p>
-            <p className="text-[#8e8e93] text-[14px] mt-1">{item.subtitle}</p>
-            <p className="text-[#8e8e93] text-[13px] mt-2">{item.time}</p>
-          </div>
+      {/* Recent alerts */}
+      <div style={{ padding: '16px 20px 0' }}>
+        <p style={sectionLabel(C)}>Recent Alerts</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {(FAMILY_ALERTS.recent || []).map((item) => (
+            <div key={item.id} style={{ ...glassCard(C), padding: 20, background: item.highlight ? `${C.ORANGE}06` : C.CARD, border: item.highlight ? `1px solid ${C.ORANGE}20` : `1px solid ${C.BORDER}` }}>
+              <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 15, color: C.TEXT, margin: '0 0 4px' }}>{item.title}</p>
+              <p style={{ fontFamily: INTER, fontSize: 13, color: C.TEXT, margin: '0 0 6px' }}>{item.subtitle}</p>
+              <p style={{ fontFamily: INTER, fontSize: 12, color: C.MUTED, margin: 0 }}>{item.time}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // ── Menu tab ───────────────────────────────────────────────────────────────
+  const renderMenuContent = () => (
+    <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px 100px', background: C.BG, display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {/* Family profile card */}
+      <button
+        onClick={() => handlePageChange('profile')}
+        data-testid="menu-profile"
+        style={{ width: '100%', ...glassCard(C), padding: 16, display: 'flex', alignItems: 'center', gap: 14, border: 'none', cursor: 'pointer', textAlign: 'left' }}
+      >
+        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80" alt="Mary Smith"
+          style={{ width: 72, height: 72, borderRadius: 16, objectFit: 'cover', border: `2px solid ${ACCENT}` }} />
+        <div style={{ flex: 1 }}>
+          <h3 style={{ fontFamily: INTER, fontWeight: 700, fontSize: 18, color: C.TEXT, margin: '0 0 4px' }}>Mary Smith</h3>
+          <p style={{ fontFamily: INTER, fontSize: 14, color: C.MUTED, margin: 0 }}>Family Guardian</p>
+        </div>
+        <ChevronRight size={20} color={C.MUTED} />
+      </button>
+
+      {/* Patient card */}
+      <button
+        onClick={() => setShowPatientProfile(true)}
+        data-testid="menu-patient"
+        style={{ width: '100%', ...glassCard(C), padding: 16, display: 'flex', alignItems: 'center', gap: 14, border: `1px solid ${C.BORDER}`, cursor: 'pointer', textAlign: 'left' }}
+      >
+        <img src={patient?.photo || ''} alt={patient?.name}
+          style={{ width: 56, height: 56, borderRadius: 14, objectFit: 'cover' }} />
+        <div style={{ flex: 1 }}>
+          <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 16, color: C.TEXT, margin: '0 0 4px' }}>{patient?.name}</p>
+          <p style={{ fontFamily: INTER, fontSize: 13, color: C.MUTED, margin: 0 }}>View Medical Profile</p>
+        </div>
+        <ChevronRight size={20} color={C.MUTED} />
+      </button>
+
+      {/* Section: Care */}
+      <p style={{ ...sectionLabel(C), marginTop: 8 }}>Care</p>
+      <div style={{ ...glassCard(C), overflow: 'hidden' }}>
+        {[
+          { label: 'Care Plan',         icon: FileText,   color: ACCENT,     action: () => handlePageChange('carePlan'),     testId: 'menu-care-plan'    },
+          { label: 'Weekly Report',     icon: TrendingUp, color: C.GREEN,    action: () => handlePageChange('weeklyReport'), testId: 'menu-weekly-report' },
+          { label: 'Current Caregiver', icon: Heart,      color: '#ec4899',  action: () => handlePageChange('caregiver'),   testId: 'menu-caregiver'    },
+        ].map((item, i, arr) => (
+          <button key={i} onClick={item.action} data-testid={item.testId}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer', borderBottom: i < arr.length - 1 ? `1px solid ${C.BORDER}` : 'none' }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: `${item.color}14`, border: `1px solid ${item.color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <item.icon size={18} color={item.color} />
+            </div>
+            <span style={{ fontFamily: INTER, fontSize: 15, fontWeight: 500, color: C.TEXT, flex: 1, textAlign: 'left' }}>{item.label}</span>
+            <ChevronRight size={18} color={C.MUTED} />
+          </button>
         ))}
       </div>
-    </div>
-  );
 
-  // ==========================================
-  // MENU TAB
-  // ==========================================
-  const renderMenuContent = () => (
-    <div className="flex-1 overflow-y-auto bg-black px-5 pt-4 space-y-3 pb-24">
-      {/* Family Member Profile */}
-      <button 
-        onClick={() => handlePageChange('profile')}
-        className="w-full bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-4 text-left"
-        data-testid="menu-profile"
-      >
-        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80" alt="Mary Smith" className="w-20 h-20 rounded-2xl object-cover" />
-        <div className="flex-1">
-          <h3 className="font-bold text-white text-xl">Mary Smith</h3>
-          <p className="text-[#8e8e93] text-[15px] mt-0.5">Family Guardian</p>
-        </div>
-        <ChevronRight className="w-6 h-6 text-[#8e8e93]" />
-      </button>
+      {/* Section: Account */}
+      <p style={{ ...sectionLabel(C), marginTop: 8 }}>Account</p>
+      <div style={{ ...glassCard(C), overflow: 'hidden' }}>
+        {[
+          { label: 'Settings',     icon: Settings, color: C.MUTED, action: () => handlePageChange('settings'), testId: 'menu-settings' },
+          { label: 'Help & Support', icon: Bell,   color: C.MUTED, action: () => handlePageChange('support'),  testId: 'menu-support'  },
+        ].map((item, i, arr) => (
+          <button key={i} onClick={item.action} data-testid={item.testId}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer', borderBottom: i < arr.length - 1 ? `1px solid ${C.BORDER}` : 'none' }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: C.CARD2, border: `1px solid ${C.BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <item.icon size={18} color={item.color} />
+            </div>
+            <span style={{ fontFamily: INTER, fontSize: 15, fontWeight: 500, color: C.TEXT, flex: 1, textAlign: 'left' }}>{item.label}</span>
+            <ChevronRight size={18} color={C.MUTED} />
+          </button>
+        ))}
+      </div>
 
-      {/* Patient Quick Access */}
-      <button 
-        onClick={() => setShowPatientProfile(true)}
-        className="w-full bg-[#1c1c1e] rounded-2xl p-4 flex items-center gap-4 text-left"
-        data-testid="menu-patient"
-      >
-        <img src={patient?.photo || ''} alt={patient?.name} className="w-16 h-16 rounded-2xl object-cover" />
-        <div className="flex-1">
-          <p className="font-bold text-white text-lg">{patient?.name}</p>
-          <p className="text-[#8e8e93] text-[15px] mt-0.5">View Medical Profile</p>
-        </div>
-        <ChevronRight className="w-6 h-6 text-[#8e8e93]" />
-      </button>
-
-      {/* Menu Items */}
-      {[
-        { label: 'Care Plan', icon: FileText, hasColor: true, color: '#25D366', action: () => handlePageChange('carePlan') },
-        { label: 'Weekly Report', icon: TrendingUp, hasColor: true, color: '#f59e0b', action: () => handlePageChange('weeklyReport') },
-        { label: 'Current Caregiver', icon: Heart, hasColor: false, action: () => handlePageChange('caregiver') },
-        { label: 'Settings', icon: Settings, hasColor: false, action: () => handlePageChange('settings') },
-        { label: 'Support', icon: Bell, hasColor: false, action: () => handlePageChange('support') },
-      ].map((item, idx) => (
-        <button 
-          key={idx} 
-          onClick={item.action} 
-          className="w-full bg-[#1c1c1e] rounded-2xl p-5 flex items-center gap-4"
-          data-testid={`menu-${item.label.toLowerCase().replace(' ', '-')}`}
-        >
-          <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center ${
-            item.hasColor ? '' : 'bg-[#3a3a3c]'
-          }`} style={item.hasColor ? { backgroundColor: item.color } : {}}>
-            <item.icon className="w-6 h-6 text-white" />
-          </div>
-          <span className="text-white text-lg flex-1 text-left">{item.label}</span>
-          <ChevronRight className="w-6 h-6 text-[#8e8e93]" />
-        </button>
-      ))}
-
-      {/* Sign Out */}
-      <button 
-        onClick={onSignOut} 
-        className="w-full bg-[#3d1a1a] border border-[#6b2a2a] rounded-2xl p-5 flex items-center gap-4"
+      {/* Sign out */}
+      <button
+        onClick={onSignOut}
         data-testid="menu-sign-out-btn"
+        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', background: `${C.RED}06`, border: `1px solid ${C.RED}18`, borderRadius: 16, cursor: 'pointer', marginTop: 4 }}
       >
-        <div className="w-12 h-12 bg-[#5c2020] rounded-[14px] flex items-center justify-center">
-          <User className="w-6 h-6 text-[#ef4444]" />
+        <div style={{ width: 40, height: 40, borderRadius: 12, background: `${C.RED}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <User size={18} color={C.RED} />
         </div>
-        <span className="text-[#ef4444] text-lg flex-1 text-left">Sign Out</span>
+        <span style={{ fontFamily: INTER, fontSize: 15, fontWeight: 500, color: C.RED, flex: 1, textAlign: 'left' }}>Sign Out</span>
       </button>
     </div>
   );
 
-  // ==========================================
-  // SETTINGS / SUPPORT SUB-PAGES
-  // ==========================================
-  if (activePage === 'settings') {
-    return <SettingsPage onBack={() => handlePageChange(null)} />;
-  }
-  if (activePage === 'support') {
-    return <SupportPage onBack={() => handlePageChange(null)} role="family" />;
-  }
-  if (activePage === 'profile') {
-    return <ProfilePage onBack={() => handlePageChange(null)} role={UserRole.FAMILY} />;
-  }
-
+  // ── Main render ────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-black flex flex-col font-['Manrope',sans-serif]">
-      {/* Main Content */}
-      {activeTab === 'home' && renderHomeContent()}
-      {activeTab === 'incident' && <IncidentViewPage patientName={patient?.name} incidents={incidents} />}
-      {activeTab === 'chat' && <ChatPage onBack={() => handleTabChange('home')} role={UserRole.FAMILY} />}
-      {activeTab === 'notifications' && renderAlertsContent()}
-      {activeTab === 'settings' && renderMenuContent()}
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: C.BG, fontFamily: INTER }}>
+      {/* Tab content */}
+      {activeTab === 'home'          && renderHomeContent()}
+      {activeTab === 'incident'      && <IncidentViewPage patientName={patient?.name} incidents={incidents} />}
+      {activeTab === 'chat'          && <ChatPage onBack={() => handleTabChange('home')} role={UserRole.FAMILY} />}
+      {activeTab === 'notifications' && renderNotificationsContent()}
+      {activeTab === 'menu'          && renderMenuContent()}
 
-      {/* Floating Action Button - AI Care Assistant */}
+      {/* Floating AI Copilot button */}
       {activeTab === 'home' && (
-        <div className="fixed bottom-24 right-5 z-40">
+        <div style={{ position: 'fixed', bottom: 100, right: 18, zIndex: 40 }}>
           <button
             onClick={() => setShowCopilot(true)}
-            className="w-14 h-14 rounded-2xl shadow-lg flex items-center justify-center hover:shadow-xl transition-all hover:scale-105 overflow-hidden"
             data-testid="copilot-btn"
+            style={{ width: 60, height: 60, borderRadius: 18, background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: `1px solid ${ACCENT}35`, boxShadow: `0 0 0 1px ${ACCENT}12, 0 8px 32px ${ACCENT}28, 0 2px 8px rgba(0,0,0,0.10)`, cursor: 'pointer', padding: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            <CareAssistantIcon size={56} />
+            <CareAssistantIcon size={60} />
           </button>
         </div>
       )}
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#1c1c1e] z-30">
-        <div className="flex justify-around items-center py-3">
+      <nav style={{ position: 'fixed', bottom: 12, left: 16, right: 16, zIndex: 30, background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(24px) saturate(180%)', WebkitBackdropFilter: 'blur(24px) saturate(180%)', border: `1px solid ${C.BORDER}`, borderRadius: 28, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '10px 8px' }}>
           {[
-            { id: 'home', icon: Home, label: 'Home' },
-            { id: 'incident', icon: AlertTriangle, label: 'Incident', badge: incidents.length > 0 ? incidents.length : null },
-            { id: 'chat', icon: MessageSquare, label: 'Message' },
-            { id: 'notifications', icon: Bell, label: 'Alerts' },
-            { id: 'settings', icon: Settings, label: 'Menu' },
+            { id: 'home',          icon: Home,          label: 'Home'    },
+            { id: 'incident',      icon: AlertTriangle,  label: 'Alerts',  badge: incidents.length > 0 ? incidents.length : null },
+            { id: 'chat',          icon: MessageSquare,  label: 'Message' },
+            { id: 'notifications', icon: Bell,           label: 'Updates' },
+            { id: 'menu',          icon: User,           label: 'Menu'    },
           ].map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
-                className="flex flex-col items-center px-3 py-1 transition-all relative"
                 data-testid={`nav-${tab.id}`}
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '6px 12px', minWidth: 52, background: isActive ? `${ACCENT}14` : 'transparent', borderRadius: 16, border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 200ms' }}
               >
-                <tab.icon 
-                  className={`w-8 h-8 ${isActive ? 'text-[#25D366]' : 'text-[#8e8e93]'}`}
-                  fill={isActive ? '#25D366' : 'none'}
-                  stroke={isActive ? '#1c1c1e' : '#8e8e93'}
-                  strokeWidth={isActive ? 2 : 1.5}
-                />
-                <span className={`text-[11px] font-semibold mt-1 ${isActive ? 'text-[#25D366]' : 'text-[#8e8e93]'}`}>{tab.label}</span>
+                <tab.icon size={24} color={isActive ? ACCENT : C.MUTED} strokeWidth={isActive ? 2 : 1.5} />
+                <span style={{ fontFamily: INTER, fontSize: 10, fontWeight: 700, marginTop: 4, color: isActive ? ACCENT : C.MUTED }}>{tab.label}</span>
                 {tab.badge && (
-                  <div className="absolute top-0 right-0.5 w-4 h-4 bg-rose-500 rounded-full flex items-center justify-center ring-2 ring-[#1c1c1e]">
-                    <span className="text-white text-[10px] font-bold">{tab.badge}</span>
+                  <div style={{ position: 'absolute', top: 4, right: 6, background: C.RED, minWidth: 16, height: 16, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+                    <span style={{ color: '#FFFFFF', fontSize: 10, fontWeight: 700 }}>{tab.badge}</span>
                   </div>
                 )}
               </button>
@@ -817,7 +763,6 @@ export const FamilyDashboard = ({
         role="family"
         onSelectDate={handleSelectHistoricalDate}
       />
-
       <VitalsModal
         isOpen={showVitals}
         onClose={() => setShowVitals(false)}
@@ -825,7 +770,6 @@ export const FamilyDashboard = ({
         isCaregiver={false}
         initialTab={vitalsInitialTab}
       />
-
       <AICopilot
         isOpen={showCopilot}
         onClose={() => setShowCopilot(false)}
@@ -833,115 +777,107 @@ export const FamilyDashboard = ({
         patientName={patient?.name}
       />
 
-      {/* Add Request Modal - Full screen */}
+      {/* Add Request Modal */}
       {showRequestModal && (
-        <div className="fixed inset-0 bg-black z-[70] flex flex-col font-['Manrope',sans-serif]">
-          {/* Header */}
-          <div className="flex-none flex items-center justify-between px-5 pt-3 pb-3 border-b border-[#2c2c2e]">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setShowRequestModal(false)} className="p-1">
-                <X className="w-6 h-6 text-white" />
-              </button>
-              <h2 className="text-xl font-bold text-white">New Request</h2>
-            </div>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 70, background: C.BG, display: 'flex', flexDirection: 'column', fontFamily: INTER }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '20px 20px 16px', borderBottom: `1px solid ${C.BORDER}`, background: C.CARD }}>
+            <button onClick={() => setShowRequestModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: C.MUTED, display: 'flex' }}>
+              <X size={22} />
+            </button>
+            <h2 style={{ fontFamily: INTER, fontSize: '1.4rem', fontWeight: 700, color: C.TEXT, margin: 0 }}>New Request</h2>
           </div>
 
-          {/* Scrollable content */}
-          <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-6">
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-[#ababab] mb-2">What do you need?</label>
-                <input
-                  type="text"
-                  value={newRequest.title}
-                  onChange={(e) => setNewRequest(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="e.g., Extra blanket, Call me back"
-                  className="w-full px-4 py-3 bg-[#2c2c2e] text-white placeholder-[#636366] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#25D366]"
-                  style={{ fontSize: '16px' }}
-                  data-testid="request-title-input"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#ababab] mb-2">Additional details (optional)</label>
-                <textarea
-                  value={newRequest.description}
-                  onChange={(e) => setNewRequest(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Any specific instructions..."
-                  rows={3}
-                  className="w-full px-4 py-3 bg-[#2c2c2e] text-white placeholder-[#636366] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#25D366] resize-none"
-                  style={{ fontSize: '16px' }}
-                  data-testid="request-description-input"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#ababab] mb-2">Priority</label>
-                <div className="flex gap-2">
-                  {['standard', 'high', 'urgent'].map((priority) => (
+          <div style={{ flex: 1, overflowY: 'auto', padding: '20px 20px 80px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div>
+              <p style={sectionLabel(C)}>What do you need?</p>
+              <input
+                type="text"
+                value={newRequest.title}
+                onChange={(e) => setNewRequest(prev => ({ ...prev, title: e.target.value }))}
+                placeholder="e.g., Extra blanket, Call me back"
+                data-testid="request-title-input"
+                style={{ width: '100%', padding: '14px 16px', borderRadius: 14, border: `1px solid ${C.BORDER}`, background: C.CARD, fontFamily: INTER, fontSize: 16, color: C.TEXT, outline: 'none', boxSizing: 'border-box', boxShadow: C.SHADOW }}
+              />
+            </div>
+            <div>
+              <p style={sectionLabel(C)}>Additional details (optional)</p>
+              <textarea
+                value={newRequest.description}
+                onChange={(e) => setNewRequest(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Any specific instructions..."
+                rows={3}
+                data-testid="request-description-input"
+                style={{ width: '100%', padding: '14px 16px', borderRadius: 14, border: `1px solid ${C.BORDER}`, background: C.CARD, fontFamily: INTER, fontSize: 16, color: C.TEXT, outline: 'none', resize: 'none', boxSizing: 'border-box', boxShadow: C.SHADOW }}
+              />
+            </div>
+            <div>
+              <p style={sectionLabel(C)}>Priority</p>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {['standard', 'high', 'urgent'].map((priority) => {
+                  const isSelected = newRequest.priority === priority;
+                  const bg = isSelected ? (priority === 'urgent' ? C.RED : priority === 'high' ? C.ORANGE : ACCENT) : C.CARD;
+                  return (
                     <button
                       key={priority}
                       onClick={() => setNewRequest(prev => ({ ...prev, priority }))}
-                      className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all ${
-                        newRequest.priority === priority
-                          ? priority === 'urgent' ? 'bg-rose-500 text-white' : priority === 'high' ? 'bg-orange-500 text-white' : 'bg-stone-700 text-white'
-                          : 'bg-[#2c2c2e] text-[#ababab] hover:bg-stone-800'
-                      }`}
+                      style={{ flex: 1, padding: '12px 0', borderRadius: 12, fontFamily: INTER, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: `1px solid ${isSelected ? 'transparent' : C.BORDER}`, background: bg, color: isSelected ? '#FFFFFF' : C.TEXT, transition: 'all 200ms' }}
                     >
                       {priority.charAt(0).toUpperCase() + priority.slice(1)}
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
-
-              <button
-                onClick={handleAddRequest}
-                disabled={!newRequest.title.trim()}
-                className="w-full py-4 bg-[#25D366] text-white font-bold rounded-xl hover:bg-[#20bd5a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
-                data-testid="submit-request-btn"
-              >
-                Send Request
-              </button>
             </div>
+            <button
+              onClick={handleAddRequest}
+              disabled={!newRequest.title.trim()}
+              data-testid="submit-request-btn"
+              style={{ width: '100%', padding: '16px', background: newRequest.title.trim() ? ACCENT : C.BORDER, border: 'none', borderRadius: 14, fontFamily: INTER, fontSize: 16, fontWeight: 700, color: '#FFFFFF', cursor: newRequest.title.trim() ? 'pointer' : 'not-allowed', boxShadow: newRequest.title.trim() ? `0 4px 14px ${ACCENT}44` : 'none', transition: 'all 200ms' }}
+            >
+              Send Request
+            </button>
           </div>
         </div>
       )}
 
       {/* Image Detail Modal */}
       {selectedTask && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => setSelectedTask(null)}>
-          <div className="bg-black rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-4 border-b border-[#2c2c2e]">
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+          onClick={() => setSelectedTask(null)}
+        >
+          <div
+            style={{ ...glassCard(C), maxWidth: 640, width: '100%', maxHeight: '90vh', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: `1px solid ${C.BORDER}` }}>
               <div>
-                <h2 className="text-lg font-bold text-white">{selectedTask.title}</h2>
-                <p className="text-sm text-[#8e8e93] flex items-center gap-1 mt-0.5">
-                  <Clock className="w-4 h-4" />
-                  Completed at {selectedTask.completedAt}
+                <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 17, color: C.TEXT, margin: '0 0 3px' }}>{selectedTask.title}</p>
+                <p style={{ fontFamily: INTER, fontSize: 13, color: C.MUTED, margin: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Clock size={12} /> Completed at {selectedTask.completedAt}
                 </p>
               </div>
-              <button onClick={() => setSelectedTask(null)} className="p-2 hover:bg-stone-800 rounded-full transition-colors">
-                <X className="w-5 h-5 text-[#8e8e93]" />
+              <button onClick={() => setSelectedTask(null)} style={{ width: 36, height: 36, borderRadius: '50%', background: C.BG, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <X size={18} color={C.MUTED} />
               </button>
             </div>
-            <div className="relative">
-              <img src={getTaskImage(selectedTask)} alt={selectedTask.title} className="w-full max-h-[50vh] object-contain bg-black" />
-            </div>
-            <div className="p-5 space-y-4">
+            <img src={getTaskImage(selectedTask)} alt={selectedTask.title} style={{ width: '100%', maxHeight: '50vh', objectFit: 'contain', background: C.BG, display: 'block' }} />
+            <div style={{ padding: 20 }}>
               {selectedTask.completionNote && (
-                <div className="bg-[#2c2c2e] rounded-2xl p-4">
-                  <p className="text-xs font-bold text-[#8e8e93] uppercase tracking-wider mb-2">Caregiver Note</p>
-                  <p className="text-white text-sm leading-relaxed">&quot;{selectedTask.completionNote}&quot;</p>
+                <div style={{ background: C.BG, borderRadius: 12, padding: 14, marginBottom: 16 }}>
+                  <p style={{ fontFamily: INTER, fontSize: 10, fontWeight: 700, color: C.MUTED, textTransform: 'uppercase', letterSpacing: '0.14em', margin: '0 0 6px' }}>Caregiver Note</p>
+                  <p style={{ fontFamily: INTER, fontSize: 14, color: C.TEXT, lineHeight: 1.6, margin: 0 }}>"{selectedTask.completionNote}"</p>
                 </div>
               )}
-              <div className="flex items-center gap-3 pt-3 border-t border-[#2c2c2e]">
-                <img src={CAREGIVER_PROFILE.photo} alt="Caregiver" className="w-12 h-12 rounded-xl object-cover" />
-                <div className="flex-1">
-                  <p className="font-semibold text-white">Julia Martinez</p>
-                  <p className="text-[#8e8e93] text-sm">Certified Nursing Assistant</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingTop: 16, borderTop: `1px solid ${C.BORDER}` }}>
+                <img src={CAREGIVER_PROFILE.photo} alt="Caregiver" style={{ width: 48, height: 48, borderRadius: 12, objectFit: 'cover' }} />
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontFamily: INTER, fontWeight: 700, fontSize: 15, color: C.TEXT, margin: '0 0 2px' }}>Julia Martinez</p>
+                  <p style={{ fontFamily: INTER, fontSize: 12, color: C.MUTED, margin: 0 }}>Certified Nursing Assistant</p>
                 </div>
-                <div className="flex items-center gap-1 text-[#25D366] text-sm font-semibold">
-                  <CheckCircle className="w-4 h-4" />
-                  Verified
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <CheckCircle size={16} color={C.GREEN} />
+                  <span style={{ fontFamily: INTER, fontSize: 13, fontWeight: 700, color: C.GREEN }}>Verified</span>
                 </div>
               </div>
             </div>

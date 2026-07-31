@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { Check, X, Clock, User } from 'lucide-react';
-import { TaskStatus, Priority } from '../types';
 import { DECLINE_REASONS } from '../services/mockData';
-import { useTheme } from '../context/ThemeContext';
+
+const D = {
+  bg: '#F4F8F9', bgAlt: '#eef1f4', card: '#ffffff',
+  bdr: 'rgba(0,0,0,0.07)', bdrHv: 'rgba(0,0,0,0.13)',
+  h: '#0f172a', body: '#475569', muted: '#94a3b8',
+  brand: '#b45309', brandText: '#ffffff',
+  shadow: '0 4px 16px -4px rgba(0,0,0,0.08)',
+};
 
 export const TaskRequestCard = ({ task, onAccept, onDecline }) => {
-  const { isDarkMode, bg, bgCard, border, text, textSecondary, textMuted } = useTheme();
   const [showDeclineForm, setShowDeclineForm] = useState(false);
   const [selectedReason, setSelectedReason] = useState('');
 
@@ -16,18 +21,21 @@ export const TaskRequestCard = ({ task, onAccept, onDecline }) => {
   };
 
   return (
-    <div className={`relative bg-[#1c1c1e] rounded-2xl overflow-hidden font-['Manrope',sans-serif]`}>
+    <div
+      style={{ fontFamily: "'Inter','Figtree','Manrope',system-ui,sans-serif", letterSpacing: '-0.03em', background: D.card, boxShadow: D.shadow, border: `1px solid ${D.bdr}` }}
+      className="relative rounded-2xl overflow-hidden font-['Manrope',sans-serif]"
+    >
       {/* Accent Stripe */}
-      <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-indigo-500" />
-      
+      <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-indigo-400" />
+
       <div className="pl-5 pr-4 py-4">
-        {/* Header Row */}
+        {/* Header */}
         <div className="flex items-center justify-between gap-2 mb-1.5">
-          <h3 className={`text-base font-bold ${text} truncate`}>{task.title}</h3>
+          <h3 className="text-base font-bold truncate" style={{ color: D.h }}>{task.title}</h3>
         </div>
 
         {/* Time & Requester */}
-        <div className={`flex items-center gap-3 text-sm ${textMuted} mb-3`}>
+        <div className="flex items-center gap-3 text-sm mb-3" style={{ color: D.muted }}>
           <span className="flex items-center gap-1.5">
             <Clock className="w-4 h-4" />
             {task.scheduledTime}
@@ -39,24 +47,23 @@ export const TaskRequestCard = ({ task, onAccept, onDecline }) => {
         </div>
 
         {/* Description */}
-        <p className={`text-sm ${textSecondary} mb-3 line-clamp-2`}>{task.description}</p>
+        <p className="text-sm mb-3 line-clamp-2" style={{ color: D.body }}>{task.description}</p>
 
         {/* Decline Reason Form */}
         {showDeclineForm ? (
           <div className="space-y-2">
-            <p className={`text-xs font-bold ${textMuted} uppercase`}>Select reason:</p>
+            <p className="text-xs font-bold uppercase" style={{ color: D.muted }}>Select reason:</p>
             <div className="space-y-1">
               {DECLINE_REASONS.map((reason) => (
                 <button
                   key={reason}
                   onClick={() => setSelectedReason(reason)}
-                  className={`w-full p-2 rounded-lg text-left text-xs font-medium transition-all ${
-                    selectedReason === reason
-                      ? 'bg-rose-500/20 border border-rose-500 text-rose-400'
-                      : isDarkMode 
-                        ? 'bg-stone-800 border border-transparent text-[#ababab] hover:bg-stone-700'
-                        : 'bg-stone-100 border border-transparent text-[#8e8e93] hover:bg-stone-200'
-                  }`}
+                  className="w-full p-2 rounded-lg text-left text-xs font-medium transition-all"
+                  style={{
+                    background: selectedReason === reason ? 'rgba(244,63,94,0.08)' : D.bg,
+                    border: selectedReason === reason ? '1px solid rgba(244,63,94,0.4)' : '1px solid transparent',
+                    color: selectedReason === reason ? '#f43f5e' : D.body,
+                  }}
                 >
                   {reason}
                 </button>
@@ -65,14 +72,15 @@ export const TaskRequestCard = ({ task, onAccept, onDecline }) => {
             <div className="flex gap-2 pt-1">
               <button
                 onClick={() => setShowDeclineForm(false)}
-                className={`flex-1 py-2 border ${isDarkMode ? 'border-stone-700 text-[#ababab] hover:bg-stone-800' : 'border-stone-300 text-[#8e8e93] hover:bg-stone-100'} rounded-lg text-xs font-semibold`}
+                className="flex-1 py-2 rounded-lg text-xs font-semibold"
+                style={{ border: `1px solid ${D.bdr}`, color: D.body }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleDecline}
                 disabled={!selectedReason}
-                className={`flex-1 py-2 bg-rose-500 text-white rounded-lg text-xs font-semibold hover:bg-rose-600 ${isDarkMode ? 'disabled:bg-stone-700 disabled:text-[#8e8e93]' : 'disabled:bg-stone-300 disabled:text-[#ababab]'} disabled:cursor-not-allowed`}
+                className="flex-1 py-2 bg-rose-500 text-white rounded-lg text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Confirm
               </button>
@@ -91,7 +99,8 @@ export const TaskRequestCard = ({ task, onAccept, onDecline }) => {
             </button>
             <button
               onClick={() => setShowDeclineForm(true)}
-              className={`flex-1 py-2.5 ${isDarkMode ? 'bg-stone-800 text-stone-300 hover:bg-stone-700' : 'bg-stone-200 text-stone-700 hover:bg-stone-300'} rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-1`}
+              className="flex-1 py-2.5 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-1"
+              style={{ background: D.bg, border: `1px solid ${D.bdr}`, color: D.body }}
               data-testid={`decline-request-${task.id}`}
             >
               <X className="w-4 h-4" />

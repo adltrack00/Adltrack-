@@ -60,7 +60,7 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
         <button
           onClick={() => setIsOpen(!isOpen)}
           disabled={isSwitching}
-          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors"
+          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-transparent/10 hover:bg-transparent/20 transition-colors"
           data-testid="role-switcher-compact"
         >
           {isSwitching ? (
@@ -75,7 +75,7 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
         {isOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-            <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-stone-200 overflow-hidden z-50">
+            <div className="absolute right-0 mt-2 w-56 bg-transparent rounded-xl shadow-xl border border-stone-200 overflow-hidden z-50">
               <div className="p-2">
                 <p className="px-3 py-2 text-xs font-bold text-[#ababab] uppercase">Switch View</p>
                 {roles.map(({ role, title, icon: Icon, color, bg, activeBg, description }) => (
@@ -91,7 +91,7 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
                       <Icon className={`w-4 h-4 ${color}`} />
                     </div>
                     <div className="flex-1 text-left">
-                      <p className="text-sm font-bold text-stone-900">{title}</p>
+                      <p className="text-sm font-bold text-white">{title}</p>
                       <p className="text-xs text-[#8e8e93]">{description}</p>
                     </div>
                     {role === currentRole && (
@@ -118,7 +118,8 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={isSwitching}
-        className="flex items-center gap-3 px-4 py-3 rounded-xl bg-stone-100 hover:bg-stone-200 transition-colors w-full"
+        className="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full"
+        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
         data-testid="role-switcher"
       >
         <div className={`w-10 h-10 rounded-lg ${currentRoleConfig.bg} flex items-center justify-center`}>
@@ -129,7 +130,7 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
           )}
         </div>
         <div className="flex-1 text-left">
-          <p className="text-sm font-bold text-stone-900">Viewing as {currentRoleConfig.title}</p>
+          <p className="text-sm font-bold text-white">Viewing as {currentRoleConfig.title}</p>
           <p className="text-xs text-[#8e8e93]">Click to switch role</p>
         </div>
         <ChevronDown className={`w-5 h-5 text-[#ababab] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -138,7 +139,7 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-stone-200 overflow-hidden z-50">
+          <div className="absolute left-0 right-0 mt-2 bg-transparent rounded-xl shadow-xl border border-stone-200 overflow-hidden z-50">
             <div className="p-2">
               <p className="px-3 py-2 text-xs font-bold text-[#ababab] uppercase">Switch Role</p>
               {roles.map(({ role, title, icon: Icon, color, bg, activeBg, description }) => (
@@ -154,7 +155,7 @@ export const RoleSwitcher = ({ currentRole, onRoleSwitch, variant = 'dropdown' }
                     <Icon className={`w-5 h-5 ${color}`} />
                   </div>
                   <div className="flex-1 text-left">
-                    <p className="text-sm font-bold text-stone-900">{title}</p>
+                    <p className="text-sm font-bold text-white">{title}</p>
                     <p className="text-xs text-[#8e8e93]">{description}</p>
                   </div>
                   {role === currentRole && (
