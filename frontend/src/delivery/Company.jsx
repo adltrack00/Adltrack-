@@ -93,9 +93,9 @@ function Overview({ openAda, setTab }) {
         <Stat label="Vendors" value={state.vendors.length} sub={`${state.products.length} products`} icon={Building2} tone="violet" />
         <Stat label="Riders" value={state.riders.length} sub={`${online} on duty now`} icon={Bike} tone="blue" />
         <Stat label="Units received" value={num(t.received)} sub={money(t.receivedValue)} icon={Package} />
-        <Stat label="Delivered & paid" value={num(t.delivered)} sub={money(t.deliveredValue)} icon={PackageCheck} tone="green" />
+        <Stat label="Delivered" value={num(t.delivered)} sub={money(t.deliveredValue)} icon={PackageCheck} tone="green" />
         <Stat label="Left" value={num(t.left)} sub={`${num(t.withRiders)} with riders · ${num(t.inWarehouse)} in warehouse`} icon={Boxes} tone="orange" />
-        <Stat label="Awaiting payment" value={awaiting.length} sub={money(t.awaitingValue)} icon={Wallet} tone="amber" />
+        <Stat label="Payment to verify" value={awaiting.length} sub={money(t.awaitingValue)} icon={Wallet} tone="amber" />
       </div>
 
       <Card className="overflow-hidden">
@@ -116,7 +116,7 @@ function Overview({ openAda, setTab }) {
 
       <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
         <Card>
-          <CardHead title="Vendors" sub="What each vendor gave you, delivered and left. Updates the moment a payment is confirmed." right={<button onClick={() => setTab("stock")} className="text-[13px] font-semibold text-orange-600">Stock <ArrowRight className="inline h-3.5 w-3.5" /></button>} />
+          <CardHead title="Vendors" sub="What each vendor gave you, delivered and left. Updates the moment a rider confirms a delivery." right={<button onClick={() => setTab("stock")} className="text-[13px] font-semibold text-orange-600">Stock <ArrowRight className="inline h-3.5 w-3.5" /></button>} />
           <div className="mt-3 overflow-x-auto">
             <table className="w-full min-w-[620px] text-left text-[13px]">
               <thead><tr className="border-b border-stone-100 text-stone-400"><th className="px-5 py-2 font-medium">Vendor</th><th className="px-3 py-2 text-right font-medium">Given</th><th className="px-3 py-2 text-right font-medium">Delivered</th><th className="px-3 py-2 text-right font-medium">Left</th><th className="px-3 py-2 text-right font-medium">Sales</th><th className="w-36 px-5 py-2 font-medium" /></tr></thead>
@@ -130,7 +130,7 @@ function Overview({ openAda, setTab }) {
                       <td className="px-3 py-3 text-right font-semibold tabular-nums text-emerald-600">{num(s.delivered)}</td>
                       <td className="px-3 py-3 text-right font-semibold tabular-nums">{num(s.left)}</td>
                       <td className="px-3 py-3 text-right font-mono text-[12.5px]">{money(s.deliveredValue)}</td>
-                      <td className="px-5 py-3"><LedgerBar received={s.received} delivered={s.delivered} withRiders={s.withRiders} awaiting={s.awaiting} /></td>
+                      <td className="px-5 py-3"><LedgerBar received={s.received} delivered={s.delivered} withRiders={s.withRiders} /></td>
                     </tr>
                   );
                 })}
@@ -186,8 +186,8 @@ function Deliveries({ openAda }) {
   const filters = [
     ["all", "All", () => true],
     ["out", "Out now", isActive],
-    ["awaiting", "Awaiting payment", isAwaitingPayment],
-    ["delivered", "Delivered & paid", (t) => statusOf(t) === "delivered"],
+    ["awaiting", "Payment to verify", isAwaitingPayment],
+    ["delivered", "Delivered", (t) => t.status === "delivered"],
     ["failed", "Not delivered", (t) => t.status === "failed"],
   ];
   const list = state.tasks.filter(filters.find((f) => f[0] === filter)[2]);

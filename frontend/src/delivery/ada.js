@@ -183,12 +183,12 @@ function localAnswer(state, text) {
 
   if (product && /\b(left|remain|delivered|sold|stock|how many|how much)\b/.test(t)) {
     const l = productLedger(state, product);
-    return `${product.name}: ${num(l.received)} received, ${num(l.delivered)} delivered and paid (${money(l.deliveredValue)}), ${num(l.left)} left. Of those, ${num(l.withRiders)} are with riders${l.awaiting ? `, ${num(l.awaiting)} awaiting payment` : ""} and ${num(l.inWarehouse)} are in the warehouse.`;
+    return `${product.name}: ${num(l.received)} received, ${num(l.delivered)} delivered (${money(l.deliveredValue)}), ${num(l.left)} left: ${num(l.withRiders)} with riders and ${num(l.inWarehouse)} in the warehouse.${l.awaiting ? ` Payment for ${num(l.awaiting)} delivered units is still to be verified.` : ""}`;
   }
 
   if (vendor && /\b(left|remain|delivered|sold|stock|how many|how much|status|doing)\b/.test(t)) {
     const s = totals(state, vendor.id);
-    return `${vendor.name}: ${num(s.received)} units received, ${num(s.delivered)} delivered and paid (${money(s.deliveredValue)}), ${num(s.left)} left (${money(s.leftValue)}). ${num(s.withRiders)} are out with riders now.`;
+    return `${vendor.name}: ${num(s.received)} units received, ${num(s.delivered)} delivered (${money(s.deliveredValue)}), ${num(s.left)} left (${money(s.leftValue)}). ${num(s.withRiders)} are out with riders now.`;
   }
 
   if (/\b(low|running out|finish|reorder)\b/.test(t)) {
@@ -200,7 +200,7 @@ function localAnswer(state, text) {
   if (/\b(today|summary|status|how are we|overview|report|delivered|left)\b/.test(t)) {
     const s = totals(state);
     const out = state.tasks.filter((x) => x.date === todayISO());
-    return `Today: ${out.length} deliveries, ${out.filter((x) => x.status === "delivered").length} delivered. Overall ${num(s.delivered)} of ${num(s.received)} units are delivered and paid (${money(s.deliveredValue)}), ${num(s.left)} are left, ${num(s.withRiders)} are with riders and ${num(s.pendingOrders)} units are in orders waiting for a rider.`;
+    return `Today: ${out.length} deliveries, ${out.filter((x) => x.status === "delivered").length} delivered. Overall ${num(s.delivered)} of ${num(s.received)} units are delivered (${money(s.deliveredValue)}), ${num(s.left)} are left, ${num(s.withRiders)} are with riders and ${num(s.pendingOrders)} units are in orders waiting for a rider.`;
   }
   return "";
 }

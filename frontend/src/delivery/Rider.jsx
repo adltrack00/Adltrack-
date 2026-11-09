@@ -181,7 +181,7 @@ function DeliverSheet({ task, onClose, act, state }) {
               <input type="checkbox" checked={paid} onChange={(e) => setPaid(e.target.checked)} className="h-4 w-4 accent-emerald-600" /> Payment received
             </label>
           </div>
-          {!paid && <div className="mt-2 text-[12.5px] text-amber-700">It will show as awaiting payment until the office confirms it.</div>}
+          {!paid && <div className="mt-2 text-[12.5px] text-amber-700">The delivery still counts. The office verifies the money once it reaches the company account.</div>}
         </div>
         <Btn size="lg" variant="green" disabled={!photo} onClick={save}><Wallet className="h-4 w-4" /> Confirm delivery</Btn>
         {!photo && <div className="-mt-2 text-center text-[12px] text-stone-400">A photo is needed to confirm.</div>}

@@ -56,13 +56,12 @@ export function Bar({ value, max, tone = "orange", className }) {
   );
 }
 
-// Delivered and paid / used / with riders, as one stacked bar.
-export function LedgerBar({ received, delivered, withRiders, awaiting = 0 }) {
+// Delivered / with riders / in the warehouse, as one stacked bar.
+export function LedgerBar({ received, delivered, withRiders }) {
   const w = (n) => `${received > 0 ? (n / received) * 100 : 0}%`;
   return (
     <div className="flex h-2 w-full overflow-hidden rounded-full bg-stone-100">
       <div className="h-full bg-emerald-500" style={{ width: w(delivered) }} />
-      <div className="h-full bg-amber-400" style={{ width: w(awaiting) }} />
       <div className="h-full bg-orange-400" style={{ width: w(withRiders) }} />
     </div>
   );
@@ -81,8 +80,8 @@ const STATUS = {
   planned: { label: "Assigned", cls: "bg-sky-50 text-sky-700", icon: Bike },
   assigned: { label: "Assigned", cls: "bg-sky-50 text-sky-700", icon: Bike },
   picked_up: { label: "On the way", cls: "bg-orange-50 text-orange-700", icon: Truck },
-  awaiting: { label: "Awaiting payment", cls: "bg-amber-50 text-amber-700", icon: Clock },
-  delivered: { label: "Delivered · paid", cls: "bg-emerald-50 text-emerald-700", icon: PackageCheck },
+  awaiting: { label: "Delivered · payment to verify", cls: "bg-amber-50 text-amber-700", icon: Clock },
+  delivered: { label: "Delivered · paid in", cls: "bg-emerald-50 text-emerald-700", icon: PackageCheck },
   failed: { label: "Not delivered", cls: "bg-rose-50 text-rose-700", icon: XCircle },
   paid: { label: "Paid", cls: "bg-emerald-50 text-emerald-700", icon: Wallet },
 };

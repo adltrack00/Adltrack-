@@ -20,8 +20,8 @@ export default function Vendor({ vendorId, go }) {
   const filters = [
     ["all", "All", () => true],
     ["out", "On the way", isActive],
-    ["awaiting", "Awaiting payment", isAwaitingPayment],
-    ["delivered", "Delivered & paid", (t) => statusOf(t) === "delivered"],
+    ["awaiting", "Payment to verify", isAwaitingPayment],
+    ["delivered", "Delivered", (t) => t.status === "delivered"],
   ];
   const shown = tasks.filter(filters.find((f) => f[0] === filter)[2]);
 
@@ -54,10 +54,10 @@ export default function Vendor({ vendorId, go }) {
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
           <Stat label="Given to company" value={num(s.received)} sub={money(s.receivedValue)} icon={Package} />
-          <Stat label="Delivered & paid" value={num(s.delivered)} sub={money(s.deliveredValue)} icon={PackageCheck} tone="green" />
+          <Stat label="Delivered" value={num(s.delivered)} sub={money(s.deliveredValue)} icon={PackageCheck} tone="green" />
           <Stat label="Left" value={num(s.left)} sub={money(s.leftValue)} icon={Boxes} tone="orange" />
           <Stat label="With riders now" value={num(s.withRiders)} sub={`${tasks.filter(isActive).length} deliveries out`} icon={Truck} tone="blue" />
-          <Stat label="Awaiting payment" value={num(s.awaiting)} sub={money(s.awaitingValue)} icon={Wallet} tone="amber" />
+          <Stat label="Payment to verify" value={num(s.awaiting)} sub={money(s.awaitingValue)} icon={Wallet} tone="amber" />
         </div>
 
         <Card>

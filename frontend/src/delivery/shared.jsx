@@ -35,10 +35,10 @@ export function ProductTable({ state, vendorId = null, showVendor = false }) {
                 <td className="px-3 py-3 text-right font-mono text-[12.5px] text-stone-600">{money(p.price)}</td>
                 <td className="px-3 py-3 text-right tabular-nums">{num(l.received)}</td>
                 <td className="px-3 py-3 text-right font-semibold tabular-nums text-emerald-600">{num(l.delivered)}</td>
-                <td className="px-3 py-3 text-right tabular-nums text-orange-600">{num(l.withRiders + l.awaiting)}</td>
+                <td className="px-3 py-3 text-right tabular-nums text-orange-600">{num(l.withRiders)}</td>
                 <td className="px-3 py-3 text-right font-semibold tabular-nums text-stone-900">{num(l.left)}</td>
                 <td className="px-3 py-3 text-right font-mono text-[12.5px] text-stone-700">{money(l.deliveredValue)}</td>
-                <td className="px-5 py-3"><LedgerBar received={l.received} delivered={l.delivered} withRiders={l.withRiders} awaiting={l.awaiting} /></td>
+                <td className="px-5 py-3"><LedgerBar received={l.received} delivered={l.delivered} withRiders={l.withRiders} /></td>
               </tr>
             );
           })}
@@ -51,8 +51,7 @@ export function ProductTable({ state, vendorId = null, showVendor = false }) {
 export function LedgerLegend() {
   return (
     <div className="flex flex-wrap items-center gap-3 text-[11.5px] text-stone-500">
-      <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Delivered &amp; paid</span>
-      <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-amber-400" /> Awaiting payment</span>
+      <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Delivered</span>
       <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-orange-400" /> With riders</span>
       <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-stone-200" /> In warehouse</span>
     </div>
@@ -64,7 +63,7 @@ const FEED_TEXT = {
   picked_up: (t, r) => `${r ? r.short : "Rider"} picked up ${t.ref} for ${t.customer}`,
   delivered: (t, r) => `${r ? r.short : "Rider"} delivered ${t.ref} to ${t.customer}`,
   failed: (t, r) => `${t.ref} to ${t.customer} could not be delivered`,
-  paid: (t) => `Payment confirmed for ${t.ref} · ${money(t.payment.amount)}`,
+  paid: (t) => `Payment verified for ${t.ref} · ${money(t.payment.amount)}`,
 };
 
 export function Feed({ state, vendorId = null, limit = 8 }) {
@@ -149,7 +148,7 @@ export function DeliveryCard({ state, task, actions = null, showVendor = true })
                 {task.payment && (
                   <li className="flex gap-3 text-stone-600">
                     <span className="w-16 font-mono text-[12px] text-stone-400">{task.payment.at ? clock(task.payment.at) : "—"}</span>
-                    {task.payment.confirmed ? `Payment confirmed · ${money(task.payment.amount)} by ${task.payment.method}` : `Payment by ${task.payment.method} not confirmed yet`}
+                    {task.payment.confirmed ? `Paid in and verified · ${money(task.payment.amount)} by ${task.payment.method}` : `Rider collected ${money(task.payment.amount)} by ${task.payment.method} · not yet verified in the company account`}
                   </li>
                 )}
               </ol>
@@ -177,6 +176,6 @@ export function DeliveryCard({ state, task, actions = null, showVendor = true })
 export function PaymentActions({ task, act }) {
   if (statusOf(task) !== "awaiting") return null;
   return (
-    <Btn size="sm" variant="green" onClick={() => act({ type: "task/confirmPayment", id: task.id })}><Wallet className="h-3.5 w-3.5" /> Confirm {money(task.payment.amount)} received</Btn>
+    <Btn size="sm" variant="green" onClick={() => act({ type: "task/confirmPayment", id: task.id })}><Wallet className="h-3.5 w-3.5" /> Verify {money(task.payment.amount)} paid in</Btn>
   );
 }

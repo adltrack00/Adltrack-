@@ -149,26 +149,31 @@ export function useWorkspace() {
 
 /* ---------- The ledger: the numbers every dashboard shows ---------- */
 
+// A unit counts as delivered once the rider confirms the delivery and the amount collected (ops manual, section 7).
+// Whether that money has reached the company account is checked separately (section 8).
+export const isDelivered = (t) => t.status === "delivered";
 export const isPaid = (t) => t.status === "delivered" && t.payment && t.payment.confirmed;
 export const isAwaitingPayment = (t) => t.status === "delivered" && !(t.payment && t.payment.confirmed);
 export const isActive = (t) => t.status === "assigned" || t.status === "picked_up";
 export const units = (t) => t.items.reduce((s, l) => s + l.qty, 0);
 export const value = (t) => t.items.reduce((s, l) => s + l.qty * (l.price || 0), 0);
 
-// Per product: received from the vendor, delivered and paid, with riders, awaiting payment, left, in the warehouse.
+// Per product: received from the vendor, delivered, with riders, left, in the warehouse, and delivered units whose payment is still to verify.
 export function productLedger(state, product) {
   const out = { received: product.received, delivered: 0, deliveredValue: 0, withRiders: 0, awaiting: 0, pendingOrders: 0 };
   for (const t of state.tasks) {
     for (const l of t.items) {
       if (l.productId !== product.id) continue;
-      if (isPaid(t)) { out.delivered += l.qty; out.deliveredValue += l.qty * (l.price || product.price); }
-      else if (isAwaitingPayment(t)) out.awaiting += l.qty;
-      else if (isActive(t)) out.withRiders += l.qty;
+      if (isDelivered(t)) {
+        out.delivered += l.qty;
+        out.deliveredValue += l.qty * (l.price || product.price);
+        if (isAwaitingPayment(t)) out.awaiting += l.qty;
+      } else if (isActive(t)) out.withRiders += l.qty;
     }
   }
   for (const o of state.orders) if (o.status === "open") for (const l of o.items) if (l.productId === product.id) out.pendingOrders += l.qty;
   out.left = out.received - out.delivered;
-  out.inWarehouse = Math.max(0, out.left - out.withRiders - out.awaiting);
+  out.inWarehouse = Math.max(0, out.left - out.withRiders);
   out.receivedValue = out.received * product.price;
   out.leftValue = out.left * product.price;
   return out;
@@ -192,7 +197,7 @@ export function riderLoad(state, riderId, date = todayISO()) {
     units: today.filter((t) => t.status !== "failed").reduce((s, t) => s + units(t), 0),
     open: today.filter(isActive).length,
     done: today.filter((t) => t.status === "delivered").length,
-    collected: today.filter(isPaid).reduce((s, t) => s + (t.payment.amount || 0), 0),
+    collected: today.filter(isDelivered).reduce((s, t) => s + ((t.payment && t.payment.amount) || 0), 0),
   };
 }
 

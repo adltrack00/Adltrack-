@@ -40,7 +40,7 @@ export default function Home({ go }) {
           <div className="flex items-center justify-between"><Tag>Today, live</Tag><LiveDot /></div>
           <div className="mt-4 grid grid-cols-3 gap-3">
             <div><div className="text-[28px] font-extrabold tracking-tight">{num(t.received)}</div><div className="text-[12px] text-stone-500">units from vendors</div></div>
-            <div><div className="text-[28px] font-extrabold tracking-tight text-emerald-600">{num(t.delivered)}</div><div className="text-[12px] text-stone-500">delivered &amp; paid</div></div>
+            <div><div className="text-[28px] font-extrabold tracking-tight text-emerald-600">{num(t.delivered)}</div><div className="text-[12px] text-stone-500">delivered</div></div>
             <div><div className="text-[28px] font-extrabold tracking-tight text-orange-500">{num(t.left)}</div><div className="text-[12px] text-stone-500">left</div></div>
           </div>
           <div className="mt-5 space-y-3 rounded-2xl bg-stone-50 p-4">
@@ -67,7 +67,7 @@ export default function Home({ go }) {
           <Card className="flex flex-col p-6">
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-100 text-violet-700"><Building2 className="h-5 w-5" /></span>
             <div className="mt-4 text-[18px] font-bold tracking-tight">Vendor portal</div>
-            <p className="mt-1 flex-1 text-[14px] leading-relaxed text-stone-500">Vendors see what they gave, what's delivered and paid, what's left, and the photo of every drop.</p>
+            <p className="mt-1 flex-1 text-[14px] leading-relaxed text-stone-500">Vendors see what they gave, what's delivered, what's left, and the photo of every drop.</p>
             <div className="mt-5 flex gap-2">
               <select value={vendorId} onChange={(e) => setVendorId(e.target.value)} className="h-10 min-w-0 flex-1 rounded-full border border-stone-200 bg-white px-3 text-[13px] font-medium">{state.vendors.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}</select>
               <Btn onClick={() => go(`#/vendor/${vendorId}`)}>Open</Btn>

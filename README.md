@@ -3,8 +3,9 @@
 One live ledger for a delivery company, its vendors and its bike riders, with **ADA**, the AI dispatch assistant.
 
 Vendors hand the company products, each with an exact unit price. The company gives each rider a daily allocation of
-units and a list of customers. When a rider delivers, takes a photo at the door and the payment is confirmed, the units
+units and a list of customers. When a rider confirms a delivery with a photo at the door and the amount collected, the units
 move from **left** to **delivered**, and the company, the vendor and the rider all see it at the same moment.
+Whether the money the rider collected has reached the company account is checked separately.
 
 The company doesn't type any of that up. It tells ADA what came in ("GlowSkin dropped 40 serums at ₦12,500 each.
 Dispatch today's orders.") and ADA adds the stock, matches the open orders, assigns riders by area and remaining
@@ -24,10 +25,10 @@ Open them in separate tabs: a change in one shows in the others straight away.
 ### How the numbers work (`frontend/src/delivery/store.js`)
 
 - **Received**: everything a vendor handed over (`intake`).
-- **Delivered**: units on deliveries that are delivered *and* paid. Only then do they leave "left".
-- **Awaiting payment**: delivered, but the transfer isn't confirmed yet. The office confirms it with one tap.
+- **Delivered**: units on deliveries the rider has confirmed (photo, who received it, amount collected). Only then do they leave "left".
+- **Payment to verify**: delivered, but the money isn't verified in the company account yet. The office verifies it with one tap. This is money tracking; it doesn't hold units back.
 - **With riders**: units on deliveries that are assigned or picked up.
-- **Left** = received − delivered. **In warehouse** = left − with riders − awaiting payment.
+- **Left** = received − delivered. **In warehouse** = left − with riders.
 - A delivery that fails goes back to the warehouse count.
 
 ## ADA
