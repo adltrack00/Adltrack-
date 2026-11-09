@@ -239,7 +239,7 @@ async function askServer(state, turns) {
 
 /* ---------- From a draft in names to a plan the store can save ---------- */
 
-function zoneOf(address, fallback = "") {
+export function zoneOf(address, fallback = "") {
   const a = clean(address);
   const zones = ["Ikeja", "Yaba", "Lekki", "Surulere", "Victoria Island", "Ajah", "Ikoyi", "Maryland", "Gbagada", "Apapa"];
   return zones.find((z) => a.includes(clean(z))) || (/\bvi\b/.test(a) ? "Victoria Island" : fallback);
@@ -276,7 +276,7 @@ export function resolve(state, draft) {
   };
 
   const addDelivery = (d, vendorId, lines) => {
-    const need = lines.reduce((s, l) => s + l.qty, 0);
+    const need = lines.reduce((s, l) => s + l.qty + (l.free || 0), 0);
     const named = d.rider ? findRider(state, d.rider) : null;
     const zone = d.zone || zoneOf(d.address);
     const rider = pickRider(zone, need, named);
@@ -285,8 +285,9 @@ export function resolve(state, draft) {
     room[rider.id] -= need;
     const price = (id) => (state.products.find((p) => p.id === id) || {}).price || 0;
     deliveries.push({
-      riderId: rider.id, vendorId, customer: d.customer, phone: d.phone || "", address: d.address || "", zone, time: d.time || "", note: d.note || "", orderId: d.orderId || null,
-      items: lines, units: need, value: lines.reduce((s, l) => s + l.qty * price(l.productId), 0),
+      riderId: rider.id, vendorId, customer: d.customer, phone: d.phone || "", altPhone: d.altPhone || "", address: d.address || "", landmark: d.landmark || "", zone, time: d.time || "", note: d.note || "", orderId: d.orderId || null,
+      urgent: !!d.urgent, due: d.due || d.time || "", amount: d.amount ? Number(d.amount) : null,
+      items: lines, units: need, value: d.amount ? Number(d.amount) : lines.reduce((s, l) => s + l.qty * price(l.productId), 0),
     });
   };
 
@@ -308,18 +309,23 @@ export function resolve(state, draft) {
 
   // Open orders from vendors, earliest window first, as far as the stock goes.
   if (draft.dispatchOrders) {
-    const open = state.orders.filter((o) => o.status === "open").sort((a, b) => (a.start < b.start ? -1 : 1));
+    // Urgent orders first, then the earliest window.
+    const open = state.orders.filter((o) => o.status === "open").sort((a, b) => (Number(!!b.urgent) - Number(!!a.urgent)) || ((a.start || "99") < (b.start || "99") ? -1 : 1));
+    const toFix = state.orders.filter((o) => o.status === "needs_fix").length;
+    if (toFix) warnings.push(`${toFix} ${toFix === 1 ? "order needs" : "orders need"} fixing first (missing address, phone or amount), so I left ${toFix === 1 ? "it" : "them"} out.`);
     if (!open.length) warnings.push("There are no open orders waiting for a rider.");
     for (const o of open) {
-      const short = o.items.find((l) => (free[l.productId] || 0) < l.qty);
+      const short = o.items.find((l) => (free[l.productId] || 0) < l.qty + (l.free || 0));
       if (short) {
         const p = state.products.find((x) => x.id === short.productId);
         warnings.push(`${o.id} (${o.customer}) stays open: it needs ${short.qty} ${p ? p.name : "units"} and only ${free[short.productId] || 0} are in the warehouse.`);
         continue;
       }
-      o.items.forEach((l) => { free[l.productId] -= l.qty; });
-      addDelivery({ customer: o.customer, phone: o.phone, address: o.address, zone: o.zone, time: o.start, note: [o.end ? `Window ${time12(o.start)}–${time12(o.end)}` : "", o.note].filter(Boolean).join(". "), orderId: o.id },
-        o.vendorId, o.items.map((l) => ({ productId: l.productId, qty: l.qty, name: (state.products.find((p) => p.id === l.productId) || {}).name })));
+      o.items.forEach((l) => { free[l.productId] -= l.qty + (l.free || 0); });
+      const win = o.start && o.end ? `Window ${time12(o.start)}–${time12(o.end)}` : o.end ? `By ${time12(o.end)}` : "";
+      addDelivery({ customer: o.customer, phone: o.phone, altPhone: o.altPhone, address: o.address, landmark: o.landmark, zone: o.zone, time: o.start || o.end || "", due: o.end || o.start || "", urgent: o.urgent, amount: o.amount,
+        note: [win, o.note].filter(Boolean).join(". "), orderId: o.id },
+        o.vendorId, o.items.map((l) => ({ productId: l.productId, qty: l.qty, free: l.free || 0, name: (state.products.find((p) => p.id === l.productId) || {}).name })));
     }
   }
 
@@ -335,8 +341,8 @@ export function resolve(state, draft) {
   for (const [riderId, list] of Object.entries(byRider)) {
     const r = state.riders.find((x) => x.id === riderId);
     const lines = list
-      .sort((a, b) => (a.time < b.time ? -1 : 1))
-      .map((d, n) => `${n + 1}) ${d.customer}${d.address ? `, ${d.address}` : ""}: ${d.items.map((l) => `${l.qty} ${l.name}`).join(", ")}${d.time ? ` by ${time12(d.time)}` : ""}. Collect ${money(d.value)}.`);
+      .sort((a, b) => (Number(!!b.urgent) - Number(!!a.urgent)) || (a.time < b.time ? -1 : 1))
+      .map((d, n) => `${n + 1}) ${d.urgent ? "URGENT " : ""}${d.customer}${d.address ? `, ${d.address}` : ""}: ${d.items.map((l) => (l.qty ? `${l.qty} ${l.name}${l.free ? ` + ${l.free} free` : ""}` : `${l.free} free ${l.name}`)).join(", ")}${d.time ? ` by ${time12(d.time)}` : ""}. Collect ${money(d.value)}.`);
     const unitsN = list.reduce((s, d) => s + d.units, 0);
     messages.push({ riderId, from: "ada", text: `Hi ${r.short}, ADA here. ${list.length} new ${list.length === 1 ? "drop" : "drops"} for you today (${unitsN} ${unitsN === 1 ? "unit" : "units"}). Pick up at the warehouse.\n${lines.join("\n")}\nSnap a photo at each door and confirm payment in the app.` });
   }

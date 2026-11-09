@@ -77,6 +77,8 @@ export function Avatar({ name, color = "#a8a29e", size = 36, className }) {
 
 const STATUS = {
   open: { label: "Waiting for rider", cls: "bg-stone-100 text-stone-600", icon: CircleDashed },
+  needs_fix: { label: "Needs a fix", cls: "bg-rose-50 text-rose-700", icon: XCircle },
+  cancelled: { label: "Cancelled", cls: "bg-stone-100 text-stone-400", icon: XCircle },
   planned: { label: "Assigned", cls: "bg-sky-50 text-sky-700", icon: Bike },
   assigned: { label: "Assigned", cls: "bg-sky-50 text-sky-700", icon: Bike },
   picked_up: { label: "On the way", cls: "bg-orange-50 text-orange-700", icon: Truck },

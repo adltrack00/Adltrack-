@@ -1,8 +1,9 @@
-// The rider app, phone-first: go on duty, see today's drops, pick up, deliver with a doorstep photo and confirm payment.
+// The rider app, phone-first and one thing at a time: collect everything at the office, then only the next drop is
+// shown in full, with Call, Navigate and one big button. Delivered = a photo and what was collected.
 import React, { useEffect, useRef, useState } from "react";
-import { Camera, Check, ChevronDown, Clock, Home, Inbox, LogOut, MapPin, MessageSquare, Navigation, Phone, Power, Send, Wallet, X } from "lucide-react";
-import { isActive, productById, riderLoad, useWorkspace, value as taskValue } from "./store";
-import { AdaMark, Avatar, Bar, Btn, Empty, Field, inputCls, Modal, StatusPill, statusOf, Tag } from "./ui";
+import { Camera, Check, Clock, Home, Inbox, LogOut, MapPin, MessageSquare, Navigation, Phone, Power, Send, X } from "lucide-react";
+import { isActive, productById, riderLoad, units as taskUnits, useWorkspace, value as taskValue, lineLabel } from "./store";
+import { AdaMark, Avatar, Bar, Btn, Empty, inputCls, Modal, StatusPill, statusOf, Tag } from "./ui";
 import { clock, money, shrinkPhoto, time12 } from "./utils";
 
 export default function Rider({ riderId, go }) {
@@ -14,8 +15,17 @@ export default function Rider({ riderId, go }) {
   const load = riderLoad(state, rider.id);
   const msgs = state.messages.filter((m) => m.riderId === rider.id);
   const unread = msgs.filter((m) => m.from !== "rider" && !m.read).length;
-  const open = load.tasks.filter(isActive).sort((a, b) => (a.time < b.time ? -1 : 1));
+  // One list in the order to ride it: urgent first, then by time. Only the first is shown in full.
+  const open = load.tasks.filter(isActive).sort((a, b) => (Number(!!b.urgent) - Number(!!a.urgent)) || ((a.time || "99") < (b.time || "99") ? -1 : 1));
   const done = load.tasks.filter((t) => !isActive(t));
+  const toCollect = open.filter((t) => t.status === "assigned");
+  const collectUnits = toCollect.reduce((s, t) => s + taskUnits(t), 0);
+  const collectList = Object.entries(toCollect.reduce((m, t) => {
+    for (const l of t.items) { const name = (productById(state, l.productId) || {}).name || "Item"; m[name] = (m[name] || 0) + l.qty + (l.free || 0); }
+    return m;
+  }, {}));
+  const next = open.find((t) => t.status === "picked_up") || open[0];
+  const later = open.filter((t) => t !== next);
 
   useEffect(() => { if (tab === "inbox" && unread) act({ type: "messages/read", riderId: rider.id }); }, [tab, unread, act, rider.id]);
 
@@ -45,27 +55,49 @@ export default function Rider({ riderId, go }) {
             </div>
           ) : tab === "drops" ? (
             <>
-              <div className="rounded-3xl bg-stone-900 p-5 text-white">
-                <div className="flex items-center justify-between"><Tag className="text-stone-400">Today</Tag><span className="text-[12px] text-stone-400">{rider.zone}</span></div>
-                <div className="mt-3 flex items-end justify-between">
-                  <div><div className="text-[34px] font-extrabold leading-none tracking-tight">{load.done}<span className="text-stone-500">/{load.tasks.length}</span></div><div className="mt-1 text-[12.5px] text-stone-400">drops done</div></div>
-                  <div className="text-right"><div className="font-mono text-[18px] font-bold">{money(load.collected)}</div><div className="mt-1 text-[12.5px] text-stone-400">collected</div></div>
-                </div>
-                <div className="mt-4 flex items-center justify-between text-[12px] text-stone-400"><span>Units given today</span><span className="tabular-nums text-white">{load.units} of {rider.dailyUnits}</span></div>
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-orange-400" style={{ width: `${Math.min(100, (load.units / rider.dailyUnits) * 100)}%` }} /></div>
+              <div className="flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-[12.5px] text-stone-500">
+                <span><b className="text-[15px] text-stone-900">{load.done}</b>/{load.tasks.length} done</span>
+                <span className="h-4 w-px bg-stone-200" />
+                <span><b className="font-mono text-[14px] text-stone-900">{money(load.collected)}</b> collected</span>
+                <span className="ml-auto tabular-nums">{load.units}/{rider.dailyUnits} units</span>
               </div>
 
-              <div className="mt-6 flex items-center justify-between"><h2 className="text-[16px] font-bold text-stone-900">Up next</h2><span className="text-[12.5px] text-stone-500">{open.length} to go</span></div>
-              <div className="mt-3 space-y-3">
-                {open.length ? open.map((t, i) => <DropCard key={t.id} task={t} first={i === 0} state={state} act={act} onDeliver={() => setDelivering(t)} onFail={() => setFailing(t)} />) : (
-                  <div className="rounded-3xl bg-white"><Empty icon={Check} title="All done for now" sub="New drops from the dispatcher or ADA appear here and in your inbox." /></div>
-                )}
-              </div>
+              {!!toCollect.length && (
+                <div className="mt-4 rounded-3xl bg-stone-900 p-5 text-white">
+                  <Tag className="text-orange-300">Step 1 · At the office</Tag>
+                  <div className="mt-2 text-[20px] font-extrabold leading-tight tracking-tight">Collect {collectUnits} {collectUnits === 1 ? "unit" : "units"} for {toCollect.length} {toCollect.length === 1 ? "drop" : "drops"}</div>
+                  <div className="mt-3 space-y-1 text-[13.5px] text-stone-300">
+                    {collectList.map(([name, n]) => <div key={name} className="flex justify-between"><span>{name}</span><span className="font-mono text-white">× {n}</span></div>)}
+                  </div>
+                  <Btn size="lg" variant="orange" className="mt-4 w-full" onClick={() => act({ type: "task/pickupAll", ids: toCollect.map((t) => t.id) })}><Check className="h-4 w-4" /> I have them all</Btn>
+                </div>
+              )}
+
+              {next ? (
+                <NextDrop task={next} state={state} act={act} locked={next.status === "assigned"} onDeliver={() => setDelivering(next)} onFail={() => setFailing(next)} />
+              ) : (
+                <div className="mt-4 rounded-3xl bg-white"><Empty icon={Check} title="All done for now" sub="New drops from the office show up here and in your inbox." /></div>
+              )}
+
+              {later.length > 0 && (
+                <div className="mt-6">
+                  <div className="text-[13px] font-semibold text-stone-500">Then {later.length} more</div>
+                  <div className="mt-2 divide-y divide-stone-100 overflow-hidden rounded-2xl bg-white">
+                    {later.map((t, i) => (
+                      <div key={t.id} className="flex items-center gap-3 px-4 py-3">
+                        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-stone-100 font-mono text-[11px] font-semibold text-stone-600">{i + 2}</span>
+                        <div className="min-w-0 flex-1"><div className="truncate text-[14px] font-semibold text-stone-900">{t.urgent ? "🔥 " : ""}{t.customer}</div><div className="truncate text-[12px] text-stone-500">{t.zone || t.address} · {t.time ? time12(t.time) : "Today"}</div></div>
+                        <span className="font-mono text-[12.5px] text-stone-600">{money(taskValue(t))}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {!!done.length && (
-                <>
-                  <h2 className="mt-7 text-[16px] font-bold text-stone-900">Completed</h2>
-                  <div className="mt-3 space-y-2">
+                <details className="mt-6">
+                  <summary className="cursor-pointer select-none text-[13px] font-semibold text-stone-500">Done today ({done.length})</summary>
+                  <div className="mt-2 space-y-2">
                     {done.map((t) => (
                       <div key={t.id} className="flex items-center gap-3 rounded-2xl bg-white p-3">
                         {t.proof && t.proof.photo ? <img src={t.proof.photo} alt="" className="h-11 w-11 rounded-xl object-cover" /> : <span className="grid h-11 w-11 place-items-center rounded-xl bg-stone-100"><X className="h-4 w-4 text-stone-400" /></span>}
@@ -74,7 +106,7 @@ export default function Rider({ riderId, go }) {
                       </div>
                     ))}
                   </div>
-                </>
+                </details>
               )}
             </>
           ) : (
@@ -92,99 +124,92 @@ export default function Rider({ riderId, go }) {
           <button onClick={() => go("#/")} className="flex flex-1 flex-col items-center gap-0.5 rounded-2xl py-2 text-[11.5px] font-semibold text-stone-500"><LogOut className="h-5 w-5" /> Exit</button>
         </nav>
       </div>
-      <DeliverSheet task={delivering} onClose={() => setDelivering(null)} act={act} state={state} />
+      <DeliverSheet task={delivering} onClose={() => setDelivering(null)} act={act} />
       <FailSheet task={failing} onClose={() => setFailing(null)} act={act} />
     </div>
   );
 }
 
-function DropCard({ task, first, state, act, onDeliver, onFail }) {
-  const [open, setOpen] = useState(first);
+// The one drop the rider is doing now: where, who, what to collect, and one big button.
+function NextDrop({ task, state, act, locked, onDeliver, onFail }) {
   const amount = taskValue(task);
+  const where = [task.address, task.landmark].filter(Boolean).join(" · ");
   return (
-    <div className={`overflow-hidden rounded-3xl bg-white ${first ? "ring-2 ring-orange-400/60" : ""}`}>
-      <button onClick={() => setOpen(!open)} className="flex w-full items-start gap-3 p-4 text-left">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2"><span className="font-mono text-[11px] text-stone-400">{task.ref}</span><StatusPill status={task.status} /></div>
-          <div className="mt-1.5 text-[17px] font-bold leading-tight tracking-tight text-stone-900">{task.customer}</div>
-          <div className="mt-1 flex items-center gap-3 text-[13px] text-stone-500">
-            <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {task.time ? time12(task.time) : "Today"}</span>
-            <span className="font-mono font-semibold text-stone-800">{money(amount)}</span>
-          </div>
+    <div className={`mt-4 overflow-hidden rounded-3xl bg-white ring-2 ${locked ? "ring-stone-200" : "ring-orange-400/70"}`}>
+      <div className="p-5">
+        <div className="flex items-center gap-2">
+          <Tag className={locked ? "text-stone-400" : "text-orange-600"}>{locked ? "Step 2 · First drop" : "Now"}</Tag>
+          {task.urgent && <span className="rounded-full bg-orange-500 px-2 py-0.5 text-[10.5px] font-bold text-white">URGENT</span>}
+          <span className="ml-auto flex items-center gap-1 text-[13px] font-semibold text-stone-600"><Clock className="h-3.5 w-3.5" /> {task.time ? time12(task.time) : "Today"}</span>
         </div>
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-stone-100"><ChevronDown className={`h-4 w-4 text-stone-500 transition ${open ? "rotate-180" : ""}`} /></span>
-      </button>
-      {open && (
-        <div className="space-y-3 border-t border-stone-100 px-4 pb-4 pt-3">
-          <div className="flex items-start gap-2 text-[13.5px] text-stone-700"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-stone-400" /> {task.address}</div>
-          {task.note && <div className="rounded-xl bg-orange-50 px-3 py-2 text-[13px] text-orange-800">{task.note}</div>}
-          <div className="rounded-2xl bg-stone-50 p-3">
-            {task.items.map((l, i) => {
-              const p = productById(state, l.productId) || {};
-              return <div key={i} className="flex justify-between py-0.5 text-[13.5px]"><span>{l.qty} × {p.name}</span><span className="font-mono text-stone-500">{money(l.qty * l.price)}</span></div>;
-            })}
-            <div className="mt-1.5 flex justify-between border-t border-stone-200 pt-1.5 text-[13.5px] font-bold"><span>Collect</span><span className="font-mono">{money(amount)}</span></div>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {task.phone && <a href={`tel:${task.phone.replace(/\s/g, "")}`} className="flex h-11 items-center justify-center gap-1.5 rounded-full bg-stone-100 text-[13.5px] font-semibold text-stone-800"><Phone className="h-4 w-4" /> Call</a>}
-            <a href={`https://maps.google.com/?q=${encodeURIComponent(task.address)}`} target="_blank" rel="noreferrer" className="flex h-11 items-center justify-center gap-1.5 rounded-full bg-stone-100 text-[13.5px] font-semibold text-stone-800"><Navigation className="h-4 w-4" /> Directions</a>
-          </div>
-          {task.status === "assigned" ? (
-            <Btn size="lg" className="w-full" onClick={() => act({ type: "task/pickup", id: task.id })}>Picked up from warehouse</Btn>
-          ) : (
-            <Btn size="lg" variant="orange" className="w-full" onClick={onDeliver}><Camera className="h-4 w-4" /> Delivered · take photo</Btn>
-          )}
-          <button onClick={onFail} className="w-full py-1 text-[13px] font-medium text-stone-500 underline-offset-2 hover:underline">Couldn't deliver</button>
+        <div className="mt-3 text-[24px] font-extrabold leading-tight tracking-tight text-stone-900">{task.customer}</div>
+        <div className="mt-1.5 flex items-start gap-1.5 text-[15px] leading-snug text-stone-700"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-orange-500" /> {where}</div>
+        {task.note && <div className="mt-3 rounded-xl bg-orange-50 px-3 py-2 text-[13px] leading-snug text-orange-800">{task.note}</div>}
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <a href={task.phone ? `tel:${task.phone.replace(/\s/g, "")}` : undefined} className={`flex h-14 items-center justify-center gap-2 rounded-2xl text-[15px] font-bold ${task.phone ? "bg-emerald-50 text-emerald-700" : "bg-stone-100 text-stone-400"}`}><Phone className="h-5 w-5" /> Call</a>
+          <a href={`https://maps.google.com/?q=${encodeURIComponent(task.address)}`} target="_blank" rel="noreferrer" className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-sky-50 text-[15px] font-bold text-sky-700"><Navigation className="h-5 w-5" /> Navigate</a>
         </div>
-      )}
+        <div className="mt-4 flex items-end justify-between rounded-2xl bg-stone-50 px-4 py-3">
+          <div className="text-[13px] leading-relaxed text-stone-600">
+            {task.items.map((l, i) => <div key={i}>{lineLabel(state, l)}</div>)}
+          </div>
+          <div className="text-right"><div className="text-[11px] font-semibold uppercase tracking-wide text-stone-400">Collect</div><div className="font-mono text-[22px] font-extrabold text-stone-900">{money(amount)}</div></div>
+        </div>
+      </div>
+      <div className="border-t border-stone-100 p-4">
+        {locked ? (
+          <Btn size="lg" variant="soft" className="h-14 w-full text-[16px]" onClick={() => act({ type: "task/pickup", id: task.id })}>Picked up just this one</Btn>
+        ) : (
+          <Btn size="lg" variant="orange" className="h-14 w-full text-[16px]" onClick={onDeliver}><Camera className="h-5 w-5" /> Delivered</Btn>
+        )}
+        <button onClick={onFail} className="mt-2 w-full py-1.5 text-[13px] font-medium text-stone-500">Couldn't deliver</button>
+      </div>
     </div>
   );
 }
 
-function DeliverSheet({ task, onClose, act, state }) {
+function DeliverSheet({ task, onClose, act }) {
   const [photo, setPhoto] = useState(null);
   const [receivedBy, setReceivedBy] = useState("");
   const [method, setMethod] = useState("cash");
   const [amount, setAmount] = useState(0);
-  const [paid, setPaid] = useState(true);
+  const [changeAmount, setChangeAmount] = useState(false);
   const file = useRef(null);
   useEffect(() => {
-    if (task) { setPhoto(null); setReceivedBy(""); setMethod("cash"); setAmount(taskValue(task)); setPaid(true); }
+    if (task) { setPhoto(null); setReceivedBy(""); setMethod("cash"); setAmount(taskValue(task)); setChangeAmount(false); }
   }, [task]);
   if (!task) return null;
   const pick = async (e) => { const f = e.target.files && e.target.files[0]; if (f) setPhoto(await shrinkPhoto(f)); };
+  const unpaid = method === "unpaid";
   const save = () => {
-    act({ type: "task/deliver", id: task.id, photo, receivedBy, method, amount, confirmed: paid });
+    act({ type: "task/deliver", id: task.id, photo, receivedBy, method: unpaid ? "unpaid" : method, amount: unpaid ? 0 : amount, confirmed: !unpaid, note: unpaid ? `Not paid at the door. Owes ${money(taskValue(task))}.` : "" });
     onClose();
   };
   return (
-    <Modal open={!!task} onClose={onClose} title={`Deliver to ${task.customer}`}>
+    <Modal open={!!task} onClose={onClose} title={`Delivered to ${task.customer}`}>
       <div className="grid gap-4">
+        <input ref={file} type="file" accept="image/*" capture="environment" className="hidden" onChange={pick} />
+        <button onClick={() => file.current.click()} className={`grid w-full place-items-center overflow-hidden rounded-2xl ${photo ? "aspect-[4/3]" : "h-36 border-2 border-dashed border-orange-300 bg-orange-50 text-orange-700"}`}>
+          {photo ? <img src={photo} alt="Proof of delivery" className="h-full w-full object-cover" /> : <span className="flex flex-col items-center gap-1.5 text-[14px] font-semibold"><Camera className="h-8 w-8" /> Take a photo at the door</span>}
+        </button>
         <div>
-          <Tag>1 · Photo at the door</Tag>
-          <input ref={file} type="file" accept="image/*" capture="environment" className="hidden" onChange={pick} />
-          <button onClick={() => file.current.click()} className="mt-2 grid aspect-[4/3] w-full place-items-center overflow-hidden rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 text-stone-500">
-            {photo ? <img src={photo} alt="Proof of delivery" className="h-full w-full object-cover" /> : <span className="flex flex-col items-center gap-1 text-[13px]"><Camera className="h-7 w-7" /> Take a photo of the package with the customer</span>}
-          </button>
-        </div>
-        <Field label="Received by"><input value={receivedBy} onChange={(e) => setReceivedBy(e.target.value)} placeholder={task.customer} className={inputCls} /></Field>
-        <div>
-          <Tag>2 · Payment</Tag>
-          <div className="mt-2 grid grid-cols-3 gap-2">
-            {[["cash", "Cash"], ["transfer", "Transfer"], ["pos", "POS"]].map(([id, label]) => (
-              <button key={id} onClick={() => setMethod(id)} className={`h-10 rounded-xl text-[13.5px] font-semibold ${method === id ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-700"}`}>{label}</button>
+          <div className="flex items-baseline justify-between">
+            <span className="text-[13px] font-semibold text-stone-600">{unpaid ? "Customer still owes" : "You collected"}</span>
+            <span className="font-mono text-[24px] font-extrabold text-stone-900">{money(unpaid ? taskValue(task) : amount)}</span>
+          </div>
+          <div className="mt-2 grid grid-cols-4 gap-1.5">
+            {[["cash", "Cash"], ["transfer", "Transfer"], ["pos", "POS"], ["unpaid", "Not paid"]].map(([id, label]) => (
+              <button key={id} onClick={() => setMethod(id)} className={`h-11 rounded-xl text-[13px] font-semibold ${method === id ? (id === "unpaid" ? "bg-rose-600 text-white" : "bg-stone-900 text-white") : "bg-stone-100 text-stone-700"}`}>{label}</button>
             ))}
           </div>
-          <div className="mt-3 grid grid-cols-[1fr_auto] items-end gap-3">
-            <Field label="Amount (₦)"><input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className={inputCls} /></Field>
-            <label className="flex h-10 items-center gap-2 rounded-xl bg-emerald-50 px-3 text-[13px] font-semibold text-emerald-800">
-              <input type="checkbox" checked={paid} onChange={(e) => setPaid(e.target.checked)} className="h-4 w-4 accent-emerald-600" /> Payment received
-            </label>
-          </div>
-          {!paid && <div className="mt-2 text-[12.5px] text-amber-700">The delivery still counts. The office verifies the money once it reaches the company account.</div>}
+          {!unpaid && (changeAmount
+            ? <input type="number" autoFocus value={amount} onChange={(e) => setAmount(e.target.value)} className={`${inputCls} mt-2`} aria-label="Amount collected" />
+            : <button onClick={() => setChangeAmount(true)} className="mt-2 text-[12.5px] font-medium text-stone-500 underline-offset-2 hover:underline">Customer paid a different amount?</button>)}
+          {unpaid && <div className="mt-2 text-[12.5px] text-rose-700">The delivery still counts. The office follows up the payment.</div>}
         </div>
-        <Btn size="lg" variant="green" disabled={!photo} onClick={save}><Wallet className="h-4 w-4" /> Confirm delivery</Btn>
-        {!photo && <div className="-mt-2 text-center text-[12px] text-stone-400">A photo is needed to confirm.</div>}
+        <input value={receivedBy} onChange={(e) => setReceivedBy(e.target.value)} placeholder={`Received by (${task.customer})`} className={inputCls} />
+        <Btn size="lg" variant="green" className="h-14 text-[16px]" disabled={!photo} onClick={save}><Check className="h-5 w-5" /> Confirm</Btn>
+        {!photo && <div className="-mt-2 text-center text-[12px] text-stone-400">Take the photo first.</div>}
       </div>
     </Modal>
   );

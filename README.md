@@ -16,9 +16,9 @@ allocation, works out what each rider collects and drafts their messages. Nothin
 
 | Dashboard | URL | What it shows |
 | --- | --- | --- |
-| Company | `#/company` | Vendors, riders, units received / delivered & paid / left / with riders / awaiting payment, live activity with photos, deliveries, open orders, stock received, rider messages, ADA |
-| Vendor portal | `#/vendor/<vendor id>` | The vendor's own products and money, every delivery with time, rider, photo and payment, and a form to request deliveries |
-| Rider app | `#/rider/<rider id>` | On/off duty, today's drops in order, allocation used, call and directions, photo + payment to confirm a drop, "couldn't deliver" reasons, inbox from dispatch and ADA |
+| Company | `#/company` | Opens on **Needs you**: paste WhatsApp orders, orders to fix, orders ready for a rider, failed drops to resend, payments to verify, late drops, low stock. Then overview, deliveries, stock, riders, messages and ADA |
+| Vendor portal | `#/vendor/<vendor id>` | The vendor's own products and money, every delivery with time, rider, photo and payment, and paste-from-WhatsApp (or a form) to request deliveries |
+| Rider app | `#/rider/<rider id>` | One thing at a time: collect everything at the office in one tap, then only the next drop in full (who, where, landmark, what to collect, Call, Navigate, Delivered). A photo and the amount confirm it |
 
 Open them in separate tabs: a change in one shows in the others straight away.
 
@@ -30,6 +30,15 @@ Open them in separate tabs: a change in one shows in the others straight away.
 - **With riders**: units on deliveries that are assigned or picked up.
 - **Left** = received − delivered. **In warehouse** = left − with riders.
 - A delivery that fails goes back to the warehouse count.
+
+## WhatsApp orders (`frontend/src/delivery/intake.js`)
+
+Vendors send orders as WhatsApp messages in many layouts: labelled lines, one line with commas, numbered lists, several
+orders at once. Paste the message on "Needs you", in the vendor portal or straight into ADA. Each order is read
+(name, phone and a second phone, address, landmark, products with free units, amount to collect, urgent, date and
+window) and checked. Nothing is guessed: a missing phone, an address that is really a phone number, an unknown product
+or a missing amount keeps the order aside under "Orders to fix" until someone corrects it. A repeat order, a price
+different from the list price, or not enough stock is shown as something to check.
 
 ## ADA
 

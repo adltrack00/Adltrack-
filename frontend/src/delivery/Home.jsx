@@ -61,7 +61,7 @@ export default function Home({ go }) {
           <Card className="flex flex-col p-6">
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-stone-900 text-white"><LayoutGrid className="h-5 w-5" /></span>
             <div className="mt-4 text-[18px] font-bold tracking-tight">Company</div>
-            <p className="mt-1 flex-1 text-[14px] leading-relaxed text-stone-500">All vendors and riders, stock in and out, payments to confirm, and ADA to do the dispatching.</p>
+            <p className="mt-1 flex-1 text-[14px] leading-relaxed text-stone-500">Opens on "Needs you": only the orders, failed drops and payments someone has to act on. ADA does the dispatching.</p>
             <Btn className="mt-5 w-full" onClick={() => go("#/company")}>Open</Btn>
           </Card>
           <Card className="flex flex-col p-6">
@@ -76,7 +76,7 @@ export default function Home({ go }) {
           <Card className="flex flex-col p-6">
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-orange-100 text-orange-700"><Bike className="h-5 w-5" /></span>
             <div className="mt-4 text-[18px] font-bold tracking-tight">Rider app</div>
-            <p className="mt-1 flex-1 text-[14px] leading-relaxed text-stone-500">Today's drops in order, call and directions, a photo at the door and payment in two taps.</p>
+            <p className="mt-1 flex-1 text-[14px] leading-relaxed text-stone-500">One drop at a time: who, where, what to collect. Call, Navigate, then a photo and Confirm.</p>
             <div className="mt-5 flex gap-2">
               <select value={riderId} onChange={(e) => setRiderId(e.target.value)} className="h-10 min-w-0 flex-1 rounded-full border border-stone-200 bg-white px-3 text-[13px] font-medium">{state.riders.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}</select>
               <Btn onClick={() => go(`#/rider/${riderId}`)}>Open</Btn>
@@ -92,7 +92,7 @@ export default function Home({ go }) {
           <ol className="mt-8 grid gap-4 md:grid-cols-4">
             {[
               ["Vendors hand over stock", "Each product with its exact unit price. It's on the vendor's dashboard straight away.", Building2],
-              ["ADA plans the day", "Tell ADA what came in. It matches open orders, respects each rider's daily units and messages them.", null],
+              ["ADA plans the day", "Paste the vendor's WhatsApp orders. ADA flags anything missing, then splits the day across riders and messages them.", null],
               ["Riders deliver", "A photo at the door, who received it, and cash, transfer or POS confirmed on the spot.", Camera],
               ["Everyone sees it", "Delivered goes up, left goes down, for the office and the vendor, the moment payment is confirmed.", Wallet],
             ].map(([title, sub, Icon], n) => (

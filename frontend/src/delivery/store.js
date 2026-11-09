@@ -4,13 +4,13 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { freshState } from "./seed";
 import { todayISO, uid } from "./utils";
 
-const KEY = "delivery-workspace-v4";
+const KEY = "delivery-workspace-v5";
 const channel = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("delivery-workspace") : null;
 
 function load() {
   try {
     const saved = JSON.parse(localStorage.getItem(KEY) || "null");
-    if (saved && saved.version === 4) return saved;
+    if (saved && saved.version === 5) return saved;
   } catch (e) { /* storage blocked: start fresh */ }
   return freshState();
 }
@@ -47,8 +47,17 @@ function reducer(state, action) {
       return { ...state, products, intake: [...intake, ...state.intake] };
     }
 
-    case "order/add":
-      return { ...state, orders: [{ id: `ORD-${3300 + state.orders.length + 1}`, status: "open", createdAt: now(), date: todayISO(), ...action.order }, ...state.orders] };
+    // One order from a form, or many read from a vendor's WhatsApp message.
+    case "order/add": {
+      const list = action.orders || [action.order];
+      let n = state.orders.reduce((m, o) => Math.max(m, Number(String(o.id).replace(/\D/g, "")) || 0), 3300);
+      const added = list.map((o) => ({ status: "open", createdAt: now(), date: todayISO(), ...o, id: `ORD-${(n += 1)}` }));
+      return { ...state, orders: [...added, ...state.orders] };
+    }
+    case "order/update":
+      return { ...state, orders: state.orders.map((o) => (o.id === action.id ? { ...o, ...action.patch } : o)) };
+    case "order/cancel":
+      return { ...state, orders: state.orders.map((o) => (o.id === action.id ? { ...o, status: "cancelled" } : o)) };
 
     case "deliveries/create": {
       let ref = state.nextRef;
@@ -57,7 +66,7 @@ function reducer(state, action) {
         return {
           id: uid("t"), ref: `DL-${ref}`, status: "assigned", createdBy: action.by || "dispatcher", payment: null, proof: null,
           history: [{ status: "assigned", at: now() }], date: todayISO(), ...d,
-          items: d.items.map((l) => ({ productId: l.productId, qty: l.qty, price: (state.products.find((p) => p.id === l.productId) || {}).price || 0 })),
+          items: d.items.map((l) => ({ productId: l.productId, qty: l.qty, free: l.free || 0, price: (state.products.find((p) => p.id === l.productId) || {}).price || 0 })),
         };
       });
       const planned = new Set(action.deliveries.map((d) => d.orderId).filter(Boolean));
@@ -82,6 +91,18 @@ function reducer(state, action) {
 
     case "task/pickup":
       return mapTask(state, action.id, (t) => stamp(t, "picked_up"));
+    // The rider collects everything for the day from the office in one go.
+    case "task/pickupAll": {
+      const ids = new Set(action.ids);
+      return { ...state, tasks: state.tasks.map((t) => (ids.has(t.id) && t.status === "assigned" ? stamp(t, "picked_up") : t)) };
+    }
+    case "task/confirmPayments": {
+      const ids = new Set(action.ids);
+      return { ...state, tasks: state.tasks.map((t) => (ids.has(t.id) ? { ...t, payment: { ...(t.payment || {}), confirmed: true, at: now() } } : t)) };
+    }
+    // A failed delivery the office has dealt with: sent again or returned to stock.
+    case "task/handled":
+      return mapTask(state, action.id, (t) => ({ ...t, handled: action.how || "returned" }));
     case "task/deliver":
       return mapTask(state, action.id, (t) => ({
         ...stamp(t, "delivered"),
@@ -127,7 +148,7 @@ export function WorkspaceProvider({ children }) {
 
   // Pick up changes made in other tabs (the rider's phone view, the vendor view).
   useEffect(() => {
-    const apply = (next) => next && next.version === 4 && dispatch({ type: "replace", state: { ...next, __from: "remote" } });
+    const apply = (next) => next && next.version === 5 && dispatch({ type: "replace", state: { ...next, __from: "remote" } });
     const onStorage = (e) => { if (e.key === KEY && e.newValue) { try { apply(JSON.parse(e.newValue)); } catch (err) { /* ignore */ } } };
     const onMessage = (e) => apply(e.data);
     window.addEventListener("storage", onStorage);
@@ -155,8 +176,11 @@ export const isDelivered = (t) => t.status === "delivered";
 export const isPaid = (t) => t.status === "delivered" && t.payment && t.payment.confirmed;
 export const isAwaitingPayment = (t) => t.status === "delivered" && !(t.payment && t.payment.confirmed);
 export const isActive = (t) => t.status === "assigned" || t.status === "picked_up";
-export const units = (t) => t.items.reduce((s, l) => s + l.qty, 0);
-export const value = (t) => t.items.reduce((s, l) => s + l.qty * (l.price || 0), 0);
+// Units count free items too (they leave the warehouse); the value is what the customer pays: the amount the vendor
+// set for the order when there is one, otherwise the list price of the paid units.
+export const units = (t) => t.items.reduce((s, l) => s + l.qty + (l.free || 0), 0);
+export const value = (t) => (t.amount != null && t.amount !== "" ? Number(t.amount) : t.items.reduce((s, l) => s + l.qty * (l.price || 0), 0));
+export const orderValue = (state, o) => (o.amount ? Number(o.amount) : o.items.reduce((s, l) => s + l.qty * ((state.products.find((p) => p.id === l.productId) || {}).price || 0), 0));
 
 // Per product: received from the vendor, delivered, with riders, left, in the warehouse, and delivered units whose payment is still to verify.
 export function productLedger(state, product) {
@@ -164,14 +188,15 @@ export function productLedger(state, product) {
   for (const t of state.tasks) {
     for (const l of t.items) {
       if (l.productId !== product.id) continue;
+      const n = l.qty + (l.free || 0);
       if (isDelivered(t)) {
-        out.delivered += l.qty;
+        out.delivered += n;
         out.deliveredValue += l.qty * (l.price || product.price);
-        if (isAwaitingPayment(t)) out.awaiting += l.qty;
-      } else if (isActive(t)) out.withRiders += l.qty;
+        if (isAwaitingPayment(t)) out.awaiting += n;
+      } else if (isActive(t)) out.withRiders += n;
     }
   }
-  for (const o of state.orders) if (o.status === "open") for (const l of o.items) if (l.productId === product.id) out.pendingOrders += l.qty;
+  for (const o of state.orders) if (o.status === "open" || o.status === "needs_fix") for (const l of o.items) if (l.productId === product.id) out.pendingOrders += l.qty + (l.free || 0);
   out.left = out.received - out.delivered;
   out.inWarehouse = Math.max(0, out.left - out.withRiders);
   out.receivedValue = out.received * product.price;
@@ -199,6 +224,13 @@ export function riderLoad(state, riderId, date = todayISO()) {
     done: today.filter((t) => t.status === "delivered").length,
     collected: today.filter(isDelivered).reduce((s, t) => s + ((t.payment && t.payment.amount) || 0), 0),
   };
+}
+
+// "2 × Black soap bar + 1 free", or "1 free Black soap bar" when the whole line is a giveaway.
+export function lineLabel(state, l) {
+  const name = (state.products.find((p) => p.id === l.productId) || {}).name || "item";
+  if (!l.qty && l.free) return `${l.free} free ${name}`;
+  return `${l.qty} × ${name}${l.free ? ` + ${l.free} free` : ""}`;
 }
 
 export const productById = (state, id) => state.products.find((p) => p.id === id);

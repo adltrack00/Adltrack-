@@ -1,7 +1,7 @@
 // Pieces both the company dashboard and the vendor portal show, so both always read the same numbers.
 import React, { useState } from "react";
 import { Camera, ChevronDown, Clock, MapPin, PackagePlus, Phone, Wallet } from "lucide-react";
-import { feed, productById, productLedger, riderById, value as taskValue, vendorById } from "./store";
+import { feed, productById, productLedger, riderById, value as taskValue, vendorById, lineLabel } from "./store";
 import { Avatar, Btn, Empty, LedgerBar, StatusPill, statusOf, Tag } from "./ui";
 import { ago, clock, money, num, time12 } from "./utils";
 
@@ -122,7 +122,7 @@ export function DeliveryCard({ state, task, actions = null, showVendor = true })
         <div className="min-w-0 flex-1">
           <div className="truncate text-[14px] font-semibold text-stone-900">{task.customer} <span className="font-normal text-stone-400">· {r && r.short}{task.time ? ` · ${time12(task.time)}` : ""}</span></div>
           <div className="truncate text-[12.5px] text-stone-500">
-            {task.items.map((l) => `${l.qty} × ${(productById(state, l.productId) || {}).name}`).join(", ")}
+            {task.items.map((l) => lineLabel(state, l)).join(", ")}
             {showVendor && v ? ` · ${v.name}` : ""}
           </div>
         </div>
@@ -148,7 +148,7 @@ export function DeliveryCard({ state, task, actions = null, showVendor = true })
                 {task.payment && (
                   <li className="flex gap-3 text-stone-600">
                     <span className="w-16 font-mono text-[12px] text-stone-400">{task.payment.at ? clock(task.payment.at) : "—"}</span>
-                    {task.payment.confirmed ? `Paid in and verified · ${money(task.payment.amount)} by ${task.payment.method}` : `Rider collected ${money(task.payment.amount)} by ${task.payment.method} · not yet verified in the company account`}
+                    {task.payment.method === "unpaid" && !task.payment.confirmed ? `Not paid at the door · customer owes ${money(taskValue(task))}` : task.payment.confirmed ? `Paid in and verified · ${money(task.payment.amount)} by ${task.payment.method}` : `Rider collected ${money(task.payment.amount)} by ${task.payment.method} · not yet verified in the company account`}
                   </li>
                 )}
               </ol>

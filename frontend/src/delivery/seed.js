@@ -45,7 +45,7 @@ export function demoPhoto(n = 0) {
 }
 
 const order = (id, vendorId, customer, phone, address, zone, items, start, end, note = "") => ({
-  id, vendorId, customer, phone, address, zone, items, date: todayISO(), start, end, note, status: "open", createdAt: minutesAgo(90),
+  id, vendorId, customer, phone, address, zone, items, date: todayISO(), start, end, note, status: "open", createdAt: minutesAgo(90), amount: 0, urgent: false,
 });
 
 // Delivery requests vendors placed that no rider has yet. ADA turns these into deliveries.
@@ -56,6 +56,12 @@ export const ORDERS = [
   order("ORD-3304", "v-mama", "Green Office Hub", "+234 701 444 1290", "Plot 7, Adeola Odeku, Victoria Island", "Victoria Island", [{ productId: "p-chinchin", qty: 4 }, { productId: "p-pepper", qty: 2 }], "10:00", "12:00", "2nd floor"),
   order("ORD-3305", "v-kicks", "Ifeoma Nwosu", "+234 703 221 0045", "22 Bode Thomas St, Surulere", "Surulere", [{ productId: "p-slide", qty: 2 }], "15:00", "18:00"),
   order("ORD-3306", "v-glow", "Halima Yusuf", "+234 802 664 1902", "14 Adebola St, Surulere", "Surulere", [{ productId: "p-serum", qty: 1 }], "14:00", "17:00"),
+  // Read from a vendor's WhatsApp message: the address field holds a phone number, so it waits for a fix.
+  {
+    ...order("ORD-3307", "v-glow", "Blessing Udo", "+234 813 450 2299", "08134502299", "", [{ productId: "p-soap", qty: 2, free: 1 }], "", "17:00"),
+    status: "needs_fix", amount: 7000, issues: ["The address is a phone number, not a place."],
+    source: "Name: Blessing Udo\nPhone: 08134502299\nAddress: 08134502299\nItem: 2 black soap + 1 free\nAmount: 7k\nBy 5pm",
+  },
 ];
 
 const delivered = (ref, riderId, vendorId, customer, phone, address, zone, items, time, mins, payment, receivedBy, photoN) => ({
@@ -87,6 +93,11 @@ export function seedTasks(products) {
       history: [{ status: "assigned", at: minutesAgo(130) }, { status: "picked_up", at: minutesAgo(60) }, { status: "delivered", at: minutesAgo(9) }],
     },
     {
+      id: uid("t"), ref: "DL-1035", riderId: "r-sade", vendorId: "v-kicks", customer: "Kunle Ajayi", phone: "+234 807 310 4466", address: "5 Ojuelegba Road, Surulere", zone: "Surulere",
+      items: [line("p-slide", 1)], date: todayISO(), time: "10:00", status: "failed", failReason: "Customer not reachable", createdBy: "ada", payment: null, proof: null,
+      history: [{ status: "assigned", at: minutesAgo(180) }, { status: "picked_up", at: minutesAgo(120) }, { status: "failed", at: minutesAgo(25) }],
+    },
+    {
       id: uid("t"), ref: "DL-1040", riderId: "r-tunde", vendorId: "v-glow", customer: "Bisi Coker", phone: "+234 806 120 9987", address: "8 Toyin Street, Ikeja", zone: "Ikeja",
       items: t5, date: todayISO(), time: "12:30", status: "picked_up", createdBy: "ada", payment: null, proof: null,
       history: [{ status: "assigned", at: minutesAgo(70) }, { status: "picked_up", at: minutesAgo(14) }],
@@ -113,7 +124,7 @@ export function seedIntake() {
 
 export function freshState() {
   return {
-    version: 4,
+    version: 5,
     company: COMPANY,
     vendors: VENDORS,
     riders: RIDERS,

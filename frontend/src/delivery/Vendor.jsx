@@ -2,8 +2,9 @@
 // and can request new deliveries. Same live data as the company and the riders.
 import React, { useState } from "react";
 import { Boxes, LogOut, Package, PackageCheck, Plus, Truck, Wallet } from "lucide-react";
+import { PasteOrders } from "./Intake";
 import { DeliveryCard, Feed, LedgerLegend, ProductTable } from "./shared";
-import { isActive, isAwaitingPayment, productById, totals, useWorkspace } from "./store";
+import { isActive, isAwaitingPayment, productById, totals, useWorkspace, lineLabel } from "./store";
 import { Avatar, Btn, Card, CardHead, Empty, Field, inputCls, LiveDot, Logo, Modal, Stat, StatusPill, statusOf } from "./ui";
 import { money, num, time12 } from "./utils";
 
@@ -16,7 +17,7 @@ export default function Vendor({ vendorId, go }) {
   const [requesting, setRequesting] = useState(false);
   const s = totals(state, vendor.id);
   const tasks = state.tasks.filter((t) => t.vendorId === vendor.id);
-  const orders = state.orders.filter((o) => o.vendorId === vendor.id && o.status === "open");
+  const orders = state.orders.filter((o) => o.vendorId === vendor.id && (o.status === "open" || o.status === "needs_fix"));
   const filters = [
     ["all", "All", () => true],
     ["out", "On the way", isActive],
@@ -85,8 +86,9 @@ export default function Vendor({ vendorId, go }) {
               <div className="mt-2 divide-y divide-stone-100">
                 {orders.length ? orders.map((o) => (
                   <div key={o.id} className="px-5 py-3">
-                    <div className="flex items-center justify-between"><span className="text-[13.5px] font-semibold">{o.customer}</span><StatusPill status="open" /></div>
-                    <div className="text-[12.5px] text-stone-500">{o.items.map((l) => `${l.qty} × ${(productById(state, l.productId) || {}).name}`).join(", ")} · {time12(o.start)}–{time12(o.end)}</div>
+                    <div className="flex items-center justify-between"><span className="text-[13.5px] font-semibold">{o.customer}</span><StatusPill status={o.status} /></div>
+                    <div className="text-[12.5px] text-stone-500">{o.items.map((l) => lineLabel(state, l)).join(", ")}{o.start ? ` · ${time12(o.start)}${o.end ? `–${time12(o.end)}` : ""}` : o.end ? ` · by ${time12(o.end)}` : ""}</div>
+                    {o.status === "needs_fix" && <div className="mt-0.5 text-[12px] text-rose-700">{(o.issues || []).join(" ")} {state.company.name} will check it with you.</div>}
                   </div>
                 )) : <Empty title="All your requests have riders" />}
               </div>
@@ -106,9 +108,15 @@ function RequestDelivery({ open, onClose, vendor }) {
   const [f, setF] = useState(blank);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const product = products.find((p) => p.id === f.productId) || products[0];
+  const [mode, setMode] = useState("paste");
   return (
-    <Modal open={open} onClose={onClose} title="Request a delivery">
-      <form className="grid gap-3" onSubmit={(e) => { e.preventDefault(); act({ type: "order/add", order: { vendorId: vendor.id, customer: f.customer, phone: f.phone, address: f.address, zone: f.zone, items: [{ productId: product.id, qty: Number(f.qty) }], start: f.start, end: f.end, note: f.note } }); setF(blank); onClose(); }}>
+    <Modal open={open} onClose={onClose} title="Request deliveries" wide={mode === "paste"}>
+      <div className="mb-4 grid grid-cols-2 gap-1 rounded-full bg-stone-100 p-1 text-[13px] font-semibold">
+        {[["paste", "Paste from WhatsApp"], ["form", "Fill a form"]].map(([id, label]) => (
+          <button key={id} type="button" onClick={() => setMode(id)} className={`h-9 rounded-full ${mode === id ? "bg-white text-stone-900 shadow-sm" : "text-stone-500"}`}>{label}</button>
+        ))}
+      </div>
+      {mode === "paste" ? <PasteOrders vendorId={vendor.id} /> : <form className="grid gap-3" onSubmit={(e) => { e.preventDefault(); act({ type: "order/add", order: { vendorId: vendor.id, customer: f.customer, phone: f.phone, address: f.address, zone: f.zone, items: [{ productId: product.id, qty: Number(f.qty) }], start: f.start, end: f.end, note: f.note } }); setF(blank); onClose(); }}>
         <Field label="Customer"><input required value={f.customer} onChange={set("customer")} className={inputCls} /></Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Phone"><input value={f.phone} onChange={set("phone")} className={inputCls} /></Field>
@@ -126,7 +134,7 @@ function RequestDelivery({ open, onClose, vendor }) {
         <Field label="Note for the rider"><input value={f.note} onChange={set("note")} className={inputCls} /></Field>
         <div className="text-[12.5px] text-stone-500">Customer pays {money((product ? product.price : 0) * f.qty)} on delivery.</div>
         <Btn type="submit" size="lg" className="mt-1">Send to {state.company.name}</Btn>
-      </form>
+      </form>}
     </Modal>
   );
 }

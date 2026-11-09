@@ -1,18 +1,19 @@
 // The delivery company's dashboard: vendors, riders, stock, deliveries and ADA.
 import React, { useMemo, useState } from "react";
 import {
-  ArrowRight, Bike, Boxes, Building2, ClipboardList, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Plus, Send, Sparkles, Truck, Wallet, X,
+  AlertTriangle, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Phone, Plus, RotateCcw, Send, Sparkles, Truck, Wallet, X,
 } from "lucide-react";
 import { AdaPanel } from "./AdaPanel";
 import { DeliveryCard, Feed, LedgerLegend, PaymentActions, ProductTable } from "./shared";
-import { isActive, isAwaitingPayment, productById, productLedger, riderLoad, totals, units as taskUnits, useWorkspace, vendorById } from "./store";
+import { FixOrder, PasteOrders } from "./Intake";
+import { isActive, isAwaitingPayment, lineLabel, orderValue, productById, productLedger, riderLoad, totals, units as taskUnits, useWorkspace, value as taskValue, vendorById } from "./store";
 import { AdaMark, Avatar, Bar, Btn, Card, CardHead, Empty, Field, inputCls, LedgerBar, LiveDot, Logo, Modal, StatusPill, Stat, statusOf, Tag } from "./ui";
 import { ago, clock, money, num, time12, todayISO } from "./utils";
 
 const NAV = [
+  ["today", "Needs you", BellRing],
   ["overview", "Overview", LayoutGrid],
   ["deliveries", "Deliveries", Truck],
-  ["orders", "Orders", ClipboardList],
   ["stock", "Vendors & stock", Boxes],
   ["riders", "Riders", Bike],
   ["messages", "Messages", MessageSquare],
@@ -20,15 +21,15 @@ const NAV = [
 
 export default function Company({ go }) {
   const { state } = useWorkspace();
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useState("today");
   const [ada, setAda] = useState(false);
   const [seed, setSeed] = useState("");
   const [nav, setNav] = useState(false);
   const openAda = (say = "") => { setSeed(say); setAda(true); };
-  const openOrders = state.orders.filter((o) => o.status === "open").length;
+  const needs = needsYou(state);
   const unread = state.messages.filter((m) => m.from === "rider" && !m.read).length;
 
-  const Section = { overview: Overview, deliveries: Deliveries, orders: Orders, stock: Stock, riders: Riders, messages: Messages }[tab];
+  const Section = { today: NeedsYou, overview: Overview, deliveries: Deliveries, stock: Stock, riders: Riders, messages: Messages }[tab];
 
   return (
     <div className="min-h-screen bg-[#f6f5f2]">
@@ -39,7 +40,7 @@ export default function Company({ go }) {
           {NAV.map(([id, label, Icon]) => (
             <button key={id} onClick={() => { setTab(id); setNav(false); }} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium transition ${tab === id ? "bg-stone-900 text-white" : "text-stone-600 hover:bg-stone-100"}`}>
               <Icon className="h-[18px] w-[18px]" /> {label}
-              {id === "orders" && openOrders > 0 && <span className={`ml-auto rounded-full px-2 text-[11px] font-bold ${tab === id ? "bg-white/20" : "bg-orange-100 text-orange-700"}`}>{openOrders}</span>}
+              {id === "today" && needs.count > 0 && <span className={`ml-auto rounded-full px-2 text-[11px] font-bold ${tab === id ? "bg-white/20" : "bg-orange-100 text-orange-700"}`}>{needs.count}</span>}
               {id === "messages" && unread > 0 && <span className="ml-auto h-2 w-2 rounded-full bg-orange-500" />}
             </button>
           ))}
@@ -73,6 +74,186 @@ export default function Company({ go }) {
 
       <button onClick={() => openAda()} className="fixed bottom-5 right-5 z-30 sm:hidden" aria-label="Ask ADA"><AdaMark size={56} /></button>
       <AdaPanel open={ada} onClose={() => setAda(false)} seed={seed} onSeedUsed={() => setSeed("")} />
+    </div>
+  );
+}
+
+/* ---------- Needs you: the company's home. Only what someone has to act on, each with its action. ---------- */
+
+const nowHM = () => { const d = new Date(); return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
+
+export function needsYou(state) {
+  const ready = state.orders.filter((o) => o.status === "open").sort((a, b) => (Number(!!b.urgent) - Number(!!a.urgent)) || ((a.start || a.end || "99") < (b.start || b.end || "99") ? -1 : 1));
+  const toFix = state.orders.filter((o) => o.status === "needs_fix");
+  const failed = state.tasks.filter((t) => t.status === "failed" && !t.handled);
+  const awaiting = state.tasks.filter(isAwaitingPayment);
+  // Late: past the end of the promised window (or the time given), and not handed to the rider in the last half hour.
+  const late = state.tasks.filter((t) => isActive(t) && t.date === todayISO() && (t.due || t.time) && (t.due || t.time) < nowHM()
+    && Date.now() - new Date((t.history && t.history[0] && t.history[0].at) || 0).getTime() > 30 * 60000);
+  const low = state.products
+    .map((p) => ({ p, l: productLedger(state, p) }))
+    .filter(({ l }) => l.inWarehouse <= 5 || l.pendingOrders > l.inWarehouse);
+  return { ready, toFix, failed, awaiting, late, low, count: (ready.length ? 1 : 0) + toFix.length + failed.length + awaiting.length + late.length };
+}
+
+function Section({ icon: Icon, tone, title, sub, right, children }) {
+  const tones = { rose: "bg-rose-50 text-rose-600", amber: "bg-amber-50 text-amber-600", orange: "bg-orange-50 text-orange-600", sky: "bg-sky-50 text-sky-600", stone: "bg-stone-100 text-stone-600" };
+  return (
+    <Card>
+      <div className="flex items-start gap-3 px-5 pt-4">
+        <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${tones[tone]}`}><Icon className="h-[18px] w-[18px]" /></span>
+        <div className="min-w-0 flex-1">
+          <div className="text-[15px] font-bold tracking-tight text-stone-900">{title}</div>
+          {sub && <div className="text-[12.5px] text-stone-500">{sub}</div>}
+        </div>
+        {right}
+      </div>
+      <div className="mt-2 pb-1">{children}</div>
+    </Card>
+  );
+}
+
+const Row = ({ children }) => <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-stone-100 px-5 py-3 first:border-t-0">{children}</div>;
+
+function NeedsYou({ openAda, setTab }) {
+  const { state, act } = useWorkspace();
+  const n = needsYou(state);
+  const [fixing, setFixing] = useState(null);
+  const [resend, setResend] = useState({});
+  const t = totals(state);
+  const today = state.tasks.filter((x) => x.date === todayISO());
+  const rider = (id) => state.riders.find((r) => r.id === id) || {};
+  const items = (list) => list.map((l) => lineLabel(state, l)).join(", ");
+  const [allLate, setAllLate] = useState(false);
+  const readyUnits = n.ready.reduce((s, o) => s + o.items.reduce((a, l) => a + l.qty + (l.free || 0), 0), 0);
+
+  const sendAgain = (task) => {
+    const riderId = resend[task.id] || task.riderId;
+    act({ type: "deliveries/create", by: "dispatcher", deliveries: [{
+      riderId, vendorId: task.vendorId, customer: task.customer, phone: task.phone, altPhone: task.altPhone || "", address: task.address, landmark: task.landmark || "", zone: task.zone, time: "",
+      amount: task.amount != null ? task.amount : null, note: `Second try. Last time: ${task.failReason || "not delivered"}.`, items: task.items.map((l) => ({ productId: l.productId, qty: l.qty, free: l.free || 0 })),
+    }] });
+    act({ type: "messages/send", messages: [{ riderId, from: "dispatcher", text: `Second try for ${task.customer}, ${task.address}: ${items(task.items)}. Collect ${money(taskValue(task))}. Call first: last time it was "${task.failReason}".` }] });
+    act({ type: "task/handled", id: task.id, how: "resent" });
+  };
+
+  const nothing = !n.count && !n.low.length;
+
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div className="text-[24px] font-extrabold tracking-tight text-stone-900">{nothing ? `All clear, ${state.company.dispatcher}.` : `${n.count} ${n.count === 1 ? "thing needs" : "things need"} you, ${state.company.dispatcher}.`}</div>
+          <div className="mt-0.5 text-[13.5px] text-stone-500">Today: {today.filter((x) => x.status === "delivered").length} of {today.length} drops delivered · {num(t.withRiders)} units with riders · {money(t.deliveredValue)} sold so far. <button onClick={() => setTab("overview")} className="font-semibold text-orange-600">Full overview <ArrowRight className="inline h-3.5 w-3.5" /></button></div>
+        </div>
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-[1.15fr_1fr]">
+        <div className="space-y-5">
+          <Section icon={ClipboardPaste} tone="stone" title="New orders from WhatsApp" sub="Paste a vendor's message as it came. ADA reads every order and shows you what's missing.">
+            <div className="px-5 pb-4 pt-1"><PasteOrders /></div>
+          </Section>
+
+          <Section icon={Truck} tone="sky" title={`Ready for a rider (${n.ready.length})`} sub={n.ready.length ? `${readyUnits} units · ${money(n.ready.reduce((s, o) => s + orderValue(state, o), 0))} to collect. ADA splits them by area and each rider's daily units.` : "Every order has a rider."}
+            right={<Btn onClick={() => openAda("Dispatch today's orders")} disabled={!n.ready.length}><Sparkles className="h-4 w-4 text-orange-300" /> Plan with ADA</Btn>}>
+            {n.ready.map((o) => (
+              <Row key={o.id}>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 text-[14px] font-semibold text-stone-900">
+                    {o.urgent && <span className="flex items-center gap-0.5 rounded-full bg-orange-500 px-1.5 py-0.5 text-[10.5px] font-bold text-white"><Flame className="h-3 w-3" />URGENT</span>}
+                    <span className="truncate">{o.customer}</span><span className="font-normal text-stone-400">· {o.zone || "No area"}</span>
+                  </div>
+                  <div className="truncate text-[12.5px] text-stone-500">{items(o.items)} · {(vendorById(state, o.vendorId) || {}).name}</div>
+                </div>
+                <div className="text-[12.5px] text-stone-500">{o.start ? `${time12(o.start)}${o.end ? `–${time12(o.end)}` : ""}` : o.end ? `by ${time12(o.end)}` : "Today"}</div>
+                <div className="w-24 text-right font-mono text-[12.5px]">{money(orderValue(state, o))}</div>
+              </Row>
+            ))}
+          </Section>
+        </div>
+
+        <div className="space-y-5">
+          {!!n.toFix.length && (
+            <Section icon={AlertTriangle} tone="rose" title={`Orders to fix (${n.toFix.length})`} sub="No rider goes out until these are right.">
+              {n.toFix.map((o) => (
+                <Row key={o.id}>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[14px] font-semibold text-stone-900">{o.customer || "No name"} <span className="font-normal text-stone-400">· {(vendorById(state, o.vendorId) || {}).name || "No vendor"}</span></div>
+                    <div className="text-[12.5px] text-rose-700">{(o.issues || []).join(" ") || "Needs checking."}</div>
+                  </div>
+                  <Btn size="sm" variant="ghost" onClick={() => setFixing(o)}>Fix</Btn>
+                </Row>
+              ))}
+            </Section>
+          )}
+
+          {!!n.failed.length && (
+            <Section icon={RotateCcw} tone="rose" title={`Couldn't deliver (${n.failed.length})`} sub="Send it again, or put it back in stock.">
+              {n.failed.map((task) => (
+                <Row key={task.id}>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[14px] font-semibold text-stone-900">{task.customer} <span className="font-normal text-stone-400">· {rider(task.riderId).short}</span></div>
+                    <div className="text-[12.5px] text-stone-500">{task.failReason} · {items(task.items)}</div>
+                  </div>
+                  <select value={resend[task.id] || task.riderId} onChange={(e) => setResend({ ...resend, [task.id]: e.target.value })} className="h-8 rounded-full border border-stone-200 bg-white px-2 text-[12.5px]">
+                    {state.riders.map((r) => <option key={r.id} value={r.id}>{r.short}{r.online ? "" : " (off)"}</option>)}
+                  </select>
+                  <Btn size="sm" onClick={() => sendAgain(task)}>Send again</Btn>
+                  <Btn size="sm" variant="ghost" onClick={() => act({ type: "task/handled", id: task.id, how: "returned" })}>Back to stock</Btn>
+                </Row>
+              ))}
+            </Section>
+          )}
+
+          {!!n.awaiting.length && (
+            <Section icon={Wallet} tone="amber" title={`Payment to verify (${n.awaiting.length})`} sub={`${money(t.awaitingValue)} riders collected that isn't checked against the company account yet.`}
+              right={<Btn size="sm" variant="green" onClick={() => act({ type: "task/confirmPayments", ids: n.awaiting.map((x) => x.id) })}>Verify all</Btn>}>
+              {n.awaiting.map((task) => (
+                <Row key={task.id}>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[14px] font-semibold text-stone-900">{task.customer} <span className="font-normal text-stone-400">· {rider(task.riderId).short} · {(task.payment && task.payment.method) || "cash"}</span></div>
+                    <div className="text-[12.5px] text-stone-500">{task.ref} · delivered {task.proof ? ago(task.proof.at) : ""}{task.proof && task.proof.note ? ` · "${task.proof.note}"` : ""}</div>
+                  </div>
+                  <span className="font-mono text-[13px] font-semibold">{money((task.payment && task.payment.amount) || taskValue(task))}</span>
+                  <Btn size="sm" variant="ghost" onClick={() => act({ type: "task/confirmPayment", id: task.id })}>Verify</Btn>
+                </Row>
+              ))}
+            </Section>
+          )}
+
+          {!!n.late.length && (
+            <Section icon={Clock} tone="orange" title={`Running late (${n.late.length})`} sub="Past the time the customer was promised.">
+              {(allLate ? n.late : n.late.slice(0, 4)).map((task) => (
+                <Row key={task.id}>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[14px] font-semibold text-stone-900">{task.customer} <span className="font-normal text-stone-400">· {rider(task.riderId).short}</span></div>
+                    <div className="text-[12.5px] text-stone-500">Due {time12(task.due || task.time)} · {task.status === "assigned" ? "not picked up yet" : "on the way"}</div>
+                  </div>
+                  <a href={`tel:${(rider(task.riderId).phone || "").replace(/\s/g, "")}`} className="inline-flex h-8 items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 text-[12.5px] font-semibold text-stone-800"><Phone className="h-3.5 w-3.5" /> Call {rider(task.riderId).short}</a>
+                </Row>
+              ))}
+              {n.late.length > 4 && !allLate && <button onClick={() => setAllLate(true)} className="w-full border-t border-stone-100 py-2.5 text-[12.5px] font-semibold text-stone-500">Show {n.late.length - 4} more</button>}
+            </Section>
+          )}
+
+          {!!n.low.length && (
+            <Section icon={Package} tone="stone" title="Running low" sub="Ask the vendor for more before orders get stuck.">
+              {n.low.map(({ p, l }) => (
+                <Row key={p.id}>
+                  <div className="min-w-0 flex-1 text-[13.5px]"><span className="font-semibold text-stone-900">{p.name}</span> <span className="text-stone-400">· {(vendorById(state, p.vendorId) || {}).name}</span></div>
+                  <span className="text-[12.5px] text-stone-500"><b className="text-stone-900">{l.inWarehouse}</b> in warehouse{l.pendingOrders ? ` · ${l.pendingOrders} ordered` : ""}</span>
+                </Row>
+              ))}
+            </Section>
+          )}
+
+          {nothing && <Card><Empty icon={PackageCheck} title="Nothing needs you right now" sub="New orders, failed drops and payments to check will show up here." /></Card>}
+        </div>
+      </div>
+
+      <Modal open={!!fixing} onClose={() => setFixing(null)} title={fixing ? `Fix ${fixing.id}` : ""} wide>
+        {fixing && <FixOrder order={fixing} onDone={() => setFixing(null)} />}
+      </Modal>
     </div>
   );
 }
@@ -267,44 +448,6 @@ function NewDelivery({ open, onClose }) {
         <Btn type="submit" size="lg" className="mt-2" disabled={!product || f.qty > free}>Create and message rider</Btn>
       </form>
     </Modal>
-  );
-}
-
-/* ---------- Orders ---------- */
-
-function Orders({ openAda }) {
-  const { state } = useWorkspace();
-  const open = state.orders.filter((o) => o.status === "open");
-  const planned = state.orders.filter((o) => o.status !== "open");
-  const Row = ({ o }) => {
-    const v = vendorById(state, o.vendorId);
-    const value = o.items.reduce((s, l) => s + l.qty * ((productById(state, l.productId) || {}).price || 0), 0);
-    return (
-      <div className="flex flex-wrap items-center gap-3 border-b border-stone-100 px-5 py-3.5 last:border-0">
-        <div className="w-20 font-mono text-[12px] text-stone-400">{o.id}</div>
-        <div className="min-w-0 flex-1">
-          <div className="text-[14px] font-semibold text-stone-900">{o.customer} <span className="font-normal text-stone-400">· {o.zone}</span></div>
-          <div className="text-[12.5px] text-stone-500">{o.items.map((l) => `${l.qty} × ${(productById(state, l.productId) || {}).name}`).join(", ")} · {v && v.name}</div>
-        </div>
-        <div className="text-[12.5px] text-stone-500">{time12(o.start)}–{time12(o.end)}</div>
-        <div className="w-24 text-right font-mono text-[12.5px]">{money(value)}</div>
-        <StatusPill status={o.status} />
-      </div>
-    );
-  };
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHead title={`Waiting for a rider (${open.length})`} sub="Delivery requests from vendors. ADA assigns them by zone, stock and each rider's daily allocation." right={<Btn onClick={() => openAda("Dispatch today's orders")} disabled={!open.length}><Sparkles className="h-4 w-4 text-orange-300" /> Dispatch all with ADA</Btn>} />
-        <div className="mt-3">{open.length ? open.map((o) => <Row key={o.id} o={o} />) : <Empty title="Every order has a rider" sub="New requests from vendors show up here." />}</div>
-      </Card>
-      {!!planned.length && (
-        <Card>
-          <CardHead title="Assigned" />
-          <div className="mt-3">{planned.map((o) => <Row key={o.id} o={o} />)}</div>
-        </Card>
-      )}
-    </div>
   );
 }
 

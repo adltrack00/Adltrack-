@@ -2,6 +2,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { AlertTriangle, ArrowUp, Check, MessageSquare, PackagePlus, Route, X } from "lucide-react";
 import { applyPlan, askAda, SUGGESTIONS } from "./ada";
+import { looksLikeOrders, readOrders, toOrder } from "./intake";
+import { IntakeReview } from "./Intake";
 import { useWorkspace } from "./store";
 import { AdaMark, Avatar, Btn, Tag } from "./ui";
 import { money, time12 } from "./utils";
@@ -20,6 +22,14 @@ export function AdaPanel({ open, onClose, seed, onSeedUsed }) {
     const next = [...turns, { role: "user", text: words }];
     setTurns(next);
     setText("");
+    // A pasted WhatsApp message with orders: read them and let the person check each one.
+    if (looksLikeOrders(words)) {
+      const orders = readOrders(state, words);
+      if (orders.length) {
+        setTurns((cur) => [...cur, { role: "assistant", text: "Here's what I read from that message. Fix anything in red, then add them.", intake: orders, state: "ready" }]);
+        return;
+      }
+    }
     setBusy(true);
     const answer = await askAda(state, next.map((t) => ({ role: t.role, text: t.text })));
     setBusy(false);
@@ -86,6 +96,20 @@ export function AdaPanel({ open, onClose, seed, onSeedUsed }) {
               <div key={i} className="space-y-2.5">
                 <Tag>ADA</Tag>
                 <p className="text-[14px] leading-relaxed text-stone-800">{t.text}</p>
+                {t.intake && t.state === "ready" && (
+                  <IntakeReview
+                    orders={t.intake}
+                    setOrders={(list) => setTurns((cur) => cur.map((x, n) => (n === i ? { ...x, intake: list } : x)))}
+                    onSave={() => {
+                      const list = t.intake.map(toOrder);
+                      act({ type: "order/add", orders: list });
+                      const ready = list.filter((o) => o.status === "open").length;
+                      setTurns((cur) => [...cur.map((x, n) => (n === i ? { ...x, state: "done" } : x)), { role: "assistant", text: `Added ${list.length} ${list.length === 1 ? "order" : "orders"}. ${ready} ready for a rider${list.length - ready ? `, ${list.length - ready} kept aside under "Needs you" until they're fixed` : ""}.`, offer: ready ? "Dispatch today's orders" : null }]);
+                    }}
+                  />
+                )}
+                {t.intake && t.state === "done" && <div className="flex items-center gap-1.5 text-[12.5px] font-semibold text-emerald-700"><Check className="h-3.5 w-3.5" /> {t.intake.length} orders added</div>}
+                {t.offer && i === turns.length - 1 && <Btn variant="orange" onClick={() => send(t.offer)}>Dispatch them now</Btn>}
                 {t.plan && <PlanCard plan={t.plan} state={t.state} onApprove={() => approve(i)} onDiscard={() => setPlanState(i, "discarded")} onEdit={(fn) => editPlan(i, fn)} />}
               </div>
             ),
@@ -155,7 +179,7 @@ function PlanCard({ plan, state: planState, onApprove, onDiscard, onEdit }) {
                   <div className="min-w-0">
                     <div className="truncate text-[13.5px] font-semibold text-stone-900">{d.customer || "No name yet"}</div>
                     <div className="truncate text-[12px] text-stone-500">{d.address}{d.time ? ` · by ${time12(d.time)}` : ""}</div>
-                    <div className="mt-1 text-[12px] text-stone-700">{d.items.map((l) => `${l.qty} × ${l.name}`).join(", ")}</div>
+                    <div className="mt-1 text-[12px] text-stone-700">{d.items.map((l) => (l.qty ? `${l.qty} × ${l.name}${l.free ? ` + ${l.free} free` : ""}` : `${l.free} free ${l.name}`)).join(", ")}</div>
                   </div>
                   <div className="shrink-0 text-right">
                     <div className="font-mono text-[12px] text-stone-700">{money(d.value)}</div>
