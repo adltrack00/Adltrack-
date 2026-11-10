@@ -72,15 +72,22 @@ export function Feed({ state, vendorId = null, limit = 8 }) {
   return (
     <ol className="divide-y divide-neutral-100">
       {events.map((e, i) => {
-        if (e.kind === "intake") {
-          const p = productById(state, e.intake.productId);
-          const v = vendorById(state, e.intake.vendorId);
+        if (e.kind === "intake" || e.kind === "counted") {
+          const i = e.intake;
+          const p = productById(state, i.productId);
+          const v = vendorById(state, i.vendorId);
+          const who = i.by && i.by.role === "vendor" ? i.by.name : v && v.name;
+          const text = e.kind === "counted"
+            ? `${i.countedBy ? `${i.countedBy.split(" ")[0]} counted in` : "Office counted in"} ${num(i.qty)} ${p ? p.name : "units"}${i.sentQty != null && i.sentQty !== i.qty ? ` (${num(i.sentQty)} sent)` : ""}`
+            : i.countedAt || i.status === "sent"
+              ? `${who || "Vendor"} sent ${num(i.sentQty ?? i.qty)} ${p ? p.name : "units"}${i.status === "sent" ? " · on its way" : ""}`
+              : `${v ? v.name : "Vendor"} gave ${num(i.qty)} ${p ? p.name : "units"}`;
           return (
-            <li key={i} className="flex items-center gap-3 px-5 py-3">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-600"><PackagePlus className="h-4 w-4" /></span>
+            <li key={i.id + e.kind} className="flex items-center gap-3 px-5 py-3">
+              <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${e.kind === "counted" ? "bg-emerald-50 text-emerald-600" : "bg-violet-50 text-violet-600"}`}><PackagePlus className="h-4 w-4" /></span>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[13px] font-medium text-neutral-800">{v && v.name} gave {num(e.intake.qty)} {p && p.name}</div>
-                <div className="text-[12px] text-neutral-400">{ago(e.at)}{e.intake.note ? ` · ${e.intake.note}` : ""}</div>
+                <div className="truncate text-[13px] font-medium text-neutral-800">{text}</div>
+                <div className="text-[12px] text-neutral-400">{ago(e.at)}{i.note && e.kind === "intake" ? ` · ${i.note}` : ""}</div>
               </div>
             </li>
           );

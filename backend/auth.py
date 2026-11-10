@@ -109,13 +109,13 @@ def _failed(key: str) -> None:
 
 # ---------- users and sessions ----------
 
-USER_COLS = "id, workspace_id, role, ref, name, email, phone, owner, demo, created_at, last_seen"
+USER_COLS = "id, workspace_id, role, ref, name, email, phone, owner, demo, created_at, last_seen, team"
 
 
 def user_dict(row) -> Dict[str, Any]:
     return {
         "id": row[0], "workspaceId": row[1], "role": row[2], "ref": row[3], "name": row[4], "email": row[5], "phone": row[6],
-        "owner": bool(row[7]), "demo": bool(row[8]), "createdAt": row[9], "lastSeen": row[10],
+        "owner": bool(row[7]), "demo": bool(row[8]), "createdAt": row[9], "lastSeen": row[10], "teammate": bool(row[11]),
     }
 
 
@@ -231,6 +231,10 @@ class Profile(BaseModel):
     phone: Optional[str] = Field(default=None, max_length=30)
 
 
+class TeamInvite(BaseModel):
+    name: Optional[str] = Field(default="", max_length=80)
+
+
 class NewInvite(BaseModel):
     role: str
     ref: Optional[str] = Field(default=None, max_length=60)
@@ -265,12 +269,15 @@ def router(on_new_workspace) -> APIRouter:
     @api.get("/invites/{code}")
     def read_invite(code: str):
         db.setup()
-        row = db.one("SELECT workspace_id, role, ref, name, used_at FROM invites WHERE code = %s", (code.strip().upper(),))
+        row = db.one("SELECT workspace_id, role, ref, name, used_at, team FROM invites WHERE code = %s", (code.strip().upper(),))
         if not row:
             raise HTTPException(404, "That invite code isn't valid. Check it with your delivery company.")
         if row[4]:
             raise HTTPException(410, "This invite has already been used. Ask your delivery company for a new one.")
-        return {"company": company_name(row[0]), "role": row[1], "name": row[3] or ""}
+        out = {"company": company_name(row[0]), "role": row[1], "name": row[3] or "", "teammate": bool(row[5])}
+        if row[5]:
+            out["vendor"] = vendor_name(row[0], row[2])
+        return out
 
     @api.post("/auth/join")
     def join(body: Join, request: Request, response: Response):
@@ -278,26 +285,27 @@ def router(on_new_workspace) -> APIRouter:
         code = body.code.strip().upper()
         if _too_many("join:" + (request.client.host if request.client else "")):
             raise HTTPException(429, "Too many tries. Wait a few minutes and try again.")
-        row = db.one("SELECT workspace_id, role, ref, used_at FROM invites WHERE code = %s", (code,))
+        row = db.one("SELECT workspace_id, role, ref, used_at, team FROM invites WHERE code = %s", (code,))
         if not row:
             _failed("join:" + (request.client.host if request.client else ""))
             raise HTTPException(404, "That invite code isn't valid. Check it with your delivery company.")
         if row[3]:
             raise HTTPException(410, "This invite has already been used. Ask your delivery company for a new one.")
-        workspace_id, role, ref = row[0], row[1], row[2]
+        workspace_id, role, ref, team = row[0], row[1], row[2], 1 if row[4] else 0
         email, phone = clean_email(body.email), clean_phone(body.phone)
         if not email and not phone:
             raise HTTPException(400, "Add an email or a phone number to sign in with.")
         _password_ok(body.password)
-        # A new invite for the same vendor or rider replaces their old login (this is how a lost password is reset).
-        if ref:
-            for (old_id,) in db.all("SELECT id FROM users WHERE workspace_id = %s AND role = %s AND ref = %s", (workspace_id, role, ref)):
+        # A new invite from the company for the same vendor or rider replaces their main login (this is how a lost
+        # password is reset). A vendor's teammates each have their own login and are left alone.
+        if ref and not team:
+            for (old_id,) in db.all("SELECT id FROM users WHERE workspace_id = %s AND role = %s AND ref = %s AND team = 0", (workspace_id, role, ref)):
                 _delete_user(old_id)
         _check_unique(email, phone)
         user_id = new_id("u")
         db.execute(
-            "INSERT INTO users (id, workspace_id, role, ref, name, email, phone, password_hash, owner, demo, created_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 0, 0, %s)",
-            (user_id, workspace_id, role, ref, body.name.strip(), email, phone, hash_password(body.password), now()),
+            "INSERT INTO users (id, workspace_id, role, ref, name, email, phone, password_hash, owner, demo, created_at, team) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 0, 0, %s, %s)",
+            (user_id, workspace_id, role, ref, body.name.strip(), email, phone, hash_password(body.password), now(), team),
         )
         db.execute("UPDATE invites SET used_at = %s, used_by = %s WHERE code = %s", (now(), user_id, code))
         start_session(response, request, user_id)
@@ -382,7 +390,7 @@ def router(on_new_workspace) -> APIRouter:
         members = [user_dict(r) for r in db.all(f"SELECT {USER_COLS} FROM users WHERE workspace_id = %s ORDER BY created_at", (user["workspaceId"],))]
         invites = [
             {"code": r[0], "role": r[1], "ref": r[2], "name": r[3], "createdAt": r[4]}
-            for r in db.all("SELECT code, role, ref, name, created_at FROM invites WHERE workspace_id = %s AND used_at IS NULL ORDER BY created_at DESC", (user["workspaceId"],))
+            for r in db.all("SELECT code, role, ref, name, created_at FROM invites WHERE workspace_id = %s AND used_at IS NULL AND team = 0 ORDER BY created_at DESC", (user["workspaceId"],))
         ]
         return {"members": members, "invites": invites}
 
@@ -394,7 +402,7 @@ def router(on_new_workspace) -> APIRouter:
             raise HTTPException(400, "Pick the vendor or rider this invite is for.")
         # One open invite per person: a new one replaces the old.
         if body.ref:
-            db.execute("DELETE FROM invites WHERE workspace_id = %s AND ref = %s AND role = %s AND used_at IS NULL", (user["workspaceId"], body.ref, body.role))
+            db.execute("DELETE FROM invites WHERE workspace_id = %s AND ref = %s AND role = %s AND used_at IS NULL AND team = 0", (user["workspaceId"], body.ref, body.role))
         for _ in range(10):
             code = invite_code()
             if not db.one("SELECT code FROM invites WHERE code = %s", (code,)):
@@ -420,7 +428,64 @@ def router(on_new_workspace) -> APIRouter:
         _delete_user(member_id)
         return {"ok": True}
 
+    # ---------- a vendor's own team ----------
+    # The vendor's main account invites the people who send out its products. Each teammate has their own login to
+    # the same vendor dashboard; everything they add is stamped with their name (see access.merge).
+
+    @api.get("/vendor-team")
+    def vendor_team(user=Depends(require_vendor_main)):
+        members = [user_dict(r) for r in db.all(f"SELECT {USER_COLS} FROM users WHERE workspace_id = %s AND role = 'vendor' AND ref = %s ORDER BY team, created_at", (user["workspaceId"], user["ref"]))]
+        invites = [
+            {"code": r[0], "role": "vendor", "ref": r[1], "name": r[2], "createdAt": r[3]}
+            for r in db.all("SELECT code, ref, name, created_at FROM invites WHERE workspace_id = %s AND role = 'vendor' AND ref = %s AND team = 1 AND used_at IS NULL ORDER BY created_at DESC", (user["workspaceId"], user["ref"]))
+        ]
+        return {"members": members, "invites": invites}
+
+    @api.post("/vendor-team/invites")
+    def vendor_team_invite(body: TeamInvite, user=Depends(require_vendor_main)):
+        if user["demo"]:
+            raise HTTPException(403, "Invites are off in the demo.")
+        for _ in range(10):
+            code = invite_code()
+            if not db.one("SELECT code FROM invites WHERE code = %s", (code,)):
+                break
+        db.execute(
+            "INSERT INTO invites (code, workspace_id, role, ref, name, created_by, created_at, team) VALUES (%s, %s, 'vendor', %s, %s, %s, %s, 1)",
+            (code, user["workspaceId"], user["ref"], (body.name or "").strip(), user["id"], now()),
+        )
+        return {"code": code, "role": "vendor", "ref": user["ref"], "name": body.name, "teammate": True}
+
+    @api.delete("/vendor-team/invites/{code}")
+    def vendor_team_uninvite(code: str, user=Depends(require_vendor_main)):
+        db.execute("DELETE FROM invites WHERE code = %s AND workspace_id = %s AND ref = %s AND team = 1", (code.upper(), user["workspaceId"], user["ref"]))
+        return {"ok": True}
+
+    @api.delete("/vendor-team/{member_id}")
+    def vendor_team_remove(member_id: str, user=Depends(require_vendor_main)):
+        row = db.one("SELECT workspace_id, role, ref, team FROM users WHERE id = %s", (member_id,))
+        if not row or row[0] != user["workspaceId"] or row[1] != "vendor" or row[2] != user["ref"] or not row[3]:
+            raise HTTPException(404, "Not found.")
+        _delete_user(member_id)
+        return {"ok": True}
+
     return api
+
+
+def require_vendor_main(user: Dict[str, Any] = Depends(require_user)) -> Dict[str, Any]:
+    if user["role"] != "vendor" or user.get("teammate") or not user.get("ref"):
+        raise HTTPException(403, "Only the vendor's main account can manage its team.")
+    return user
+
+
+def vendor_name(workspace_id: int, ref: Optional[str]) -> str:
+    row = db.one("SELECT state::text FROM workspace WHERE id = %s", (workspace_id,))
+    try:
+        for v in json.loads(row[0]).get("vendors") or []:
+            if v.get("id") == ref:
+                return v.get("name") or ""
+    except (TypeError, ValueError, AttributeError):
+        pass
+    return ""
 
 
 def _get_user(user_id: str) -> Dict[str, Any]:

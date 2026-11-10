@@ -116,7 +116,8 @@ export function needsYou(state) {
   const low = state.products
     .map((p) => ({ p, l: productLedger(state, p) }))
     .filter(({ l }) => l.inWarehouse <= 5 || l.pendingOrders > l.inWarehouse);
-  return { ready, toFix, failed, awaiting, late, low, count: (ready.length ? 1 : 0) + toFix.length + failed.length + awaiting.length + late.length };
+  const incoming = state.intake.filter((i) => i.status === "sent");
+  return { ready, toFix, failed, awaiting, late, low, incoming, count: (ready.length ? 1 : 0) + toFix.length + failed.length + awaiting.length + late.length + (incoming.length ? 1 : 0) };
 }
 
 function Section({ id, icon: Icon, tone, title, sub, right, children }) {
@@ -235,6 +236,18 @@ function NeedsYou({ openAda, setTab }) {
         </div>
 
         <div className="space-y-5">
+          {!!n.incoming.length && (
+            <Section icon={Package} tone="amber" title={`Stock sent by vendors (${n.incoming.length})`} sub="Count it in when it arrives, so you and the vendor balance the same numbers." right={<Btn size="sm" onClick={() => setTab("stock")}>Count in</Btn>}>
+              {n.incoming.slice(0, 5).map((i) => (
+                <Row key={i.id}>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-[14px] font-semibold text-neutral-900">{num(i.qty)} × {(productById(state, i.productId) || {}).name} <span className="font-normal text-neutral-400">· {(vendorById(state, i.vendorId) || {}).name}</span></div>
+                    <div className="truncate text-[12.5px] text-neutral-500">{i.by && i.by.name ? `Sent by ${i.by.name} · ` : ""}{ago(i.at)}</div>
+                  </div>
+                </Row>
+              ))}
+            </Section>
+          )}
           {!!n.toFix.length && (
             <Section icon={AlertTriangle} tone="rose" title={`Orders to fix (${n.toFix.length})`} sub="No rider goes out until these are right.">
               {n.toFix.map((o) => (
@@ -615,15 +628,16 @@ function Stock({ openAda }) {
           </Card>
         );
       })}
+      <IncomingStock state={state} act={act} />
       <Card>
         <CardHead title="Stock received" sub="Every drop-off from a vendor" />
         <div className="mt-2 divide-y divide-neutral-100">
-          {state.intake.slice(0, 12).map((i) => {
+          {state.intake.filter((i) => !i.status || i.status === "received").slice(0, 12).map((i) => {
             const p = productById(state, i.productId);
             return (
               <div key={i.id} className="flex items-center gap-3 px-5 py-2.5 text-[13px]">
                 <span className="w-20 font-mono text-[12px] text-neutral-400">{ago(i.at)}</span>
-                <span className="flex-1 text-neutral-800">{num(i.qty)} × {p && p.name} <span className="text-neutral-400">· {(vendorById(state, i.vendorId) || {}).name}</span></span>
+                <span className="flex-1 text-neutral-800">{num(i.qty)} × {p && p.name} <span className="text-neutral-400">· {(vendorById(state, i.vendorId) || {}).name}{i.by && i.by.role === "vendor" ? `, sent by ${i.by.name}` : ""}{i.countedBy ? `, counted by ${i.countedBy.split(" ")[0]}` : ""}</span></span>
                 <span className="font-mono text-[12px] text-neutral-500">{money(i.price)} each</span>
               </div>
             );
@@ -633,6 +647,46 @@ function Stock({ openAda }) {
       <ReceiveStock open={receiving} onClose={() => setReceiving(false)} act={act} state={state} />
       <AddVendor open={addingVendor} onClose={() => setAddingVendor(false)} act={act} />
     </div>
+  );
+}
+
+// Stock a vendor's team says they've sent. It joins the vendor's stock only when someone here counts it in, so the
+// office and the vendor always balance the same numbers. If fewer arrived, enter what was actually counted.
+function IncomingStock({ state, act }) {
+  const [counting, setCounting] = useState(null);
+  const [qty, setQty] = useState(0);
+  const sent = state.intake.filter((i) => i.status === "sent");
+  if (!sent.length) return null;
+  return (
+    <Card>
+      <CardHead title={`Sent by vendors, to count in (${sent.length})`} sub="Count each one when it arrives. Only then does it join the vendor's stock." />
+      <div className="mt-2">
+        {sent.map((i) => {
+          const p = productById(state, i.productId);
+          const v = vendorById(state, i.vendorId);
+          return (
+            <div key={i.id} className="flex flex-wrap items-center gap-3 border-t border-neutral-100 px-5 py-3 first:border-t-0">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-amber-50 text-amber-600"><Package className="h-4 w-4" /></span>
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[14px] font-semibold text-neutral-900">{num(i.qty)} × {p ? p.name : "Product"} <span className="font-normal text-neutral-500">from {v ? v.name : "a vendor"}</span></div>
+                <div className="truncate text-[12.5px] text-neutral-500">{i.by && i.by.name ? `Sent by ${i.by.name} · ` : ""}{ago(i.at)}{i.note ? ` · ${i.note}` : ""}</div>
+              </div>
+              <Btn size="sm" onClick={() => { setCounting(i); setQty(i.qty); }} data-testid="count-in">Count in</Btn>
+            </div>
+          );
+        })}
+      </div>
+      <Modal open={!!counting} onClose={() => setCounting(null)} title="Count it in">
+        {counting && (
+          <form className="grid gap-3" onSubmit={(e) => { e.preventDefault(); act({ type: "stock/count", id: counting.id, qty: Number(qty) }); setCounting(null); }}>
+            <p className="text-[14px] text-neutral-600">{(vendorById(state, counting.vendorId) || {}).name} sent <b>{num(counting.qty)}</b> × {(productById(state, counting.productId) || {}).name}. How many arrived?</p>
+            <Field label="Units counted"><input type="number" min="0" required value={qty} onChange={(e) => setQty(e.target.value)} className={inputCls} /></Field>
+            {Number(qty) !== counting.qty && <p className="text-[12.5px] text-amber-700">That's different from what was sent. The vendor will see both numbers.</p>}
+            <Btn type="submit" size="lg">Add {num(Number(qty) || 0)} to stock</Btn>
+          </form>
+        )}
+      </Modal>
+    </Card>
   );
 }
 
