@@ -21,7 +21,7 @@ const NAV = [
 ];
 
 export default function Company({ go }) {
-  const { state, act } = useWorkspace();
+  const { state, act, sync } = useWorkspace();
   const [tab, setTab] = useState("today");
   const [ada, setAda] = useState(false);
   const [seed, setSeed] = useState("");
@@ -43,7 +43,7 @@ export default function Company({ go }) {
           <Logo dark />
           <span className="hidden text-[13px] text-white/50 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
           <div className="ml-auto flex items-center gap-2">
-            <LiveDot label="Live with vendors & riders" />
+            <LiveDot label={sync === "offline" ? "Offline, will save when back" : sync === "connecting" ? "Connecting…" : "Live with vendors & riders"} tone={sync === "offline" ? "warn" : "live"} />
             <button onClick={() => go("#/vendor/v-glow")} className="hidden h-9 items-center gap-1.5 rounded-full bg-white/10 px-3 text-[12.5px] font-medium text-white/80 hover:bg-white/15 md:flex"><Building2 className="h-4 w-4" /> Vendor view</button>
             <button onClick={() => go("#/rider/r-tunde")} className="hidden h-9 items-center gap-1.5 rounded-full bg-white/10 px-3 text-[12.5px] font-medium text-white/80 hover:bg-white/15 md:flex"><Bike className="h-4 w-4" /> Rider view</button>
             <button onClick={() => setLooking(true)} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Change the look"><Palette className="h-4 w-4" /></button>

@@ -86,6 +86,17 @@ and the FastAPI server (`backend/server.py`) serves it together with ADA's `/api
 2. When asked, paste an `ANTHROPIC_API_KEY` (optional: without it ADA uses the simpler assistant built into the app).
 3. **Apply**. The app is at `https://<service>.onrender.com/#/company`.
 
-The data is kept in each browser (`localStorage`), so tabs in the same browser stay in step, but two different
-phones or computers each have their own copy until the ledger moves to the server.
+The Blueprint also creates a Postgres database (`delivery-db`) and passes it to the app as `DATABASE_URL`.
 
+## Shared data (`backend/workspace.py`)
+
+With the server, the whole workspace (vendors, stock, riders, orders, deliveries) is kept on the server, so the company,
+vendors and riders see the same data on any phone or computer. A change shows at once on the device that made it and is
+saved with the revision it was made on. If someone else saved first, the server sends back the newer copy and the change
+is re-applied on top, so nothing is lost. Every open page hears about new saves over `/api/workspace/stream`.
+
+- Saved in Postgres when `DATABASE_URL` is set, otherwise in `backend/data/workspace.json`.
+- The app also keeps a copy in the browser, so it opens fast and keeps working through a short drop in signal.
+- **Reset demo** resets the shared data for everyone.
+- Running the web app without a server (`yarn start` with no `REACT_APP_BACKEND_URL`) keeps the old behaviour: data in
+  that browser only, shared between its tabs.

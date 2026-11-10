@@ -23,6 +23,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.cors import CORSMiddleware
 
+import workspace
+
 log = logging.getLogger("ada")
 logging.basicConfig(level=logging.INFO)
 
@@ -136,9 +138,12 @@ app = FastAPI(title="Delivery API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
-    allow_methods=["POST", "GET"],
+    allow_methods=["POST", "GET", "PUT"],
     allow_headers=["Content-Type"],
 )
+
+
+app.include_router(workspace.router())
 
 
 @app.get("/api/health")

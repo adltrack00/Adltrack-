@@ -221,10 +221,11 @@ export function Empty({ icon: Icon = Check, title, sub }) {
   );
 }
 
-export function LiveDot({ label = "Live" }) {
+export function LiveDot({ label = "Live", tone = "live" }) {
+  const warn = tone === "warn";
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11.5px] font-semibold text-emerald-600">
-      <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${warn ? "bg-amber-500/10 text-amber-600" : "bg-emerald-500/10 text-emerald-600"}`}>
+      <span className="relative flex h-2 w-2"><span className={`absolute inline-flex h-full w-full rounded-full opacity-60 ${warn ? "bg-amber-400" : "animate-ping bg-emerald-400"}`} /><span className={`relative inline-flex h-2 w-2 rounded-full ${warn ? "bg-amber-500" : "bg-emerald-500"}`} /></span>
       {label}
     </span>
   );

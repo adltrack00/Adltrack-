@@ -14,3 +14,14 @@ services:
         sync: false
       - key: ADA_MODEL
         value: claude-opus-5-5
+      # Where the shared delivery data (vendors, stock, riders, orders, deliveries) is kept.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: delivery-db
+          property: connectionString
+
+databases:
+  - name: delivery-db
+    plan: free
+    databaseName: delivery
+    user: delivery
