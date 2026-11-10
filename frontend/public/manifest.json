@@ -1,0 +1,21 @@
+{
+  "name": "Delivery",
+  "short_name": "Delivery",
+  "description": "Live deliveries for the office, vendors and riders, with ADA, the AI dispatch assistant.",
+  "id": "/",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#05061a",
+  "theme_color": "#05061a",
+  "categories": ["business", "productivity"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "My dashboard", "url": "/app", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

@@ -1,0 +1,9 @@
+**/node_modules
+frontend/build
+.git
+mobile
+test_reports
+memory
+*.zip
+backend/data
+backend/tests

@@ -1,52 +1,28 @@
 {
   "expo": {
-    "name": "ADLTrack",
-    "slug": "adltrack",
+    "name": "Delivery",
+    "slug": "delivery",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0c0a09"
-    },
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#05061a",
+    "splash": { "image": "./assets/splash.png", "resizeMode": "contain", "backgroundColor": "#05061a" },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.adltrack.app",
+      "bundleIdentifier": "app.delivery.mobile",
       "infoPlist": {
-        "NSCameraUsageDescription": "ADLTrack needs camera access to capture task completion photos and incident evidence.",
-        "NSPhotoLibraryUsageDescription": "ADLTrack needs photo library access to upload images for task documentation."
+        "NSCameraUsageDescription": "Delivery uses the camera for the photo at the customer's door.",
+        "NSPhotoLibraryUsageDescription": "Delivery lets you pick a delivery photo from your library."
       }
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0c0a09"
-      },
-      "package": "com.adltrack.app",
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE"
-      ]
+      "package": "app.delivery.mobile",
+      "adaptiveIcon": { "foregroundImage": "./assets/adaptive-icon.png", "backgroundColor": "#05061a" },
+      "permissions": ["android.permission.CAMERA", "android.permission.INTERNET"]
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "Allow ADLTrack to access your camera for task photos."
-        }
-      ],
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "Allow ADLTrack to access your photos for uploading care documentation."
-        }
-      ]
-    ]
+    "extra": {
+      "appUrl": "https://delivery.onrender.com"
+    }
   }
 }
