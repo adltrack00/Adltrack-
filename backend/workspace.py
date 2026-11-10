@@ -1,182 +1,182 @@
-"""The shared workspace: one copy of the delivery data on the server, so the company, every vendor and every rider see
-the same thing on any device.
+"""Each company's workspace: one copy of its delivery data on the server, so the company, its vendors and its riders
+see the same thing on any device, live.
 
-The browser keeps the business rules (frontend/src/delivery/store.js). It sends the whole workspace back with the
-revision it started from; if someone else saved in between, the server answers 409 with the newer copy and the browser
-re-applies its change on top. Open pages hear about every new revision over Server-Sent Events.
+The browser keeps the business rules (frontend/src/delivery/store.js). It sends its copy back with the revision it
+started from; if someone saved in between, the server answers 409 with the newer copy and the browser re-applies its
+change on top. Vendors and riders get only their part of the workspace and may change only what their role allows
+(see access.py). Open pages hear about every new revision over Server-Sent Events.
 
-Storage: Postgres when DATABASE_URL is set (Render database), otherwise a JSON file at DATA_FILE (default
-./data/workspace.json), which is fine on a laptop but is wiped when a free Render service restarts.
+Delivery photos arrive inside the saved data as data: URLs; the server moves them into the photos table and puts a
+short /api/photos/<id> link in their place, so the workspace stays small.
 """
 import asyncio
+import base64
 import json
 import logging
-import os
+import re
+import secrets
 from typing import Any, Dict, Optional, Tuple
 
-from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse, StreamingResponse
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import JSONResponse, Response, StreamingResponse
+
+import access
+from auth import DEMO_WORKSPACE, require_user
+from db import db, now
 
 log = logging.getLogger("workspace")
 MAX_BYTES = 25 * 1024 * 1024
+DATA_URL = re.compile(r"^data:(image/(?:jpeg|png|webp|gif));base64,([A-Za-z0-9+/=]+)$")
 
 
-class FileStore:
-    def __init__(self, path: str):
-        self.path = path
-        os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-
-    def load(self) -> Tuple[int, Optional[str]]:
-        try:
-            with open(self.path, encoding="utf-8") as f:
-                saved = json.load(f)
-            return int(saved["rev"]), json.dumps(saved["state"])
-        except (OSError, ValueError, KeyError):
-            return 0, None
-
-    def save(self, rev: int, state: str) -> None:
-        tmp = self.path + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as f:
-            f.write('{"rev": %d, "state": %s}' % (rev, state))
-        os.replace(tmp, self.path)
-
-
-class PostgresStore:
-    def __init__(self, url: str):
-        import psycopg  # only needed when a database is configured
-
-        self.psycopg = psycopg
-        self.url = url
-        self.ready = False
-
-    def setup(self) -> None:
-        if self.ready:
-            return
-        with self.connect() as conn:
-            conn.execute("CREATE TABLE IF NOT EXISTS workspace (id INT PRIMARY KEY, rev INT NOT NULL, state JSONB NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT now())")
-        self.ready = True
-
-    def connect(self):
-        return self.psycopg.connect(self.url, autocommit=True, connect_timeout=10)
-
-    def load(self) -> Tuple[int, Optional[str]]:
-        self.setup()
-        with self.connect() as conn:
-            row = conn.execute("SELECT rev, state::text FROM workspace WHERE id = 1").fetchone()
-        return (int(row[0]), row[1]) if row else (0, None)
-
-    def save(self, rev: int, state: str) -> None:
-        with self.connect() as conn:
-            conn.execute(
-                "INSERT INTO workspace (id, rev, state, updated_at) VALUES (1, %s, %s::jsonb, now()) "
-                "ON CONFLICT (id) DO UPDATE SET rev = EXCLUDED.rev, state = EXCLUDED.state, updated_at = now()",
-                (rev, state),
-            )
-
-
-def make_store():
-    url = os.environ.get("DATABASE_URL")
-    if url:
-        log.info("Workspace saved in Postgres")
-        return PostgresStore(url)
-    path = os.environ.get("DATA_FILE", os.path.join(os.path.dirname(__file__), "data", "workspace.json"))
-    log.info("Workspace saved in %s", path)
-    return FileStore(path)
-
-
-class Workspace:
-    """Loads lazily, so the app starts even while a brand new database is still being created; requests answer 503
-    until it can be reached, and the browser keeps its copy and retries."""
+class Hub:
+    """Saves workspaces and tells open pages about new revisions."""
 
     def __init__(self):
-        self.store = make_store()
-        self.rev, self.state = 0, None
-        self.loaded = False
-        self.lock = asyncio.Lock()
-        self.listeners: set = set()
+        self.locks: Dict[int, asyncio.Lock] = {}
+        self.listeners: Dict[int, set] = {}
 
-    async def ensure(self) -> bool:
-        if self.loaded:
-            return True
-        async with self.lock:
-            if not self.loaded:
-                try:
-                    self.rev, self.state = await asyncio.to_thread(self.store.load)
-                    self.loaded = True
-                except Exception as err:  # database not reachable yet
-                    log.warning("Workspace storage not ready: %s", err)
-        return self.loaded
+    def lock(self, wid: int) -> asyncio.Lock:
+        return self.locks.setdefault(wid, asyncio.Lock())
 
-    def snapshot(self) -> str:
-        return '{"rev": %d, "state": %s}' % (self.rev, self.state or "null")
+    @staticmethod
+    def load(wid: int) -> Tuple[int, Optional[Dict[str, Any]]]:
+        row = db.one("SELECT rev, state::text FROM workspace WHERE id = %s", (wid,))
+        return (int(row[0]), json.loads(row[1])) if row else (0, None)
 
-    async def save(self, base_rev: int, state: str) -> Optional[int]:
-        async with self.lock:
-            if base_rev != self.rev:
-                return None
-            rev = self.rev + 1
-            await asyncio.to_thread(self.store.save, rev, state)
-            self.rev, self.state = rev, state
-        for q in list(self.listeners):
+    @staticmethod
+    def create(wid: int, state: Dict[str, Any]) -> None:
+        db.execute("INSERT INTO workspace (id, rev, state, updated_at) VALUES (%s, 1, %s::jsonb, now())", (wid, json.dumps(state, separators=(",", ":"))))
+
+    @staticmethod
+    def write(wid: int, base_rev: int, state: Dict[str, Any]) -> bool:
+        text = json.dumps(state, separators=(",", ":"))
+        if base_rev == 0:
+            try:
+                db.execute("INSERT INTO workspace (id, rev, state, updated_at) VALUES (%s, 1, %s::jsonb, now())", (wid, text))
+                return True
+            except Exception:  # someone else created it first
+                return False
+        return db.execute("UPDATE workspace SET rev = rev + 1, state = %s::jsonb, updated_at = now() WHERE id = %s AND rev = %s", (text, wid, base_rev)) == 1
+
+    def announce(self, wid: int, rev: int) -> None:
+        for q in list(self.listeners.get(wid, ())):
             q.put_nowait(rev)
-        return rev
 
 
-class SaveBody(BaseModel):
-    base_rev: int
-    state: Dict[str, Any]
+hub = Hub()
+
+
+def new_workspace(wid: int, state: Dict[str, Any]) -> None:
+    Hub.create(wid, state)
+
+
+def _store_photos(state: Dict[str, Any], wid: int) -> None:
+    for t in state.get("tasks") or []:
+        proof = t.get("proof") if isinstance(t, dict) else None
+        photo = proof.get("photo") if isinstance(proof, dict) else None
+        if not isinstance(photo, str) or len(photo) < 4000:
+            continue  # small drawings (the demo's) stay inline
+        m = DATA_URL.match(photo)
+        if not m:
+            continue
+        data = base64.b64decode(m.group(2))
+        if len(data) > 6 * 1024 * 1024:
+            raise HTTPException(413, "That photo is too large.")
+        pid = secrets.token_urlsafe(12)
+        db.execute("INSERT INTO photos (id, workspace_id, mime, data, created_at) VALUES (%s, %s, %s, %s, %s)", (pid, wid, m.group(1), db.blob(data), now()))
+        proof["photo"] = f"/api/photos/{pid}"
+
+
+def _json(body: Any, status: int = 200) -> Response:
+    return Response(content=json.dumps(body, separators=(",", ":")), status_code=status, media_type="application/json", headers={"Cache-Control": "no-store"})
 
 
 def router() -> APIRouter:
-    ws = Workspace()
-    api = APIRouter(prefix="/api/workspace")
+    api = APIRouter(prefix="/api")
 
-    @api.get("")
-    async def get_workspace():
-        if not await ws.ensure():
-            return JSONResponse({"error": "storage not ready"}, status_code=503)
-        return _raw(ws.snapshot())
+    @api.get("/workspace")
+    async def get_workspace(user=Depends(require_user)):
+        rev, state = await asyncio.to_thread(Hub.load, user["workspaceId"])
+        return _json({"rev": rev, "state": access.view(state, user["role"], user["ref"])})
 
-    @api.put("")
-    async def put_workspace(request: Request):
+    @api.put("/workspace")
+    async def put_workspace(request: Request, user=Depends(require_user)):
         raw = await request.body()
         if len(raw) > MAX_BYTES:
             return JSONResponse({"error": "too large"}, status_code=413)
-        if not await ws.ensure():
-            return JSONResponse({"error": "storage not ready"}, status_code=503)
-        body = SaveBody.model_validate_json(raw)
-        if body.state.get("version") is None:
-            return JSONResponse({"error": "not a workspace"}, status_code=400)
-        rev = await ws.save(body.base_rev, json.dumps(body.state, separators=(",", ":")))
-        if rev is None:
-            return _raw(ws.snapshot(), status=409)
-        return {"rev": rev}
+        try:
+            body = json.loads(raw)
+            base_rev, sent = int(body["base_rev"]), body["state"]
+        except (ValueError, KeyError, TypeError):
+            raise HTTPException(400, "Bad save.")
+        if not isinstance(sent, dict) or sent.get("version") != 5:
+            raise HTTPException(400, "Not a workspace.")
+        wid, role, ref = user["workspaceId"], user["role"], user["ref"]
+        async with hub.lock(wid):
+            rev, full = await asyncio.to_thread(Hub.load, wid)
+            if base_rev != rev:
+                return _json({"rev": rev, "state": access.view(full, role, ref)}, status=409)
+            await asyncio.to_thread(_store_photos, sent, wid)
+            if role == "company":
+                nxt = sent
+            elif full is None:
+                raise HTTPException(409, "Your company hasn't set up yet.")
+            else:
+                try:
+                    nxt = access.merge(full, sent, role, ref)
+                except access.Refused as err:
+                    log.warning("Refused save from %s %s: %s", role, user["id"], err)
+                    return _json({"error": "Your account can't make that change.", "rev": rev, "state": access.view(full, role, ref)}, status=403)
+            ok = await asyncio.to_thread(Hub.write, wid, rev, nxt)
+            if not ok:
+                rev, full = await asyncio.to_thread(Hub.load, wid)
+                return _json({"rev": rev, "state": access.view(full, role, ref)}, status=409)
+            rev += 1
+        hub.announce(wid, rev)
+        # Photos may have been moved out; the browser adopts this copy so it shows the short links.
+        return _json({"rev": rev, "state": access.view(nxt, role, ref)})
 
-    @api.get("/stream")
-    async def stream(request: Request):
-        await ws.ensure()
+    @api.get("/workspace/stream")
+    async def stream(request: Request, user=Depends(require_user)):
+        wid = user["workspaceId"]
         q: asyncio.Queue = asyncio.Queue()
-        ws.listeners.add(q)
+        hub.listeners.setdefault(wid, set()).add(q)
+        rev, _ = await asyncio.to_thread(Hub.load, wid)
 
         async def events():
             try:
-                yield f"data: {ws.rev}\n\n"
+                yield f"data: {rev}\n\n"
                 while not await request.is_disconnected():
                     try:
-                        rev = await asyncio.wait_for(q.get(), timeout=20)
-                        yield f"data: {rev}\n\n"
+                        latest = await asyncio.wait_for(q.get(), timeout=20)
+                        yield f"data: {latest}\n\n"
                     except asyncio.TimeoutError:
                         yield ": ping\n\n"  # keeps the connection open through proxies
             finally:
-                ws.listeners.discard(q)
+                hub.listeners.get(wid, set()).discard(q)
 
         return StreamingResponse(events(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
+    @api.post("/workspace/reset-demo")
+    async def reset_demo(request: Request, user=Depends(require_user)):
+        if user["workspaceId"] != DEMO_WORKSPACE or user["role"] != "company":
+            raise HTTPException(403, "Only the demo can be reset.")
+        body = await request.json()
+        seed = body.get("seed")
+        if not isinstance(seed, dict) or seed.get("version") != 5:
+            raise HTTPException(400, "Bad seed.")
+        async with hub.lock(DEMO_WORKSPACE):
+            rev, _ = await asyncio.to_thread(Hub.load, DEMO_WORKSPACE)
+            await asyncio.to_thread(Hub.write, DEMO_WORKSPACE, rev, seed)
+        hub.announce(DEMO_WORKSPACE, rev + 1)
+        return {"rev": rev + 1}
+
+    @api.get("/photos/{pid}")
+    def photo(pid: str, user=Depends(require_user)):
+        row = db.one("SELECT mime, data, workspace_id FROM photos WHERE id = %s", (pid,))
+        if not row or row[2] != user["workspaceId"]:
+            raise HTTPException(404, "Not found.")
+        return Response(content=bytes(row[1]), media_type=row[0], headers={"Cache-Control": "private, max-age=31536000, immutable"})
+
     return api
-
-
-def _raw(body: str, status: int = 200):
-    from fastapi import Response
-
-    return Response(content=body, status_code=status, media_type="application/json", headers={"Cache-Control": "no-store"})

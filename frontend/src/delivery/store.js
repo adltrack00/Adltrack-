@@ -1,20 +1,26 @@
-// One shared store for the company, vendor and rider dashboards. When the app runs with its server (as on Render) the
-// data is kept there and every device hears about each change, so a delivery a rider completes on their phone shows up
-// on the company and vendor dashboards at once. Without a server it is saved in this browser and shared between tabs.
+// One shared store for the company, vendor and rider dashboards. The data is kept on the server, one workspace per
+// company, and every signed-in device hears about each change, so a delivery a rider completes on their phone shows up
+// on the company and vendor dashboards at once. Each person gets only their part (see backend/access.py).
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { toast } from "sonner";
+import { api, serverUrl } from "./auth";
 import { freshState } from "./seed";
 import { todayISO, uid } from "./utils";
 
-const KEY = "delivery-workspace-v5";
-const channel = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("delivery-workspace") : null;
+export const emptyState = (company = {}) => ({
+  version: 5, company: { name: "", dispatcher: "", city: "", ...company },
+  vendors: [], riders: [], products: [], intake: [], orders: [], tasks: [], messages: [], nextRef: 1000,
+});
 
-function load() {
+// This device keeps the last copy it saw, so the app opens at once and works on a weak signal.
+function load(key) {
   try {
-    const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+    const saved = JSON.parse(localStorage.getItem(key) || "null");
     if (saved && saved.version === 5) return saved;
   } catch (e) { /* storage blocked: start fresh */ }
-  return freshState();
+  return null;
 }
+const COLORS = ["#f97316", "#0ea5e9", "#10b981", "#8b5cf6", "#ef4444", "#eab308", "#14b8a6", "#ec4899"];
 
 const now = () => new Date().toISOString();
 const stamp = (task, status) => ({ ...task, status, history: [...(task.history || []), { status, at: now() }] });
@@ -24,15 +30,21 @@ function reducer(state, action) {
   switch (action.type) {
     case "replace":
       return action.state;
-    case "reset":
-      return freshState();
 
     // The setup flow and the "Look" picker save the company's name, areas and dashboard look here.
     case "company/update":
       return { ...state, company: { ...state.company, ...action.patch } };
 
     case "vendor/add":
-      return { ...state, vendors: [...state.vendors, { id: uid("v"), color: "#64748b", ...action.vendor }] };
+      return { ...state, vendors: [...state.vendors, { id: action.id || uid("v"), color: COLORS[state.vendors.length % COLORS.length], ...action.vendor }] };
+    case "vendor/update":
+      return { ...state, vendors: state.vendors.map((v) => (v.id === action.id ? { ...v, ...action.patch } : v)) };
+    case "rider/add": {
+      const r = action.rider;
+      return { ...state, riders: [...state.riders, { id: action.id || uid("r"), short: (r.name || "").split(" ")[0], online: false, dailyUnits: 10, color: COLORS[state.riders.length % COLORS.length], vehicle: "Bike", ...r }] };
+    }
+    case "rider/update":
+      return { ...state, riders: state.riders.map((r) => (r.id === action.id ? { ...r, ...action.patch, short: (action.patch.name || r.name || "").split(" ")[0] } : r)) };
 
     // A vendor drops off stock: an existing product gets more units, a new one is added with its unit price.
     case "stock/receive": {
@@ -56,7 +68,7 @@ function reducer(state, action) {
     case "order/add": {
       const list = action.orders || [action.order];
       let n = state.orders.reduce((m, o) => Math.max(m, Number(String(o.id).replace(/\D/g, "")) || 0), 3300);
-      const added = list.map((o) => ({ status: "open", createdAt: now(), date: todayISO(), ...o, id: `ORD-${(n += 1)}` }));
+      const added = list.map((o) => ({ status: "open", createdAt: now(), date: todayISO(), placedBy: action.actor || "company", ...o, id: `ORD-${(n += 1)}` }));
       return { ...state, orders: [...added, ...state.orders] };
     }
     case "order/update":
@@ -91,8 +103,14 @@ function reducer(state, action) {
           ...action.messages.map((m) => ({ id: uid("m"), at: now(), read: false, from: "dispatcher", ...m })),
         ],
       };
-    case "messages/read":
-      return { ...state, messages: state.messages.map((m) => (m.riderId === action.riderId && m.from !== "rider" ? { ...m, read: true } : m)) };
+    // Marks one conversation read by one side: by "rider" or "vendor" (what the office sent), or by "company"
+    // (what that rider or vendor sent).
+    case "messages/read": {
+      const by = action.by || "rider";
+      const inThread = (m) => (action.vendorId ? m.vendorId === action.vendorId : m.riderId === action.riderId);
+      const theirs = (m) => (by === "company" ? m.from === "rider" || m.from === "vendor" : m.from !== by);
+      return { ...state, messages: state.messages.map((m) => (inThread(m) && theirs(m) && !m.read ? { ...m, read: true } : m)) };
+    }
 
     case "task/pickup":
       return mapTask(state, action.id, (t) => stamp(t, "picked_up"));
@@ -141,59 +159,24 @@ function root(state, action) {
 
 const Ctx = createContext(null);
 
-// With a server (REACT_APP_BACKEND_URL, "/" on Render) the workspace lives there and every device shares it.
-// Without one (plain `yarn start`) it stays in this browser, shared between its tabs.
-const USE_SERVER = Boolean(process.env.REACT_APP_BACKEND_URL);
-const SERVER = (process.env.REACT_APP_BACKEND_URL || "").replace(/\/$/, "");
-const REV_KEY = `${KEY}-rev`;
-
-function loadRev() {
-  try { return Number(localStorage.getItem(REV_KEY)) || 0; } catch (e) { return 0; }
-}
-
-export function WorkspaceProvider({ children }) {
-  return USE_SERVER ? React.createElement(ServerWorkspace, null, children) : React.createElement(LocalWorkspace, null, children);
-}
-
-function LocalWorkspace({ children }) {
-  const [state, dispatch] = useReducer(root, undefined, load);
-
-  // Save every change and tell other open tabs.
-  useEffect(() => {
-    if (state.__from === "remote") return;
-    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* full or blocked */ }
-    if (channel) channel.postMessage(state);
-  }, [state]);
-
-  // Pick up changes made in other tabs (the rider's phone view, the vendor view).
-  useEffect(() => {
-    const apply = (next) => next && next.version === 5 && dispatch({ type: "replace", state: { ...next, __from: "remote" } });
-    const onStorage = (e) => { if (e.key === KEY && e.newValue) { try { apply(JSON.parse(e.newValue)); } catch (err) { /* ignore */ } } };
-    const onMessage = (e) => apply(e.data);
-    window.addEventListener("storage", onStorage);
-    if (channel) channel.addEventListener("message", onMessage);
-    return () => {
-      window.removeEventListener("storage", onStorage);
-      if (channel) channel.removeEventListener("message", onMessage);
-    };
-  }, []);
-
-  const act = useCallback((action) => dispatch(action), []);
-  const value = useMemo(() => ({ state, act, sync: "local" }), [state, act]);
-  return React.createElement(Ctx.Provider, { value }, children);
-}
-
 /* The server holds the one copy. A change shows here at once, then is sent with the revision it was made on. If
    someone saved first, the server sends back its newer copy and the change is applied again on top of it, so nobody's
    delivery or order is lost. Every page hears about new revisions and fetches them. */
-function ServerWorkspace({ children }) {
+export function WorkspaceProvider({ user, onExpired, children }) {
+  const KEY = `delivery-ws-${user.id}`;
+  const REV_KEY = `${KEY}-rev`;
   const sync = useRef(null);
   if (!sync.current) {
-    const state = load();
-    sync.current = { base: { rev: loadRev(), state }, view: state, pending: [], sending: false, latest: 0, ready: false, retry: null };
+    const cached = load(KEY);
+    let rev = 0;
+    try { rev = cached ? Number(localStorage.getItem(REV_KEY)) || 0 : 0; } catch (e) { /* blocked */ }
+    const state = cached || emptyState();
+    sync.current = { base: { rev, state }, view: state, pending: [], sending: false, latest: 0, ready: false, loaded: !!cached, retry: null };
   }
   const [, render] = useReducer((n) => n + 1, 0);
   const [status, setStatus] = useState("connecting");
+  const expired = useRef(onExpired);
+  expired.current = onExpired;
 
   const cache = (s) => {
     try { localStorage.setItem(KEY, JSON.stringify(s.view)); localStorage.setItem(REV_KEY, String(s.base.rev)); } catch (e) { /* full or blocked */ }
@@ -203,9 +186,10 @@ function ServerWorkspace({ children }) {
     const s = sync.current;
     s.base = { rev, state };
     s.view = s.pending.reduce(root, state);
+    s.loaded = true;
     cache(s);
     render();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const flush = useCallback(async () => {
     const s = sync.current;
@@ -215,51 +199,52 @@ function ServerWorkspace({ children }) {
     const sent = s.pending.length;
     const snapshot = s.view;
     try {
-      const res = await fetch(`${SERVER}/api/workspace`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ base_rev: s.base.rev, state: snapshot }) });
-      if (res.status === 409) {
-        const fresh = await res.json();
-        adopt(fresh.rev, fresh.state && fresh.state.version === 5 ? fresh.state : freshState());
-      } else if (res.ok) {
-        const { rev } = await res.json();
-        s.base = { rev, state: snapshot };
-        s.pending = s.pending.slice(sent);
-        cache(s);
-      } else {
-        throw new Error(`save failed ${res.status}`);
-      }
+      const saved = await api("/api/workspace", { method: "PUT", body: { base_rev: s.base.rev, state: snapshot } });
+      s.pending = s.pending.slice(sent);
+      adopt(saved.rev, saved.state);
       s.sending = false;
       setStatus("live");
     } catch (e) {
       s.sending = false;
-      setStatus("offline");
-      clearTimeout(s.retry);
-      s.retry = setTimeout(() => flush(), 4000);
-      return;
+      if (e.status === 409 && e.body && e.body.state) {
+        adopt(e.body.rev, e.body.state); // someone saved first: our changes are re-applied on top
+      } else if (e.status === 403 && e.body && e.body.state) {
+        s.pending = [];
+        adopt(e.body.rev, e.body.state);
+        toast.error(e.message || "Your account can't make that change.");
+        setStatus("live");
+        return;
+      } else if (e.status === 401) {
+        expired.current && expired.current();
+        return;
+      } else if (e.status === 400 || e.status === 413) {
+        s.pending = [];
+        adopt(s.base.rev, s.base.state);
+        toast.error(e.message);
+        setStatus("live");
+        return;
+      } else {
+        setStatus("offline");
+        clearTimeout(s.retry);
+        s.retry = setTimeout(() => flush(), 4000);
+        return;
+      }
     }
     if (s.pending.length) flush();
-    else if (s.latest > s.base.rev) pull();
+    else if (s.latest > s.base.rev) pullRef.current();
   }, [adopt]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pull = useCallback(async () => {
     const s = sync.current;
     try {
-      const res = await fetch(`${SERVER}/api/workspace`, { cache: "no-store" });
-      if (!res.ok) throw new Error(`load failed ${res.status}`);
-      const { rev, state } = await res.json();
+      const { rev, state } = await api("/api/workspace");
       if (s.sending) return; // the save in flight will catch up
-      if (!state || state.version !== 5) {
-        // A brand new server: this browser's copy (or the demo data) becomes the shared one.
-        s.ready = true;
-        s.base = { rev, state: s.base.state };
-        if (!s.pending.length) s.pending = [{ type: "replace", state: s.view }];
-        flush();
-        return;
-      }
       s.ready = true;
-      adopt(rev, state);
+      adopt(rev, state && state.version === 5 ? state : emptyState());
       setStatus("live");
       flush();
     } catch (e) {
+      if (e.status === 401) { expired.current && expired.current(); return; }
       setStatus("offline");
       clearTimeout(s.retry);
       s.retry = setTimeout(() => pullRef.current(), 4000);
@@ -271,8 +256,10 @@ function ServerWorkspace({ children }) {
   useEffect(() => {
     let es;
     let timer;
+    let closed = false;
     const connect = () => {
-      es = new EventSource(`${SERVER}/api/workspace/stream`);
+      if (closed) return;
+      es = new EventSource(serverUrl("/api/workspace/stream"), { withCredentials: true });
       es.onmessage = (e) => {
         const rev = Number(e.data) || 0;
         const s = sync.current;
@@ -282,32 +269,49 @@ function ServerWorkspace({ children }) {
       es.onerror = () => {
         setStatus("offline");
         es.close();
-        timer = setTimeout(connect, 3000);
+        clearTimeout(timer);
+        timer = setTimeout(() => { pull(); connect(); }, 3000);
       };
     };
     pull();
     connect();
     const onFocus = () => pull();
+    const onVisible = () => { if (document.visibilityState === "visible") pull(); };
     window.addEventListener("focus", onFocus);
+    window.addEventListener("online", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
+      closed = true;
       if (es) es.close();
       clearTimeout(timer);
       clearTimeout(sync.current.retry);
       window.removeEventListener("focus", onFocus);
+      window.removeEventListener("online", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [pull]);
 
-  const act = useCallback((action) => {
+  const act = useCallback((raw) => {
+    const action = { ...raw, actor: user.role };
     const s = sync.current;
     s.view = root(s.view, action);
     s.pending.push(action);
     cache(s);
     render();
     flush();
-  }, [flush]);
+  }, [flush, user.role]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // The demo can be put back to its sample data (for everyone using the demo).
+  const resetDemo = useCallback(async () => {
+    await api("/api/workspace/reset-demo", { method: "POST", body: { seed: freshState() } });
+    sync.current.pending = [];
+    await pull();
+  }, [pull]);
 
   const state = sync.current.view;
-  const value = useMemo(() => ({ state, act, sync: status }), [state, act, status]);
+  const loaded = sync.current.loaded;
+  const fresh = sync.current.ready; // the server has answered at least once (not just this device's last copy)
+  const value = useMemo(() => ({ state, act, sync: status, loaded, fresh, resetDemo, user }), [state, act, status, loaded, fresh, resetDemo, user]);
   return React.createElement(Ctx.Provider, { value }, children);
 }
 

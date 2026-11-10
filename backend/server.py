@@ -18,12 +18,14 @@ import re
 from typing import Any, Dict, List
 
 import anthropic
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from starlette.middleware.cors import CORSMiddleware
 
+import auth
 import workspace
+from db import db
 
 log = logging.getLogger("ada")
 logging.basicConfig(level=logging.INFO)
@@ -135,24 +137,41 @@ except Exception as err:  # no key and no profile: the browser's own ADA answers
     client = None
 
 app = FastAPI(title="Delivery API")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
-    allow_methods=["POST", "GET", "PUT"],
-    allow_headers=["Content-Type"],
-)
+# The app and the API share one address on Render, so cross-site access is off unless CORS_ORIGINS lists sites.
+if os.environ.get("CORS_ORIGINS"):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=os.environ["CORS_ORIGINS"].split(","),
+        allow_credentials=True,
+        allow_methods=["POST", "GET", "PUT", "DELETE"],
+        allow_headers=["Content-Type"],
+    )
 
 
+app.include_router(auth.router(workspace.new_workspace))
 app.include_router(workspace.router())
+
+
+@app.on_event("startup")
+def prepare_database() -> None:
+    try:
+        db.setup()
+    except Exception as err:  # a brand new Render database can take a minute; requests retry setup
+        log.warning("Database not ready yet: %s", err)
 
 
 @app.get("/api/health")
 def health() -> Dict[str, str]:
-    return {"status": "ok", "model": MODEL, "claude": "on" if client is not None and HAS_KEY else "off"}
+    try:
+        db.setup()
+        storage = "ok"
+    except Exception:
+        storage = "starting"
+    return {"status": "ok", "storage": storage, "model": MODEL, "claude": "on" if client is not None and HAS_KEY else "off"}
 
 
 @app.post("/api/ada")
-def ada(body: AdaRequest):
+def ada(body: AdaRequest, user=Depends(auth.require_company)):
     if client is None:
         return {"kind": "error"}
     turns = [{"role": "assistant" if t.role == "assistant" else "user", "text": cut(t.text, 1200)} for t in body.messages[-8:]]
@@ -201,6 +220,17 @@ def ada(body: AdaRequest):
 
 
 # On Render the built app is served from here too, so the app and /api share one address.
+# Every other address is a page of the app (/, /signin, /company, /rider ...), so it gets index.html.
 STATIC_DIR = os.environ.get("STATIC_DIR")
 if STATIC_DIR and os.path.isdir(STATIC_DIR):
-    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="app")
+    ROOT = os.path.realpath(STATIC_DIR)
+
+    @app.get("/{path:path}", include_in_schema=False)
+    def app_page(path: str):
+        if path.startswith("api/"):
+            raise HTTPException(404, "Not found.")
+        file = os.path.realpath(os.path.join(ROOT, path))
+        if path and file.startswith(ROOT + os.sep) and os.path.isfile(file):
+            cache = "public, max-age=31536000, immutable" if path.startswith("static/") else "no-cache"
+            return FileResponse(file, headers={"Cache-Control": cache})
+        return FileResponse(os.path.join(ROOT, "index.html"), headers={"Cache-Control": "no-cache"})

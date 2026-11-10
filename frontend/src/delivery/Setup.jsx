@@ -26,7 +26,7 @@ export default function Setup({ go }) {
 
   const finish = () => {
     act({ type: "company/update", patch: { name: a.company.trim() || c.name, dispatcher: a.name.trim() || c.dispatcher, deliver: a.deliver, intake: a.intake, volume: a.volume, zones: a.zones, theme: a.theme, setupDone: true } });
-    go("#/company");
+    go("/company");
   };
   const notify = () => {
     try { const N = window.Notification; if (N && N.permission === "default") N.requestPermission(); } catch (e) { /* not supported */ }
@@ -116,7 +116,7 @@ export default function Setup({ go }) {
       <Digits light={s.tinted} />
       <div className="relative mx-auto flex min-h-[100svh] max-w-[520px] flex-col px-5 pb-8 pt-6">
         <div className="flex h-14 items-center justify-between">
-          <BackBtn light={s.tinted} onClick={() => (i ? setI(i - 1) : go("#/"))} />
+          <BackBtn light={s.tinted} onClick={() => (i ? setI(i - 1) : go("/"))} />
           <div className="flex gap-1.5">{steps.map((_, n) => <span key={n} className={cn("h-1.5 rounded-full transition-all", n === i ? "w-6 bg-neutral-900" : "w-1.5 bg-neutral-300")} />)}</div>
           {s.skip ? <button onClick={() => setI(i + 1)} className="w-[52px] text-[17px] text-neutral-400">Skip</button> : <span className="w-[52px]" />}
         </div>

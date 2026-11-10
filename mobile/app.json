@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Delivery",
+    "slug": "delivery",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#05061a",
+    "splash": { "image": "./assets/splash.png", "resizeMode": "contain", "backgroundColor": "#05061a" },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.delivery.mobile",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Delivery uses the camera for the photo at the customer's door.",
+        "NSPhotoLibraryUsageDescription": "Delivery lets you pick a delivery photo from your library."
+      }
+    },
+    "android": {
+      "package": "app.delivery.mobile",
+      "adaptiveIcon": { "foregroundImage": "./assets/adaptive-icon.png", "backgroundColor": "#05061a" },
+      "permissions": ["android.permission.CAMERA", "android.permission.INTERNET"]
+    },
+    "extra": {
+      "appUrl": "https://delivery.onrender.com"
+    }
+  }
+}
