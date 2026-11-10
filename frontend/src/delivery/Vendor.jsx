@@ -123,12 +123,12 @@ function VendorDashboard({ vendor, go }) {
           <div className="mt-3"><ProductTable state={state} vendorId={vendor.id} /></div>
         </Card>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*]:min-w-0">
           <StockSent vendor={vendor} onSend={() => setSending(true)} />
           {main && <VendorTeam vendor={vendor} />}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] [&>*]:min-w-0">
           <Card id="vendor-deliveries" className="scroll-mt-6">
             <CardHead title="Deliveries" sub="Tap one to see the photo, who received it and the payment" />
             <Chips className="mt-4 px-5" options={filters.map(([id, label, fn]) => [id, label, tasks.filter(fn).length])} value={filter} onChange={setFilter} />

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { AdaPanel } from "./AdaPanel";
 import Team from "./Team";
 import { SideMenu } from "./SideMenu";
+import { StatPill } from "./Stats";
 import { useAuth } from "./auth";
 import { DeliveryCard, Feed, LedgerLegend, PaymentActions, ProductTable } from "./shared";
 import { FixOrder, PasteOrders } from "./Intake";
@@ -63,16 +64,12 @@ export default function Company({ go }) {
           </div>
         </div>
         <div className="relative -mx-5 mt-4 overflow-x-auto px-5 lg:hidden [scrollbar-width:none]"><div className="flex w-max gap-2"><QuickTaps onPick={pick} awaiting={needs.awaiting.length} /></div></div>
-        <div className="relative mx-auto mt-10 flex max-w-7xl flex-wrap items-end justify-between gap-6">
-          <div>
+        <div className="relative mx-auto mt-10 flex max-w-7xl flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0">
             <div className="text-[15px] font-medium text-white/60">{new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
             <h1 className="mt-1 text-[40px] font-extrabold leading-[1.05] tracking-[-0.035em] sm:text-[52px]">{titles[tab]}{tab === "today" ? <span className="text-white/50">, {state.company.dispatcher}.</span> : ""}</h1>
           </div>
-          <div className="flex gap-6 text-right sm:gap-10">
-            {[["Delivered", num(t.delivered)], ["Left", num(t.left)], ["With riders", num(t.withRiders)], ["Sold", money(t.deliveredValue)]].map(([k, v]) => (
-              <div key={k}><div className="text-[24px] font-bold tracking-tight sm:text-[28px]">{v}</div><div className="text-[12.5px] text-white/55">{k}</div></div>
-            ))}
-          </div>
+          <StatPill state={state} className="w-full lg:w-[540px] lg:shrink-0" />
         </div>
       </header>
 
@@ -232,7 +229,7 @@ function NeedsYou({ openAda, setTab }) {
         </div>
       </section>
 
-      <div className="mt-10 grid gap-5 xl:grid-cols-[1.15fr_1fr]">
+      <div className="mt-10 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] [&>*]:min-w-0">
         <div className="space-y-5">
           <Section icon={Truck} tone="sky" title={`Ready for a rider (${n.ready.length})`} sub={n.ready.length ? `${readyUnits} units · ${money(n.ready.reduce((s, o) => s + orderValue(state, o), 0))} to collect. ADA splits them by area and each rider's daily units.` : "Every order has a rider."}
             right={<Btn onClick={() => openAda("Dispatch today's orders")} disabled={!n.ready.length}><Sparkles className="h-4 w-4 text-blue-300" /> Plan with ADA</Btn>}>
