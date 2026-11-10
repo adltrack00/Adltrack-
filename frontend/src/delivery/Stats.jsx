@@ -1,6 +1,6 @@
 // The four headline numbers on the company dashboard (delivered, left, with riders, sold) as one segmented pill.
 // Tapping a segment lights it up and opens a sheet with what's behind that number.
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Wallet } from "lucide-react";
 import { isActive, isAwaitingPayment, isDelivered, productLedger, riderById, totals, units, value, vendorById } from "./store";
 import { Avatar, Card, Empty, Modal } from "./ui";
@@ -22,24 +22,63 @@ const SEGMENTS = [
   ["sold", "Sold"],
 ];
 
+// A liquid-glass bubble sits behind one number. Until someone taps, it glides from number to number every few
+// seconds so it's clear they can be tapped; a tap sends it to that number, then opens its sheet.
 export function StatPill({ state, className }) {
   const [open, setOpen] = useState(null);
+  const [pos, setPos] = useState(0);
+  const [moving, setMoving] = useState(false);
+  const [touched, setTouched] = useState(false);
   const t = totals(state);
   const shown = { delivered: num(t.delivered), left: num(t.left), riders: num(t.withRiders), sold: shortMoney(t.deliveredValue) };
+
+  const glide = useCallback((i) => {
+    setPos(i);
+    setMoving(true);
+    setTimeout(() => setMoving(false), 260);
+  }, []);
+  useEffect(() => {
+    if (touched || open) return undefined;
+    const still = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (still) return undefined;
+    const timer = setInterval(() => setPos((p) => { const n = (p + 1) % SEGMENTS.length; setMoving(true); setTimeout(() => setMoving(false), 260); return n; }), 2600);
+    return () => clearInterval(timer);
+  }, [touched, open]);
+
+  const tap = (i, id) => {
+    setTouched(true);
+    glide(i);
+    setTimeout(() => setOpen(id), pos === i ? 0 : 320);
+  };
+
   return (
     <>
-      <div className={cn("grid grid-cols-4 gap-1 rounded-full bg-white/10 p-1.5 ring-1 ring-white/10 backdrop-blur-md", className)} data-testid="stat-pill">
-        {SEGMENTS.map(([id, label]) => {
-          const on = open === id;
+      <div className={cn("relative grid grid-cols-4 rounded-full bg-white/10 p-1.5 ring-1 ring-white/10 backdrop-blur-md", className)} data-testid="stat-pill">
+        <span
+          aria-hidden
+          data-testid="stat-bubble"
+          className="pointer-events-none absolute inset-y-1.5 left-1.5 rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.32)_0%,rgba(255,255,255,0.12)_55%,rgba(255,255,255,0.2)_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.65),inset_0_-1px_0_rgba(255,255,255,0.18),0_10px_28px_-10px_rgba(0,0,0,0.6)] ring-1 ring-white/35 backdrop-blur-xl"
+          style={{
+            width: "calc((100% - 12px) / 4)",
+            transform: `translateX(${pos * 100}%) scaleX(${moving ? 1.12 : 1}) scaleY(${moving ? 0.92 : 1})`,
+            transition: "transform 520ms cubic-bezier(0.34, 1.45, 0.64, 1)",
+          }}
+        >
+          <span className="absolute inset-x-3 top-[3px] h-[38%] rounded-full bg-gradient-to-b from-white/45 to-transparent" />
+        </span>
+        {SEGMENTS.map(([id, label], i) => {
+          const here = pos === i;
           return (
             <button
               key={id}
-              onClick={() => setOpen(id)}
-              className={cn("min-w-0 rounded-full px-1 py-2 text-center transition sm:py-2.5", on ? "bg-white text-neutral-950 shadow-[0_6px_20px_-6px_rgba(0,0,0,0.45)]" : "text-white hover:bg-white/[0.08]")}
+              onClick={() => tap(i, id)}
+              onMouseEnter={() => { if (!touched) { setTouched(true); glide(i); } else glide(i); }}
+              className="relative z-10 min-w-0 rounded-full px-1 py-2 text-center text-white sm:py-2.5"
               data-testid={`stat-${id}`}
+              aria-label={`${label}: ${shown[id]}. Tap for details`}
             >
               <div className="truncate text-[17px] font-bold leading-tight tracking-tight sm:text-[22px]">{shown[id]}</div>
-              <div className={cn("truncate text-[11px] font-medium sm:text-[12.5px]", on ? "text-neutral-500" : "text-white/55")}>{label}</div>
+              <div className={cn("truncate text-[11px] font-medium transition-colors sm:text-[12.5px]", here ? "text-white/90" : "text-white/55")}>{label}</div>
             </button>
           );
         })}
