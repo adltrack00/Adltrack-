@@ -11,7 +11,7 @@ import { DeliveryCard, Feed, LedgerLegend, PaymentActions, ProductTable } from "
 import { FixOrder, PasteOrders } from "./Intake";
 import { isActive, isAwaitingPayment, lineLabel, orderValue, productById, productLedger, riderLoad, totals, units as taskUnits, useWorkspace, value as taskValue, vendorById } from "./store";
 import { AlertStack, LabelCloud, ProgressScene, themeOf, ThemePicker, Tip } from "./scenes";
-import { AdaBar, AdaMark, ChecklistCard, Chips, HeroCard, Avatar, Bar, Btn, Card, CardHead, Empty, Field, inputCls, OptionList, LedgerBar, LiveDot, Logo, Modal, StatusPill, Stat, statusOf, Tag, Tile } from "./ui";
+import { AdaBar, AdaMark, ChecklistCard, Chips, HeroCard, Avatar, Bar, Btn, Card, CardHead, Empty, Field, inputCls, OptionList, LedgerBar, LiveDot, Modal, StatusPill, Stat, statusOf, Tag, Tile } from "./ui";
 import { ago, clock, money, num, time12, todayISO } from "./utils";
 
 const NAV = [
@@ -46,15 +46,14 @@ export default function Company({ go }) {
       <header className={`${theme.header} relative overflow-hidden px-5 pb-16 pt-6 text-white sm:px-10`}>
         <div className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-blue-600/30 blur-3xl" />
         <div className="relative mx-auto flex max-w-7xl items-center gap-3">
-          <Logo dark />
-          <span className="hidden text-[13px] text-white/50 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
+          <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-white hover:text-white/80" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
+          <span className="hidden text-[14px] font-semibold text-white/70 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
           <div className="ml-auto flex items-center gap-2">
             <span className="hidden sm:inline-flex"><LiveDot label={sync === "offline" ? "Offline, will save when back" : sync === "connecting" ? "Connecting…" : "Live with vendors & riders"} tone={sync === "offline" ? "warn" : "live"} /></span>
             <span className="sm:hidden"><LiveDot label={sync === "offline" ? "Offline" : "Live"} tone={sync === "offline" ? "warn" : "live"} /></span>
             <button onClick={() => setTab("team")} className="hidden h-9 items-center gap-1.5 rounded-full bg-white/10 px-3 text-[12.5px] font-medium text-white/80 hover:bg-white/15 md:flex"><Users className="h-4 w-4" /> Invite people</button>
             <button onClick={() => setLooking(true)} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Change the look"><Palette className="h-4 w-4" /></button>
             <button onClick={() => go("/account")} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Your account" data-testid="account"><User className="h-4 w-4" /></button>
-            <button onClick={() => setMenu(true)} className="grid h-11 w-11 place-items-center rounded-full bg-white text-neutral-950 shadow-[0_6px_20px_-6px_rgba(0,0,0,0.5)] hover:bg-white/90" aria-label="Open menu" data-testid="open-menu"><Menu className="h-5 w-5" strokeWidth={2.2} /></button>
           </div>
         </div>
         <div className="relative mx-auto mt-10 flex max-w-7xl flex-wrap items-end justify-between gap-6">
@@ -76,11 +75,7 @@ export default function Company({ go }) {
         </div>
       </main>
 
-      <div className="pointer-events-none fixed inset-x-0 bottom-5 z-30 flex items-center justify-between px-5 sm:px-8">
-        <button onClick={() => setMenu(true)} className="pointer-events-auto flex h-14 items-center gap-2 rounded-full bg-white/85 pl-4 pr-5 text-[15px] font-semibold text-neutral-900 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 backdrop-blur-xl" aria-label="Menu">
-          <Menu className="h-5 w-5" /> {NAV.find((x) => x[0] === tab)[1]}
-          {!!(needs.count + unread) && <span className="grid h-5 min-w-5 place-items-center rounded-full bg-blue-600 px-1 text-[11px] font-bold text-white">{needs.count + unread}</span>}
-        </button>
+      <div className="pointer-events-none fixed inset-x-0 bottom-5 z-30 flex items-center justify-end px-5 sm:px-8">
         <button onClick={() => openAda()} className="pointer-events-auto grid h-[68px] w-[68px] place-items-center rounded-full bg-white/80 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 backdrop-blur-xl" aria-label="Ask ADA"><AdaMark size={44} /></button>
       </div>
       <SideMenu
@@ -89,6 +84,7 @@ export default function Company({ go }) {
         name={(user && user.name ? user.name : state.company.dispatcher || "there").split(" ")[0]}
         email={user ? user.email || user.phone : ""}
         active={tab}
+        panel={theme.header}
         items={[
           ...tabs.map(([id, label, Icon, badge]) => ({ id, label, icon: Icon, badge, onClick: () => setTab(id) })),
           { id: "ada", label: "Ask ADA", icon: Sparkles, onClick: () => openAda() },
