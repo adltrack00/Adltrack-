@@ -1,7 +1,9 @@
 // The vendor portal: a vendor sees their own products, every delivery as it happens (time, photo, payment)
 // and can request new deliveries. Same live data as the company and the riders.
 import React, { useEffect, useState } from "react";
-import { Boxes, MessageSquare, Package, PackageCheck, Plus, Send, Truck, User, Wallet } from "lucide-react";
+import { Boxes, Home, Menu, MessageSquare, Package, PackageCheck, Plus, Send, Settings, Truck, User, Wallet } from "lucide-react";
+import { useAuth } from "./auth";
+import { SideMenu } from "./SideMenu";
 import { PasteOrders } from "./Intake";
 import { DeliveryCard, Feed, LedgerLegend, ProductTable } from "./shared";
 import { isActive, isAwaitingPayment, productById, totals, useWorkspace, lineLabel } from "./store";
@@ -37,6 +39,10 @@ function VendorDashboard({ vendor, go }) {
   const [filter, setFilter] = useState("all");
   const [requesting, setRequesting] = useState(false);
   const [chat, setChat] = useState(false);
+  const [menu, setMenu] = useState(false);
+  const { user } = useAuth();
+  // Menu links scroll to a part of the page once the menu has slid away.
+  const jump = (id) => setTimeout(() => (id ? document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }) : window.scrollTo({ top: 0, behavior: "smooth" })), 320);
   const unread = state.messages.filter((m) => m.vendorId === vendor.id && m.from !== "vendor" && !m.read).length;
   const s = totals(state, vendor.id);
   const tasks = state.tasks.filter((t) => t.vendorId === vendor.id);
@@ -54,7 +60,7 @@ function VendorDashboard({ vendor, go }) {
     <div className="min-h-screen bg-white">
       <header className="bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_45%,#ffffff_100%)] px-4 pb-10 pt-6 sm:px-6">
         <div className="mx-auto flex max-w-6xl items-center gap-3">
-          <Logo dark />
+          <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-white hover:text-white/80" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
           <span className="hidden rounded-full bg-white/15 px-3 py-1 text-[12px] font-semibold text-white sm:inline">Vendor portal</span>
           <div className="ml-auto flex items-center gap-2">
             <span className="hidden max-w-[220px] truncate text-[13.5px] font-semibold text-white/90 sm:inline">{vendor.name}</span>
@@ -108,7 +114,7 @@ function VendorDashboard({ vendor, go }) {
           </Card>
         </div>
 
-        <Card>
+        <Card id="vendor-products" className="scroll-mt-6">
           <CardHead title="Your products" sub="Received, delivered and left, per product" right={<LedgerLegend />} />
           <div className="mt-3"><ProductTable state={state} vendorId={vendor.id} /></div>
         </Card>
@@ -139,6 +145,21 @@ function VendorDashboard({ vendor, go }) {
           </div>
         </div>
       </main>
+      <SideMenu
+        open={menu}
+        onClose={() => setMenu(false)}
+        name={((user && user.name) || vendor.contact || vendor.name).split(" ")[0]}
+        email={user ? user.email || user.phone : ""}
+        active="home"
+        items={[
+          { id: "home", label: "Home", icon: Home, onClick: () => jump() },
+          { id: "deliveries", label: "Deliveries", icon: Truck, onClick: () => jump("vendor-deliveries") },
+          { id: "products", label: "Your products", icon: Boxes, onClick: () => jump("vendor-products") },
+          { id: "request", label: "Request deliveries", icon: Plus, onClick: () => setRequesting(true) },
+          { id: "messages", label: "Messages", icon: MessageSquare, badge: unread, onClick: () => setChat(true) },
+          { id: "settings", label: "Settings", icon: Settings, onClick: () => go("/account") },
+        ]}
+      />
       <RequestDelivery open={requesting} onClose={() => setRequesting(false)} vendor={vendor} />
       <OfficeChat open={chat} onClose={() => setChat(false)} vendor={vendor} />
     </div>
