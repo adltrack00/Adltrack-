@@ -3,10 +3,10 @@ import React, { useMemo, useState } from "react";
 import {
   AlertTriangle, ArrowDownUp, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Settings, Sparkles, Truck, User, Users, Wallet, X,
 } from "lucide-react";
-import { toast } from "sonner";
 import { AdaPanel } from "./AdaPanel";
 import Team from "./Team";
 import { SideMenu } from "./SideMenu";
+import { StatPill } from "./Stats";
 import { useAuth } from "./auth";
 import { DeliveryCard, Feed, LedgerLegend, PaymentActions, ProductTable } from "./shared";
 import { FixOrder, PasteOrders } from "./Intake";
@@ -31,7 +31,6 @@ export default function Company({ go }) {
   const [ada, setAda] = useState(false);
   const [seed, setSeed] = useState("");
   const [menu, setMenu] = useState(false);
-  const [quick, setQuick] = useState(null); // "paste" | "delivery" | "receive": the mini taps at the top
   const { user } = useAuth();
   const theme = themeOf(state.company.theme);
   const openAda = (say = "") => { setSeed(say); setAda(true); };
@@ -40,13 +39,6 @@ export default function Company({ go }) {
   const t = totals(state);
   const Section = { today: NeedsYou, overview: Overview, deliveries: Deliveries, stock: Stock, riders: Riders, messages: Messages, team: Team }[tab];
   const titles = { today: needs.count ? `${needs.count} ${needs.count === 1 ? "thing needs" : "things need"} you` : "All clear", overview: "Overview", deliveries: "Deliveries", stock: "Vendors & stock", riders: "Riders", messages: "Messages", team: "Team & logins" };
-  // The mini taps open the same forms as the Today cards. Verify payments jumps to that list on Today.
-  const pick = (id) => {
-    if (id !== "verify") { setQuick(id); return; }
-    if (!needs.awaiting.length) { toast.success("No payments to verify. Every collected payment is checked."); return; }
-    setTab("today");
-    setTimeout(() => document.getElementById("verify")?.scrollIntoView({ behavior: "smooth", block: "center" }), 150);
-  };
   const tabs = NAV.map(([id, label, Icon]) => [id, label, Icon, id === "today" ? needs.count : id === "messages" ? unread : 0]);
 
   return (
@@ -58,21 +50,15 @@ export default function Company({ go }) {
           <span className="hidden text-[14px] font-semibold text-white/70 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
           <div className="ml-auto flex items-center gap-2">
             {sync === "offline" && <LiveDot label="Offline, will save when back" tone="warn" />}
-            <div className="hidden lg:flex lg:gap-2"><QuickTaps onPick={pick} awaiting={needs.awaiting.length} /></div>
             <button onClick={() => go("/account")} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Your account" data-testid="account"><User className="h-4 w-4" /></button>
           </div>
         </div>
-        <div className="relative -mx-5 mt-4 overflow-x-auto px-5 lg:hidden [scrollbar-width:none]"><div className="flex w-max gap-2"><QuickTaps onPick={pick} awaiting={needs.awaiting.length} /></div></div>
-        <div className="relative mx-auto mt-10 flex max-w-7xl flex-wrap items-end justify-between gap-6">
-          <div>
+        <div className="relative mx-auto mt-5 flex max-w-7xl flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0">
             <div className="text-[15px] font-medium text-white/60">{new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
             <h1 className="mt-1 text-[40px] font-extrabold leading-[1.05] tracking-[-0.035em] sm:text-[52px]">{titles[tab]}{tab === "today" ? <span className="text-white/50">, {state.company.dispatcher}.</span> : ""}</h1>
           </div>
-          <div className="flex gap-6 text-right sm:gap-10">
-            {[["Delivered", num(t.delivered)], ["Left", num(t.left)], ["With riders", num(t.withRiders)], ["Sold", money(t.deliveredValue)]].map(([k, v]) => (
-              <div key={k}><div className="text-[24px] font-bold tracking-tight sm:text-[28px]">{v}</div><div className="text-[12.5px] text-white/55">{k}</div></div>
-            ))}
-          </div>
+          <StatPill state={state} className="w-full lg:w-[540px] lg:shrink-0" />
         </div>
       </header>
 
@@ -97,25 +83,10 @@ export default function Company({ go }) {
           { id: "settings", label: "Settings", icon: Settings, onClick: () => go("/account") },
         ]}
       />
-      <Modal open={quick === "paste"} onClose={() => setQuick(null)} title="Paste orders" wide>
-        <PasteOrders />
-      </Modal>
-      <NewDelivery open={quick === "delivery"} onClose={() => setQuick(null)} />
-      <ReceiveStock open={quick === "receive"} onClose={() => setQuick(null)} act={act} state={state} />
+
       <AdaPanel open={ada} onClose={() => setAda(false)} seed={seed} onSeedUsed={() => setSeed("")} />
     </div>
   );
-}
-
-// Small shortcuts in the header for the four things the office does most.
-function QuickTaps({ onPick, awaiting }) {
-  const taps = [["paste", "Paste WhatsApp orders", ClipboardPaste], ["delivery", "Send a delivery", Truck], ["receive", "Receive stock", Package], ["verify", "Verify payments", Wallet]];
-  return taps.map(([id, label, Icon]) => (
-    <button key={id} onClick={() => onPick(id)} className="flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3.5 text-[12.5px] font-semibold text-white/85 ring-1 ring-white/10 hover:bg-white/15" data-testid={`quick-${id}`}>
-      <Icon className="h-4 w-4" /> {label}
-      {id === "verify" && !!awaiting && <span className="ml-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-blue-600 px-1 text-[11px] font-bold text-white">{awaiting}</span>}
-    </button>
-  ));
 }
 
 /* ---------- Needs you: the company's home. Only what someone has to act on, each with its action. ---------- */
@@ -232,7 +203,7 @@ function NeedsYou({ openAda, setTab }) {
         </div>
       </section>
 
-      <div className="mt-10 grid gap-5 xl:grid-cols-[1.15fr_1fr]">
+      <div className="mt-10 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] [&>*]:min-w-0">
         <div className="space-y-5">
           <Section icon={Truck} tone="sky" title={`Ready for a rider (${n.ready.length})`} sub={n.ready.length ? `${readyUnits} units · ${money(n.ready.reduce((s, o) => s + orderValue(state, o), 0))} to collect. ADA splits them by area and each rider's daily units.` : "Every order has a rider."}
             right={<Btn onClick={() => openAda("Dispatch today's orders")} disabled={!n.ready.length}><Sparkles className="h-4 w-4 text-blue-300" /> Plan with ADA</Btn>}>
