@@ -76,3 +76,16 @@ The browser store is the stand-in for a real database. To run this for a company
 (Postgres) with accounts for office staff, vendors and riders, real-time sync over websockets, photo uploads to object
 storage, payment confirmation from the bank or POS provider, and SMS to customers with a tracking link.
 See [docs/RESEARCH.md](docs/RESEARCH.md) for what the leading delivery platforms do and what we took from them.
+
+## Hosting on Render
+
+`render.yaml` and `Dockerfile` run the whole app as one Render web service: the Docker build makes the web app,
+and the FastAPI server (`backend/server.py`) serves it together with ADA's `/api/ada` from the same address.
+
+1. In Render: **New > Blueprint**, connect this repository and pick the branch.
+2. When asked, paste an `ANTHROPIC_API_KEY` (optional: without it ADA uses the simpler assistant built into the app).
+3. **Apply**. The app is at `https://<service>.onrender.com/#/company`.
+
+The data is kept in each browser (`localStorage`), so tabs in the same browser stay in step, but two different
+phones or computers each have their own copy until the ledger moves to the server.
+

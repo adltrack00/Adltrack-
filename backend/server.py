@@ -9,6 +9,7 @@ person taps Approve.
 
 Run:  pip install -r requirements.txt && uvicorn server:app --port 8001
 Env:  ANTHROPIC_API_KEY (or an `ant auth login` profile), optional ADA_MODEL and CORS_ORIGINS.
+      STATIC_DIR (optional): a built frontend to serve from the same site, as on Render (see Dockerfile).
 """
 import json
 import logging
@@ -18,6 +19,7 @@ from typing import Any, Dict, List
 
 import anthropic
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.cors import CORSMiddleware
 
@@ -123,7 +125,12 @@ def clean(r: Dict[str, Any]) -> Dict[str, Any]:
     return out
 
 
-client = anthropic.Anthropic(timeout=60.0, max_retries=1)
+HAS_KEY = bool(os.environ.get("ANTHROPIC_API_KEY"))
+try:
+    client = anthropic.Anthropic(timeout=60.0, max_retries=1)
+except Exception as err:  # no key and no profile: the browser's own ADA answers instead
+    log.warning("ADA has no Claude access (%s); the app will use the in-browser assistant", err)
+    client = None
 
 app = FastAPI(title="Delivery API")
 app.add_middleware(
@@ -136,11 +143,13 @@ app.add_middleware(
 
 @app.get("/api/health")
 def health() -> Dict[str, str]:
-    return {"status": "ok", "model": MODEL}
+    return {"status": "ok", "model": MODEL, "claude": "on" if client is not None and HAS_KEY else "off"}
 
 
 @app.post("/api/ada")
 def ada(body: AdaRequest):
+    if client is None:
+        return {"kind": "error"}
     turns = [{"role": "assistant" if t.role == "assistant" else "user", "text": cut(t.text, 1200)} for t in body.messages[-8:]]
     turns = [t for t in turns if t["text"]]
     while turns and turns[0]["role"] != "user":
@@ -171,6 +180,9 @@ def ada(body: AdaRequest):
     except anthropic.APIConnectionError as err:
         log.error("ADA connection error: %s", err)
         return {"kind": "error"}
+    except TypeError as err:  # no API key set: the browser's own ADA answers instead
+        log.warning("ADA has no Claude access: %s", err)
+        return {"kind": "error"}
 
     if response.usage:
         log.info("ADA: %s input, %s cached, %s output tokens", response.usage.input_tokens, response.usage.cache_read_input_tokens or 0, response.usage.output_tokens)
@@ -181,3 +193,9 @@ def ada(body: AdaRequest):
         return clean(json.loads(text))
     except (ValueError, TypeError):
         return {"kind": "error"}
+
+
+# On Render the built app is served from here too, so the app and /api share one address.
+STATIC_DIR = os.environ.get("STATIC_DIR")
+if STATIC_DIR and os.path.isdir(STATIC_DIR):
+    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="app")

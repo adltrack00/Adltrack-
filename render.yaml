@@ -1,0 +1,16 @@
+# Render Blueprint: Dashboard > New > Blueprint, pick this repo.
+services:
+  - type: web
+    name: delivery
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      # Optional. Without it ADA still works, using the simpler assistant built into the app.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ADA_MODEL
+        value: claude-opus-5-5
