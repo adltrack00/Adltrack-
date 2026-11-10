@@ -6,13 +6,13 @@ import { api, homeFor, useAuth } from "./auth";
 import { askForNotifications } from "./alerts";
 import { useWorkspace } from "./store";
 import { Avatar, Btn, Card, CardHead, Field, inputCls, Logo } from "./ui";
-import { themeOf } from "./scenes";
+import { themeOf, ThemePicker } from "./scenes";
 
 const ROLE = { company: "Company", vendor: "Vendor", rider: "Rider" };
 
 export default function Account({ go }) {
   const { user, company, signOut, updateProfile } = useAuth();
-  const { state, resetDemo } = useWorkspace();
+  const { state, act, resetDemo } = useWorkspace();
   const [f, setF] = useState({ name: user.name, email: user.email || "", phone: user.phone || "" });
   const [pw, setPw] = useState({ current: "", new: "" });
   const [notif, setNotif] = useState(typeof Notification !== "undefined" ? Notification.permission : "unsupported");
@@ -77,6 +77,12 @@ export default function Account({ go }) {
                 <Field label="New password"><input className={inputCls} type="password" autoComplete="new-password" minLength={8} value={pw.new} onChange={(e) => setPw({ ...pw, new: e.target.value })} required /></Field>
                 <Btn type="submit" className="w-fit">Change password</Btn>
               </form>
+            </Card>
+          )}
+          {user.role === "company" && (
+            <Card data-testid="pick-a-look">
+              <CardHead title="Pick a look" sub="Colours this dashboard and your riders' app, for everyone in your company." />
+              <div className="p-5"><ThemePicker value={state.company.theme || "night"} onChange={(id) => { act({ type: "company/update", patch: { theme: id } }); toast.success("Look changed"); }} /></div>
             </Card>
           )}
           <Card className="p-5">

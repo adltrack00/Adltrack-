@@ -3,6 +3,7 @@ import React, { useMemo, useState } from "react";
 import {
   AlertTriangle, ArrowDownUp, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Settings, Sparkles, Truck, User, Users, Wallet, X,
 } from "lucide-react";
+import { toast } from "sonner";
 import { AdaPanel } from "./AdaPanel";
 import Team from "./Team";
 import { SideMenu } from "./SideMenu";
@@ -29,8 +30,8 @@ export default function Company({ go }) {
   const [tab, setTab] = useState("today");
   const [ada, setAda] = useState(false);
   const [seed, setSeed] = useState("");
-  const [looking, setLooking] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [quick, setQuick] = useState(null); // "paste" | "delivery" | "receive": the mini taps at the top
   const { user } = useAuth();
   const theme = themeOf(state.company.theme);
   const openAda = (say = "") => { setSeed(say); setAda(true); };
@@ -39,6 +40,13 @@ export default function Company({ go }) {
   const t = totals(state);
   const Section = { today: NeedsYou, overview: Overview, deliveries: Deliveries, stock: Stock, riders: Riders, messages: Messages, team: Team }[tab];
   const titles = { today: needs.count ? `${needs.count} ${needs.count === 1 ? "thing needs" : "things need"} you` : "All clear", overview: "Overview", deliveries: "Deliveries", stock: "Vendors & stock", riders: "Riders", messages: "Messages", team: "Team & logins" };
+  // The mini taps open the same forms as the Today cards. Verify payments jumps to that list on Today.
+  const pick = (id) => {
+    if (id !== "verify") { setQuick(id); return; }
+    if (!needs.awaiting.length) { toast.success("No payments to verify. Every collected payment is checked."); return; }
+    setTab("today");
+    setTimeout(() => document.getElementById("verify")?.scrollIntoView({ behavior: "smooth", block: "center" }), 150);
+  };
   const tabs = NAV.map(([id, label, Icon]) => [id, label, Icon, id === "today" ? needs.count : id === "messages" ? unread : 0]);
 
   return (
@@ -49,13 +57,12 @@ export default function Company({ go }) {
           <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-white hover:text-white/80" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
           <span className="hidden text-[14px] font-semibold text-white/70 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
           <div className="ml-auto flex items-center gap-2">
-            <span className="hidden sm:inline-flex"><LiveDot label={sync === "offline" ? "Offline, will save when back" : sync === "connecting" ? "Connecting…" : "Live with vendors & riders"} tone={sync === "offline" ? "warn" : "live"} /></span>
-            <span className="sm:hidden"><LiveDot label={sync === "offline" ? "Offline" : "Live"} tone={sync === "offline" ? "warn" : "live"} /></span>
-            <button onClick={() => setTab("team")} className="hidden h-9 items-center gap-1.5 rounded-full bg-white/10 px-3 text-[12.5px] font-medium text-white/80 hover:bg-white/15 md:flex"><Users className="h-4 w-4" /> Invite people</button>
-            <button onClick={() => setLooking(true)} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Change the look"><Palette className="h-4 w-4" /></button>
+            {sync === "offline" && <LiveDot label="Offline, will save when back" tone="warn" />}
+            <div className="hidden lg:flex lg:gap-2"><QuickTaps onPick={pick} awaiting={needs.awaiting.length} /></div>
             <button onClick={() => go("/account")} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Your account" data-testid="account"><User className="h-4 w-4" /></button>
           </div>
         </div>
+        <div className="relative -mx-5 mt-4 overflow-x-auto px-5 lg:hidden [scrollbar-width:none]"><div className="flex w-max gap-2"><QuickTaps onPick={pick} awaiting={needs.awaiting.length} /></div></div>
         <div className="relative mx-auto mt-10 flex max-w-7xl flex-wrap items-end justify-between gap-6">
           <div>
             <div className="text-[15px] font-medium text-white/60">{new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
@@ -86,19 +93,29 @@ export default function Company({ go }) {
         active={tab}
         panel={theme.header}
         items={[
-          ...tabs.map(([id, label, Icon, badge]) => ({ id, label, icon: Icon, badge, onClick: () => setTab(id) })),
-          { id: "ada", label: "Ask ADA", icon: Sparkles, onClick: () => openAda() },
-          { id: "look", label: "Dashboard look", icon: Palette, onClick: () => setLooking(true) },
+          ...tabs.filter(([id]) => id !== "today").map(([id, label, Icon, badge]) => ({ id, label, icon: Icon, badge, onClick: () => setTab(id) })),
           { id: "settings", label: "Settings", icon: Settings, onClick: () => go("/account") },
         ]}
       />
-      <Modal open={looking} onClose={() => setLooking(false)} title="Pick a look" wide>
-        <ThemePicker value={state.company.theme || "night"} onChange={(id) => act({ type: "company/update", patch: { theme: id } })} />
-        <Tip>The look colours this dashboard and your riders' app.</Tip>
+      <Modal open={quick === "paste"} onClose={() => setQuick(null)} title="Paste orders" wide>
+        <PasteOrders />
       </Modal>
+      <NewDelivery open={quick === "delivery"} onClose={() => setQuick(null)} />
+      <ReceiveStock open={quick === "receive"} onClose={() => setQuick(null)} act={act} state={state} />
       <AdaPanel open={ada} onClose={() => setAda(false)} seed={seed} onSeedUsed={() => setSeed("")} />
     </div>
   );
+}
+
+// Small shortcuts in the header for the four things the office does most.
+function QuickTaps({ onPick, awaiting }) {
+  const taps = [["paste", "Paste WhatsApp orders", ClipboardPaste], ["delivery", "Send a delivery", Truck], ["receive", "Receive stock", Package], ["verify", "Verify payments", Wallet]];
+  return taps.map(([id, label, Icon]) => (
+    <button key={id} onClick={() => onPick(id)} className="flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-3.5 text-[12.5px] font-semibold text-white/85 ring-1 ring-white/10 hover:bg-white/15" data-testid={`quick-${id}`}>
+      <Icon className="h-4 w-4" /> {label}
+      {id === "verify" && !!awaiting && <span className="ml-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-blue-600 px-1 text-[11px] font-bold text-white">{awaiting}</span>}
+    </button>
+  ));
 }
 
 /* ---------- Needs you: the company's home. Only what someone has to act on, each with its action. ---------- */
