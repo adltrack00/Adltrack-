@@ -1,21 +1,43 @@
 // The vendor portal: a vendor sees their own products, every delivery as it happens (time, photo, payment)
 // and can request new deliveries. Same live data as the company and the riders.
-import React, { useState } from "react";
-import { Boxes, LogOut, Package, PackageCheck, Plus, Truck, Wallet } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Boxes, MessageSquare, Package, PackageCheck, Plus, Send, Truck, User, Wallet } from "lucide-react";
 import { PasteOrders } from "./Intake";
 import { DeliveryCard, Feed, LedgerLegend, ProductTable } from "./shared";
 import { isActive, isAwaitingPayment, productById, totals, useWorkspace, lineLabel } from "./store";
 import { LabelCloud, MonthCal, ProgressScene, Tip } from "./scenes";
 import { Avatar, Btn, Card, CardHead, Chips, Empty, Field, HeroCard, inputCls, LiveDot, Logo, Modal, Stat, StatusPill, statusOf } from "./ui";
-import { money, num, time12, todayISO } from "./utils";
+import { clock, money, num, time12, todayISO } from "./utils";
 
 const ZONES = ["Ikeja", "Yaba", "Lekki", "Surulere", "Victoria Island", "Ikoyi", "Ajah", "Gbagada"];
 
 export default function Vendor({ vendorId, go }) {
   const { state } = useWorkspace();
-  const vendor = state.vendors.find((v) => v.id === vendorId) || state.vendors[0];
+  const vendor = state.vendors.find((v) => v.id === vendorId);
+  if (!vendor) return <NotLinked go={go} company={state.company.name} />;
+  return <VendorDashboard vendor={vendor} go={go} />;
+}
+
+// The company removed this vendor from its list, or the account isn't tied to one yet.
+export function NotLinked({ go, company, what = "vendor" }) {
+  return (
+    <div className="grid min-h-screen place-items-center bg-white px-6 text-center">
+      <div className="max-w-sm">
+        <Logo />
+        <h1 className="mt-8 text-[28px] font-extrabold tracking-tight">Not set up yet</h1>
+        <p className="mt-2 text-[15px] text-neutral-500">{company || "Your company"} hasn't linked your account to a {what} yet. Ask them to send you a new invite from their Team page.</p>
+        <Btn className="mt-6" onClick={() => go("/account")}>Your account</Btn>
+      </div>
+    </div>
+  );
+}
+
+function VendorDashboard({ vendor, go }) {
+  const { state } = useWorkspace();
   const [filter, setFilter] = useState("all");
   const [requesting, setRequesting] = useState(false);
+  const [chat, setChat] = useState(false);
+  const unread = state.messages.filter((m) => m.vendorId === vendor.id && m.from !== "vendor" && !m.read).length;
   const s = totals(state, vendor.id);
   const tasks = state.tasks.filter((t) => t.vendorId === vendor.id);
   const orders = state.orders.filter((o) => o.vendorId === vendor.id && (o.status === "open" || o.status === "needs_fix"));
@@ -35,10 +57,12 @@ export default function Vendor({ vendorId, go }) {
           <Logo dark />
           <span className="hidden rounded-full bg-white/15 px-3 py-1 text-[12px] font-semibold text-white sm:inline">Vendor portal</span>
           <div className="ml-auto flex items-center gap-2">
-            <select value={vendor.id} onChange={(e) => go(`#/vendor/${e.target.value}`)} className="h-10 rounded-full border-0 bg-white/20 px-4 text-[13.5px] font-semibold text-white backdrop-blur [&>option]:text-neutral-900">
-              {state.vendors.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
-            </select>
-            <button onClick={() => go("#/")} className="grid h-10 w-10 place-items-center rounded-full bg-white/20 text-white" aria-label="Sign out"><LogOut className="h-4 w-4" /></button>
+            <span className="hidden max-w-[220px] truncate text-[13.5px] font-semibold text-white/90 sm:inline">{vendor.name}</span>
+            <button onClick={() => setChat(true)} className="relative flex h-10 items-center gap-1.5 rounded-full bg-white/20 px-4 text-[13.5px] font-semibold text-white backdrop-blur" data-testid="vendor-messages">
+              <MessageSquare className="h-4 w-4" /> <span className="hidden sm:inline">Message {state.company.name || "the office"}</span><span className="sm:hidden">Messages</span>
+              {!!unread && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-rose-500 px-1 text-[10.5px] font-bold">{unread}</span>}
+            </button>
+            <button onClick={() => go("/account")} className="grid h-10 w-10 place-items-center rounded-full bg-white/20 text-white" aria-label="Your account" data-testid="account"><User className="h-4 w-4" /></button>
           </div>
         </div>
         <div className="mx-auto mt-8 grid max-w-6xl gap-5 lg:grid-cols-[1.2fr_1fr] lg:items-end">
@@ -116,7 +140,34 @@ export default function Vendor({ vendorId, go }) {
         </div>
       </main>
       <RequestDelivery open={requesting} onClose={() => setRequesting(false)} vendor={vendor} />
+      <OfficeChat open={chat} onClose={() => setChat(false)} vendor={vendor} />
     </div>
+  );
+}
+
+// The vendor's conversation with the office.
+function OfficeChat({ open, onClose, vendor }) {
+  const { state, act } = useWorkspace();
+  const [text, setText] = useState("");
+  const msgs = state.messages.filter((m) => m.vendorId === vendor.id);
+  const unread = msgs.filter((m) => m.from !== "vendor" && !m.read).length;
+  useEffect(() => { if (open && unread) act({ type: "messages/read", by: "vendor", vendorId: vendor.id }); }, [open, unread, act, vendor.id]);
+  return (
+    <Modal open={open} onClose={onClose} title={state.company.name || "The office"}>
+      <div className="max-h-[50vh] min-h-[200px] space-y-3 overflow-y-auto">
+        {msgs.map((m) => (
+          <div key={m.id} className={`max-w-[82%] ${m.from === "vendor" ? "ml-auto" : ""}`}>
+            <div className={`whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-[14px] leading-snug ${m.from === "vendor" ? "rounded-br-md bg-neutral-900 text-white" : "rounded-bl-md bg-neutral-100 text-neutral-800"}`}>{m.text}</div>
+            <div className={`mt-1 text-[11px] text-neutral-400 ${m.from === "vendor" ? "text-right" : ""}`}>{m.from === "vendor" ? "You · " : ""}{clock(m.at)}</div>
+          </div>
+        ))}
+        {!msgs.length && <Empty icon={MessageSquare} title="No messages yet" sub="Ask about a delivery, a payment or tomorrow's stock." />}
+      </div>
+      <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { act({ type: "messages/send", messages: [{ vendorId: vendor.id, from: "vendor", text: text.trim() }] }); setText(""); } }} className="mt-4 flex gap-2">
+        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Write a message…" className={`${inputCls} h-12 rounded-full px-4`} />
+        <Btn size="lg" className="h-12" type="submit" aria-label="Send"><Send className="h-4 w-4" /></Btn>
+      </form>
+    </Modal>
   );
 }
 

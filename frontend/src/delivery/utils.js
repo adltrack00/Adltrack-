@@ -50,7 +50,7 @@ export function dayLabel(iso) {
 
 export const initials = (name = "") => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
 
-// Shrinks a photo before it is stored, so proof-of-delivery images fit in browser storage.
+// Shrinks a photo before it is sent, so proof-of-delivery images upload quickly on a phone signal.
 export function shrinkPhoto(file, max = 640) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

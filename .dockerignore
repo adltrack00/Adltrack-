@@ -5,3 +5,5 @@ mobile
 test_reports
 memory
 *.zip
+backend/data
+backend/tests
