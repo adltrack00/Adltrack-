@@ -1,22 +1,24 @@
 // The delivery company's dashboard: vendors, riders, stock, deliveries and ADA.
 import React, { useMemo, useState } from "react";
 import {
-  AlertTriangle, ArrowDownUp, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Sparkles, Truck, User, Users, Wallet, X,
+  AlertTriangle, ArrowDownUp, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Settings, Sparkles, Truck, User, Users, Wallet, X,
 } from "lucide-react";
 import { AdaPanel } from "./AdaPanel";
 import Team from "./Team";
+import { SideMenu } from "./SideMenu";
+import { useAuth } from "./auth";
 import { DeliveryCard, Feed, LedgerLegend, PaymentActions, ProductTable } from "./shared";
 import { FixOrder, PasteOrders } from "./Intake";
 import { isActive, isAwaitingPayment, lineLabel, orderValue, productById, productLedger, riderLoad, totals, units as taskUnits, useWorkspace, value as taskValue, vendorById } from "./store";
 import { AlertStack, LabelCloud, ProgressScene, themeOf, ThemePicker, Tip } from "./scenes";
-import { AdaBar, AdaMark, ChecklistCard, Chips, HeroCard, Avatar, Bar, Btn, Card, CardHead, Empty, Field, inputCls, OptionList, LedgerBar, LiveDot, Logo, Modal, StatusPill, Stat, statusOf, TabBar, Tag, Tile } from "./ui";
+import { AdaBar, AdaMark, ChecklistCard, Chips, HeroCard, Avatar, Bar, Btn, Card, CardHead, Empty, Field, inputCls, OptionList, LedgerBar, LiveDot, Modal, StatusPill, Stat, statusOf, Tag, Tile } from "./ui";
 import { ago, clock, money, num, time12, todayISO } from "./utils";
 
 const NAV = [
   ["today", "Today", BellRing],
   ["overview", "Overview", LayoutGrid],
   ["deliveries", "Deliveries", Truck],
-  ["stock", "Stock", Boxes],
+  ["stock", "Vendors & stock", Boxes],
   ["riders", "Riders", Bike],
   ["messages", "Messages", MessageSquare],
   ["team", "Team", Users],
@@ -28,6 +30,8 @@ export default function Company({ go }) {
   const [ada, setAda] = useState(false);
   const [seed, setSeed] = useState("");
   const [looking, setLooking] = useState(false);
+  const [menu, setMenu] = useState(false);
+  const { user } = useAuth();
   const theme = themeOf(state.company.theme);
   const openAda = (say = "") => { setSeed(say); setAda(true); };
   const needs = needsYou(state);
@@ -42,8 +46,8 @@ export default function Company({ go }) {
       <header className={`${theme.header} relative overflow-hidden px-5 pb-16 pt-6 text-white sm:px-10`}>
         <div className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-blue-600/30 blur-3xl" />
         <div className="relative mx-auto flex max-w-7xl items-center gap-3">
-          <Logo dark />
-          <span className="hidden text-[13px] text-white/50 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
+          <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-white hover:text-white/80" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
+          <span className="hidden text-[14px] font-semibold text-white/70 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
           <div className="ml-auto flex items-center gap-2">
             <span className="hidden sm:inline-flex"><LiveDot label={sync === "offline" ? "Offline, will save when back" : sync === "connecting" ? "Connecting…" : "Live with vendors & riders"} tone={sync === "offline" ? "warn" : "live"} /></span>
             <span className="sm:hidden"><LiveDot label={sync === "offline" ? "Offline" : "Live"} tone={sync === "offline" ? "warn" : "live"} /></span>
@@ -71,9 +75,23 @@ export default function Company({ go }) {
         </div>
       </main>
 
-      <TabBar tabs={tabs} active={tab} onChange={setTab} action={
-        <button onClick={() => openAda()} className="grid h-[68px] w-[68px] place-items-center rounded-full bg-white/80 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 backdrop-blur-xl" aria-label="Ask ADA"><AdaMark size={44} /></button>
-      } />
+      <div className="pointer-events-none fixed inset-x-0 bottom-5 z-30 flex items-center justify-end px-5 sm:px-8">
+        <button onClick={() => openAda()} className="pointer-events-auto grid h-[68px] w-[68px] place-items-center rounded-full bg-white/80 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 backdrop-blur-xl" aria-label="Ask ADA"><AdaMark size={44} /></button>
+      </div>
+      <SideMenu
+        open={menu}
+        onClose={() => setMenu(false)}
+        name={(user && user.name ? user.name : state.company.dispatcher || "there").split(" ")[0]}
+        email={user ? user.email || user.phone : ""}
+        active={tab}
+        panel={theme.header}
+        items={[
+          ...tabs.map(([id, label, Icon, badge]) => ({ id, label, icon: Icon, badge, onClick: () => setTab(id) })),
+          { id: "ada", label: "Ask ADA", icon: Sparkles, onClick: () => openAda() },
+          { id: "look", label: "Dashboard look", icon: Palette, onClick: () => setLooking(true) },
+          { id: "settings", label: "Settings", icon: Settings, onClick: () => go("/account") },
+        ]}
+      />
       <Modal open={looking} onClose={() => setLooking(false)} title="Pick a look" wide>
         <ThemePicker value={state.company.theme || "night"} onChange={(id) => act({ type: "company/update", patch: { theme: id } })} />
         <Tip>The look colours this dashboard and your riders' app.</Tip>
