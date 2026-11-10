@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
   const refresh = useCallback(async () => {
     try {
       const data = await api("/api/auth/me");
-      setMe(data);
+      setMe(withDemoPhoto(data));
       setOffline(false);
     } catch (e) {
       if (e.status === 401) setMe(null);
@@ -54,7 +54,7 @@ export function AuthProvider({ children }) {
   useEffect(() => { refresh(); }, [refresh]);
   useEffect(() => { if (me) remember(me); }, [me]);
 
-  const keep = useCallback((data) => { setMe(data); return data; }, []);
+  const keep = useCallback((data) => { setMe(withDemoPhoto(data)); return data; }, []);
   const value = useMemo(() => ({
     me, offline,
     user: me ? me.user : null,
@@ -65,6 +65,14 @@ export function AuthProvider({ children }) {
     join: async (form) => keep(await api("/api/auth/join", { method: "POST", body: form })),
     demo: async (role, seed) => keep(await api("/api/auth/demo", { method: "POST", body: { role, seed } })),
     updateProfile: async (form) => keep(await api("/api/auth/profile", { method: "PUT", body: form })),
+    // The profile photo (a cropped square as a data URL, or null to take it off). Demo logins are shared, so theirs stays on this device.
+    setPhoto: async (photo) => {
+      if (me && me.user.demo) {
+        try { if (photo) localStorage.setItem(DEMO_PHOTO + me.user.id, photo); else localStorage.removeItem(DEMO_PHOTO + me.user.id); } catch (e) { throw new Error("Not enough room on this device for the photo."); }
+        return keep({ ...me, user: { ...me.user, photo } });
+      }
+      return keep(await api("/api/auth/photo", { method: "PUT", body: { photo } }));
+    },
     signOut: async () => {
       try { await api("/api/auth/signout", { method: "POST" }); } catch (e) { /* signed out here anyway */ }
       forget();
@@ -91,6 +99,13 @@ export function homeFor(user, company) {
 
 // So a rider with a weak signal still opens the app on their last data.
 const ME_KEY = "delivery-me";
+const DEMO_PHOTO = "demo-photo:";
+function withDemoPhoto(data) {
+  if (!data || !data.user || !data.user.demo) return data;
+  let photo = null;
+  try { photo = localStorage.getItem(DEMO_PHOTO + data.user.id); } catch (e) { /* blocked */ }
+  return { ...data, user: { ...data.user, photo } };
+}
 function remember(me) { try { localStorage.setItem(ME_KEY, JSON.stringify(me)); } catch (e) { /* blocked */ } }
 function remembered() { try { return JSON.parse(localStorage.getItem(ME_KEY) || "null"); } catch (e) { return null; } }
 function forget() {

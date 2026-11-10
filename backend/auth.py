@@ -109,13 +109,15 @@ def _failed(key: str) -> None:
 
 # ---------- users and sessions ----------
 
-USER_COLS = "id, workspace_id, role, ref, name, email, phone, owner, demo, created_at, last_seen, team"
+PHOTO_RE = re.compile(r"^data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$")
+
+USER_COLS = "id, workspace_id, role, ref, name, email, phone, owner, demo, created_at, last_seen, team, photo"
 
 
 def user_dict(row) -> Dict[str, Any]:
     return {
         "id": row[0], "workspaceId": row[1], "role": row[2], "ref": row[3], "name": row[4], "email": row[5], "phone": row[6],
-        "owner": bool(row[7]), "demo": bool(row[8]), "createdAt": row[9], "lastSeen": row[10], "teammate": bool(row[11]),
+        "owner": bool(row[7]), "demo": bool(row[8]), "createdAt": row[9], "lastSeen": row[10], "teammate": bool(row[11]), "photo": row[12],
     }
 
 
@@ -229,6 +231,10 @@ class Profile(BaseModel):
     name: str = Field(min_length=1, max_length=80)
     email: Optional[str] = Field(default=None, max_length=120)
     phone: Optional[str] = Field(default=None, max_length=30)
+
+
+class Photo(BaseModel):
+    photo: Optional[str] = Field(default=None, max_length=400000)
 
 
 class TeamInvite(BaseModel):
@@ -367,6 +373,16 @@ def router(on_new_workspace) -> APIRouter:
             raise HTTPException(400, "Keep an email or a phone number to sign in with.")
         _check_unique(email, phone, user["id"])
         db.execute("UPDATE users SET name = %s, email = %s, phone = %s WHERE id = %s", (body.name.strip(), email, phone, user["id"]))
+        return me_payload(_get_user(user["id"]))
+
+    # The profile photo, already cropped to a square on the phone. None takes it off.
+    @api.put("/auth/photo")
+    def photo(body: Photo, user=Depends(require_user)):
+        if user["demo"]:
+            raise HTTPException(403, "The demo account keeps its photo on this device only.")
+        if body.photo and not PHOTO_RE.match(body.photo):
+            raise HTTPException(400, "Use a JPG, PNG or WebP photo.")
+        db.execute("UPDATE users SET photo = %s WHERE id = %s", (body.photo or None, user["id"]))
         return me_payload(_get_user(user["id"]))
 
     @api.post("/auth/password")

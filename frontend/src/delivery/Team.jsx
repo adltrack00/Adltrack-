@@ -43,7 +43,7 @@ export default function Team() {
     const pending = inviteFor(role, rec.id);
     return (
       <div className="flex flex-wrap items-center gap-3 border-t border-neutral-100 px-5 py-3.5 first:border-t-0">
-        <Avatar name={rec.name} color={rec.color} />
+        <Avatar name={rec.name} color={rec.color} photo={m && m.photo} />
         <div className="min-w-0 flex-1">
           <div className="truncate text-[14.5px] font-semibold text-neutral-900">{rec.name}</div>
           <div className="truncate text-[12.5px] text-neutral-500">{sub}</div>
@@ -82,7 +82,7 @@ export default function Team() {
         <div className="mt-3">
           {office.map((m) => (
             <div key={m.id} className="flex items-center gap-3 border-t border-neutral-100 px-5 py-3.5 first:border-t-0">
-              <Avatar name={m.name} color="#2b47f0" />
+              <Avatar name={m.name} color="#2b47f0" photo={m.photo} />
               <div className="min-w-0 flex-1"><div className="text-[14.5px] font-semibold">{m.name}{m.id === user.id ? " (you)" : ""}</div><div className="text-[12.5px] text-neutral-500">{m.email || m.phone}{m.owner ? " · owner" : ""}</div></div>
               {!m.owner && m.id !== user.id && <button onClick={() => remove(m)} className="grid h-9 w-9 place-items-center rounded-full text-neutral-400 hover:bg-rose-50 hover:text-rose-600" aria-label="Remove"><Trash2 className="h-4 w-4" /></button>}
             </div>

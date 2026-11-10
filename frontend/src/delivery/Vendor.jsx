@@ -1,10 +1,11 @@
 // The vendor portal: a vendor sees their own products, every delivery as it happens (time, photo, payment)
 // and can request new deliveries. Same live data as the company and the riders.
 import React, { useEffect, useState } from "react";
-import { Boxes, Home, Menu, MessageSquare, Package, PackageCheck, PackagePlus, Plus, Send, Settings, Truck, User, Users, Wallet } from "lucide-react";
+import { Boxes, Home, Menu, MessageSquare, Package, PackageCheck, PackagePlus, Plus, Send, Settings, Truck, Users, Wallet } from "lucide-react";
 import { SendStock, StockSent, VendorTeam } from "./VendorTeam";
 import { useAuth } from "./auth";
 import { SideMenu } from "./SideMenu";
+import { MeButton } from "./Photo";
 import { PasteOrders } from "./Intake";
 import { DeliveryCard, Feed, LedgerLegend, ProductTable } from "./shared";
 import { isActive, isAwaitingPayment, productById, totals, useWorkspace, lineLabel } from "./store";
@@ -71,7 +72,7 @@ function VendorDashboard({ vendor, go }) {
               <MessageSquare className="h-4 w-4" /> <span className="hidden sm:inline">Message {state.company.name || "the office"}</span><span className="sm:hidden">Messages</span>
               {!!unread && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-rose-500 px-1 text-[10.5px] font-bold">{unread}</span>}
             </button>
-            <button onClick={() => go("/account")} className="grid h-10 w-10 place-items-center rounded-full bg-white/20 text-white" aria-label="Your account" data-testid="account"><User className="h-4 w-4" /></button>
+            <MeButton onClick={() => go("/account")} color={vendor.color || "#2b47f0"} />
           </div>
         </div>
         <div className="mx-auto mt-8 grid max-w-6xl gap-5 lg:grid-cols-[1.2fr_1fr] lg:items-end">

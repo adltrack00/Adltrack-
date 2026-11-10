@@ -67,7 +67,8 @@ export function LedgerBar({ received, delivered, withRiders }) {
   );
 }
 
-export function Avatar({ name, color = "#a8a29e", size = 36, className }) {
+export function Avatar({ name, color = "#a8a29e", size = 36, className, photo }) {
+  if (photo) return <img src={photo} alt="" className={cn("shrink-0 rounded-full object-cover", className)} style={{ width: size, height: size }} />;
   return (
     <span className={cn("grid shrink-0 place-items-center rounded-full font-semibold text-white", className)} style={{ width: size, height: size, background: color, fontSize: size * 0.36 }}>
       {initials(name)}

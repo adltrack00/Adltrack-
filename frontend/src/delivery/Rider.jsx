@@ -7,6 +7,7 @@ import { SceneCta, themeOf, Tip } from "./scenes";
 import { AdaMark, Avatar, Bar, Btn, Empty, HeroCard, inputCls, Modal, OptionList, Stars, StatusPill, statusOf, Tag, WeekStrip } from "./ui";
 import { clock, money, shrinkPhoto, time12 } from "./utils";
 import { NotLinked } from "./Vendor";
+import { MeButton } from "./Photo";
 
 export default function Rider({ riderId, go }) {
   const { state } = useWorkspace();
@@ -48,7 +49,7 @@ function RiderApp({ rider, go }) {
           <button onClick={() => act({ type: "rider/online", id: rider.id, online: !rider.online })} className={`flex h-10 items-center gap-1.5 rounded-full px-4 text-[13px] font-semibold ${rider.online ? "bg-emerald-400 text-black" : "bg-white/15 text-white"}`}>
             <Power className="h-4 w-4" /> {rider.online ? "On duty" : "Off duty"}
           </button>
-          <Avatar name={rider.name} color={rider.color} size={40} className="ring-2 ring-white/30" />
+          <MeButton onClick={() => go("/account")} color={rider.color} testId="rider-photo" />
         </header>
 
         {!rider.online ? (

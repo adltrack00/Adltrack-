@@ -1,12 +1,13 @@
 // Your account: name and sign-in details, password, phone notifications, installing the app, signing out.
 import React, { useEffect, useState } from "react";
-import { ArrowLeft, Bell, LogOut, RotateCcw, Smartphone } from "lucide-react";
+import { ArrowLeft, Bell, Camera, LogOut, RotateCcw, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { api, homeFor, useAuth } from "./auth";
 import { askForNotifications } from "./alerts";
 import { useWorkspace } from "./store";
 import { Avatar, Btn, Card, CardHead, Field, inputCls, Logo } from "./ui";
 import { themeOf, ThemePicker } from "./scenes";
+import { ProfilePhotoCard, usePhotoPicker } from "./Photo";
 
 const ROLE = { company: "Company", vendor: "Vendor", rider: "Rider" };
 
@@ -18,6 +19,7 @@ export default function Account({ go }) {
   const [notif, setNotif] = useState(typeof Notification !== "undefined" ? Notification.permission : "unsupported");
   const install = useInstallPrompt();
   const theme = themeOf(state.company.theme);
+  const photo = usePhotoPicker();
 
   const save = async (e) => {
     e.preventDefault();
@@ -37,7 +39,11 @@ export default function Account({ go }) {
           <Logo dark />
         </div>
         <div className="mx-auto mt-8 flex max-w-3xl items-center gap-4">
-          <Avatar name={user.name} size={64} color="#2b47f0" className="ring-2 ring-white/30" />
+          <button onClick={photo.pick} className="relative shrink-0" aria-label="Change profile photo">
+            <Avatar name={user.name} photo={user.photo} size={72} color="#2b47f0" className="ring-2 ring-white/30" />
+            <span className="absolute -bottom-0.5 -right-0.5 grid h-7 w-7 place-items-center rounded-full bg-white text-neutral-950 ring-2 ring-[#0a0d2e]"><Camera className="h-3.5 w-3.5" /></span>
+          </button>
+          {photo.ui}
           <div>
             <h1 className="text-[32px] font-extrabold leading-tight tracking-[-0.03em]">{user.name}</h1>
             <div className="text-[15px] text-white/60">{ROLE[user.role]} · {company}</div>
@@ -56,6 +62,7 @@ export default function Account({ go }) {
               </div>
             </Card>
           )}
+          <ProfilePhotoCard />
           {!user.demo && (
             <Card>
               <CardHead title="Your details" sub="You sign in with your email or phone." />

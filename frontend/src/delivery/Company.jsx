@@ -1,11 +1,12 @@
 // The delivery company's dashboard: vendors, riders, stock, deliveries and ADA.
 import React, { useMemo, useState } from "react";
 import {
-  AlertTriangle, ArrowDownUp, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Settings, Sparkles, Truck, User, Users, Wallet, X,
+  AlertTriangle, ArrowDownUp, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Settings, Sparkles, Truck, Users, Wallet, X,
 } from "lucide-react";
 import { AdaPanel } from "./AdaPanel";
 import Team from "./Team";
 import { SideMenu } from "./SideMenu";
+import { MeButton } from "./Photo";
 import { StatPill } from "./Stats";
 import { useAuth } from "./auth";
 import { DeliveryCard, Feed, LedgerLegend, PaymentActions, ProductTable } from "./shared";
@@ -50,7 +51,7 @@ export default function Company({ go }) {
           <span className="hidden text-[14px] font-semibold text-white/70 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
           <div className="ml-auto flex items-center gap-2">
             {sync === "offline" && <LiveDot label="Offline, will save when back" tone="warn" />}
-            <button onClick={() => go("/account")} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Your account" data-testid="account"><User className="h-4 w-4" /></button>
+            <MeButton onClick={() => go("/account")} />
           </div>
         </div>
         <div className="relative mx-auto mt-5 flex max-w-7xl flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

@@ -95,12 +95,20 @@ ok(v.delete(f"/api/vendor-team/{mid}")); ok(s_.get("/api/workspace"), 401)
 vinv2 = ok(c.post("/api/invites", json={"role":"vendor","ref":"v1"}))
 ok(TestClient(server.app).post("/api/auth/join", json={"code":vinv2["code"],"name":"Funmi","email":"f2@glow.com","password":"vendpass2"}))
 ok(v.get("/api/workspace"), 401); ok(k.get("/api/workspace"))
+# profile photo: saved on the login, shown to the company's team list, refused if it isn't an image, removable
+pic = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ=="
+assert ok(k.put("/api/auth/photo", json={"photo":pic}))["user"]["photo"]==pic
+assert ok(k.get("/api/auth/me"))["user"]["photo"]==pic
+assert any(m.get("photo")==pic for m in ok(c.get("/api/team"))["members"])
+ok(k.put("/api/auth/photo", json={"photo":"data:text/html;base64,PGI+"}), 400)
+assert ok(k.put("/api/auth/photo", json={"photo":None}))["user"]["photo"] is None
 # demo
 d = TestClient(server.app)
 ok(d.post("/api/auth/demo", json={"role":"rider"}), 409)
 seed = {"version":5,"company":{"name":"Delivery"},"vendors":[],"riders":[{"id":"r-tunde"}],"products":[],"intake":[],"orders":[],"tasks":[],"messages":[],"nextRef":1}
 assert ok(d.post("/api/auth/demo", json={"role":"rider","seed":seed}))["user"]["demo"]
 assert ok(d.get("/api/workspace"))["state"]["riders"][0]["id"]=="r-tunde"
+ok(d.put("/api/auth/photo", json={"photo":pic}), 403)
 # other company can't see
 o = TestClient(server.app)
 ok(o.post("/api/auth/signup/company", json={"company":"Other","name":"X","phone":"0812 000 0000","password":"password1"}))
