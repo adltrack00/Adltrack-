@@ -1,6 +1,6 @@
 // The four headline numbers on the company dashboard (delivered, left, with riders, sold) as one segmented pill.
 // Tapping a segment lights it up and opens a sheet with what's behind that number.
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Wallet } from "lucide-react";
 import { isActive, isAwaitingPayment, isDelivered, productLedger, riderById, totals, units, value, vendorById } from "./store";
 import { Avatar, Card, Empty, Modal } from "./ui";
@@ -22,31 +22,25 @@ const SEGMENTS = [
   ["sold", "Sold"],
 ];
 
-// A liquid-glass bubble sits behind one number. Until someone taps, it glides from number to number every few
-// seconds so it's clear they can be tapped; a tap sends it to that number, then opens its sheet.
+// A liquid-glass bubble sits behind one number so it's clear they can be tapped. It only moves when someone taps a
+// number, glides there, then opens that number's sheet. It stays on the last one tapped, also after a reload.
+const POS_KEY = "delivery-stat-pos";
+const savedPos = () => { try { const n = Number(localStorage.getItem(POS_KEY)); return n >= 0 && n < SEGMENTS.length ? n : 0; } catch (e) { return 0; } };
 export function StatPill({ state, className }) {
   const [open, setOpen] = useState(null);
-  const [pos, setPos] = useState(0);
+  const [pos, setPos] = useState(savedPos);
   const [moving, setMoving] = useState(false);
-  const [touched, setTouched] = useState(false);
   const t = totals(state);
   const shown = { delivered: num(t.delivered), left: num(t.left), riders: num(t.withRiders), sold: shortMoney(t.deliveredValue) };
 
-  const glide = useCallback((i) => {
+  const glide = (i) => {
     setPos(i);
+    try { localStorage.setItem(POS_KEY, String(i)); } catch (e) { /* blocked */ }
     setMoving(true);
     setTimeout(() => setMoving(false), 260);
-  }, []);
-  useEffect(() => {
-    if (touched || open) return undefined;
-    const still = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (still) return undefined;
-    const timer = setInterval(() => setPos((p) => { const n = (p + 1) % SEGMENTS.length; setMoving(true); setTimeout(() => setMoving(false), 260); return n; }), 2600);
-    return () => clearInterval(timer);
-  }, [touched, open]);
+  };
 
   const tap = (i, id) => {
-    setTouched(true);
     glide(i);
     setTimeout(() => setOpen(id), pos === i ? 0 : 320);
   };
@@ -72,7 +66,6 @@ export function StatPill({ state, className }) {
             <button
               key={id}
               onClick={() => tap(i, id)}
-              onMouseEnter={() => { if (!touched) { setTouched(true); glide(i); } else glide(i); }}
               className="relative z-10 min-w-0 rounded-full px-1 py-2 text-center text-white sm:py-2.5"
               data-testid={`stat-${id}`}
               aria-label={`${label}: ${shown[id]}. Tap for details`}
