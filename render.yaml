@@ -3,7 +3,7 @@ services:
   - type: web
     name: delivery
     runtime: docker
-    plan: free
+    plan: starter
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /api/health
@@ -22,6 +22,6 @@ services:
 
 databases:
   - name: delivery-db
-    plan: free
+    plan: starter
     databaseName: delivery
     user: delivery
