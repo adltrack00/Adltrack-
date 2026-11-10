@@ -261,8 +261,12 @@ function ServerWorkspace({ children }) {
       flush();
     } catch (e) {
       setStatus("offline");
+      clearTimeout(s.retry);
+      s.retry = setTimeout(() => pullRef.current(), 4000);
     }
   }, [adopt, flush]);
+  const pullRef = useRef(pull);
+  pullRef.current = pull;
 
   useEffect(() => {
     let es;

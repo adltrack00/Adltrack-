@@ -48,13 +48,20 @@ class PostgresStore:
 
         self.psycopg = psycopg
         self.url = url
+        self.ready = False
+
+    def setup(self) -> None:
+        if self.ready:
+            return
         with self.connect() as conn:
             conn.execute("CREATE TABLE IF NOT EXISTS workspace (id INT PRIMARY KEY, rev INT NOT NULL, state JSONB NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT now())")
+        self.ready = True
 
     def connect(self):
-        return self.psycopg.connect(self.url, autocommit=True)
+        return self.psycopg.connect(self.url, autocommit=True, connect_timeout=10)
 
     def load(self) -> Tuple[int, Optional[str]]:
+        self.setup()
         with self.connect() as conn:
             row = conn.execute("SELECT rev, state::text FROM workspace WHERE id = 1").fetchone()
         return (int(row[0]), row[1]) if row else (0, None)
@@ -79,11 +86,27 @@ def make_store():
 
 
 class Workspace:
+    """Loads lazily, so the app starts even while a brand new database is still being created; requests answer 503
+    until it can be reached, and the browser keeps its copy and retries."""
+
     def __init__(self):
         self.store = make_store()
-        self.rev, self.state = self.store.load()
+        self.rev, self.state = 0, None
+        self.loaded = False
         self.lock = asyncio.Lock()
         self.listeners: set = set()
+
+    async def ensure(self) -> bool:
+        if self.loaded:
+            return True
+        async with self.lock:
+            if not self.loaded:
+                try:
+                    self.rev, self.state = await asyncio.to_thread(self.store.load)
+                    self.loaded = True
+                except Exception as err:  # database not reachable yet
+                    log.warning("Workspace storage not ready: %s", err)
+        return self.loaded
 
     def snapshot(self) -> str:
         return '{"rev": %d, "state": %s}' % (self.rev, self.state or "null")
@@ -111,6 +134,8 @@ def router() -> APIRouter:
 
     @api.get("")
     async def get_workspace():
+        if not await ws.ensure():
+            return JSONResponse({"error": "storage not ready"}, status_code=503)
         return _raw(ws.snapshot())
 
     @api.put("")
@@ -118,6 +143,8 @@ def router() -> APIRouter:
         raw = await request.body()
         if len(raw) > MAX_BYTES:
             return JSONResponse({"error": "too large"}, status_code=413)
+        if not await ws.ensure():
+            return JSONResponse({"error": "storage not ready"}, status_code=503)
         body = SaveBody.model_validate_json(raw)
         if body.state.get("version") is None:
             return JSONResponse({"error": "not a workspace"}, status_code=400)
@@ -128,6 +155,7 @@ def router() -> APIRouter:
 
     @api.get("/stream")
     async def stream(request: Request):
+        await ws.ensure()
         q: asyncio.Queue = asyncio.Queue()
         ws.listeners.add(q)
 
