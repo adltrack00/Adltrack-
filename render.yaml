@@ -3,7 +3,7 @@ services:
   - type: web
     name: delivery
     runtime: docker
-    plan: starter
+    plan: starter  # paid: stays awake, no cold starts
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /api/health
@@ -22,6 +22,6 @@ services:
 
 databases:
   - name: delivery-db
-    plan: starter
+    plan: basic-256mb  # paid: does not expire
     databaseName: delivery
     user: delivery
