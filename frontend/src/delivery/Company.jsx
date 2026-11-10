@@ -7,14 +7,14 @@ import { AdaPanel } from "./AdaPanel";
 import { DeliveryCard, Feed, LedgerLegend, PaymentActions, ProductTable } from "./shared";
 import { FixOrder, PasteOrders } from "./Intake";
 import { isActive, isAwaitingPayment, lineLabel, orderValue, productById, productLedger, riderLoad, totals, units as taskUnits, useWorkspace, value as taskValue, vendorById } from "./store";
-import { AdaMark, Avatar, Bar, Btn, Card, CardHead, Empty, Field, inputCls, LedgerBar, LiveDot, Logo, Modal, StatusPill, Stat, statusOf, Tag } from "./ui";
+import { AdaBar, AdaMark, ChecklistCard, Chips, HeroCard, Avatar, Bar, Btn, Card, CardHead, Empty, Field, GRADIENT, inputCls, LedgerBar, LiveDot, Logo, Modal, StatusPill, Stat, statusOf, TabBar, Tag, Tile } from "./ui";
 import { ago, clock, money, num, time12, todayISO } from "./utils";
 
 const NAV = [
-  ["today", "Needs you", BellRing],
+  ["today", "Today", BellRing],
   ["overview", "Overview", LayoutGrid],
   ["deliveries", "Deliveries", Truck],
-  ["stock", "Vendors & stock", Boxes],
+  ["stock", "Stock", Boxes],
   ["riders", "Riders", Bike],
   ["messages", "Messages", MessageSquare],
 ];
@@ -24,55 +24,50 @@ export default function Company({ go }) {
   const [tab, setTab] = useState("today");
   const [ada, setAda] = useState(false);
   const [seed, setSeed] = useState("");
-  const [nav, setNav] = useState(false);
   const openAda = (say = "") => { setSeed(say); setAda(true); };
   const needs = needsYou(state);
   const unread = state.messages.filter((m) => m.from === "rider" && !m.read).length;
-
+  const t = totals(state);
   const Section = { today: NeedsYou, overview: Overview, deliveries: Deliveries, stock: Stock, riders: Riders, messages: Messages }[tab];
+  const titles = { today: needs.count ? `${needs.count} ${needs.count === 1 ? "thing needs" : "things need"} you` : "All clear", overview: "Overview", deliveries: "Deliveries", stock: "Vendors & stock", riders: "Riders", messages: "Messages" };
+  const tabs = NAV.map(([id, label, Icon]) => [id, label, Icon, id === "today" ? needs.count : id === "messages" ? unread : 0]);
 
   return (
-    <div className="min-h-screen bg-[#f6f5f2]">
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-stone-200/80 bg-white px-4 py-5 transition-transform lg:translate-x-0 ${nav ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="flex items-center justify-between px-2"><Logo /><button className="lg:hidden" onClick={() => setNav(false)} aria-label="Close menu"><X className="h-5 w-5 text-stone-500" /></button></div>
-        <div className="mt-2 px-2 text-[12px] text-stone-400">Company workspace · {state.company.city}</div>
-        <nav className="mt-6 grid gap-1">
-          {NAV.map(([id, label, Icon]) => (
-            <button key={id} onClick={() => { setTab(id); setNav(false); }} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium transition ${tab === id ? "bg-stone-900 text-white" : "text-stone-600 hover:bg-stone-100"}`}>
-              <Icon className="h-[18px] w-[18px]" /> {label}
-              {id === "today" && needs.count > 0 && <span className={`ml-auto rounded-full px-2 text-[11px] font-bold ${tab === id ? "bg-white/20" : "bg-orange-100 text-orange-700"}`}>{needs.count}</span>}
-              {id === "messages" && unread > 0 && <span className="ml-auto h-2 w-2 rounded-full bg-orange-500" />}
-            </button>
-          ))}
-        </nav>
-        <button onClick={() => openAda()} className="mt-6 rounded-2xl border border-orange-100 bg-gradient-to-br from-orange-50 to-white p-4 text-left">
-          <AdaMark size={32} />
-          <div className="mt-3 text-[14px] font-bold text-stone-900">Ask ADA</div>
-          <div className="mt-0.5 text-[12.5px] leading-snug text-stone-500">Tell ADA the stock you got. ADA dispatches the rest.</div>
-        </button>
-        <div className="mt-auto grid gap-1 border-t border-stone-100 pt-4 text-[13px]">
-          <button onClick={() => go("#/vendor/v-glow")} className="flex items-center gap-2 rounded-lg px-3 py-2 text-stone-500 hover:bg-stone-100"><Building2 className="h-4 w-4" /> Open a vendor portal</button>
-          <button onClick={() => go("#/rider/r-tunde")} className="flex items-center gap-2 rounded-lg px-3 py-2 text-stone-500 hover:bg-stone-100"><Bike className="h-4 w-4" /> Open the rider app</button>
-          <button onClick={() => go("#/")} className="flex items-center gap-2 rounded-lg px-3 py-2 text-stone-500 hover:bg-stone-100"><LogOut className="h-4 w-4" /> Sign out</button>
-        </div>
-      </aside>
-
-      <div className="lg:pl-64">
-        <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-stone-200/70 bg-[#f6f5f2]/90 px-4 py-3.5 backdrop-blur sm:px-8">
-          <button className="lg:hidden" onClick={() => setNav(true)} aria-label="Open menu"><Menu className="h-5 w-5 text-stone-700" /></button>
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-[20px] font-bold tracking-tight text-stone-900">{NAV.find((n) => n[0] === tab)[1]}</h1>
-            <div className="text-[12.5px] text-stone-500">{new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
+    <div className="min-h-screen bg-white">
+      <header className={`${GRADIENT} relative overflow-hidden px-5 pb-16 pt-6 text-white sm:px-10`}>
+        <div className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-blue-600/30 blur-3xl" />
+        <div className="relative mx-auto flex max-w-7xl items-center gap-3">
+          <Logo dark />
+          <span className="hidden text-[13px] text-white/50 sm:inline">· {state.company.city}</span>
+          <div className="ml-auto flex items-center gap-2">
+            <LiveDot label="Live with vendors & riders" />
+            <button onClick={() => go("#/vendor/v-glow")} className="hidden h-9 items-center gap-1.5 rounded-full bg-white/10 px-3 text-[12.5px] font-medium text-white/80 hover:bg-white/15 md:flex"><Building2 className="h-4 w-4" /> Vendor view</button>
+            <button onClick={() => go("#/rider/r-tunde")} className="hidden h-9 items-center gap-1.5 rounded-full bg-white/10 px-3 text-[12.5px] font-medium text-white/80 hover:bg-white/15 md:flex"><Bike className="h-4 w-4" /> Rider view</button>
+            <button onClick={() => go("#/")} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Sign out"><LogOut className="h-4 w-4" /></button>
           </div>
-          <LiveDot label="Synced with vendors & riders" />
-          <Btn onClick={() => openAda()} className="hidden sm:inline-flex"><Sparkles className="h-4 w-4 text-orange-300" /> Ask ADA</Btn>
-        </header>
-        <main className="px-4 py-6 sm:px-8">
-          <Section openAda={openAda} setTab={setTab} />
-        </main>
-      </div>
+        </div>
+        <div className="relative mx-auto mt-10 flex max-w-7xl flex-wrap items-end justify-between gap-6">
+          <div>
+            <div className="text-[15px] font-medium text-white/60">{new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
+            <h1 className="mt-1 text-[40px] font-extrabold leading-[1.05] tracking-[-0.035em] sm:text-[52px]">{titles[tab]}{tab === "today" ? <span className="text-white/50">, {state.company.dispatcher}.</span> : ""}</h1>
+          </div>
+          <div className="flex gap-6 text-right sm:gap-10">
+            {[["Delivered", num(t.delivered)], ["Left", num(t.left)], ["With riders", num(t.withRiders)], ["Sold", money(t.deliveredValue)]].map(([k, v]) => (
+              <div key={k}><div className="text-[24px] font-bold tracking-tight sm:text-[28px]">{v}</div><div className="text-[12.5px] text-white/55">{k}</div></div>
+            ))}
+          </div>
+        </div>
+      </header>
 
-      <button onClick={() => openAda()} className="fixed bottom-5 right-5 z-30 sm:hidden" aria-label="Ask ADA"><AdaMark size={56} /></button>
+      <main className="relative -mt-10 rounded-t-[40px] bg-white px-4 pb-36 pt-8 sm:px-10">
+        <div className="mx-auto max-w-7xl">
+          <Section openAda={openAda} setTab={setTab} />
+        </div>
+      </main>
+
+      <TabBar tabs={tabs} active={tab} onChange={setTab} action={
+        <button onClick={() => openAda()} className="grid h-[68px] w-[68px] place-items-center rounded-full bg-white/80 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 backdrop-blur-xl" aria-label="Ask ADA"><AdaMark size={44} /></button>
+      } />
       <AdaPanel open={ada} onClose={() => setAda(false)} seed={seed} onSeedUsed={() => setSeed("")} />
     </div>
   );
@@ -96,15 +91,15 @@ export function needsYou(state) {
   return { ready, toFix, failed, awaiting, late, low, count: (ready.length ? 1 : 0) + toFix.length + failed.length + awaiting.length + late.length };
 }
 
-function Section({ icon: Icon, tone, title, sub, right, children }) {
-  const tones = { rose: "bg-rose-50 text-rose-600", amber: "bg-amber-50 text-amber-600", orange: "bg-orange-50 text-orange-600", sky: "bg-sky-50 text-sky-600", stone: "bg-stone-100 text-stone-600" };
+function Section({ id, icon: Icon, tone, title, sub, right, children }) {
+  const tones = { rose: "bg-rose-50 text-rose-600", amber: "bg-amber-50 text-amber-600", orange: "bg-blue-50 text-blue-600", sky: "bg-sky-50 text-sky-600", stone: "bg-neutral-100 text-neutral-600" };
   return (
-    <Card>
-      <div className="flex items-start gap-3 px-5 pt-4">
-        <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${tones[tone]}`}><Icon className="h-[18px] w-[18px]" /></span>
+    <Card id={id}>
+      <div className="flex items-start gap-3 px-5 pt-5">
+        <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${tones[tone]}`}><Icon className="h-[18px] w-[18px]" /></span>
         <div className="min-w-0 flex-1">
-          <div className="text-[15px] font-bold tracking-tight text-stone-900">{title}</div>
-          {sub && <div className="text-[12.5px] text-stone-500">{sub}</div>}
+          <div className="text-[17px] font-bold tracking-tight text-neutral-950">{title}</div>
+          {sub && <div className="text-[12.5px] text-neutral-500">{sub}</div>}
         </div>
         {right}
       </div>
@@ -113,12 +108,15 @@ function Section({ icon: Icon, tone, title, sub, right, children }) {
   );
 }
 
-const Row = ({ children }) => <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-stone-100 px-5 py-3 first:border-t-0">{children}</div>;
+const Row = ({ children }) => <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-neutral-100 px-5 py-3 first:border-t-0">{children}</div>;
 
 function NeedsYou({ openAda, setTab }) {
   const { state, act } = useWorkspace();
   const n = needsYou(state);
   const [fixing, setFixing] = useState(null);
+  const [pasting, setPasting] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [receiving, setReceiving] = useState(false);
   const [resend, setResend] = useState({});
   const t = totals(state);
   const today = state.tasks.filter((x) => x.date === todayISO());
@@ -141,31 +139,36 @@ function NeedsYou({ openAda, setTab }) {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      <section className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
         <div>
-          <div className="text-[24px] font-extrabold tracking-tight text-stone-900">{nothing ? `All clear, ${state.company.dispatcher}.` : `${n.count} ${n.count === 1 ? "thing needs" : "things need"} you, ${state.company.dispatcher}.`}</div>
-          <div className="mt-0.5 text-[13.5px] text-stone-500">Today: {today.filter((x) => x.status === "delivered").length} of {today.length} drops delivered · {num(t.withRiders)} units with riders · {money(t.deliveredValue)} sold so far. <button onClick={() => setTab("overview")} className="font-semibold text-orange-600">Full overview <ArrowRight className="inline h-3.5 w-3.5" /></button></div>
+          <h2 className="text-[40px] font-extrabold leading-[1.02] tracking-[-0.04em] text-neutral-950 sm:text-[48px]">What do you<br />want to do?</h2>
+          <p className="mt-3 max-w-md text-[15px] leading-relaxed text-neutral-500">Tap a card, or just tell ADA. Today: {today.filter((x) => x.status === "delivered").length} of {today.length} drops delivered. <button onClick={() => setTab("overview")} className="font-semibold text-blue-600">Full overview</button></p>
+          <AdaBar className="mt-6" placeholder="Let ADA help you.." onSubmit={(text) => openAda(text)} />
         </div>
-      </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <Tile icon={ClipboardPaste} title={<>Paste WhatsApp<br />orders</>} onClick={() => setPasting(true)} />
+          <Tile icon={Sparkles} title={<>Plan today<br />with ADA</>} badge={n.ready.length} onClick={() => openAda("Dispatch today's orders")} />
+          <Tile icon={Truck} title={<>Send a<br />delivery</>} onClick={() => setAdding(true)} />
+          <Tile icon={Package} title={<>Receive<br />stock</>} onClick={() => setReceiving(true)} />
+          <Tile icon={Wallet} title={<>Verify<br />payments</>} badge={n.awaiting.length} onClick={() => document.getElementById("verify")?.scrollIntoView({ behavior: "smooth", block: "center" })} />
+          <Tile icon={MessageSquare} title={<>Message<br />riders</>} onClick={() => setTab("messages")} />
+        </div>
+      </section>
 
-      <div className="grid gap-5 xl:grid-cols-[1.15fr_1fr]">
+      <div className="mt-10 grid gap-5 xl:grid-cols-[1.15fr_1fr]">
         <div className="space-y-5">
-          <Section icon={ClipboardPaste} tone="stone" title="New orders from WhatsApp" sub="Paste a vendor's message as it came. ADA reads every order and shows you what's missing.">
-            <div className="px-5 pb-4 pt-1"><PasteOrders /></div>
-          </Section>
-
           <Section icon={Truck} tone="sky" title={`Ready for a rider (${n.ready.length})`} sub={n.ready.length ? `${readyUnits} units · ${money(n.ready.reduce((s, o) => s + orderValue(state, o), 0))} to collect. ADA splits them by area and each rider's daily units.` : "Every order has a rider."}
-            right={<Btn onClick={() => openAda("Dispatch today's orders")} disabled={!n.ready.length}><Sparkles className="h-4 w-4 text-orange-300" /> Plan with ADA</Btn>}>
+            right={<Btn onClick={() => openAda("Dispatch today's orders")} disabled={!n.ready.length}><Sparkles className="h-4 w-4 text-blue-300" /> Plan with ADA</Btn>}>
             {n.ready.map((o) => (
               <Row key={o.id}>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 text-[14px] font-semibold text-stone-900">
-                    {o.urgent && <span className="flex items-center gap-0.5 rounded-full bg-orange-500 px-1.5 py-0.5 text-[10.5px] font-bold text-white"><Flame className="h-3 w-3" />URGENT</span>}
-                    <span className="truncate">{o.customer}</span><span className="font-normal text-stone-400">· {o.zone || "No area"}</span>
+                  <div className="flex items-center gap-2 text-[14px] font-semibold text-neutral-900">
+                    {o.urgent && <span className="flex items-center gap-0.5 rounded-full bg-blue-500 px-1.5 py-0.5 text-[10.5px] font-bold text-white"><Flame className="h-3 w-3" />URGENT</span>}
+                    <span className="truncate">{o.customer}</span><span className="font-normal text-neutral-400">· {o.zone || "No area"}</span>
                   </div>
-                  <div className="truncate text-[12.5px] text-stone-500">{items(o.items)} · {(vendorById(state, o.vendorId) || {}).name}</div>
+                  <div className="truncate text-[12.5px] text-neutral-500">{items(o.items)} · {(vendorById(state, o.vendorId) || {}).name}</div>
                 </div>
-                <div className="text-[12.5px] text-stone-500">{o.start ? `${time12(o.start)}${o.end ? `–${time12(o.end)}` : ""}` : o.end ? `by ${time12(o.end)}` : "Today"}</div>
+                <div className="text-[12.5px] text-neutral-500">{o.start ? `${time12(o.start)}${o.end ? `–${time12(o.end)}` : ""}` : o.end ? `by ${time12(o.end)}` : "Today"}</div>
                 <div className="w-24 text-right font-mono text-[12.5px]">{money(orderValue(state, o))}</div>
               </Row>
             ))}
@@ -178,7 +181,7 @@ function NeedsYou({ openAda, setTab }) {
               {n.toFix.map((o) => (
                 <Row key={o.id}>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[14px] font-semibold text-stone-900">{o.customer || "No name"} <span className="font-normal text-stone-400">· {(vendorById(state, o.vendorId) || {}).name || "No vendor"}</span></div>
+                    <div className="text-[14px] font-semibold text-neutral-900">{o.customer || "No name"} <span className="font-normal text-neutral-400">· {(vendorById(state, o.vendorId) || {}).name || "No vendor"}</span></div>
                     <div className="text-[12.5px] text-rose-700">{(o.issues || []).join(" ") || "Needs checking."}</div>
                   </div>
                   <Btn size="sm" variant="ghost" onClick={() => setFixing(o)}>Fix</Btn>
@@ -192,10 +195,10 @@ function NeedsYou({ openAda, setTab }) {
               {n.failed.map((task) => (
                 <Row key={task.id}>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[14px] font-semibold text-stone-900">{task.customer} <span className="font-normal text-stone-400">· {rider(task.riderId).short}</span></div>
-                    <div className="text-[12.5px] text-stone-500">{task.failReason} · {items(task.items)}</div>
+                    <div className="text-[14px] font-semibold text-neutral-900">{task.customer} <span className="font-normal text-neutral-400">· {rider(task.riderId).short}</span></div>
+                    <div className="text-[12.5px] text-neutral-500">{task.failReason} · {items(task.items)}</div>
                   </div>
-                  <select value={resend[task.id] || task.riderId} onChange={(e) => setResend({ ...resend, [task.id]: e.target.value })} className="h-8 rounded-full border border-stone-200 bg-white px-2 text-[12.5px]">
+                  <select value={resend[task.id] || task.riderId} onChange={(e) => setResend({ ...resend, [task.id]: e.target.value })} className="h-8 rounded-full border border-neutral-200 bg-white px-2 text-[12.5px]">
                     {state.riders.map((r) => <option key={r.id} value={r.id}>{r.short}{r.online ? "" : " (off)"}</option>)}
                   </select>
                   <Btn size="sm" onClick={() => sendAgain(task)}>Send again</Btn>
@@ -206,13 +209,13 @@ function NeedsYou({ openAda, setTab }) {
           )}
 
           {!!n.awaiting.length && (
-            <Section icon={Wallet} tone="amber" title={`Payment to verify (${n.awaiting.length})`} sub={`${money(t.awaitingValue)} riders collected that isn't checked against the company account yet.`}
+            <Section id="verify" icon={Wallet} tone="amber" title={`Payment to verify (${n.awaiting.length})`} sub={`${money(t.awaitingValue)} riders collected that isn't checked against the company account yet.`}
               right={<Btn size="sm" variant="green" onClick={() => act({ type: "task/confirmPayments", ids: n.awaiting.map((x) => x.id) })}>Verify all</Btn>}>
               {n.awaiting.map((task) => (
                 <Row key={task.id}>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[14px] font-semibold text-stone-900">{task.customer} <span className="font-normal text-stone-400">· {rider(task.riderId).short} · {(task.payment && task.payment.method) || "cash"}</span></div>
-                    <div className="text-[12.5px] text-stone-500">{task.ref} · delivered {task.proof ? ago(task.proof.at) : ""}{task.proof && task.proof.note ? ` · "${task.proof.note}"` : ""}</div>
+                    <div className="text-[14px] font-semibold text-neutral-900">{task.customer} <span className="font-normal text-neutral-400">· {rider(task.riderId).short} · {(task.payment && task.payment.method) || "cash"}</span></div>
+                    <div className="text-[12.5px] text-neutral-500">{task.ref} · delivered {task.proof ? ago(task.proof.at) : ""}{task.proof && task.proof.note ? ` · "${task.proof.note}"` : ""}</div>
                   </div>
                   <span className="font-mono text-[13px] font-semibold">{money((task.payment && task.payment.amount) || taskValue(task))}</span>
                   <Btn size="sm" variant="ghost" onClick={() => act({ type: "task/confirmPayment", id: task.id })}>Verify</Btn>
@@ -226,13 +229,13 @@ function NeedsYou({ openAda, setTab }) {
               {(allLate ? n.late : n.late.slice(0, 4)).map((task) => (
                 <Row key={task.id}>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[14px] font-semibold text-stone-900">{task.customer} <span className="font-normal text-stone-400">· {rider(task.riderId).short}</span></div>
-                    <div className="text-[12.5px] text-stone-500">Due {time12(task.due || task.time)} · {task.status === "assigned" ? "not picked up yet" : "on the way"}</div>
+                    <div className="text-[14px] font-semibold text-neutral-900">{task.customer} <span className="font-normal text-neutral-400">· {rider(task.riderId).short}</span></div>
+                    <div className="text-[12.5px] text-neutral-500">Due {time12(task.due || task.time)} · {task.status === "assigned" ? "not picked up yet" : "on the way"}</div>
                   </div>
-                  <a href={`tel:${(rider(task.riderId).phone || "").replace(/\s/g, "")}`} className="inline-flex h-8 items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 text-[12.5px] font-semibold text-stone-800"><Phone className="h-3.5 w-3.5" /> Call {rider(task.riderId).short}</a>
+                  <a href={`tel:${(rider(task.riderId).phone || "").replace(/\s/g, "")}`} className="inline-flex h-8 items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 text-[12.5px] font-semibold text-neutral-800"><Phone className="h-3.5 w-3.5" /> Call {rider(task.riderId).short}</a>
                 </Row>
               ))}
-              {n.late.length > 4 && !allLate && <button onClick={() => setAllLate(true)} className="w-full border-t border-stone-100 py-2.5 text-[12.5px] font-semibold text-stone-500">Show {n.late.length - 4} more</button>}
+              {n.late.length > 4 && !allLate && <button onClick={() => setAllLate(true)} className="w-full border-t border-neutral-100 py-2.5 text-[12.5px] font-semibold text-neutral-500">Show {n.late.length - 4} more</button>}
             </Section>
           )}
 
@@ -240,8 +243,8 @@ function NeedsYou({ openAda, setTab }) {
             <Section icon={Package} tone="stone" title="Running low" sub="Ask the vendor for more before orders get stuck.">
               {n.low.map(({ p, l }) => (
                 <Row key={p.id}>
-                  <div className="min-w-0 flex-1 text-[13.5px]"><span className="font-semibold text-stone-900">{p.name}</span> <span className="text-stone-400">· {(vendorById(state, p.vendorId) || {}).name}</span></div>
-                  <span className="text-[12.5px] text-stone-500"><b className="text-stone-900">{l.inWarehouse}</b> in warehouse{l.pendingOrders ? ` · ${l.pendingOrders} ordered` : ""}</span>
+                  <div className="min-w-0 flex-1 text-[13.5px]"><span className="font-semibold text-neutral-900">{p.name}</span> <span className="text-neutral-400">· {(vendorById(state, p.vendorId) || {}).name}</span></div>
+                  <span className="text-[12.5px] text-neutral-500"><b className="text-neutral-900">{l.inWarehouse}</b> in warehouse{l.pendingOrders ? ` · ${l.pendingOrders} ordered` : ""}</span>
                 </Row>
               ))}
             </Section>
@@ -251,6 +254,11 @@ function NeedsYou({ openAda, setTab }) {
         </div>
       </div>
 
+      <Modal open={pasting} onClose={() => setPasting(false)} title="Paste orders" wide>
+        <PasteOrders />
+      </Modal>
+      <NewDelivery open={adding} onClose={() => setAdding(false)} />
+      <ReceiveStock open={receiving} onClose={() => setReceiving(false)} act={act} state={state} />
       <Modal open={!!fixing} onClose={() => setFixing(null)} title={fixing ? `Fix ${fixing.id}` : ""} wide>
         {fixing && <FixOrder order={fixing} onDone={() => setFixing(null)} />}
       </Modal>
@@ -279,34 +287,32 @@ function Overview({ openAda, setTab }) {
         <Stat label="Payment to verify" value={awaiting.length} sub={money(t.awaitingValue)} icon={Wallet} tone="amber" />
       </div>
 
-      <Card className="overflow-hidden">
-        <div className="grid gap-5 p-5 md:grid-cols-[1fr_auto] md:items-center md:p-6">
-          <div className="flex gap-4">
-            <AdaMark size={48} />
-            <div>
-              <div className="text-[18px] font-bold tracking-tight text-stone-900">Tell ADA what came in today</div>
-              <p className="mt-1 max-w-xl text-[13.5px] leading-relaxed text-stone-500">Say what each vendor dropped off. ADA adds it to stock, splits today's {state.orders.filter((o) => o.status === "open").length} open orders across riders within their daily allocation, works out what each rider collects and messages them. You approve before anything is sent.</p>
-            </div>
-          </div>
-          <form onSubmit={(e) => { e.preventDefault(); openAda(say || "Dispatch today's orders"); setSay(""); }} className="flex w-full gap-2 md:w-[420px]">
-            <input value={say} onChange={(e) => setSay(e.target.value)} placeholder="GlowSkin dropped 40 serums. Dispatch today's orders." className={`${inputCls} h-11 rounded-full px-4`} />
-            <Btn size="lg" className="h-11 shrink-0" type="submit"><Send className="h-4 w-4" /></Btn>
-          </form>
-        </div>
-      </Card>
+      <div className="grid gap-5 lg:grid-cols-2">
+        <HeroCard onArrow={() => setTab("deliveries")} className="min-h-[260px]">
+          Hey {state.company.dispatcher}!<br />
+          <span className="text-white/45">You've sold</span> {money(t.deliveredValue)}<br />
+          <span className="text-white/45">and</span> {num(t.withRiders)} units <span className="text-white/45">are out</span>
+        </HeroCard>
+        <ChecklistCard title="Today's run" items={[
+          ["Orders in", !state.orders.some((o) => o.status === "needs_fix"), `${state.orders.filter((o) => o.status === "open").length} ready, ${state.orders.filter((o) => o.status === "needs_fix").length} to fix`],
+          ["Riders dispatched", !state.orders.some((o) => o.status === "open"), `${online} riders on duty`],
+          ["Drops delivered", today.length > 0 && today.every((x) => !isActive(x)), `${today.filter((x) => x.status === "delivered").length} of ${today.length}`],
+          ["Money verified", !awaiting.length, awaiting.length ? `${money(t.awaitingValue)} to check` : "All paid in"],
+        ]} />
+      </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
         <Card>
-          <CardHead title="Vendors" sub="What each vendor gave you, delivered and left. Updates the moment a rider confirms a delivery." right={<button onClick={() => setTab("stock")} className="text-[13px] font-semibold text-orange-600">Stock <ArrowRight className="inline h-3.5 w-3.5" /></button>} />
+          <CardHead title="Vendors" sub="What each vendor gave you, delivered and left. Updates the moment a rider confirms a delivery." right={<button onClick={() => setTab("stock")} className="text-[13px] font-semibold text-blue-600">Stock <ArrowRight className="inline h-3.5 w-3.5" /></button>} />
           <div className="mt-3 overflow-x-auto">
             <table className="w-full min-w-[620px] text-left text-[13px]">
-              <thead><tr className="border-b border-stone-100 text-stone-400"><th className="px-5 py-2 font-medium">Vendor</th><th className="px-3 py-2 text-right font-medium">Given</th><th className="px-3 py-2 text-right font-medium">Delivered</th><th className="px-3 py-2 text-right font-medium">Left</th><th className="px-3 py-2 text-right font-medium">Sales</th><th className="w-36 px-5 py-2 font-medium" /></tr></thead>
+              <thead><tr className="border-b border-neutral-100 text-neutral-400"><th className="px-5 py-2 font-medium">Vendor</th><th className="px-3 py-2 text-right font-medium">Given</th><th className="px-3 py-2 text-right font-medium">Delivered</th><th className="px-3 py-2 text-right font-medium">Left</th><th className="px-3 py-2 text-right font-medium">Sales</th><th className="w-36 px-5 py-2 font-medium" /></tr></thead>
               <tbody>
                 {state.vendors.map((v) => {
                   const s = totals(state, v.id);
                   return (
-                    <tr key={v.id} className="border-b border-stone-50 last:border-0">
-                      <td className="px-5 py-3"><div className="flex items-center gap-2.5"><Avatar name={v.name} color={v.color} size={30} className="rounded-lg" /><div><div className="font-semibold text-stone-900">{v.name}</div><div className="text-[12px] text-stone-400">{v.contact}</div></div></div></td>
+                    <tr key={v.id} className="border-b border-neutral-50 last:border-0">
+                      <td className="px-5 py-3"><div className="flex items-center gap-2.5"><Avatar name={v.name} color={v.color} size={30} className="rounded-lg" /><div><div className="font-semibold text-neutral-900">{v.name}</div><div className="text-[12px] text-neutral-400">{v.contact}</div></div></div></td>
                       <td className="px-3 py-3 text-right tabular-nums">{num(s.received)}</td>
                       <td className="px-3 py-3 text-right font-semibold tabular-nums text-emerald-600">{num(s.delivered)}</td>
                       <td className="px-3 py-3 text-right font-semibold tabular-nums">{num(s.left)}</td>
@@ -329,18 +335,18 @@ function Overview({ openAda, setTab }) {
 
       <div className="grid gap-6 2xl:grid-cols-[1fr_1.3fr]">
         <Card>
-          <CardHead title="Riders today" sub="Units given against each rider's daily allocation" right={<button onClick={() => setTab("riders")} className="text-[13px] font-semibold text-orange-600">All riders <ArrowRight className="inline h-3.5 w-3.5" /></button>} />
-          <div className="mt-3 divide-y divide-stone-100">
+          <CardHead title="Riders today" sub="Units given against each rider's daily allocation" right={<button onClick={() => setTab("riders")} className="text-[13px] font-semibold text-blue-600">All riders <ArrowRight className="inline h-3.5 w-3.5" /></button>} />
+          <div className="mt-3 divide-y divide-neutral-100">
             {state.riders.map((r) => {
               const l = riderLoad(state, r.id);
               return (
                 <div key={r.id} className="flex items-center gap-3 px-5 py-3">
                   <Avatar name={r.name} color={r.color} />
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2"><span className="whitespace-nowrap text-[14px] font-semibold text-stone-900">{r.name}</span><span className={`h-1.5 w-1.5 rounded-full ${r.online ? "bg-emerald-500" : "bg-stone-300"}`} /><span className="text-[12px] text-stone-400">{r.zone}</span></div>
-                    <div className="mt-1.5 flex items-center gap-3"><Bar value={l.units} max={r.dailyUnits} tone={l.units > r.dailyUnits ? "red" : "orange"} className="max-w-[180px]" /><span className="text-[12px] tabular-nums text-stone-500">{l.units}/{r.dailyUnits} units</span></div>
+                    <div className="flex items-center gap-2"><span className="whitespace-nowrap text-[14px] font-semibold text-neutral-900">{r.name}</span><span className={`h-1.5 w-1.5 rounded-full ${r.online ? "bg-emerald-500" : "bg-neutral-300"}`} /><span className="text-[12px] text-neutral-400">{r.zone}</span></div>
+                    <div className="mt-1.5 flex items-center gap-3"><Bar value={l.units} max={r.dailyUnits} tone={l.units > r.dailyUnits ? "red" : "orange"} className="max-w-[180px]" /><span className="text-[12px] tabular-nums text-neutral-500">{l.units}/{r.dailyUnits} units</span></div>
                   </div>
-                  <div className="text-right text-[12.5px]"><div className="font-semibold text-stone-800">{l.done}/{l.tasks.length} done</div><div className="font-mono text-stone-500">{money(l.collected)}</div></div>
+                  <div className="text-right text-[12.5px]"><div className="font-semibold text-neutral-800">{l.done}/{l.tasks.length} done</div><div className="font-mono text-neutral-500">{money(l.collected)}</div></div>
                 </div>
               );
             })}
@@ -348,7 +354,7 @@ function Overview({ openAda, setTab }) {
         </Card>
 
         <Card>
-          <CardHead title="Today's deliveries" sub={`${today.filter((x) => x.status === "delivered").length} of ${today.length} delivered`} right={<button onClick={() => setTab("deliveries")} className="text-[13px] font-semibold text-orange-600">All <ArrowRight className="inline h-3.5 w-3.5" /></button>} />
+          <CardHead title="Today's deliveries" sub={`${today.filter((x) => x.status === "delivered").length} of ${today.length} delivered`} right={<button onClick={() => setTab("deliveries")} className="text-[13px] font-semibold text-blue-600">All <ArrowRight className="inline h-3.5 w-3.5" /></button>} />
           <div className="mt-2">
             {today.slice(0, 5).map((t) => <DeliveryCard key={t.id} state={state} task={t} actions={<PaymentActions task={t} act={act} />} />)}
           </div>
@@ -375,14 +381,10 @@ function Deliveries({ openAda }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        {filters.map(([id, label, fn]) => (
-          <button key={id} onClick={() => setFilter(id)} className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold ${filter === id ? "bg-stone-900 text-white" : "bg-white text-stone-600 ring-1 ring-stone-200 hover:bg-stone-50"}`}>
-            {label} <span className="opacity-60">{state.tasks.filter(fn).length}</span>
-          </button>
-        ))}
+        <Chips options={filters.map(([id, label, fn]) => [id, label, state.tasks.filter(fn).length])} value={filter} onChange={setFilter} />
         <div className="ml-auto flex gap-2">
           <Btn variant="ghost" onClick={() => setAdding(true)}><Plus className="h-4 w-4" /> New delivery</Btn>
-          <Btn onClick={() => openAda("Dispatch today's orders")}><Sparkles className="h-4 w-4 text-orange-300" /> Dispatch with ADA</Btn>
+          <Btn onClick={() => openAda("Dispatch today's orders")}><Sparkles className="h-4 w-4 text-blue-300" /> Dispatch with ADA</Btn>
         </div>
       </div>
       <Card>
@@ -391,8 +393,8 @@ function Deliveries({ openAda }) {
             <div className="flex flex-wrap items-center gap-2">
               <PaymentActions task={t} act={act} />
               {isActive(t) && (
-                <label className="flex items-center gap-2 text-[12.5px] text-stone-500">Rider
-                  <select value={t.riderId} onChange={(e) => act({ type: "task/reassign", id: t.id, riderId: e.target.value })} className="h-8 rounded-lg border border-stone-200 bg-white px-2 text-[12.5px] text-stone-800">
+                <label className="flex items-center gap-2 text-[12.5px] text-neutral-500">Rider
+                  <select value={t.riderId} onChange={(e) => act({ type: "task/reassign", id: t.id, riderId: e.target.value })} className="h-8 rounded-lg border border-neutral-200 bg-white px-2 text-[12.5px] text-neutral-800">
                     {state.riders.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
                   </select>
                 </label>
@@ -439,7 +441,7 @@ function NewDelivery({ open, onClose }) {
           </Field>
           <Field label="Qty"><input type="number" min="1" max={free} value={f.qty} onChange={set("qty")} className={inputCls} /></Field>
         </div>
-        <div className="text-[12px] text-stone-500">{free} in the warehouse · collect {money((product ? product.price : 0) * f.qty)}</div>
+        <div className="text-[12px] text-neutral-500">{free} in the warehouse · collect {money((product ? product.price : 0) * f.qty)}</div>
         <Field label="Rider">
           <select value={f.riderId} onChange={set("riderId")} className={inputCls}>
             {state.riders.map((r) => { const l = riderLoad(state, r.id); return <option key={r.id} value={r.id}>{r.name} · {l.units}/{r.dailyUnits} units today</option>; })}
@@ -464,7 +466,7 @@ function Stock({ openAda }) {
         <div className="ml-auto flex gap-2">
           <Btn variant="ghost" onClick={() => setAddingVendor(true)}><Plus className="h-4 w-4" /> Vendor</Btn>
           <Btn variant="ghost" onClick={() => setReceiving(true)}><Package className="h-4 w-4" /> Receive stock</Btn>
-          <Btn onClick={() => openAda()}><Sparkles className="h-4 w-4 text-orange-300" /> Tell ADA instead</Btn>
+          <Btn onClick={() => openAda()}><Sparkles className="h-4 w-4 text-blue-300" /> Tell ADA instead</Btn>
         </div>
       </div>
       {state.vendors.map((v) => {
@@ -474,7 +476,7 @@ function Stock({ openAda }) {
             <CardHead
               title={<span className="flex items-center gap-2.5"><Avatar name={v.name} color={v.color} size={28} className="rounded-lg" />{v.name}</span>}
               sub={`${v.contact} · ${v.phone}`}
-              right={<div className="text-right text-[12.5px] text-stone-500"><div><b className="text-stone-900">{num(s.left)}</b> of {num(s.received)} left</div><div className="font-mono">{money(s.deliveredValue)} sold</div></div>}
+              right={<div className="text-right text-[12.5px] text-neutral-500"><div><b className="text-neutral-900">{num(s.left)}</b> of {num(s.received)} left</div><div className="font-mono">{money(s.deliveredValue)} sold</div></div>}
             />
             <div className="mt-3"><ProductTable state={state} vendorId={v.id} /></div>
           </Card>
@@ -482,14 +484,14 @@ function Stock({ openAda }) {
       })}
       <Card>
         <CardHead title="Stock received" sub="Every drop-off from a vendor" />
-        <div className="mt-2 divide-y divide-stone-100">
+        <div className="mt-2 divide-y divide-neutral-100">
           {state.intake.slice(0, 12).map((i) => {
             const p = productById(state, i.productId);
             return (
               <div key={i.id} className="flex items-center gap-3 px-5 py-2.5 text-[13px]">
-                <span className="w-20 font-mono text-[12px] text-stone-400">{ago(i.at)}</span>
-                <span className="flex-1 text-stone-800">{num(i.qty)} × {p && p.name} <span className="text-stone-400">· {(vendorById(state, i.vendorId) || {}).name}</span></span>
-                <span className="font-mono text-[12px] text-stone-500">{money(i.price)} each</span>
+                <span className="w-20 font-mono text-[12px] text-neutral-400">{ago(i.at)}</span>
+                <span className="flex-1 text-neutral-800">{num(i.qty)} × {p && p.name} <span className="text-neutral-400">· {(vendorById(state, i.vendorId) || {}).name}</span></span>
+                <span className="font-mono text-[12px] text-neutral-500">{money(i.price)} each</span>
               </div>
             );
           })}
@@ -549,21 +551,21 @@ function Riders() {
           <Card key={r.id} className="p-5">
             <div className="flex items-start justify-between">
               <Avatar name={r.name} color={r.color} size={48} />
-              <button onClick={() => act({ type: "rider/online", id: r.id, online: !r.online })} className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${r.online ? "bg-emerald-50 text-emerald-700" : "bg-stone-100 text-stone-500"}`}>{r.online ? "On duty" : "Off duty"}</button>
+              <button onClick={() => act({ type: "rider/online", id: r.id, online: !r.online })} className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${r.online ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}>{r.online ? "On duty" : "Off duty"}</button>
             </div>
-            <div className="mt-3 text-[16px] font-bold text-stone-900">{r.name}</div>
-            <div className="text-[12.5px] text-stone-500">{r.zone} · {r.vehicle}</div>
+            <div className="mt-3 text-[16px] font-bold text-neutral-900">{r.name}</div>
+            <div className="text-[12.5px] text-neutral-500">{r.zone} · {r.vehicle}</div>
             <div className="mt-4 flex items-baseline justify-between"><Tag>Today's allocation</Tag><span className="text-[13px] font-semibold tabular-nums">{l.units}/{r.dailyUnits}</span></div>
             <Bar value={l.units} max={r.dailyUnits} tone={l.units > r.dailyUnits ? "red" : "orange"} className="mt-2" />
             <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-              <div className="rounded-xl bg-stone-50 py-2"><div className="text-[17px] font-bold">{l.tasks.length}</div><div className="text-[11px] text-stone-500">Drops</div></div>
-              <div className="rounded-xl bg-stone-50 py-2"><div className="text-[17px] font-bold text-emerald-600">{l.done}</div><div className="text-[11px] text-stone-500">Done</div></div>
-              <div className="rounded-xl bg-stone-50 py-2"><div className="text-[17px] font-bold text-orange-600">{l.open}</div><div className="text-[11px] text-stone-500">Out</div></div>
+              <div className="rounded-xl bg-neutral-50 py-2"><div className="text-[17px] font-bold">{l.tasks.length}</div><div className="text-[11px] text-neutral-500">Drops</div></div>
+              <div className="rounded-xl bg-neutral-50 py-2"><div className="text-[17px] font-bold text-emerald-600">{l.done}</div><div className="text-[11px] text-neutral-500">Done</div></div>
+              <div className="rounded-xl bg-neutral-50 py-2"><div className="text-[17px] font-bold text-blue-600">{l.open}</div><div className="text-[11px] text-neutral-500">Out</div></div>
             </div>
-            <div className="mt-3 flex items-center justify-between text-[12.5px]"><span className="text-stone-500">Collected today</span><span className="font-mono font-semibold">{money(l.collected)}</span></div>
+            <div className="mt-3 flex items-center justify-between text-[12.5px]"><span className="text-neutral-500">Collected today</span><span className="font-mono font-semibold">{money(l.collected)}</span></div>
             <div className="mt-3 space-y-1.5">
               {l.tasks.slice(0, 4).map((t) => (
-                <div key={t.id} className="flex items-center justify-between gap-2 text-[12.5px]"><span className="truncate text-stone-700">{t.customer}</span><StatusPill status={statusOf(t)} /></div>
+                <div key={t.id} className="flex items-center justify-between gap-2 text-[12.5px]"><span className="truncate text-neutral-700">{t.customer}</span><StatusPill status={statusOf(t)} /></div>
               ))}
             </div>
           </Card>
@@ -583,29 +585,29 @@ function Messages() {
   const rider = state.riders.find((r) => r.id === riderId);
   return (
     <Card className="grid min-h-[560px] overflow-hidden md:grid-cols-[260px_1fr]">
-      <div className="border-b border-stone-100 md:border-b-0 md:border-r">
+      <div className="border-b border-neutral-100 md:border-b-0 md:border-r">
         {state.riders.map((r) => {
           const last = [...state.messages].reverse().find((m) => m.riderId === r.id);
           return (
-            <button key={r.id} onClick={() => setRiderId(r.id)} className={`flex w-full items-center gap-3 px-4 py-3 text-left ${r.id === riderId ? "bg-stone-50" : "hover:bg-stone-50/60"}`}>
+            <button key={r.id} onClick={() => setRiderId(r.id)} className={`flex w-full items-center gap-3 px-4 py-3 text-left ${r.id === riderId ? "bg-neutral-50" : "hover:bg-neutral-50/60"}`}>
               <Avatar name={r.name} color={r.color} />
-              <div className="min-w-0"><div className="text-[14px] font-semibold text-stone-900">{r.name}</div><div className="truncate text-[12px] text-stone-500">{last ? last.text : "No messages yet"}</div></div>
+              <div className="min-w-0"><div className="text-[14px] font-semibold text-neutral-900">{r.name}</div><div className="truncate text-[12px] text-neutral-500">{last ? last.text : "No messages yet"}</div></div>
             </button>
           );
         })}
       </div>
       <div className="flex flex-col">
-        <div className="flex items-center gap-3 border-b border-stone-100 px-5 py-3"><Avatar name={rider.name} color={rider.color} size={32} /><div><div className="text-[14px] font-semibold">{rider.name}</div><div className="text-[12px] text-stone-500">{rider.phone}</div></div></div>
+        <div className="flex items-center gap-3 border-b border-neutral-100 px-5 py-3"><Avatar name={rider.name} color={rider.color} size={32} /><div><div className="text-[14px] font-semibold">{rider.name}</div><div className="text-[12px] text-neutral-500">{rider.phone}</div></div></div>
         <div className="flex-1 space-y-3 overflow-y-auto p-5">
           {thread.map((m) => (
             <div key={m.id} className={`max-w-[80%] ${m.from === "rider" ? "" : "ml-auto"}`}>
-              <div className={`whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-snug ${m.from === "rider" ? "rounded-bl-md bg-stone-100 text-stone-800" : "rounded-br-md bg-stone-900 text-white"}`}>{m.text}</div>
-              <div className={`mt-1 text-[11px] text-stone-400 ${m.from === "rider" ? "" : "text-right"}`}>{m.from === "ada" ? "ADA · " : m.from === "dispatcher" ? "You · " : ""}{clock(m.at)}</div>
+              <div className={`whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-snug ${m.from === "rider" ? "rounded-bl-md bg-neutral-100 text-neutral-800" : "rounded-br-md bg-neutral-900 text-white"}`}>{m.text}</div>
+              <div className={`mt-1 text-[11px] text-neutral-400 ${m.from === "rider" ? "" : "text-right"}`}>{m.from === "ada" ? "ADA · " : m.from === "dispatcher" ? "You · " : ""}{clock(m.at)}</div>
             </div>
           ))}
           {!thread.length && <Empty icon={MessageSquare} title="No messages yet" />}
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { act({ type: "messages/send", messages: [{ riderId, from: "dispatcher", text: text.trim() }] }); setText(""); } }} className="flex gap-2 border-t border-stone-100 p-3">
+        <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { act({ type: "messages/send", messages: [{ riderId, from: "dispatcher", text: text.trim() }] }); setText(""); } }} className="flex gap-2 border-t border-neutral-100 p-3">
           <input value={text} onChange={(e) => setText(e.target.value)} placeholder={`Message ${rider.short}…`} className={`${inputCls} h-11 rounded-full px-4`} />
           <Btn size="lg" className="h-11" type="submit"><Send className="h-4 w-4" /></Btn>
         </form>

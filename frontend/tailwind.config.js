@@ -8,10 +8,11 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Manrope', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        sans: ['Inter', 'SF Pro Display', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
         mono: ['JetBrains Mono', 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', 'monospace'],
       },
       colors: {
+        blue: { 50: '#eef1ff', 100: '#e0e6ff', 200: '#c6d0ff', 300: '#a3b2ff', 400: '#6b85ff', 500: '#3d5cff', 600: '#2b47f0', 700: '#2238c8', 800: '#1d2f9c', 900: '#172575', 950: '#0d1546' },
         /* ShadCN tokens */
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',

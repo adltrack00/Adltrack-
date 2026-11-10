@@ -57,16 +57,16 @@ export function PasteOrders({ vendorId = "", onAdded, compact = false }) {
         onChange={(e) => setText(e.target.value)}
         rows={compact ? 5 : 7}
         placeholder={(vendorId ? "Paste your orders the way you'd send them on WhatsApp. One order or many." : "Paste the vendor's WhatsApp message here, as it came. One order or many.") + "\n\nName: Adaeze Nnaji\nPhone: 0803 555 1234\nAddress: 15 Adeniran Ogunsanya St, Surulere\nItem: 2 serum + 1 free soap\nAmount: 25k"}
-        className="w-full resize-y rounded-2xl border border-stone-200 bg-white px-4 py-3 font-mono text-[12.5px] leading-relaxed text-stone-800 outline-none focus:border-stone-400"
+        className="w-full resize-y rounded-2xl border border-neutral-200 bg-white px-4 py-3 font-mono text-[12.5px] leading-relaxed text-neutral-800 outline-none focus:border-neutral-400"
       />
       <div className="flex flex-wrap items-center gap-2">
         {!vendorId && (
-          <select value={vendor} onChange={(e) => setVendor(e.target.value)} className="h-10 rounded-full border border-stone-200 bg-white px-3 text-[13px] font-medium text-stone-700">
+          <select value={vendor} onChange={(e) => setVendor(e.target.value)} className="h-10 rounded-full border border-neutral-200 bg-white px-3 text-[13px] font-medium text-neutral-700">
             <option value="">Vendor: work it out from the products</option>
             {state.vendors.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
           </select>
         )}
-        <button type="button" onClick={() => setText(EXAMPLE)} className="text-[12.5px] font-medium text-stone-500 underline-offset-2 hover:underline">Try an example</button>
+        <button type="button" onClick={() => setText(EXAMPLE)} className="text-[12.5px] font-medium text-neutral-500 underline-offset-2 hover:underline">Try an example</button>
         <Btn className="ml-auto" onClick={read} disabled={!text.trim()}><ClipboardPaste className="h-4 w-4" /> Read orders</Btn>
       </div>
     </div>
@@ -83,9 +83,9 @@ export function IntakeReview({ orders, setOrders, onSave, onBack, vendorFixed = 
 
   return (
     <div className="grid gap-3">
-      <div className="flex items-start gap-3 rounded-2xl bg-stone-50 p-3.5">
+      <div className="flex items-start gap-3 rounded-2xl bg-neutral-50 p-3.5">
         <AdaMark size={30} />
-        <div className="text-[13.5px] leading-snug text-stone-700">
+        <div className="text-[13.5px] leading-snug text-neutral-700">
           {orders.length ? (
             <>I read <b>{orders.length} {orders.length === 1 ? "order" : "orders"}</b>. {ready} {ready === 1 ? "is" : "are"} ready{fix ? <>, <b className="text-rose-700">{fix} {fix === 1 ? "needs" : "need"} a fix</b> before a rider can go. I didn't guess anything the message doesn't say.</> : "."}</>
           ) : "I couldn't find an order in that message. Each order needs at least a name, a phone or an address."}
@@ -112,12 +112,12 @@ export function OrderEditor({ order: o, onChange, onRemove, vendorFixed = false 
   const setItem = (n, patch) => onChange({ items: o.items.map((l, k) => (k === n ? { ...l, ...patch } : l)) });
 
   return (
-    <div className={`overflow-hidden rounded-2xl border bg-white ${ok ? "border-stone-200" : "border-rose-200"}`}>
+    <div className={`overflow-hidden rounded-2xl border bg-white ${ok ? "border-neutral-200" : "border-rose-200"}`}>
       <div className={`flex items-center gap-2 px-3.5 py-2 ${ok ? "bg-emerald-50/70" : "bg-rose-50/70"}`}>
         <Tag className={ok ? "text-emerald-700" : "text-rose-700"}>{ok ? "Ready" : "Needs a fix"}</Tag>
-        {o.ref && <span className="font-mono text-[11px] text-stone-400">{o.ref}</span>}
-        <button type="button" onClick={() => onChange({ urgent: !o.urgent })} className={`ml-auto flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-semibold ${o.urgent ? "bg-orange-500 text-white" : "bg-white text-stone-500 ring-1 ring-stone-200"}`}><Flame className="h-3 w-3" /> Urgent</button>
-        {onRemove && <button type="button" onClick={onRemove} className="grid h-7 w-7 place-items-center rounded-full text-stone-400 hover:bg-white hover:text-stone-700" aria-label="Remove order"><Trash2 className="h-3.5 w-3.5" /></button>}
+        {o.ref && <span className="font-mono text-[11px] text-neutral-400">{o.ref}</span>}
+        <button type="button" onClick={() => onChange({ urgent: !o.urgent })} className={`ml-auto flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-semibold ${o.urgent ? "bg-blue-500 text-white" : "bg-white text-neutral-500 ring-1 ring-neutral-200"}`}><Flame className="h-3 w-3" /> Urgent</button>
+        {onRemove && <button type="button" onClick={onRemove} className="grid h-7 w-7 place-items-center rounded-full text-neutral-400 hover:bg-white hover:text-neutral-700" aria-label="Remove order"><Trash2 className="h-3.5 w-3.5" /></button>}
       </div>
       <div className="grid gap-2 p-3.5 sm:grid-cols-2">
         {!vendorFixed && (
@@ -132,7 +132,7 @@ export function OrderEditor({ order: o, onChange, onRemove, vendorFixed = false 
         <input value={o.landmark} onChange={(e) => onChange({ landmark: e.target.value })} placeholder="Landmark (optional)" className={cls("landmark")} />
         <input value={o.altPhone} onChange={(e) => onChange({ altPhone: e.target.value })} onBlur={(e) => { const p = normalizePhone(e.target.value); if (p) onChange({ altPhone: p }); }} placeholder="Second phone (optional)" className={cls("altPhone")} />
       </div>
-      <div className="border-t border-stone-100 px-3.5 py-3">
+      <div className="border-t border-neutral-100 px-3.5 py-3">
         {o.items.map((l, n) => (
           <div key={n} className="mb-2 grid grid-cols-[minmax(0,1fr)_60px_84px] items-center gap-2">
             <select value={l.productId} onChange={(e) => setItem(n, { productId: e.target.value })} className={`${inputCls} h-9 text-[13px]`}>
@@ -152,24 +152,24 @@ export function OrderEditor({ order: o, onChange, onRemove, vendorFixed = false 
           </div>
         ))}
         <div className="flex flex-wrap items-center gap-2">
-          {!!products.length && <button type="button" onClick={() => onChange({ items: [...o.items, { productId: products[0].id, qty: 1, free: 0 }] })} className="flex items-center gap-1 text-[12.5px] font-semibold text-stone-600"><Plus className="h-3.5 w-3.5" /> Product</button>}
-          <label className="ml-auto flex items-center gap-2 whitespace-nowrap text-[12.5px] font-medium text-stone-600">Collect ₦
+          {!!products.length && <button type="button" onClick={() => onChange({ items: [...o.items, { productId: products[0].id, qty: 1, free: 0 }] })} className="flex items-center gap-1 text-[12.5px] font-semibold text-neutral-600"><Plus className="h-3.5 w-3.5" /> Product</button>}
+          <label className="ml-auto flex items-center gap-2 whitespace-nowrap text-[12.5px] font-medium text-neutral-600">Collect ₦
             <input type="number" min="0" value={o.amount || ""} onChange={(e) => onChange({ amount: Number(e.target.value) || 0 })} placeholder={String(listValue(state, o))} className={`${cls("amount")} w-28`} />
           </label>
-          {!o.amount && o.items.length > 0 && <button type="button" onClick={() => onChange({ amount: listValue(state, o) })} className="text-[12px] font-semibold text-orange-600">Use list price</button>}
+          {!o.amount && o.items.length > 0 && <button type="button" onClick={() => onChange({ amount: listValue(state, o) })} className="text-[12px] font-semibold text-blue-600">Use list price</button>}
         </div>
       </div>
       {!!o.issues.length && (
-        <div className="border-t border-stone-100 px-3.5 py-2.5">
+        <div className="border-t border-neutral-100 px-3.5 py-2.5">
           {o.issues.map((x, n) => (
             <div key={n} className={`flex gap-1.5 py-0.5 text-[12.5px] leading-snug ${x.level === "fix" ? "text-rose-700" : "text-amber-700"}`}><AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {x.text}</div>
           ))}
         </div>
       )}
       {o.source && (
-        <details className="border-t border-stone-100 px-3.5 py-2 text-[12px] text-stone-500">
+        <details className="border-t border-neutral-100 px-3.5 py-2 text-[12px] text-neutral-500">
           <summary className="cursor-pointer select-none">What the vendor sent</summary>
-          <pre className="mt-1.5 whitespace-pre-wrap font-mono text-[11.5px] text-stone-600">{o.source}</pre>
+          <pre className="mt-1.5 whitespace-pre-wrap font-mono text-[11.5px] text-neutral-600">{o.source}</pre>
         </details>
       )}
     </div>

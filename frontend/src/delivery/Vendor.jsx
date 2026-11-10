@@ -5,7 +5,7 @@ import { Boxes, LogOut, Package, PackageCheck, Plus, Truck, Wallet } from "lucid
 import { PasteOrders } from "./Intake";
 import { DeliveryCard, Feed, LedgerLegend, ProductTable } from "./shared";
 import { isActive, isAwaitingPayment, productById, totals, useWorkspace, lineLabel } from "./store";
-import { Avatar, Btn, Card, CardHead, Empty, Field, inputCls, LiveDot, Logo, Modal, Stat, StatusPill, statusOf } from "./ui";
+import { Avatar, Btn, Card, CardHead, Chips, Empty, Field, HeroCard, inputCls, LiveDot, Logo, Modal, Stat, StatusPill, statusOf } from "./ui";
 import { money, num, time12 } from "./utils";
 
 const ZONES = ["Ikeja", "Yaba", "Lekki", "Surulere", "Victoria Island", "Ikoyi", "Ajah", "Gbagada"];
@@ -27,32 +27,33 @@ export default function Vendor({ vendorId, go }) {
   const shown = tasks.filter(filters.find((f) => f[0] === filter)[2]);
 
   return (
-    <div className="min-h-screen bg-[#f6f5f2]">
-      <header className="border-b border-stone-200/70 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3.5 sm:px-6">
-          <Logo />
-          <span className="hidden rounded-full bg-stone-100 px-2.5 py-1 text-[11.5px] font-semibold text-stone-600 sm:inline">Vendor portal</span>
-          <div className="ml-auto flex items-center gap-3">
-            <select value={vendor.id} onChange={(e) => go(`#/vendor/${e.target.value}`)} className="h-9 rounded-full border border-stone-200 bg-white px-3 text-[13px] font-semibold text-stone-800">
+    <div className="min-h-screen bg-white">
+      <header className="bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_45%,#ffffff_100%)] px-4 pb-10 pt-6 sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center gap-3">
+          <Logo dark />
+          <span className="hidden rounded-full bg-white/15 px-3 py-1 text-[12px] font-semibold text-white sm:inline">Vendor portal</span>
+          <div className="ml-auto flex items-center gap-2">
+            <select value={vendor.id} onChange={(e) => go(`#/vendor/${e.target.value}`)} className="h-10 rounded-full border-0 bg-white/20 px-4 text-[13.5px] font-semibold text-white backdrop-blur [&>option]:text-neutral-900">
               {state.vendors.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
             </select>
-            <button onClick={() => go("#/")} className="grid h-9 w-9 place-items-center rounded-full bg-stone-100 text-stone-600" aria-label="Sign out"><LogOut className="h-4 w-4" /></button>
+            <button onClick={() => go("#/")} className="grid h-10 w-10 place-items-center rounded-full bg-white/20 text-white" aria-label="Sign out"><LogOut className="h-4 w-4" /></button>
+          </div>
+        </div>
+        <div className="mx-auto mt-8 grid max-w-6xl gap-5 lg:grid-cols-[1.2fr_1fr] lg:items-end">
+          <HeroCard onArrow={() => setRequesting(true)} className="min-h-[250px]">
+            Hey {vendor.name.split(" ")[0]}!<br />
+            <span className="text-white/45">You've sold</span> {money(s.deliveredValue)}<br />
+            <span className="text-white/45">and</span> {num(s.left)} <span className="text-white/45">units are left</span>
+          </HeroCard>
+          <div className="pb-2">
+            <div className="text-[15px] font-semibold text-neutral-900/50">{vendor.name}</div>
+            <h1 className="mt-1 text-[40px] font-extrabold leading-[1.03] tracking-[-0.04em] text-neutral-950">Every delivery,<br />the moment it happens.</h1>
+            <div className="mt-5 flex flex-wrap items-center gap-2"><Btn size="lg" onClick={() => setRequesting(true)}><Plus className="h-5 w-5" /> Request deliveries</Btn><LiveDot /></div>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <Avatar name={vendor.name} color={vendor.color} size={48} className="rounded-2xl" />
-            <div>
-              <h1 className="text-[22px] font-bold tracking-tight text-stone-900">{vendor.name}</h1>
-              <div className="text-[13px] text-stone-500">Your stock with {state.company.name} · updated the moment a rider delivers</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2"><LiveDot /><Btn onClick={() => setRequesting(true)}><Plus className="h-4 w-4" /> Request a delivery</Btn></div>
-        </div>
-
+      <main className="mx-auto max-w-6xl space-y-6 px-4 pb-16 pt-4 sm:px-6">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
           <Stat label="Given to company" value={num(s.received)} sub={money(s.receivedValue)} icon={Package} />
           <Stat label="Delivered" value={num(s.delivered)} sub={money(s.deliveredValue)} icon={PackageCheck} tone="green" />
@@ -69,11 +70,7 @@ export default function Vendor({ vendorId, go }) {
         <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
           <Card>
             <CardHead title="Deliveries" sub="Tap one to see the photo, who received it and the payment" />
-            <div className="mt-3 flex flex-wrap gap-2 px-5">
-              {filters.map(([id, label, fn]) => (
-                <button key={id} onClick={() => setFilter(id)} className={`rounded-full px-3 py-1 text-[12.5px] font-semibold ${filter === id ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-600"}`}>{label} <span className="opacity-60">{tasks.filter(fn).length}</span></button>
-              ))}
-            </div>
+            <Chips className="mt-4 px-5" options={filters.map(([id, label, fn]) => [id, label, tasks.filter(fn).length])} value={filter} onChange={setFilter} />
             <div className="mt-3">{shown.length ? shown.map((t) => <DeliveryCard key={t.id} state={state} task={t} showVendor={false} />) : <Empty icon={Truck} title="No deliveries here yet" />}</div>
           </Card>
           <div className="space-y-6">
@@ -83,11 +80,11 @@ export default function Vendor({ vendorId, go }) {
             </Card>
             <Card>
               <CardHead title={`Waiting for a rider (${orders.length})`} />
-              <div className="mt-2 divide-y divide-stone-100">
+              <div className="mt-2 divide-y divide-neutral-100">
                 {orders.length ? orders.map((o) => (
                   <div key={o.id} className="px-5 py-3">
                     <div className="flex items-center justify-between"><span className="text-[13.5px] font-semibold">{o.customer}</span><StatusPill status={o.status} /></div>
-                    <div className="text-[12.5px] text-stone-500">{o.items.map((l) => lineLabel(state, l)).join(", ")}{o.start ? ` · ${time12(o.start)}${o.end ? `–${time12(o.end)}` : ""}` : o.end ? ` · by ${time12(o.end)}` : ""}</div>
+                    <div className="text-[12.5px] text-neutral-500">{o.items.map((l) => lineLabel(state, l)).join(", ")}{o.start ? ` · ${time12(o.start)}${o.end ? `–${time12(o.end)}` : ""}` : o.end ? ` · by ${time12(o.end)}` : ""}</div>
                     {o.status === "needs_fix" && <div className="mt-0.5 text-[12px] text-rose-700">{(o.issues || []).join(" ")} {state.company.name} will check it with you.</div>}
                   </div>
                 )) : <Empty title="All your requests have riders" />}
@@ -111,9 +108,9 @@ function RequestDelivery({ open, onClose, vendor }) {
   const [mode, setMode] = useState("paste");
   return (
     <Modal open={open} onClose={onClose} title="Request deliveries" wide={mode === "paste"}>
-      <div className="mb-4 grid grid-cols-2 gap-1 rounded-full bg-stone-100 p-1 text-[13px] font-semibold">
+      <div className="mb-4 grid grid-cols-2 gap-1 rounded-full bg-neutral-100 p-1 text-[13px] font-semibold">
         {[["paste", "Paste from WhatsApp"], ["form", "Fill a form"]].map(([id, label]) => (
-          <button key={id} type="button" onClick={() => setMode(id)} className={`h-9 rounded-full ${mode === id ? "bg-white text-stone-900 shadow-sm" : "text-stone-500"}`}>{label}</button>
+          <button key={id} type="button" onClick={() => setMode(id)} className={`h-9 rounded-full ${mode === id ? "bg-white text-neutral-900 shadow-sm" : "text-neutral-500"}`}>{label}</button>
         ))}
       </div>
       {mode === "paste" ? <PasteOrders vendorId={vendor.id} /> : <form className="grid gap-3" onSubmit={(e) => { e.preventDefault(); act({ type: "order/add", order: { vendorId: vendor.id, customer: f.customer, phone: f.phone, address: f.address, zone: f.zone, items: [{ productId: product.id, qty: Number(f.qty) }], start: f.start, end: f.end, note: f.note } }); setF(blank); onClose(); }}>
@@ -132,7 +129,7 @@ function RequestDelivery({ open, onClose, vendor }) {
           <Field label="Until"><input type="time" value={f.end} onChange={set("end")} className={inputCls} /></Field>
         </div>
         <Field label="Note for the rider"><input value={f.note} onChange={set("note")} className={inputCls} /></Field>
-        <div className="text-[12.5px] text-stone-500">Customer pays {money((product ? product.price : 0) * f.qty)} on delivery.</div>
+        <div className="text-[12.5px] text-neutral-500">Customer pays {money((product ? product.price : 0) * f.qty)} on delivery.</div>
         <Btn type="submit" size="lg" className="mt-1">Send to {state.company.name}</Btn>
       </form>}
     </Modal>

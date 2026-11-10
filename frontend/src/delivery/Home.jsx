@@ -1,9 +1,20 @@
-// The front door: what the product does, and a way into each of the three dashboards.
+// The front door: a welcome screen with a way into each of the three dashboards, then how it works.
 import React, { useState } from "react";
-import { ArrowRight, Bike, Building2, Camera, LayoutGrid, Wallet } from "lucide-react";
+import { ArrowRight, Bike, Building2, LayoutGrid, Package } from "lucide-react";
 import { totals, useWorkspace } from "./store";
-import { AdaMark, Avatar, Btn, Card, LiveDot, Logo, Tag } from "./ui";
+import { AdaBar, AdaMark, HeroCard, LiveDot, Logo, Steps } from "./ui";
 import { money, num } from "./utils";
+
+// Faint binary digits behind the welcome screen.
+const DIGITS = Array.from({ length: 26 }, (_, r) => Array.from({ length: 30 }, (_, c) => ((r * 7 + c * 13 + r * c) % 5 < 2 ? "1" : "0")).join("  "));
+
+function Float({ className, size = 84 }) {
+  return (
+    <span className={`absolute grid place-items-center rounded-[28%] bg-gradient-to-br from-amber-200 via-amber-400 to-amber-700 shadow-[0_18px_30px_-10px_rgba(120,70,0,0.55),inset_0_2px_6px_rgba(255,255,255,0.7)] ${className}`} style={{ width: size, height: size }}>
+      <Package className="text-amber-900/70" style={{ width: size * 0.5, height: size * 0.5 }} strokeWidth={1.6} />
+    </span>
+  );
+}
 
 export default function Home({ go }) {
   const { state, act } = useWorkspace();
@@ -12,103 +23,71 @@ export default function Home({ go }) {
   const t = totals(state);
 
   return (
-    <div className="min-h-screen bg-[#f6f5f2]">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
-        <Logo />
-        <div className="flex items-center gap-2">
-          <button onClick={() => { if (window.confirm("Reset the demo data?")) act({ type: "reset" }); }} className="hidden text-[13px] font-medium text-stone-500 hover:text-stone-800 sm:block">Reset demo</button>
-          <Btn onClick={() => go("#/company")}>Open dashboard <ArrowRight className="h-4 w-4" /></Btn>
-        </div>
-      </header>
+    <div className="min-h-screen bg-white">
+      <section className="relative flex min-h-[100svh] flex-col overflow-hidden bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_30%,#c9d3ff_52%,#ffffff_72%)]">
+        <pre aria-hidden="true" className="pointer-events-none absolute inset-0 select-none overflow-hidden whitespace-pre font-mono text-[14px] leading-[2.1] text-black/[0.06] [mask-image:linear-gradient(180deg,#000_0%,#000_60%,transparent_85%)]">{DIGITS.join("\n")}</pre>
+        <header className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-6">
+          <Logo dark />
+          <button onClick={() => { if (window.confirm("Reset the demo data?")) act({ type: "reset" }); }} className="h-10 rounded-full bg-white/25 px-4 text-[13px] font-medium text-white backdrop-blur">Reset demo</button>
+        </header>
 
-      <section className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-14 pt-6 lg:grid-cols-[1.05fr_1fr] lg:pt-14">
-        <div>
-          <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-[12.5px] font-semibold text-stone-600 ring-1 ring-stone-200"><AdaMark size={18} /> Meet ADA, your dispatch assistant</span>
-          <h1 className="mt-5 text-[44px] font-extrabold leading-[1.02] tracking-[-0.03em] text-stone-900 sm:text-[60px]">
-            Tell ADA what's in stock.<br /><span className="text-orange-500">ADA dispatches the rest.</span>
-          </h1>
-          <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-stone-600">
-            One live ledger for your vendors, your riders and your office. Every unit a vendor gives you, every drop a rider makes, every photo at the door and every naira collected, the same second, for everyone.
-          </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Btn size="lg" onClick={() => go("#/company")}>Company dashboard <ArrowRight className="h-4 w-4" /></Btn>
-            <Btn size="lg" variant="ghost" onClick={() => go(`#/rider/${riderId}`)}>Rider app</Btn>
+        <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-5 pb-10 text-center">
+          <Float className="left-1/2 top-[8%] -translate-x-1/2 rotate-[-8deg]" size={96} />
+          <Float className="left-[8%] top-[52%] rotate-[14deg]" size={74} />
+          <Float className="right-[9%] top-[60%] rotate-[-18deg]" size={64} />
+          <h1 className="mt-28 text-[56px] font-black leading-[0.98] tracking-[-0.045em] text-black sm:text-[88px]">Welcome to<br />Delivery</h1>
+          <p className="mt-5 max-w-xl text-[18px] leading-relaxed text-neutral-600">Tell ADA what's in stock. ADA dispatches the rest. One live ledger for your vendors, your riders and your office.</p>
+          <div className="mt-6 flex items-center gap-4 text-[14px] text-neutral-600">
+            <LiveDot label="Live now" />
+            <span><b className="text-neutral-950">{num(t.delivered)}</b> delivered</span>
+            <span><b className="text-neutral-950">{num(t.left)}</b> left</span>
+            <span><b className="text-neutral-950">{money(t.deliveredValue)}</b> sold</span>
           </div>
         </div>
 
-        <Card className="p-5">
-          <div className="flex items-center justify-between"><Tag>Today, live</Tag><LiveDot /></div>
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            <div><div className="text-[28px] font-extrabold tracking-tight">{num(t.received)}</div><div className="text-[12px] text-stone-500">units from vendors</div></div>
-            <div><div className="text-[28px] font-extrabold tracking-tight text-emerald-600">{num(t.delivered)}</div><div className="text-[12px] text-stone-500">delivered</div></div>
-            <div><div className="text-[28px] font-extrabold tracking-tight text-orange-500">{num(t.left)}</div><div className="text-[12px] text-stone-500">left</div></div>
-          </div>
-          <div className="mt-5 space-y-3 rounded-2xl bg-stone-50 p-4">
-            <div className="ml-auto w-fit max-w-[85%] rounded-[18px] rounded-br-md bg-stone-900 px-4 py-2.5 text-[13.5px] text-white">GlowSkin dropped 40 serums at ₦12,500 each. Dispatch today's orders.</div>
-            <div className="flex gap-2.5">
-              <AdaMark size={28} />
-              <div className="rounded-2xl rounded-tl-md bg-white px-3.5 py-2.5 text-[13.5px] leading-snug text-stone-700 ring-1 ring-stone-200/80">
-                Added 40 serums. 6 deliveries for 3 riders, {money(206000)} to collect. Sade takes Surulere and VI, Amaka takes Lekki and Ikeja, Kwame takes Yaba. <b>Approve?</b>
+        <div className="relative rounded-t-[44px] bg-black px-5 pb-10 pt-8">
+          <div className="mx-auto grid max-w-3xl gap-3">
+            <button onClick={() => go("#/company")} className="flex h-[66px] items-center justify-center gap-3 rounded-full bg-white text-[19px] font-medium text-black"><LayoutGrid className="h-6 w-6" /> Continue as the company</button>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="flex h-[66px] items-center gap-2 rounded-full bg-neutral-800 pl-6 pr-2 text-white">
+                <Building2 className="h-5 w-5 shrink-0 text-white/70" />
+                <select value={vendorId} onChange={(e) => setVendorId(e.target.value)} className="min-w-0 flex-1 bg-transparent text-[17px] outline-none [&>option]:text-black" aria-label="Vendor">{state.vendors.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}</select>
+                <button onClick={() => go(`#/vendor/${vendorId}`)} className="grid h-12 w-12 place-items-center rounded-full bg-white/15" aria-label="Open vendor portal"><ArrowRight className="h-5 w-5" /></button>
+              </div>
+              <div className="flex h-[66px] items-center gap-2 rounded-full bg-neutral-800 pl-6 pr-2 text-white">
+                <Bike className="h-5 w-5 shrink-0 text-white/70" />
+                <select value={riderId} onChange={(e) => setRiderId(e.target.value)} className="min-w-0 flex-1 bg-transparent text-[17px] outline-none [&>option]:text-black" aria-label="Rider">{state.riders.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}</select>
+                <button onClick={() => go(`#/rider/${riderId}`)} className="grid h-12 w-12 place-items-center rounded-full bg-white/15" aria-label="Open rider app"><ArrowRight className="h-5 w-5" /></button>
               </div>
             </div>
+            <p className="mt-4 text-center text-[14px] text-white/45">Company, <span className="text-white/80">vendor</span> &amp; <span className="text-white/80">rider</span> see the same numbers, the same second.</p>
           </div>
-          <div className="mt-4 text-[12.5px] text-stone-500">Sales so far: <b className="font-mono text-stone-800">{money(t.deliveredValue)}</b></div>
-        </Card>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-5 pb-14">
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="flex flex-col p-6">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-stone-900 text-white"><LayoutGrid className="h-5 w-5" /></span>
-            <div className="mt-4 text-[18px] font-bold tracking-tight">Company</div>
-            <p className="mt-1 flex-1 text-[14px] leading-relaxed text-stone-500">Opens on "Needs you": only the orders, failed drops and payments someone has to act on. ADA does the dispatching.</p>
-            <Btn className="mt-5 w-full" onClick={() => go("#/company")}>Open</Btn>
-          </Card>
-          <Card className="flex flex-col p-6">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-violet-100 text-violet-700"><Building2 className="h-5 w-5" /></span>
-            <div className="mt-4 text-[18px] font-bold tracking-tight">Vendor portal</div>
-            <p className="mt-1 flex-1 text-[14px] leading-relaxed text-stone-500">Vendors see what they gave, what's delivered, what's left, and the photo of every drop.</p>
-            <div className="mt-5 flex gap-2">
-              <select value={vendorId} onChange={(e) => setVendorId(e.target.value)} className="h-10 min-w-0 flex-1 rounded-full border border-stone-200 bg-white px-3 text-[13px] font-medium">{state.vendors.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}</select>
-              <Btn onClick={() => go(`#/vendor/${vendorId}`)}>Open</Btn>
-            </div>
-          </Card>
-          <Card className="flex flex-col p-6">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-orange-100 text-orange-700"><Bike className="h-5 w-5" /></span>
-            <div className="mt-4 text-[18px] font-bold tracking-tight">Rider app</div>
-            <p className="mt-1 flex-1 text-[14px] leading-relaxed text-stone-500">One drop at a time: who, where, what to collect. Call, Navigate, then a photo and Confirm.</p>
-            <div className="mt-5 flex gap-2">
-              <select value={riderId} onChange={(e) => setRiderId(e.target.value)} className="h-10 min-w-0 flex-1 rounded-full border border-stone-200 bg-white px-3 text-[13px] font-medium">{state.riders.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}</select>
-              <Btn onClick={() => go(`#/rider/${riderId}`)}>Open</Btn>
-            </div>
-          </Card>
         </div>
       </section>
 
-      <section className="border-t border-stone-200/70 bg-white">
-        <div className="mx-auto max-w-6xl px-5 py-14">
-          <Tag>How it works</Tag>
-          <h2 className="mt-2 max-w-2xl text-[30px] font-extrabold leading-tight tracking-tight">From a vendor's drop-off to money in the bank, without a spreadsheet.</h2>
-          <ol className="mt-8 grid gap-4 md:grid-cols-4">
-            {[
-              ["Vendors hand over stock", "Each product with its exact unit price. It's on the vendor's dashboard straight away.", Building2],
-              ["ADA plans the day", "Paste the vendor's WhatsApp orders. ADA flags anything missing, then splits the day across riders and messages them.", null],
-              ["Riders deliver", "A photo at the door, who received it, and cash, transfer or POS confirmed on the spot.", Camera],
-              ["Everyone sees it", "Delivered goes up, left goes down, for the office and the vendor, the moment payment is confirmed.", Wallet],
-            ].map(([title, sub, Icon], n) => (
-              <li key={title} className="rounded-2xl border border-stone-200/80 p-5">
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-[12px] font-semibold text-orange-600">{String(n + 1).padStart(2, "0")}</span>
-                  {Icon ? <Icon className="h-5 w-5 text-stone-400" /> : <AdaMark size={22} />}
-                </div>
-                <div className="mt-4 text-[16px] font-bold">{title}</div>
-                <p className="mt-1 text-[13.5px] leading-relaxed text-stone-500">{sub}</p>
-              </li>
-            ))}
-          </ol>
-          <div className="mt-10 flex flex-wrap items-center gap-3 text-[13px] text-stone-500">
-            <span>Riders on duty:</span>
-            {state.riders.filter((r) => r.online).map((r) => <span key={r.id} className="flex items-center gap-1.5 rounded-full bg-stone-50 py-1 pl-1 pr-3 ring-1 ring-stone-200"><Avatar name={r.name} color={r.color} size={22} />{r.short}</span>)}
+      <section className="mx-auto grid max-w-6xl gap-12 px-5 py-20 lg:grid-cols-2 lg:items-center">
+        <div>
+          <h2 className="text-[40px] font-extrabold leading-[1.05] tracking-[-0.04em] text-neutral-950">How a day runs on Delivery</h2>
+          <Steps className="mt-10" items={[
+            ["Vendors hand over stock", "Each product with its exact unit price. It's on the vendor's screen straight away."],
+            ["Paste their WhatsApp orders", "ADA reads every order and flags anything missing. Nothing is guessed."],
+            ["ADA plans the day", "Splits orders across riders by area and daily units, then messages them."],
+            ["Riders deliver", "One drop at a time: photo at the door and the amount collected."],
+            ["Everyone sees it", "Delivered goes up, left goes down, for the office and the vendor at once."],
+          ]} />
+          <button onClick={() => go("#/company")} className="mt-12 h-16 w-full rounded-full bg-black text-[19px] font-medium text-white sm:w-auto sm:px-14">Open the dashboard</button>
+        </div>
+        <div className="space-y-5">
+          <HeroCard onArrow={() => go("#/company")} className="min-h-[280px]">
+            Hey {state.company.dispatcher}!<br />
+            <span className="text-white/45">You've sold</span> {money(t.deliveredValue)}<br />
+            <span className="text-white/45">and</span> {num(t.left)} units <span className="text-white/45">are left</span>
+          </HeroCard>
+          <div className="rounded-[34px] bg-[radial-gradient(120%_80%_at_0%_0%,#16206a_0%,#0a0f3a_45%,#050716_100%)] p-6">
+            <div className="flex items-center gap-3 text-white/80"><AdaMark size={34} /><span className="text-[15px] font-medium">ADA, your dispatch assistant</span></div>
+            <div className="mt-5 ml-auto w-fit max-w-[85%] rounded-[24px] bg-[#1b3a8f] px-5 py-3 text-[15px] text-white">GlowSkin dropped 40 serums at ₦12,500 each. Dispatch today's orders.</div>
+            <div className="mt-3 w-fit max-w-[92%] rounded-[24px] bg-white/10 px-5 py-3 text-[15px] leading-relaxed text-white/90 ring-1 ring-white/10">Added 40 serums. 6 deliveries for 3 riders, {money(206000)} to collect. Approve?</div>
+            <AdaBar className="mt-6" onSubmit={() => go("#/company")} />
           </div>
         </div>
       </section>
