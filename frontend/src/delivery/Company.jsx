@@ -1,9 +1,10 @@
 // The delivery company's dashboard: vendors, riders, stock, deliveries and ADA.
 import React, { useMemo, useState } from "react";
 import {
-  AlertTriangle, ArrowDownUp, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Sparkles, Truck, Wallet, X,
+  AlertTriangle, ArrowDownUp, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Sparkles, Truck, User, Users, Wallet, X,
 } from "lucide-react";
 import { AdaPanel } from "./AdaPanel";
+import Team from "./Team";
 import { DeliveryCard, Feed, LedgerLegend, PaymentActions, ProductTable } from "./shared";
 import { FixOrder, PasteOrders } from "./Intake";
 import { isActive, isAwaitingPayment, lineLabel, orderValue, productById, productLedger, riderLoad, totals, units as taskUnits, useWorkspace, value as taskValue, vendorById } from "./store";
@@ -18,10 +19,11 @@ const NAV = [
   ["stock", "Stock", Boxes],
   ["riders", "Riders", Bike],
   ["messages", "Messages", MessageSquare],
+  ["team", "Team", Users],
 ];
 
 export default function Company({ go }) {
-  const { state, act } = useWorkspace();
+  const { state, act, sync } = useWorkspace();
   const [tab, setTab] = useState("today");
   const [ada, setAda] = useState(false);
   const [seed, setSeed] = useState("");
@@ -29,10 +31,10 @@ export default function Company({ go }) {
   const theme = themeOf(state.company.theme);
   const openAda = (say = "") => { setSeed(say); setAda(true); };
   const needs = needsYou(state);
-  const unread = state.messages.filter((m) => m.from === "rider" && !m.read).length;
+  const unread = state.messages.filter((m) => (m.from === "rider" || m.from === "vendor") && !m.read).length;
   const t = totals(state);
-  const Section = { today: NeedsYou, overview: Overview, deliveries: Deliveries, stock: Stock, riders: Riders, messages: Messages }[tab];
-  const titles = { today: needs.count ? `${needs.count} ${needs.count === 1 ? "thing needs" : "things need"} you` : "All clear", overview: "Overview", deliveries: "Deliveries", stock: "Vendors & stock", riders: "Riders", messages: "Messages" };
+  const Section = { today: NeedsYou, overview: Overview, deliveries: Deliveries, stock: Stock, riders: Riders, messages: Messages, team: Team }[tab];
+  const titles = { today: needs.count ? `${needs.count} ${needs.count === 1 ? "thing needs" : "things need"} you` : "All clear", overview: "Overview", deliveries: "Deliveries", stock: "Vendors & stock", riders: "Riders", messages: "Messages", team: "Team & logins" };
   const tabs = NAV.map(([id, label, Icon]) => [id, label, Icon, id === "today" ? needs.count : id === "messages" ? unread : 0]);
 
   return (
@@ -43,11 +45,11 @@ export default function Company({ go }) {
           <Logo dark />
           <span className="hidden text-[13px] text-white/50 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
           <div className="ml-auto flex items-center gap-2">
-            <LiveDot label="Live with vendors & riders" />
-            <button onClick={() => go("#/vendor/v-glow")} className="hidden h-9 items-center gap-1.5 rounded-full bg-white/10 px-3 text-[12.5px] font-medium text-white/80 hover:bg-white/15 md:flex"><Building2 className="h-4 w-4" /> Vendor view</button>
-            <button onClick={() => go("#/rider/r-tunde")} className="hidden h-9 items-center gap-1.5 rounded-full bg-white/10 px-3 text-[12.5px] font-medium text-white/80 hover:bg-white/15 md:flex"><Bike className="h-4 w-4" /> Rider view</button>
+            <span className="hidden sm:inline-flex"><LiveDot label={sync === "offline" ? "Offline, will save when back" : sync === "connecting" ? "Connecting…" : "Live with vendors & riders"} tone={sync === "offline" ? "warn" : "live"} /></span>
+            <span className="sm:hidden"><LiveDot label={sync === "offline" ? "Offline" : "Live"} tone={sync === "offline" ? "warn" : "live"} /></span>
+            <button onClick={() => setTab("team")} className="hidden h-9 items-center gap-1.5 rounded-full bg-white/10 px-3 text-[12.5px] font-medium text-white/80 hover:bg-white/15 md:flex"><Users className="h-4 w-4" /> Invite people</button>
             <button onClick={() => setLooking(true)} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Change the look"><Palette className="h-4 w-4" /></button>
-            <button onClick={() => go("#/")} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Sign out"><LogOut className="h-4 w-4" /></button>
+            <button onClick={() => go("/account")} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Your account" data-testid="account"><User className="h-4 w-4" /></button>
           </div>
         </div>
         <div className="relative mx-auto mt-10 flex max-w-7xl flex-wrap items-end justify-between gap-6">
@@ -118,6 +120,35 @@ function Section({ id, icon: Icon, tone, title, sub, right, children }) {
 
 const Row = ({ children }) => <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-neutral-100 px-5 py-3 first:border-t-0">{children}</div>;
 
+// First days: what a new company still has to do before riders and vendors can use their own dashboards.
+function GetReady({ state, setTab, onReceive }) {
+  const steps = [
+    ["Add your riders", "Name, phone, area and how many units a day.", state.riders.length > 0, () => setTab("team")],
+    ["Add your vendors", "The businesses that hand you stock.", state.vendors.length > 0, () => setTab("team")],
+    ["Receive their stock", "Each product with its unit price.", state.products.length > 0, onReceive],
+    ["Send your first delivery", "Or paste the day's orders and let ADA plan it.", state.tasks.length > 0, () => setTab("deliveries")],
+  ];
+  if (steps.every((x) => x[2])) return null;
+  const done = steps.filter((x) => x[2]).length;
+  return (
+    <Card className="p-5 sm:p-6">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="text-[22px] font-extrabold tracking-tight text-neutral-950">Get {state.company.name || "your company"} ready</h2>
+        <span className="text-[13px] font-semibold text-neutral-500">{done} of {steps.length} done</span>
+      </div>
+      <p className="mt-1 text-[14px] text-neutral-500">Each rider and vendor gets an invite code from the Team page, and signs in to their own dashboard.</p>
+      <div className="mt-4 grid gap-2 md:grid-cols-4">
+        {steps.map(([title, sub, ok, onClick], i) => (
+          <button key={title} onClick={onClick} disabled={ok} className={`flex items-start gap-3 rounded-[22px] p-4 text-left ${ok ? "bg-emerald-50" : "bg-neutral-100/80 hover:bg-neutral-100"}`}>
+            <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[14px] font-bold ${ok ? "bg-emerald-500 text-white" : "bg-black text-white"}`}>{ok ? "✓" : i + 1}</span>
+            <span><span className="block text-[15px] font-bold text-neutral-950">{title}</span><span className="block text-[13px] text-neutral-500">{sub}</span></span>
+          </button>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 function NeedsYou({ openAda, setTab }) {
   const { state, act } = useWorkspace();
   const n = needsYou(state);
@@ -147,6 +178,7 @@ function NeedsYou({ openAda, setTab }) {
 
   return (
     <div className="space-y-5">
+      <GetReady state={state} setTab={setTab} onReceive={() => setReceiving(true)} />
       <section className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
         <div>
           <h2 className="text-[40px] font-extrabold leading-[1.02] tracking-[-0.04em] text-neutral-950 sm:text-[48px]">What do you<br />want to do?</h2>
@@ -490,7 +522,7 @@ function Deliveries({ openAda }) {
 
 function NewDelivery({ open, onClose }) {
   const { state, act } = useWorkspace();
-  const blank = { customer: "", phone: "", address: "", time: "", riderId: state.riders[0].id, productId: state.products[0].id, qty: 1 };
+  const blank = { customer: "", phone: "", address: "", time: "", riderId: (state.riders[0] || {}).id || "", productId: (state.products[0] || {}).id || "", qty: 1 };
   const [f, setF] = useState(blank);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const product = productById(state, f.productId);
@@ -504,6 +536,9 @@ function NewDelivery({ open, onClose }) {
     onClose();
     return r;
   };
+  if (open && (!state.riders.length || !state.products.length)) {
+    return <Modal open onClose={onClose} title="New delivery"><Empty icon={Truck} title={!state.riders.length ? "Add a rider first" : "Receive some stock first"} sub={!state.riders.length ? "Riders are added under Team." : "Products come in under Stock, from a vendor."} /></Modal>;
+  }
   return (
     <Modal open={open} onClose={onClose} title="New delivery">
       <form onSubmit={save} className="grid gap-3">
@@ -584,10 +619,11 @@ function Stock({ openAda }) {
 }
 
 function ReceiveStock({ open, onClose, act, state }) {
-  const [f, setF] = useState({ vendorId: state.vendors[0].id, productId: "", name: "", unit: "unit", qty: 10, price: "" });
+  const [f, setF] = useState({ vendorId: (state.vendors[0] || {}).id || "", productId: "", name: "", unit: "unit", qty: 10, price: "" });
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const products = state.products.filter((p) => p.vendorId === f.vendorId);
   const existing = products.find((p) => p.id === f.productId);
+  if (open && !state.vendors.length) return <Modal open onClose={onClose} title="Receive stock from a vendor"><Empty icon={Building2} title="Add a vendor first" sub="Vendors are added under Team or Stock." /></Modal>;
   return (
     <Modal open={open} onClose={onClose} title="Receive stock from a vendor">
       <form className="grid gap-3" onSubmit={(e) => { e.preventDefault(); act({ type: "stock/receive", lines: [{ vendorId: f.vendorId, productId: f.productId || null, name: f.name, unit: f.unit, qty: Number(f.qty), price: Number(f.price) || (existing ? existing.price : 0) }] }); onClose(); }}>
@@ -655,41 +691,55 @@ function Riders() {
   );
 }
 
-/* ---------- Messages ---------- */
+/* ---------- Messages: one conversation per rider and per vendor ---------- */
 
 function Messages() {
   const { state, act } = useWorkspace();
-  const [riderId, setRiderId] = useState(state.riders[0].id);
+  const threads = [
+    ...state.riders.map((r) => ({ key: `r:${r.id}`, riderId: r.id, name: r.name, color: r.color, sub: r.phone, kind: "Rider", first: r.short || r.name })),
+    ...state.vendors.map((v) => ({ key: `v:${v.id}`, vendorId: v.id, name: v.name, color: v.color, sub: v.contact || v.phone, kind: "Vendor", first: v.name })),
+  ];
+  const [key, setKey] = useState(threads[0] ? threads[0].key : "");
   const [text, setText] = useState("");
-  const thread = useMemo(() => state.messages.filter((m) => m.riderId === riderId), [state.messages, riderId]);
-  const rider = state.riders.find((r) => r.id === riderId);
+  const th = threads.find((t) => t.key === key) || threads[0];
+  const inThread = (m, t) => (t.vendorId ? m.vendorId === t.vendorId : m.riderId === t.riderId && !m.vendorId);
+  const thread = useMemo(() => (th ? state.messages.filter((m) => inThread(m, th)) : []), [state.messages, th]); // eslint-disable-line react-hooks/exhaustive-deps
+  const unreadIn = (t) => state.messages.filter((m) => inThread(m, t) && (m.from === "rider" || m.from === "vendor") && !m.read).length;
+  const openUnread = th ? unreadIn(th) : 0;
+  React.useEffect(() => {
+    if (th && openUnread) act({ type: "messages/read", by: "company", riderId: th.riderId, vendorId: th.vendorId });
+  }, [th, openUnread, act]);
+  if (!th) return <Card><Empty icon={MessageSquare} title="No one to message yet" sub="Add riders and vendors under Team." /></Card>;
+  const theirs = (m) => m.from === "rider" || m.from === "vendor";
   return (
-    <Card className="grid min-h-[560px] overflow-hidden md:grid-cols-[260px_1fr]">
-      <div className="border-b border-neutral-100 md:border-b-0 md:border-r">
-        {state.riders.map((r) => {
-          const last = [...state.messages].reverse().find((m) => m.riderId === r.id);
+    <Card className="grid min-h-[560px] overflow-hidden md:grid-cols-[280px_1fr]">
+      <div className="max-h-[260px] overflow-y-auto border-b border-neutral-100 md:max-h-none md:border-b-0 md:border-r">
+        {threads.map((t) => {
+          const last = [...state.messages].reverse().find((m) => inThread(m, t));
+          const n = unreadIn(t);
           return (
-            <button key={r.id} onClick={() => setRiderId(r.id)} className={`flex w-full items-center gap-3 px-4 py-3 text-left ${r.id === riderId ? "bg-neutral-50" : "hover:bg-neutral-50/60"}`}>
-              <Avatar name={r.name} color={r.color} />
-              <div className="min-w-0"><div className="text-[14px] font-semibold text-neutral-900">{r.name}</div><div className="truncate text-[12px] text-neutral-500">{last ? last.text : "No messages yet"}</div></div>
+            <button key={t.key} onClick={() => setKey(t.key)} className={`flex w-full items-center gap-3 px-4 py-3 text-left ${t.key === th.key ? "bg-neutral-50" : "hover:bg-neutral-50/60"}`}>
+              <Avatar name={t.name} color={t.color} />
+              <div className="min-w-0 flex-1"><div className="flex items-center gap-2 text-[14px] font-semibold text-neutral-900"><span className="truncate">{t.name}</span><span className="rounded-full bg-neutral-100 px-1.5 text-[10px] font-semibold uppercase text-neutral-500">{t.kind}</span></div><div className="truncate text-[12px] text-neutral-500">{last ? last.text : "No messages yet"}</div></div>
+              {!!n && <span className="grid h-5 min-w-5 place-items-center rounded-full bg-blue-600 px-1 text-[10.5px] font-bold text-white">{n}</span>}
             </button>
           );
         })}
       </div>
       <div className="flex flex-col">
-        <div className="flex items-center gap-3 border-b border-neutral-100 px-5 py-3"><Avatar name={rider.name} color={rider.color} size={32} /><div><div className="text-[14px] font-semibold">{rider.name}</div><div className="text-[12px] text-neutral-500">{rider.phone}</div></div></div>
+        <div className="flex items-center gap-3 border-b border-neutral-100 px-5 py-3"><Avatar name={th.name} color={th.color} size={32} /><div><div className="text-[14px] font-semibold">{th.name}</div><div className="text-[12px] text-neutral-500">{th.kind}{th.sub ? ` · ${th.sub}` : ""}</div></div></div>
         <div className="flex-1 space-y-3 overflow-y-auto p-5">
           {thread.map((m) => (
-            <div key={m.id} className={`max-w-[80%] ${m.from === "rider" ? "" : "ml-auto"}`}>
-              <div className={`whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-snug ${m.from === "rider" ? "rounded-bl-md bg-neutral-100 text-neutral-800" : "rounded-br-md bg-neutral-900 text-white"}`}>{m.text}</div>
-              <div className={`mt-1 text-[11px] text-neutral-400 ${m.from === "rider" ? "" : "text-right"}`}>{m.from === "ada" ? "ADA · " : m.from === "dispatcher" ? "You · " : ""}{clock(m.at)}</div>
+            <div key={m.id} className={`max-w-[80%] ${theirs(m) ? "" : "ml-auto"}`}>
+              <div className={`whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-snug ${theirs(m) ? "rounded-bl-md bg-neutral-100 text-neutral-800" : "rounded-br-md bg-neutral-900 text-white"}`}>{m.text}</div>
+              <div className={`mt-1 text-[11px] text-neutral-400 ${theirs(m) ? "" : "text-right"}`}>{m.from === "ada" ? "ADA · " : m.from === "dispatcher" ? "You · " : ""}{clock(m.at)}{!theirs(m) && m.read ? " · Read" : ""}</div>
             </div>
           ))}
           {!thread.length && <Empty icon={MessageSquare} title="No messages yet" />}
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { act({ type: "messages/send", messages: [{ riderId, from: "dispatcher", text: text.trim() }] }); setText(""); } }} className="flex gap-2 border-t border-neutral-100 p-3">
-          <input value={text} onChange={(e) => setText(e.target.value)} placeholder={`Message ${rider.short}…`} className={`${inputCls} h-11 rounded-full px-4`} />
-          <Btn size="lg" className="h-11" type="submit"><Send className="h-4 w-4" /></Btn>
+        <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { act({ type: "messages/send", messages: [{ riderId: th.riderId, vendorId: th.vendorId, from: "dispatcher", text: text.trim() }] }); setText(""); } }} className="flex gap-2 border-t border-neutral-100 p-3">
+          <input value={text} onChange={(e) => setText(e.target.value)} placeholder={`Message ${th.first}…`} className={`${inputCls} h-11 rounded-full px-4`} />
+          <Btn size="lg" className="h-11" type="submit" aria-label="Send"><Send className="h-4 w-4" /></Btn>
         </form>
       </div>
     </Card>

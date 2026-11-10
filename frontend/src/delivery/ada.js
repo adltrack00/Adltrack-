@@ -11,6 +11,8 @@ import { DEFAULT_DAILY_UNITS } from "./seed";
 import { isActive, isAwaitingPayment, productLedger, riderLoad, totals, units as taskUnits, value as taskValue } from "./store";
 import { money, num, time12, todayISO } from "./utils";
 
+// "/" means the API is on the same site as the app (how it runs on Render); a full URL points at a separate server.
+const USE_SERVER = true; // the app always runs with its server now (accounts live there)
 const BACKEND = (process.env.REACT_APP_BACKEND_URL || "").replace(/\/$/, "");
 
 const clean = (s) => String(s || "").toLowerCase().replace(/[’']/g, "").replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
@@ -222,10 +224,11 @@ function context(state) {
 }
 
 async function askServer(state, turns) {
-  if (!BACKEND) return null;
+  if (!USE_SERVER) return null;
   try {
     const res = await fetch(`${BACKEND}/api/ada`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: turns.slice(-8), context: context(state) }),
     });

@@ -12,15 +12,39 @@ Dispatch today's orders.") and ADA adds the stock, matches the open orders, assi
 allocation, works out what each rider collects and drafts their messages. Nothing is saved until someone taps
 **Approve & send**.
 
-## Three dashboards, same data
+## Accounts and dashboards
 
-| Dashboard | URL | What it shows |
+Delivery is a normal web app with a landing page, sign up and sign in. Everyone has their own login and lands on their
+own dashboard; the phone app is the same app (see `mobile/`).
+
+| Who | How they get in | Their dashboard |
 | --- | --- | --- |
-| Company | `#/company` | Opens on **Needs you**: paste WhatsApp orders, orders to fix, orders ready for a rider, failed drops to resend, payments to verify, late drops, low stock. Then overview, deliveries, stock, riders, messages and ADA |
-| Vendor portal | `#/vendor/<vendor id>` | The vendor's own products and money, every delivery with time, rider, photo and payment, and paste-from-WhatsApp (or a form) to request deliveries |
-| Rider app | `#/rider/<rider id>` | One thing at a time: collect everything at the office in one tap, then only the next drop in full (who, where, landmark, what to collect, Call, Navigate, Delivered). A photo and the amount confirm it |
+| Delivery company | Signs up at `/signup/company`, then a short setup | `/company`: **Today** (what needs you), overview, deliveries, stock, riders, messages with riders and vendors, **Team** (invites and logins) and ADA |
+| Vendor | The company adds them under Team and sends an invite code or link (`/join/<code>`) | `/vendor`: their own products, units given / delivered / left, every delivery with time, rider, photo and payment, request deliveries (form or pasted WhatsApp text), messages with the office |
+| Rider | Same: invite from the company's Team page | `/rider`: today's drops one at a time, collect at the office, photo + amount to confirm, report a problem, inbox |
+| Office teammate | "Invite a teammate" on the Team page | Same as the company |
 
-Open them in separate tabs: a change in one shows in the others straight away.
+Sign in is with email or phone number and a password. A forgotten password is reset by sending that person a new
+invite (it replaces their old login). The landing page also opens a shared **demo** as company, vendor or rider.
+
+### How the dashboards send and receive information
+
+All three read the same company workspace on the server, each through a filter (`backend/access.py`):
+
+- **Vendor sends** orders and messages. **Gets** each of their drops as it is picked up, delivered (photo, time,
+  amount, method) or fails, and when the office verifies the payment.
+- **Company sends** stock received, ADA's approved plan (deliveries for each rider), messages, payment verifications.
+  **Gets** new vendor orders, every delivery and failure, and messages from riders and vendors.
+- **Rider sends** pick-ups, deliveries (photo, amount, method, who received it), problems and messages. **Gets** new
+  drops and messages from the office or ADA.
+
+Every change is pushed to every open page at once (Server-Sent Events) and pops up as a live alert, and as a phone
+notification when the app is in the background and notifications are on.
+
+A vendor sees only their own products, orders, deliveries and messages; a rider only their own drops and messages.
+When a vendor or rider saves, the server accepts only the changes their role allows (a rider can confirm their own
+drops but can't change stock, prices or another rider's drops). Delivery photos are stored on the server
+(`/api/photos/<id>`) and only people in that company can open them.
 
 ### How the numbers work (`frontend/src/delivery/store.js`)
 
@@ -53,26 +77,34 @@ matches it to real vendors, products and riders, checks stock and each rider's d
 ## Run it
 
 ```sh
-cd frontend
-yarn install
-yarn start            # http://localhost:3000
-```
-
-Data is kept in the browser (localStorage) and shared between tabs. "Reset demo" on the home page starts over.
-
-Optional backend for ADA:
-
-```sh
+# 1. the server (accounts and data; SQLite in backend/data/ when DATABASE_URL isn't set)
 cd backend
 pip install -r requirements.txt
-export ANTHROPIC_API_KEY=...        # ADA_MODEL defaults to claude-opus-5-5
+export ANTHROPIC_API_KEY=...        # optional; ADA_MODEL defaults to claude-opus-5-5
 uvicorn server:app --port 8001
-# then start the frontend with REACT_APP_BACKEND_URL=http://localhost:8001
+
+# 2. the web app, in another terminal (calls the server through the dev proxy)
+cd frontend
+yarn install
+REACT_APP_BACKEND_URL=/ yarn start            # http://localhost:3000
 ```
 
 ## What's next
 
-The browser store is the stand-in for a real database. To run this for a company, the next steps are a backend store
-(Postgres) with accounts for office staff, vendors and riders, real-time sync over websockets, photo uploads to object
-storage, payment confirmation from the bank or POS provider, and SMS to customers with a tracking link.
-See [docs/RESEARCH.md](docs/RESEARCH.md) for what the leading delivery platforms do and what we took from them.
+Payment confirmation straight from the bank or POS provider, SMS to customers with a tracking link, password reset
+by email, and store releases of the phone app. See [docs/RESEARCH.md](docs/RESEARCH.md) for what the leading
+delivery platforms do and what we took from them.
+
+## Hosting on Render
+
+`render.yaml` and `Dockerfile` run the whole app as one Render web service: the Docker build makes the web app,
+and the FastAPI server (`backend/server.py`) serves it, the accounts, the data and ADA from the same address.
+The Blueprint also creates the Postgres database (`delivery-db`) and passes it to the app as `DATABASE_URL`.
+
+1. In Render: **New > Blueprint**, connect this repository and pick the branch.
+2. When asked, paste an `ANTHROPIC_API_KEY` (optional: without it ADA uses the simpler assistant built into the app).
+3. **Apply**. Open `https://<service>.onrender.com`, sign up your company, add riders and vendors under **Team** and
+   send them their invites.
+
+Tables (created on first start): `workspace` (one row per company), `users`, `sessions`, `invites`, `photos`.
+The demo uses workspace 1, so data from before accounts existed becomes the demo.

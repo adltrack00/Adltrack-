@@ -1,15 +1,22 @@
 // The rider app, phone-first and one thing at a time: collect everything at the office, then only the next drop is
 // shown in full, with Call, Navigate and one big button. Delivered = a photo and what was collected.
 import React, { useEffect, useRef, useState } from "react";
-import { Camera, Check, Clock, Delete, Home, Inbox, LogOut, MapPin, MessageSquare, Navigation, Phone, Power, Send, X } from "lucide-react";
+import { Camera, Check, Clock, Delete, Home, Inbox, MapPin, User, MessageSquare, Navigation, Phone, Power, Send, X } from "lucide-react";
 import { isActive, productById, riderLoad, units as taskUnits, useWorkspace, value as taskValue, lineLabel } from "./store";
 import { SceneCta, themeOf, Tip } from "./scenes";
 import { AdaMark, Avatar, Bar, Btn, Empty, HeroCard, inputCls, Modal, OptionList, Stars, StatusPill, statusOf, Tag, WeekStrip } from "./ui";
 import { clock, money, shrinkPhoto, time12 } from "./utils";
+import { NotLinked } from "./Vendor";
 
 export default function Rider({ riderId, go }) {
+  const { state } = useWorkspace();
+  const rider = state.riders.find((r) => r.id === riderId);
+  if (!rider) return <NotLinked go={go} company={state.company.name} what="rider" />;
+  return <RiderApp rider={rider} go={go} />;
+}
+
+function RiderApp({ rider, go }) {
   const { state, act } = useWorkspace();
-  const rider = state.riders.find((r) => r.id === riderId) || state.riders[0];
   const [tab, setTab] = useState("drops");
   const [delivering, setDelivering] = useState(null);
   const [failing, setFailing] = useState(null);
@@ -32,7 +39,7 @@ export default function Rider({ riderId, go }) {
 
   return (
     <div className="min-h-screen bg-neutral-200 sm:py-8">
-      <div className={`${themeOf(state.company.theme).rider} relative mx-auto flex h-screen max-w-[430px] flex-col sm:h-[880px] sm:overflow-hidden sm:rounded-[48px] sm:shadow-[0_30px_80px_rgba(0,0,0,0.3)] sm:ring-[10px] sm:ring-black`}>
+      <div className={`${themeOf(state.company.theme).rider} relative mx-auto flex h-[100dvh] max-w-[430px] flex-col sm:h-[880px] sm:overflow-hidden sm:rounded-[48px] sm:shadow-[0_30px_80px_rgba(0,0,0,0.3)] sm:ring-[10px] sm:ring-black`}>
         <div className="flex-1 overflow-y-auto">
         <header className="flex items-start gap-3 px-6 pb-4 pt-8 text-white">
           <div className="min-w-0 flex-1">
@@ -141,7 +148,7 @@ export default function Rider({ riderId, go }) {
                 {id === "inbox" && unread > 0 && <span className="absolute right-[30%] top-1.5 h-2 w-2 rounded-full bg-blue-600" />}
               </button>
             ))}
-            <button onClick={() => go("#/")} className="flex flex-1 flex-col items-center gap-0.5 rounded-full py-2 text-[12.5px] font-medium text-neutral-900"><LogOut className="h-[22px] w-[22px]" /> Exit</button>
+            <button onClick={() => go("/account")} className="flex flex-1 flex-col items-center gap-0.5 rounded-full py-2 text-[12.5px] font-medium text-neutral-900" data-testid="account"><User className="h-[22px] w-[22px]" /> Me</button>
           </nav>
           <button onClick={() => (next ? (next.status === "assigned" ? act({ type: "task/pickupAll", ids: toCollect.map((t) => t.id) }) : setDelivering(next)) : setTab("inbox"))} className="pointer-events-auto grid h-[66px] w-[66px] place-items-center rounded-full bg-white/80 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.4)] ring-1 ring-black/5 backdrop-blur-xl" aria-label="Next action">
             <span className="grid h-10 w-10 place-items-center rounded-full bg-blue-600 text-white"><Camera className="h-5 w-5" /></span>
@@ -203,7 +210,7 @@ function DeliverSheet({ task, onClose, act }) {
     if (task) { setPhoto(null); setReceivedBy(""); setMethod("cash"); setAmount(String(taskValue(task))); setFresh(true); }
   }, [task]);
   if (!task) return null;
-  const pick = async (e) => { const f = e.target.files && e.target.files[0]; if (f) setPhoto(await shrinkPhoto(f)); };
+  const pick = async (e) => { const f = e.target.files && e.target.files[0]; if (f) setPhoto(await shrinkPhoto(f, 1280)); };
   const unpaid = method === "unpaid";
   const press = (k) => {
     setAmount((cur) => {
