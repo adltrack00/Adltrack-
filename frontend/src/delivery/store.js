@@ -24,6 +24,9 @@ const COLORS = ["#f97316", "#0ea5e9", "#10b981", "#8b5cf6", "#ef4444", "#eab308"
 
 const now = () => new Date().toISOString();
 const stamp = (task, status) => ({ ...task, status, history: [...(task.history || []), { status, at: now() }] });
+// Who did something: stamped on orders, products, stock and messages so a vendor with several people sees who sent what.
+// For vendors and riders the server stamps it again from their login.
+const byOf = (action) => (action.actorId ? { id: action.actorId, name: action.actorName, role: action.actor } : undefined);
 const mapTask = (state, id, fn) => ({ ...state, tasks: state.tasks.map((t) => (t.id === id ? fn(t) : t)) });
 
 function reducer(state, action) {
@@ -59,16 +62,43 @@ function reducer(state, action) {
         const qty = Math.max(0, Math.round(Number(r.qty) || 0));
         const price = Number(r.price) || product.price;
         products = products.map((p) => (p.id === product.id ? { ...p, received: p.received + qty, price } : p));
-        intake.push({ id: uid("in"), vendorId: product.vendorId, productId: product.id, qty, price, at: now(), note: r.note || "" });
+        intake.push({ id: uid("in"), vendorId: product.vendorId, productId: product.id, qty, price, at: now(), note: r.note || "", status: "received", by: byOf(action) });
       }
       return { ...state, products, intake: [...intake, ...state.intake] };
+    }
+
+    // A vendor (or someone on its team) lists a new product. Nothing is in stock until the company counts it in.
+    case "product/add": {
+      const p = action.product;
+      return { ...state, products: [...state.products, { id: action.id || uid("p"), vendorId: p.vendorId, name: p.name.trim(), unit: p.unit || "unit", price: Math.max(0, Number(p.price) || 0), received: 0, aliases: [], by: byOf(action), addedAt: now() }] };
+    }
+    // A vendor's team sends stock to the office. It waits as "sent" until the company counts it in.
+    case "stock/send": {
+      const added = action.lines.map((l) => ({
+        id: uid("in"), vendorId: l.vendorId, productId: l.productId, qty: Math.max(1, Math.round(Number(l.qty) || 0)),
+        price: (state.products.find((p) => p.id === l.productId) || {}).price || 0, at: now(), note: l.note || "", status: "sent", by: byOf(action),
+      }));
+      return { ...state, intake: [...added, ...state.intake] };
+    }
+    case "stock/cancelSend":
+      return { ...state, intake: state.intake.map((i) => (i.id === action.id && i.status === "sent" ? { ...i, status: "cancelled", cancelledAt: now(), cancelledBy: action.actorName || "" } : i)) };
+    // The office counts in what a vendor sent. Only now do the units join the vendor's stock.
+    case "stock/count": {
+      const entry = state.intake.find((i) => i.id === action.id);
+      if (!entry || entry.status !== "sent") return state;
+      const qty = Math.max(0, Math.round(Number(action.qty ?? entry.qty) || 0));
+      return {
+        ...state,
+        products: state.products.map((p) => (p.id === entry.productId ? { ...p, received: (p.received || 0) + qty } : p)),
+        intake: state.intake.map((i) => (i.id === entry.id ? { ...i, status: "received", sentQty: entry.qty, qty, countedAt: now(), countedBy: action.actorName || "" } : i)),
+      };
     }
 
     // One order from a form, or many read from a vendor's WhatsApp message.
     case "order/add": {
       const list = action.orders || [action.order];
       let n = state.orders.reduce((m, o) => Math.max(m, Number(String(o.id).replace(/\D/g, "")) || 0), 3300);
-      const added = list.map((o) => ({ status: "open", createdAt: now(), date: todayISO(), placedBy: action.actor || "company", ...o, id: `ORD-${(n += 1)}` }));
+      const added = list.map((o) => ({ status: "open", createdAt: now(), date: todayISO(), placedBy: action.actor || "company", by: byOf(action), ...o, id: `ORD-${(n += 1)}` }));
       return { ...state, orders: [...added, ...state.orders] };
     }
     case "order/update":
@@ -100,7 +130,7 @@ function reducer(state, action) {
         ...state,
         messages: [
           ...state.messages,
-          ...action.messages.map((m) => ({ id: uid("m"), at: now(), read: false, from: "dispatcher", ...m })),
+          ...action.messages.map((m) => ({ id: uid("m"), at: now(), read: false, from: "dispatcher", by: byOf(action), ...m })),
         ],
       };
     // Marks one conversation read by one side: by "rider" or "vendor" (what the office sent), or by "company"
@@ -292,14 +322,14 @@ export function WorkspaceProvider({ user, onExpired, children }) {
   }, [pull]);
 
   const act = useCallback((raw) => {
-    const action = { ...raw, actor: user.role };
+    const action = { ...raw, actor: user.role, actorId: user.id, actorName: user.name };
     const s = sync.current;
     s.view = root(s.view, action);
     s.pending.push(action);
     cache(s);
     render();
     flush();
-  }, [flush, user.role]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [flush, user.role, user.id, user.name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // The demo can be put back to its sample data (for everyone using the demo).
   const resetDemo = useCallback(async () => {
@@ -395,6 +425,11 @@ export function feed(state, vendorId = null) {
     for (const h of t.history || []) events.push({ kind: h.status, at: h.at, task: t });
     if (t.payment && t.payment.confirmed && t.payment.at) events.push({ kind: "paid", at: t.payment.at, task: t });
   }
-  for (const i of state.intake) if (!vendorId || i.vendorId === vendorId) events.push({ kind: "intake", at: i.at, intake: i });
+  for (const i of state.intake) {
+    if (vendorId && i.vendorId !== vendorId) continue;
+    if (i.status === "cancelled") continue;
+    events.push({ kind: "intake", at: i.at, intake: i });
+    if (i.countedAt && i.status === "received") events.push({ kind: "counted", at: i.countedAt, intake: i });
+  }
   return events.sort((a, b) => (a.at < b.at ? 1 : -1));
 }

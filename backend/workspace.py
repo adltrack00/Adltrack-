@@ -124,7 +124,7 @@ def router() -> APIRouter:
                 raise HTTPException(409, "Your company hasn't set up yet.")
             else:
                 try:
-                    nxt = access.merge(full, sent, role, ref)
+                    nxt = access.merge(full, sent, role, ref, who=user)
                 except access.Refused as err:
                     log.warning("Refused save from %s %s: %s", role, user["id"], err)
                     return _json({"error": "Your account can't make that change.", "rev": rev, "state": access.view(full, role, ref)}, status=403)

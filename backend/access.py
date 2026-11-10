@@ -96,14 +96,41 @@ def _vendor_rules() -> Dict[str, Callable]:
     def vendors(kind, old, new, ref):
         return kind == "change" and old.get("id") == ref and _changed_keys(old, new) <= {"contact", "phone"}
 
-    return {"orders": orders, "messages": messages, "vendors": vendors}
+    # A vendor (or anyone on its team) can list a new product. It starts with nothing in stock: units only count once
+    # the company has received them.
+    def products(kind, old, new, ref):
+        if kind != "add":
+            return False
+        price = new.get("price")
+        return (new.get("vendorId") == ref and new.get("received") == 0 and isinstance(price, (int, float)) and price >= 0
+                and isinstance(new.get("name"), str) and new["name"].strip() != "" and set(new) <= PRODUCT_KEYS)
+
+    # Stock the vendor sends to the office waits as "sent" until the company counts it in. The vendor may call off a
+    # shipment the office hasn't counted yet.
+    def intake(kind, old, new, ref):
+        if kind == "add":
+            qty = new.get("qty")
+            return new.get("vendorId") == ref and new.get("status") == "sent" and isinstance(qty, int) and 0 < qty <= 100000
+        return (kind == "change" and old.get("vendorId") == ref and old.get("status") == "sent" and new.get("status") == "cancelled"
+                and _changed_keys(old, new) <= {"status", "cancelledAt", "cancelledBy"})
+
+    return {"orders": orders, "messages": messages, "vendors": vendors, "products": products, "intake": intake}
+
+
+PRODUCT_KEYS = {"id", "vendorId", "name", "unit", "price", "received", "aliases", "by", "addedAt"}
+# What gets stamped with the name of the person who added it.
+STAMPED = {"orders", "products", "intake", "messages"}
 
 
 RULES = {"rider": _rider_rules(), "vendor": _vendor_rules()}
 
 
-def merge(full: Dict[str, Any], sent: Dict[str, Any], role: str, ref: Optional[str]) -> Dict[str, Any]:
-    """Applies a vendor's or rider's save to the full workspace, or raises Refused."""
+def merge(full: Dict[str, Any], sent: Dict[str, Any], role: str, ref: Optional[str], who: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Applies a vendor's or rider's save to the full workspace, or raises Refused.
+
+    Several people can work for one vendor. Each save carries only that person's changes, applied record by record on
+    top of the latest copy, so one teammate sending stock never undoes another's order. Every record they add is
+    stamped with who added it, from their login, not from what the browser claims."""
     shown = view(full, role, ref)
     rules = RULES.get(role, {})
     for key in set(shown) | set(sent):
@@ -138,6 +165,14 @@ def merge(full: Dict[str, Any], sent: Dict[str, Any], role: str, ref: Optional[s
         existing = {x.get("id") for x in items}
         if key == "orders":
             added = _renumber_orders(added, items)
+        if key == "intake":
+            mine = {p.get("id") for p in out.get("products", []) if p.get("vendorId") == ref}
+            for a in added:
+                if a.get("productId") not in mine:
+                    raise Refused(f"{role} cannot send stock for that product")
+        if who and key in STAMPED:
+            by = {"id": who.get("id"), "name": who.get("name"), "role": role}
+            added = [{**a, "by": by} for a in added]
         added = [a for a in added if a.get("id") not in existing]
         out[key] = added + items if key in PREPEND else items + added
     return out

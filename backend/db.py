@@ -35,6 +35,14 @@ SCHEMA = [
 ]
 
 
+# Columns added after the first release. A vendor's teammates log in to the vendor's dashboard with team = 1; the
+# vendor's main account (the one the company invited) has team = 0.
+MIGRATIONS = [
+    ("users", "team", "INT NOT NULL DEFAULT 0"),
+    ("invites", "team", "INT NOT NULL DEFAULT 0"),
+]
+
+
 class Database:
     def __init__(self):
         url = os.environ.get("DATABASE_URL")
@@ -67,6 +75,13 @@ class Database:
             kinds = {"json": "JSONB", "ts": "TIMESTAMPTZ", "now": "now()", "blob": "BYTEA"} if self.pg else {"json": "TEXT", "ts": "TEXT", "now": "CURRENT_TIMESTAMP", "blob": "BLOB"}
             for sql in SCHEMA:
                 self.execute(sql.format(**kinds))
+            for table, column, kind in MIGRATIONS:
+                if self.pg:
+                    self.execute(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS {column} {kind}")
+                else:
+                    have = [r[1] for r in self.all(f"PRAGMA table_info({table})")]
+                    if column not in have:
+                        self.execute(f"ALTER TABLE {table} ADD COLUMN {column} {kind}")
             self.ready = True
 
     @contextmanager

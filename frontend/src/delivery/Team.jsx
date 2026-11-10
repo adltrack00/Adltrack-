@@ -21,7 +21,8 @@ export default function Team() {
   }, []);
   useEffect(() => { load(); }, [load]);
 
-  const memberFor = (role, ref) => team.members.find((m) => m.role === role && m.ref === ref);
+  const memberFor = (role, ref) => team.members.find((m) => m.role === role && m.ref === ref && !m.teammate);
+  const teammates = (ref) => team.members.filter((m) => m.role === "vendor" && m.ref === ref && m.teammate).length;
   const inviteFor = (role, ref) => team.invites.find((i) => i.role === role && i.ref === ref);
   const sendInvite = async (role, ref, name) => {
     if (user.demo) { toast("Invites are off in the demo. Sign up your company to invite real people."); return; }
@@ -72,7 +73,7 @@ export default function Team() {
       <Card>
         <CardHead title="Vendors" sub="Each vendor sees only their own stock, orders and deliveries." right={<Btn size="sm" onClick={() => setAdding("vendor")}><Plus className="h-4 w-4" /> Add vendor</Btn>} />
         <div className="mt-3">
-          {state.vendors.map((v) => <Row key={v.id} role="vendor" rec={v} sub={[v.contact, v.phone].filter(Boolean).join(" · ")} />)}
+          {state.vendors.map((v) => <Row key={v.id} role="vendor" rec={v} sub={[v.contact, v.phone, teammates(v.id) && `${teammates(v.id)} on their team`].filter(Boolean).join(" · ")} />)}
           {!state.vendors.length && <Empty icon={Building2} title="No vendors yet" sub="Add the vendors who hand you stock." />}
         </div>
       </Card>
@@ -102,7 +103,7 @@ export default function Team() {
   );
 }
 
-function InviteSheet({ invite, onClose, company }) {
+export function InviteSheet({ invite, onClose, company }) {
   if (!invite) return null;
   const link = `${window.location.origin}/join/${invite.code}`;
   const who = invite.role === "rider" ? "rider" : invite.role === "vendor" ? "vendor" : "office";

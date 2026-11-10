@@ -61,6 +61,40 @@ team = ok(c.get("/api/team")); assert len(team["members"])==3, team
 inv2 = ok(c.post("/api/invites", json={"role":"rider","ref":"r1"}))
 ok(TestClient(server.app).post("/api/auth/join", json={"code":inv2["code"],"name":"Tunde","phone":"08031112041","password":"newpass12"}))
 ok(r.get("/api/workspace"), 401)
+# vendor team: the main account invites two teammates; a teammate can't manage the team
+vt = ok(v.post("/api/vendor-team/invites", json={"name":"Kemi"}))
+vt2 = ok(v.post("/api/vendor-team/invites", json={"name":"Sola"}))
+assert ok(c.get(f"/api/invites/{vt['code']}"))["vendor"]=="Glow"
+k = TestClient(server.app); ok(k.post("/api/auth/join", json={"code":vt["code"],"name":"Kemi A","phone":"0809 222 3333","password":"kemipass1"}))
+s_ = TestClient(server.app); ok(s_.post("/api/auth/join", json={"code":vt2["code"],"name":"Sola B","email":"sola@glow.com","password":"solapass1"}))
+assert ok(k.get("/api/auth/me"))["user"]["teammate"] and not ok(v.get("/api/auth/me"))["user"]["teammate"]
+ok(k.get("/api/vendor-team"), 403); ok(k.post("/api/vendor-team/invites", json={"name":"x"}), 403)
+assert len(ok(v.get("/api/vendor-team"))["members"])==3
+# both teammates load the same copy, then save different work at once: neither overwrites the other
+kv = ok(k.get("/api/workspace")); sv = ok(s_.get("/api/workspace"))
+ks = kv["state"]; ks["products"].append({"id":"p-new","vendorId":"v1","name":"Toner","unit":"bottle","price":2500,"received":0,"aliases":[]})
+ks["intake"].insert(0, {"id":"in-k","vendorId":"v1","productId":"p-new","qty":20,"price":2500,"status":"sent","at":"x","by":{"id":"fake","name":"Someone else"}})
+ok(k.put("/api/workspace", json={"base_rev":kv["rev"],"state":ks}))
+ss = sv["state"]; ss["intake"].insert(0, {"id":"in-s","vendorId":"v1","productId":"p1","qty":5,"price":1000,"status":"sent","at":"y"})
+conflict = ok(s_.put("/api/workspace", json={"base_rev":sv["rev"],"state":ss}), 409)
+ss = conflict["state"]; ss["intake"].insert(0, {"id":"in-s","vendorId":"v1","productId":"p1","qty":5,"price":1000,"status":"sent","at":"y"})
+ok(s_.put("/api/workspace", json={"base_rev":conflict["rev"],"state":ss}))
+full = ok(c.get("/api/workspace"))["state"]
+ik = next(i for i in full["intake"] if i["id"]=="in-k"); is_ = next(i for i in full["intake"] if i["id"]=="in-s")
+assert ik["by"]["name"]=="Kemi A" and is_["by"]["name"]=="Sola B", (ik, is_)
+p_new = next(p for p in full["products"] if p["id"]=="p-new"); assert p_new["received"]==0 and p_new["by"]["name"]=="Kemi A"
+assert next(p for p in full["products"] if p["id"]=="p1")["received"]==50
+# a teammate can't add stock straight into the count, or send stock for another vendor's product
+kv = ok(k.get("/api/workspace")); x = kv["state"]; x["products"].append({"id":"p-bad","vendorId":"v1","name":"X","price":1,"received":9,"aliases":[]})
+ok(k.put("/api/workspace", json={"base_rev":kv["rev"],"state":x}), 403)
+kv = ok(k.get("/api/workspace")); x = kv["state"]; x["intake"].insert(0, {"id":"in-bad","vendorId":"v1","productId":"p-other","qty":1,"status":"sent"})
+ok(k.put("/api/workspace", json={"base_rev":kv["rev"],"state":x}), 403)
+# removing a teammate signs them out; a new company invite for the vendor keeps the teammates
+mid = next(m["id"] for m in ok(v.get("/api/vendor-team"))["members"] if m["name"]=="Sola B")
+ok(v.delete(f"/api/vendor-team/{mid}")); ok(s_.get("/api/workspace"), 401)
+vinv2 = ok(c.post("/api/invites", json={"role":"vendor","ref":"v1"}))
+ok(TestClient(server.app).post("/api/auth/join", json={"code":vinv2["code"],"name":"Funmi","email":"f2@glow.com","password":"vendpass2"}))
+ok(v.get("/api/workspace"), 401); ok(k.get("/api/workspace"))
 # demo
 d = TestClient(server.app)
 ok(d.post("/api/auth/demo", json={"role":"rider"}), 409)
