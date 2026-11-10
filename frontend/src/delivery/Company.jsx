@@ -46,7 +46,6 @@ export default function Company({ go }) {
       <header className={`${theme.header} relative overflow-hidden px-5 pb-16 pt-6 text-white sm:px-10`}>
         <div className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-blue-600/30 blur-3xl" />
         <div className="relative mx-auto flex max-w-7xl items-center gap-3">
-          <button onClick={() => setMenu(true)} className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15" aria-label="Open menu" data-testid="open-menu"><Menu className="h-5 w-5" /></button>
           <Logo dark />
           <span className="hidden text-[13px] text-white/50 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
           <div className="ml-auto flex items-center gap-2">
@@ -55,6 +54,7 @@ export default function Company({ go }) {
             <button onClick={() => setTab("team")} className="hidden h-9 items-center gap-1.5 rounded-full bg-white/10 px-3 text-[12.5px] font-medium text-white/80 hover:bg-white/15 md:flex"><Users className="h-4 w-4" /> Invite people</button>
             <button onClick={() => setLooking(true)} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Change the look"><Palette className="h-4 w-4" /></button>
             <button onClick={() => go("/account")} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Your account" data-testid="account"><User className="h-4 w-4" /></button>
+            <button onClick={() => setMenu(true)} className="grid h-11 w-11 place-items-center rounded-full bg-white text-neutral-950 shadow-[0_6px_20px_-6px_rgba(0,0,0,0.5)] hover:bg-white/90" aria-label="Open menu" data-testid="open-menu"><Menu className="h-5 w-5" strokeWidth={2.2} /></button>
           </div>
         </div>
         <div className="relative mx-auto mt-10 flex max-w-7xl flex-wrap items-end justify-between gap-6">
