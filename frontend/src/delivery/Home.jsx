@@ -1,6 +1,6 @@
 // The front door: a welcome screen with a way into each of the three dashboards, then how it works.
 import React, { useState } from "react";
-import { ArrowRight, Bike, Building2, LayoutGrid, Package } from "lucide-react";
+import { ArrowRight, Bike, Building2, LayoutGrid, Package, Sparkles } from "lucide-react";
 import { totals, useWorkspace } from "./store";
 import { AdaBar, AdaMark, HeroCard, LiveDot, Logo, Steps } from "./ui";
 import { money, num } from "./utils";
@@ -48,6 +48,7 @@ export default function Home({ go }) {
         <div className="relative rounded-t-[44px] bg-black px-5 pb-10 pt-8">
           <div className="mx-auto grid max-w-3xl gap-3">
             <button onClick={() => go("#/company")} className="flex h-[66px] items-center justify-center gap-3 rounded-full bg-white text-[19px] font-medium text-black"><LayoutGrid className="h-6 w-6" /> Continue as the company</button>
+            <button onClick={() => go("#/setup")} className="flex h-[58px] items-center justify-center gap-3 rounded-full bg-neutral-800 text-[17px] font-medium text-white hover:bg-neutral-700"><Sparkles className="h-5 w-5 text-blue-300" /> Set up your own company</button>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="flex h-[66px] items-center gap-2 rounded-full bg-neutral-800 pl-6 pr-2 text-white">
                 <Building2 className="h-5 w-5 shrink-0 text-white/70" />

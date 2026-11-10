@@ -1,13 +1,14 @@
 // The delivery company's dashboard: vendors, riders, stock, deliveries and ADA.
 import React, { useMemo, useState } from "react";
 import {
-  AlertTriangle, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Phone, Plus, RotateCcw, Send, Sparkles, Truck, Wallet, X,
+  AlertTriangle, ArrowDownUp, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Sparkles, Truck, Wallet, X,
 } from "lucide-react";
 import { AdaPanel } from "./AdaPanel";
 import { DeliveryCard, Feed, LedgerLegend, PaymentActions, ProductTable } from "./shared";
 import { FixOrder, PasteOrders } from "./Intake";
 import { isActive, isAwaitingPayment, lineLabel, orderValue, productById, productLedger, riderLoad, totals, units as taskUnits, useWorkspace, value as taskValue, vendorById } from "./store";
-import { AdaBar, AdaMark, ChecklistCard, Chips, HeroCard, Avatar, Bar, Btn, Card, CardHead, Empty, Field, GRADIENT, inputCls, LedgerBar, LiveDot, Logo, Modal, StatusPill, Stat, statusOf, TabBar, Tag, Tile } from "./ui";
+import { AlertStack, LabelCloud, ProgressScene, themeOf, ThemePicker, Tip } from "./scenes";
+import { AdaBar, AdaMark, ChecklistCard, Chips, HeroCard, Avatar, Bar, Btn, Card, CardHead, Empty, Field, inputCls, OptionList, LedgerBar, LiveDot, Logo, Modal, StatusPill, Stat, statusOf, TabBar, Tag, Tile } from "./ui";
 import { ago, clock, money, num, time12, todayISO } from "./utils";
 
 const NAV = [
@@ -20,10 +21,12 @@ const NAV = [
 ];
 
 export default function Company({ go }) {
-  const { state } = useWorkspace();
+  const { state, act } = useWorkspace();
   const [tab, setTab] = useState("today");
   const [ada, setAda] = useState(false);
   const [seed, setSeed] = useState("");
+  const [looking, setLooking] = useState(false);
+  const theme = themeOf(state.company.theme);
   const openAda = (say = "") => { setSeed(say); setAda(true); };
   const needs = needsYou(state);
   const unread = state.messages.filter((m) => m.from === "rider" && !m.read).length;
@@ -34,15 +37,16 @@ export default function Company({ go }) {
 
   return (
     <div className="min-h-screen bg-white">
-      <header className={`${GRADIENT} relative overflow-hidden px-5 pb-16 pt-6 text-white sm:px-10`}>
+      <header className={`${theme.header} relative overflow-hidden px-5 pb-16 pt-6 text-white sm:px-10`}>
         <div className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-blue-600/30 blur-3xl" />
         <div className="relative mx-auto flex max-w-7xl items-center gap-3">
           <Logo dark />
-          <span className="hidden text-[13px] text-white/50 sm:inline">· {state.company.city}</span>
+          <span className="hidden text-[13px] text-white/50 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
           <div className="ml-auto flex items-center gap-2">
             <LiveDot label="Live with vendors & riders" />
             <button onClick={() => go("#/vendor/v-glow")} className="hidden h-9 items-center gap-1.5 rounded-full bg-white/10 px-3 text-[12.5px] font-medium text-white/80 hover:bg-white/15 md:flex"><Building2 className="h-4 w-4" /> Vendor view</button>
             <button onClick={() => go("#/rider/r-tunde")} className="hidden h-9 items-center gap-1.5 rounded-full bg-white/10 px-3 text-[12.5px] font-medium text-white/80 hover:bg-white/15 md:flex"><Bike className="h-4 w-4" /> Rider view</button>
+            <button onClick={() => setLooking(true)} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Change the look"><Palette className="h-4 w-4" /></button>
             <button onClick={() => go("#/")} className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/15" aria-label="Sign out"><LogOut className="h-4 w-4" /></button>
           </div>
         </div>
@@ -68,6 +72,10 @@ export default function Company({ go }) {
       <TabBar tabs={tabs} active={tab} onChange={setTab} action={
         <button onClick={() => openAda()} className="grid h-[68px] w-[68px] place-items-center rounded-full bg-white/80 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 backdrop-blur-xl" aria-label="Ask ADA"><AdaMark size={44} /></button>
       } />
+      <Modal open={looking} onClose={() => setLooking(false)} title="Pick a look" wide>
+        <ThemePicker value={state.company.theme || "night"} onChange={(id) => act({ type: "company/update", patch: { theme: id } })} />
+        <Tip>The look colours this dashboard and your riders' app.</Tip>
+      </Modal>
       <AdaPanel open={ada} onClose={() => setAda(false)} seed={seed} onSeedUsed={() => setSeed("")} />
     </div>
   );
@@ -144,6 +152,7 @@ function NeedsYou({ openAda, setTab }) {
           <h2 className="text-[40px] font-extrabold leading-[1.02] tracking-[-0.04em] text-neutral-950 sm:text-[48px]">What do you<br />want to do?</h2>
           <p className="mt-3 max-w-md text-[15px] leading-relaxed text-neutral-500">Tap a card, or just tell ADA. Today: {today.filter((x) => x.status === "delivered").length} of {today.length} drops delivered. <button onClick={() => setTab("overview")} className="font-semibold text-blue-600">Full overview</button></p>
           <AdaBar className="mt-6" placeholder="Let ADA help you.." onSubmit={(text) => openAda(text)} />
+          <Tip className="mt-5">Paste a vendor's whole WhatsApp chat at once. ADA reads every order and holds back any with something missing.</Tip>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <Tile icon={ClipboardPaste} title={<>Paste WhatsApp<br />orders</>} onClick={() => setPasting(true)} />
@@ -268,6 +277,29 @@ function NeedsYou({ openAda, setTab }) {
 
 /* ---------- Overview ---------- */
 
+// The short alert lines for the "Stay ahead" card.
+function alertLines(state) {
+  const n = needsYou(state);
+  const rider = (id) => (state.riders.find((r) => r.id === id) || {}).short || "A rider";
+  return [
+    ...n.late.map((t) => `${rider(t.riderId)} is past the window for ${t.customer}`),
+    ...n.toFix.map((o) => `${o.id}: ${(o.issues && o.issues[0]) || "needs a fix"}`),
+    ...n.failed.map((t) => `${t.customer} wasn't delivered: ${t.failReason || "no reason"}`),
+  ];
+}
+
+// How many of today's drops were still not delivered at each hour so far, for the progress line.
+function dropsLeftByHour(today) {
+  const doneAt = today.filter((t) => t.status === "delivered").map((t) => new Date((t.proof && t.proof.at) || Date.now()).getTime());
+  const first = today.reduce((m, t) => Math.min(m, new Date((t.history && t.history[0] && t.history[0].at) || Date.now()).getTime()), Date.now());
+  const n = 6;
+  const span = Math.max(Date.now() - first, 1);
+  return Array.from({ length: n }, (_, i) => {
+    const at = first + (span * i) / (n - 1);
+    return today.length - doneAt.filter((d) => d <= at).length;
+  });
+}
+
 function Overview({ openAda, setTab }) {
   const { state, act } = useWorkspace();
   const t = totals(state);
@@ -275,6 +307,7 @@ function Overview({ openAda, setTab }) {
   const online = state.riders.filter((r) => r.online).length;
   const awaiting = state.tasks.filter(isAwaitingPayment);
   const [say, setSay] = useState("");
+  const theme = themeOf(state.company.theme);
 
   return (
     <div className="space-y-6">
@@ -299,6 +332,31 @@ function Overview({ openAda, setTab }) {
           ["Drops delivered", today.length > 0 && today.every((x) => !isActive(x)), `${today.filter((x) => x.status === "delivered").length} of ${today.length}`],
           ["Money verified", !awaiting.length, awaiting.length ? `${money(t.awaitingValue)} to check` : "All paid in"],
         ]} />
+      </div>
+
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div>
+          <LabelCloud variant={theme.scene === "sunset" ? "night" : theme.scene} labels={[
+            ["Ready", state.orders.filter((o) => o.status === "open").length],
+            ["With riders", today.filter(isActive).length],
+            ["Delivered", today.filter((x) => x.status === "delivered").length],
+            ["To verify", awaiting.length],
+            ["To fix", state.orders.filter((o) => o.status === "needs_fix").length],
+            ["Not delivered", today.filter((x) => x.status === "failed").length],
+          ]} onPick={() => setTab("deliveries")} />
+          <div className="mt-4 px-1 text-[22px] font-extrabold tracking-[-0.03em] text-neutral-950">See what's due</div>
+          <div className="px-1 text-[14px] text-neutral-400">Every order and drop, by where it is now.</div>
+        </div>
+        <div>
+          <AlertStack items={alertLines(state)} action="Sort it out" onAction={() => setTab("today")} />
+          <div className="mt-4 px-1 text-[22px] font-extrabold tracking-[-0.03em] text-neutral-950">Stay ahead</div>
+          <div className="px-1 text-[14px] text-neutral-400">Late drops, bad addresses and failed tries.</div>
+        </div>
+        <div>
+          <ProgressScene label={`${today.filter((x) => x.status === "delivered").length} of ${today.length} drops delivered today`} points={dropsLeftByHour(today)} />
+          <div className="mt-4 px-1 text-[22px] font-extrabold tracking-[-0.03em] text-neutral-950">See your progress</div>
+          <div className="px-1 text-[14px] text-neutral-400">Drops left today, hour by hour.</div>
+        </div>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
@@ -377,12 +435,27 @@ function Deliveries({ openAda }) {
     ["delivered", "Delivered", (t) => t.status === "delivered"],
     ["failed", "Not delivered", (t) => t.status === "failed"],
   ];
-  const list = state.tasks.filter(filters.find((f) => f[0] === filter)[2]);
+  const [sort, setSort] = useState("recent");
+  const [sorting, setSorting] = useState(false);
+  const sorts = [
+    ["recent", "Recently added", Clock],
+    ["amount", "Amount", Wallet],
+    ["window", "Delivery time", Truck],
+    ["customer", "Customer", ArrowDownUp],
+  ];
+  const by = {
+    recent: () => 0,
+    amount: (a, b) => taskValue(b) - taskValue(a),
+    window: (a, b) => ((a.due || a.time || "99") < (b.due || b.time || "99") ? -1 : 1),
+    customer: (a, b) => (a.customer || "").localeCompare(b.customer || ""),
+  }[sort];
+  const list = state.tasks.filter(filters.find((f) => f[0] === filter)[2]).slice().sort(by);
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <Chips options={filters.map(([id, label, fn]) => [id, label, state.tasks.filter(fn).length])} value={filter} onChange={setFilter} />
         <div className="ml-auto flex gap-2">
+          <Btn variant="ghost" onClick={() => setSorting(true)}><ArrowDownUp className="h-4 w-4" /> Sort & filter</Btn>
           <Btn variant="ghost" onClick={() => setAdding(true)}><Plus className="h-4 w-4" /> New delivery</Btn>
           <Btn onClick={() => openAda("Dispatch today's orders")}><Sparkles className="h-4 w-4 text-blue-300" /> Dispatch with ADA</Btn>
         </div>
@@ -404,6 +477,13 @@ function Deliveries({ openAda }) {
         )) : <Empty icon={Truck} title="No deliveries here" sub="Ask ADA to dispatch today's orders, or add one yourself." />}
       </Card>
       <NewDelivery open={adding} onClose={() => setAdding(false)} />
+      <Modal open={sorting} onClose={() => setSorting(false)} title="Sort & Filter">
+        <div className="flex items-center justify-between"><Tag>Sort by</Tag><button onClick={() => { setSort("recent"); setFilter("all"); }} className="rounded-full bg-neutral-100 px-3 py-1 text-[13px] text-neutral-500">Reset</button></div>
+        <OptionList className="mt-3" options={sorts} value={sort} onChange={setSort} />
+        <Tag className="mt-6 block">Type</Tag>
+        <Chips className="mt-3" options={filters.map(([id, label, fn]) => [id, label, state.tasks.filter(fn).length])} value={filter} onChange={setFilter} />
+        <Btn size="lg" className="mt-6 w-full" onClick={() => setSorting(false)}>Show {list.length} deliveries</Btn>
+      </Modal>
     </div>
   );
 }

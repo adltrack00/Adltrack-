@@ -26,6 +26,10 @@ function reducer(state, action) {
     case "reset":
       return freshState();
 
+    // The setup flow and the "Look" picker save the company's name, areas and dashboard look here.
+    case "company/update":
+      return { ...state, company: { ...state.company, ...action.patch } };
+
     case "vendor/add":
       return { ...state, vendors: [...state.vendors, { id: uid("v"), color: "#64748b", ...action.vendor }] };
 

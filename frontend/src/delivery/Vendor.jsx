@@ -5,8 +5,9 @@ import { Boxes, LogOut, Package, PackageCheck, Plus, Truck, Wallet } from "lucid
 import { PasteOrders } from "./Intake";
 import { DeliveryCard, Feed, LedgerLegend, ProductTable } from "./shared";
 import { isActive, isAwaitingPayment, productById, totals, useWorkspace, lineLabel } from "./store";
+import { LabelCloud, MonthCal, ProgressScene, Tip } from "./scenes";
 import { Avatar, Btn, Card, CardHead, Chips, Empty, Field, HeroCard, inputCls, LiveDot, Logo, Modal, Stat, StatusPill, statusOf } from "./ui";
-import { money, num, time12 } from "./utils";
+import { money, num, time12, todayISO } from "./utils";
 
 const ZONES = ["Ikeja", "Yaba", "Lekki", "Surulere", "Victoria Island", "Ikoyi", "Ajah", "Gbagada"];
 
@@ -24,6 +25,7 @@ export default function Vendor({ vendorId, go }) {
     ["awaiting", "Payment to verify", isAwaitingPayment],
     ["delivered", "Delivered", (t) => t.status === "delivered"],
   ];
+  const todays = tasks.filter((t) => t.date === todayISO());
   const shown = tasks.filter(filters.find((f) => f[0] === filter)[2]);
 
   return (
@@ -62,13 +64,33 @@ export default function Vendor({ vendorId, go }) {
           <Stat label="Payment to verify" value={num(s.awaiting)} sub={money(s.awaitingValue)} icon={Wallet} tone="amber" />
         </div>
 
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div>
+            <LabelCloud labels={[
+              ["Waiting", orders.length], ["With riders", tasks.filter(isActive).length], ["Delivered", tasks.filter((t) => t.status === "delivered").length],
+              ["To verify", tasks.filter(isAwaitingPayment).length], ["Not delivered", tasks.filter((t) => t.status === "failed").length],
+            ]} onPick={() => document.getElementById("vendor-deliveries")?.scrollIntoView({ behavior: "smooth" })} />
+            <div className="mt-4 px-1 text-[22px] font-extrabold tracking-[-0.03em] text-neutral-950">See what's due</div>
+            <div className="px-1 text-[14px] text-neutral-400">Your orders, by where they are now.</div>
+          </div>
+          <div>
+            <ProgressScene label={`${todays.filter((t) => t.status === "delivered").length} of ${todays.length} of your drops delivered today`} points={todays.length ? [0, 1, 2, 3, 4, 5].map((i) => todays.length - Math.round((todays.filter((t) => t.status === "delivered").length * i) / 5)) : [0, 0]} />
+            <div className="mt-4 px-1 text-[22px] font-extrabold tracking-[-0.03em] text-neutral-950">See your progress</div>
+            <div className="px-1 text-[14px] text-neutral-400">Today's drops counting down.</div>
+          </div>
+          <Card className="p-6 md:col-span-2 xl:col-span-1">
+            <MonthCal counts={tasks.reduce((m, t) => ({ ...m, [t.date]: (m[t.date] || 0) + 1 }), {})} />
+            <Tip className="mt-5 text-[14.5px]">Send all of a day's orders as one WhatsApp message. The office pastes it and ADA reads every order.</Tip>
+          </Card>
+        </div>
+
         <Card>
           <CardHead title="Your products" sub="Received, delivered and left, per product" right={<LedgerLegend />} />
           <div className="mt-3"><ProductTable state={state} vendorId={vendor.id} /></div>
         </Card>
 
         <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-          <Card>
+          <Card id="vendor-deliveries" className="scroll-mt-6">
             <CardHead title="Deliveries" sub="Tap one to see the photo, who received it and the payment" />
             <Chips className="mt-4 px-5" options={filters.map(([id, label, fn]) => [id, label, tasks.filter(fn).length])} value={filter} onChange={setFilter} />
             <div className="mt-3">{shown.length ? shown.map((t) => <DeliveryCard key={t.id} state={state} task={t} showVendor={false} />) : <Empty icon={Truck} title="No deliveries here yet" />}</div>

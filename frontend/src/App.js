@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import Company from "./delivery/Company";
 import Home from "./delivery/Home";
 import Rider from "./delivery/Rider";
+import Setup from "./delivery/Setup";
 import Vendor from "./delivery/Vendor";
 import { WorkspaceProvider } from "./delivery/store";
 
 // Routes live in the URL hash, so each dashboard can be opened in its own tab (or on a rider's phone):
-//   #/company   #/vendor/<vendor id>   #/rider/<rider id>
+//   #/company   #/vendor/<vendor id>   #/rider/<rider id>   #/setup (first-time setup for a new company)
 function useHash() {
   const [hash, setHash] = useState(window.location.hash || "#/");
   useEffect(() => {
@@ -23,6 +24,7 @@ function Routes() {
   const [, section, id] = hash.replace(/^#/, "").split("/");
   if (section === "company") return <Company go={go} />;
   if (section === "vendor") return <Vendor vendorId={id} go={go} />;
+  if (section === "setup") return <Setup go={go} />;
   if (section === "rider") return <Rider riderId={id} go={go} />;
   return <Home go={go} />;
 }

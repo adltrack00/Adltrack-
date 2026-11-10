@@ -3,7 +3,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Camera, Check, Clock, Delete, Home, Inbox, LogOut, MapPin, MessageSquare, Navigation, Phone, Power, Send, X } from "lucide-react";
 import { isActive, productById, riderLoad, units as taskUnits, useWorkspace, value as taskValue, lineLabel } from "./store";
-import { AdaMark, Avatar, Bar, Btn, Empty, GRADIENT_UP, HeroCard, inputCls, Modal, OptionList, Stars, StatusPill, statusOf, Tag, WeekStrip } from "./ui";
+import { SceneCta, themeOf, Tip } from "./scenes";
+import { AdaMark, Avatar, Bar, Btn, Empty, HeroCard, inputCls, Modal, OptionList, Stars, StatusPill, statusOf, Tag, WeekStrip } from "./ui";
 import { clock, money, shrinkPhoto, time12 } from "./utils";
 
 export default function Rider({ riderId, go }) {
@@ -31,7 +32,7 @@ export default function Rider({ riderId, go }) {
 
   return (
     <div className="min-h-screen bg-neutral-200 sm:py-8">
-      <div className={`${GRADIENT_UP} relative mx-auto flex h-screen max-w-[430px] flex-col sm:h-[880px] sm:overflow-hidden sm:rounded-[48px] sm:shadow-[0_30px_80px_rgba(0,0,0,0.3)] sm:ring-[10px] sm:ring-black`}>
+      <div className={`${themeOf(state.company.theme).rider} relative mx-auto flex h-screen max-w-[430px] flex-col sm:h-[880px] sm:overflow-hidden sm:rounded-[48px] sm:shadow-[0_30px_80px_rgba(0,0,0,0.3)] sm:ring-[10px] sm:ring-black`}>
         <div className="flex-1 overflow-y-auto">
         <header className="flex items-start gap-3 px-6 pb-4 pt-8 text-white">
           <div className="min-w-0 flex-1">
@@ -89,7 +90,7 @@ export default function Rider({ riderId, go }) {
               {next ? (
                 <NextDrop task={next} state={state} act={act} locked={next.status === "assigned"} onDeliver={() => setDelivering(next)} onFail={() => setFailing(next)} />
               ) : (
-                <div className="mt-4 rounded-3xl bg-white"><Empty icon={Check} title="All done for now" sub="New drops from the office show up here and in your inbox." /></div>
+                <SceneCta variant={themeOf(state.company.theme).scene} className="mt-4" title="All done for now." sub="New drops from the office show up here and in your inbox." cta={msgs.some((m) => m.from !== "rider" && !m.read) ? "Open inbox" : null} onClick={() => setTab("inbox")} />
               )}
 
               {later.length > 0 && (
@@ -106,6 +107,8 @@ export default function Rider({ riderId, go }) {
                   </div>
                 </div>
               )}
+
+              <Tip className="mt-6 text-[14.5px]">Take the photo at the door before you hand over the parcel, and type the exact amount you collected.</Tip>
 
               {!!done.length && (
                 <details className="mt-6">
