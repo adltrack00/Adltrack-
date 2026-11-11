@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Bike, Building2, Eye, EyeOff, KeyRound, LayoutGrid, Lock, Mail, Phone, User } from "lucide-react";
 import { api, homeFor, useAuth } from "./auth";
-import { AdaMark, Logo } from "./ui";
+import { AdaMark } from "./ui";
 import { cn } from "../lib/utils";
 
 const field = "h-14 w-full rounded-2xl border border-neutral-200 bg-neutral-50 pl-12 pr-4 text-[16px] text-neutral-950 outline-none transition placeholder:text-neutral-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10";
@@ -14,7 +14,6 @@ function Shell({ title, sub, children, go, back = "/" }) {
     <div className="min-h-screen bg-white lg:grid lg:grid-cols-[1fr_1.05fr]">
       <aside className="relative hidden overflow-hidden bg-[radial-gradient(120%_80%_at_20%_0%,#141a5c_0%,#0a0d2e_45%,#05061a_100%)] p-10 text-white lg:flex lg:flex-col">
         <div className="pointer-events-none absolute -right-24 top-24 h-80 w-80 rounded-full bg-blue-600/30 blur-3xl" />
-        <button onClick={() => go("/")} className="relative w-fit"><Logo dark /></button>
         <div className="relative mt-auto">
           <AdaMark size={64} />
           <div className="mt-8 max-w-md text-[38px] font-extrabold leading-[1.05] tracking-[-0.035em]">Every delivery, live for everyone.</div>
@@ -25,8 +24,6 @@ function Shell({ title, sub, children, go, back = "/" }) {
         <div className="bg-[radial-gradient(120%_80%_at_20%_0%,#141a5c_0%,#0a0d2e_45%,#05061a_100%)] px-5 pb-14 pt-5 lg:hidden">
           <div className="flex items-center justify-between">
             <button onClick={() => go(back)} className="grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white" aria-label="Back"><ArrowLeft className="h-5 w-5" /></button>
-            <button onClick={() => go("/")}><Logo dark /></button>
-            <span className="w-11" />
           </div>
         </div>
         <div className="-mt-8 flex flex-1 flex-col rounded-t-[36px] bg-white px-5 pb-10 pt-8 lg:mt-0 lg:justify-center lg:rounded-none lg:px-16">

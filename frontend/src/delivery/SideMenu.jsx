@@ -1,10 +1,10 @@
 // The dashboards' main menu, in Delivery's own style: a light grey panel (the white-grey under the page's blue) that slides in from the left over a blurred
 // dashboard, with ADA's orb, a welcome, the signed-in email, every section on a glass icon (the open one as a white
-// pill, like the tab bar), and the Delivery mark with its version at the bottom.
+// pill, like the tab bar), and its version at the bottom.
 import React, { useEffect } from "react";
 import { X } from "lucide-react";
 import { cn } from "../lib/utils";
-import { AdaMark, Logo } from "./ui";
+import { AdaMark } from "./ui";
 
 export const APP_VERSION = "1.0.0";
 
@@ -58,8 +58,7 @@ export function SideMenu({ open, onClose, name, email, items, active, panel }) {
               );
             })}
           </ul>
-          <div className="mt-auto flex items-center justify-between pt-8">
-            <Logo />
+          <div className="mt-auto flex items-center pt-8">
             <span className="font-mono text-[11.5px] tracking-[0.15em] text-neutral-400">v.{APP_VERSION}</span>
           </div>
         </div>
