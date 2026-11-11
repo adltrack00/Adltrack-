@@ -71,7 +71,7 @@ export function AdaPanel({ open, onClose, seed, onSeedUsed }) {
   return (
     <>
       <div className={`fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] transition-opacity ${open ? "opacity-100" : "pointer-events-none opacity-0"}`} onClick={onClose} />
-      <aside className={`fixed inset-y-0 right-0 z-50 flex w-full max-w-[520px] flex-col bg-[radial-gradient(120%_70%_at_0%_0%,#16206a_0%,#0a0f3a_40%,#050716_100%)] text-white shadow-[-20px_0_60px_rgba(0,0,0,0.4)] transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`} aria-hidden={!open}>
+      <aside className={`fixed inset-y-0 right-0 z-50 flex w-full max-w-[520px] flex-col bg-[radial-gradient(120%_70%_at_0%_0%,#16206a_0%,#0a0f3a_40%,#050716_100%)] text-white transition-[transform,box-shadow] duration-300 ${open ? "translate-x-0 shadow-[-20px_0_60px_rgba(0,0,0,0.4)]" : "translate-x-full shadow-none"}`} aria-hidden={!open}>
         <header className="grid grid-cols-[44px_1fr_44px] items-center px-4 pb-2 pt-5">
           <button onClick={onClose} className="grid h-11 w-11 place-items-center text-white/80 hover:text-white" aria-label="Close ADA"><ChevronLeft className="h-7 w-7" strokeWidth={1.8} /></button>
           <div className="text-center text-[17px] font-semibold tracking-tight text-white/90">ADA</div>
