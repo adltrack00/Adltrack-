@@ -45,9 +45,8 @@ export default function Company({ go }) {
 
   return (
     <div className="relative min-h-screen bg-white">
-      {/* The vendor background's shape (strong colour, lighter at 45%, white at the bottom) in the menu's colour. A little longer than
-          the vendor's so the dark colour reaches past the "What do you want to do?" heading, which is white on it. */}
-      <div className={`pointer-events-none absolute inset-x-0 top-0 h-[780px] sm:h-[700px] lg:h-[600px] ${theme.page}`} />
+      {/* Exactly the vendor dashboard background: same gradient over the same height as its header at each screen size (708px phone, 603px tablet, 390px laptop). */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[708px] sm:h-[603px] lg:h-[390px] bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_45%,#ffffff_100%)]" />
       <header className="relative px-5 pb-8 pt-6 text-white sm:px-10">
         <div className="relative mx-auto flex max-w-7xl items-center gap-3">
           <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-white hover:text-white/80" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
@@ -188,16 +187,14 @@ function NeedsYou({ openAda, setTab }) {
   };
 
   const nothing = !n.count && !n.low.length;
-  // The heading sits on the dark top of the page unless the get-ready checklist is above it and pushes it down onto white.
-  const onDark = state.riders.length > 0 && state.vendors.length > 0 && state.products.length > 0 && state.tasks.length > 0;
 
   return (
     <div className="space-y-5">
       <GetReady state={state} setTab={setTab} onReceive={() => setReceiving(true)} />
       <section className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
         <div>
-          <h2 className={`text-[40px] font-extrabold leading-[1.02] tracking-[-0.04em] sm:text-[48px] ${onDark ? "text-white" : "text-neutral-950"}`}>What do you<br />want to do?</h2>
-          <p className={`mt-3 max-w-md text-[15px] leading-relaxed ${onDark ? "text-white/75" : "text-neutral-500"}`}>Tap a card, or just tell ADA. Today: {today.filter((x) => x.status === "delivered").length} of {today.length} drops delivered. <button onClick={() => setTab("overview")} className={`font-semibold ${onDark ? "text-white underline underline-offset-2" : "text-blue-600"}`}>Full overview</button></p>
+          <h2 className="text-[40px] font-extrabold leading-[1.02] tracking-[-0.04em] text-neutral-950 sm:text-[48px]">What do you<br />want to do?</h2>
+          <p className="mt-3 max-w-md text-[15px] leading-relaxed text-neutral-500">Tap a card, or just tell ADA. Today: {today.filter((x) => x.status === "delivered").length} of {today.length} drops delivered. <button onClick={() => setTab("overview")} className="font-semibold text-blue-600">Full overview</button></p>
           <AdaBar className="mt-6" placeholder="Let ADA help you.." onSubmit={(text) => openAda(text)} />
           <Tip className="mt-5">Paste a vendor's whole WhatsApp chat at once. ADA reads every order and holds back any with something missing.</Tip>
         </div>
