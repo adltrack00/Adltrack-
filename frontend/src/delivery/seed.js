@@ -1,7 +1,8 @@
 // Demo data for a fresh workspace. Everything lives in the browser until a backend is wired in.
-import { todayISO, uid } from "./utils";
+import { addDaysISO, todayISO, uid } from "./utils";
 
-export const COMPANY = { name: "Delivery", dispatcher: "George", city: "Lagos" };
+// fees: what the company takes from each delivered order (vendors see it) and pays a rider per drop (riders see it).
+export const COMPANY = { name: "Delivery", dispatcher: "George", city: "Lagos", fees: { delivery: 2000, rider: 1000 } };
 
 export const ZONES = ["Ikeja", "Yaba", "Lekki", "Surulere", "Victoria Island"];
 
@@ -102,12 +103,58 @@ export function seedTasks(products) {
       items: t5, date: todayISO(), time: "12:30", status: "picked_up", createdBy: "ada", payment: null, proof: null,
       history: [{ status: "assigned", at: minutesAgo(70) }, { status: "picked_up", at: minutesAgo(14) }],
     },
+    // A fresh batch ADA just sent Tunde: it waits on his phone as a card to swipe and accept.
+    {
+      id: uid("t"), ref: "DL-1042", riderId: "r-tunde", vendorId: "v-kicks", customer: "Yemi Alade", phone: "+234 803 909 1123", address: "21 Opebi Road, Ikeja", zone: "Ikeja",
+      items: [line("p-sneaker", 1)], date: todayISO(), time: "14:00", status: "assigned", createdBy: "ada", payment: null, proof: null,
+      history: [{ status: "assigned", at: minutesAgo(3) }],
+    },
+    {
+      id: uid("t"), ref: "DL-1043", riderId: "r-tunde", vendorId: "v-mama", customer: "Computer Village Stall 14", phone: "+234 805 330 7781", address: "Otigba Street, Ikeja", zone: "Ikeja",
+      items: [line("p-chinchin", 2), line("p-pepper", 2)], date: todayISO(), time: "15:30", status: "assigned", createdBy: "ada", payment: null, proof: null, note: "Ask for Mr. Ade",
+      history: [{ status: "assigned", at: minutesAgo(3) }],
+    },
+    ...pastWeek(line, sum),
     {
       id: uid("t"), ref: "DL-1041", riderId: "r-kwame", vendorId: "v-gadget", customer: "Femi Ojo", phone: "+234 812 765 0098", address: "Sabo Market Road, Yaba", zone: "Yaba",
       items: t6, date: todayISO(), time: "13:30", status: "assigned", createdBy: "ada", payment: null, proof: null,
       history: [{ status: "assigned", at: minutesAgo(40) }],
     },
   ];
+}
+
+// A few earlier days this week, so riders see their week's pay and the company sees cash handed in and vendors paid.
+const PAST = [
+  ["r-tunde", "v-glow", "p-serum", 1, "Ikeja", "Adeniyi Jones Ave, Ikeja", "transfer"],
+  ["r-tunde", "v-kicks", "p-slide", 1, "Ikeja", "Allen Avenue, Ikeja", "cash"],
+  ["r-amaka", "v-gadget", "p-buds", 1, "Lekki", "Admiralty Way, Lekki", "transfer"],
+  ["r-amaka", "v-glow", "p-soap", 2, "Lekki", "Freedom Way, Lekki", "cash"],
+  ["r-kwame", "v-mama", "p-pepper", 2, "Yaba", "Commercial Ave, Yaba", "cash"],
+  ["r-sade", "v-kicks", "p-sneaker", 1, "Surulere", "Adeniran Ogunsanya, Surulere", "pos"],
+];
+const NAMES = ["Ada Nnamdi", "Segun Bello", "Grace Effiong", "Musa Danjuma", "Kemi Alabi", "Uche Obi", "Rita Okoro", "Tayo Fash"];
+function pastWeek(line, sum) {
+  const out = [];
+  const back = Math.min(3, (new Date().getDay() + 6) % 7); // only days already gone this week
+  let n = 1000;
+  for (let d = back; d >= 1; d -= 1) {
+    PAST.forEach(([riderId, vendorId, productId, qty, zone, address, method], i) => {
+      if ((i + d) % 4 === 0) return;
+      n += 1;
+      const items = [line(productId, qty)];
+      const at = new Date(Date.now() - d * 86400000 - (i + 1) * 3600000).toISOString();
+      const amount = sum(items);
+      out.push({
+        id: uid("t"), ref: `DL-${n}`, riderId, vendorId, customer: NAMES[(i + d) % NAMES.length], phone: "", address, zone, items, date: addDaysISO(-d), time: "", status: "delivered", createdBy: "ada",
+        payment: { method, amount, confirmed: true, at, ...(method === "cash" ? { handedIn: { at, ref: `TRF-${n}` }, handInVerified: at } : {}) },
+        proof: { photo: demoPhoto(i), receivedBy: "", note: "", at },
+        history: [{ status: "assigned", at }, { status: "picked_up", at }, { status: "delivered", at }],
+        acceptedAt: at,
+        ...(d > 1 ? { settled: { at, ref: `PAY-${n}` } } : {}),
+      });
+    });
+  }
+  return out;
 }
 
 export function seedMessages() {
@@ -133,6 +180,6 @@ export function freshState() {
     orders: ORDERS,
     tasks: seedTasks(PRODUCTS),
     messages: seedMessages(),
-    nextRef: 1042,
+    nextRef: 1044,
   };
 }

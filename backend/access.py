@@ -31,6 +31,12 @@ def view(state: Optional[Dict[str, Any]], role: str, ref: Optional[str]) -> Opti
         return state
     s = state
     company = _pick(s.get("company") or {}, COMPANY_PUBLIC)
+    # Each side sees only its own rate: a rider their pay per drop, a vendor the delivery fee taken from each order.
+    fees = (s.get("company") or {}).get("fees")
+    if isinstance(fees, dict):
+        mine = {"rider": "rider", "vendor": "delivery"}.get(role)
+        if mine and mine in fees:
+            company["fees"] = {mine: fees[mine]}
     base = {"version": s.get("version"), "company": company, "nextRef": s.get("nextRef", 1000)}
     if role == "vendor":
         tasks = [t for t in s.get("tasks", []) if t.get("vendorId") == ref]
@@ -69,7 +75,14 @@ def _changed_keys(a: Dict[str, Any], b: Dict[str, Any]) -> set:
 # Rules: (collection) -> function(kind, old, new, ref) -> bool, where kind is "add", "change" or "remove".
 def _rider_rules() -> Dict[str, Callable]:
     def tasks(kind, old, new, ref):
-        return kind == "change" and old.get("riderId") == ref and new.get("riderId") == ref and _changed_keys(old, new) <= {"status", "history", "proof", "payment", "failReason"} and new.get("status") in ("assigned", "picked_up", "delivered", "failed")
+        if not (kind == "change" and old.get("riderId") == ref and new.get("riderId") == ref):
+            return False
+        if not _changed_keys(old, new) <= {"status", "history", "proof", "payment", "failReason", "acceptedAt", "declined"}:
+            return False
+        # Only the office can say cash a rider handed in has reached the bank.
+        if ((old.get("payment") or {}).get("handInVerified")) != ((new.get("payment") or {}).get("handInVerified")):
+            return False
+        return new.get("status") in ("assigned", "picked_up", "delivered", "failed")
 
     def messages(kind, old, new, ref):
         if kind == "add":

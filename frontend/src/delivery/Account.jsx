@@ -1,12 +1,13 @@
 // Your account: name and sign-in details, password, phone notifications, installing the app, signing out.
 import React, { useEffect, useState } from "react";
-import { ArrowLeft, Bell, LogOut, RotateCcw, Smartphone } from "lucide-react";
+import { ArrowLeft, Bell, Camera, LogOut, RotateCcw, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { api, homeFor, useAuth } from "./auth";
 import { askForNotifications } from "./alerts";
-import { useWorkspace } from "./store";
+import { fees, useWorkspace } from "./store";
 import { Avatar, Btn, Card, CardHead, Field, inputCls, Logo } from "./ui";
 import { themeOf, ThemePicker } from "./scenes";
+import { ProfilePhotoCard, usePhotoPicker } from "./Photo";
 
 const ROLE = { company: "Company", vendor: "Vendor", rider: "Rider" };
 
@@ -18,6 +19,7 @@ export default function Account({ go }) {
   const [notif, setNotif] = useState(typeof Notification !== "undefined" ? Notification.permission : "unsupported");
   const install = useInstallPrompt();
   const theme = themeOf(state.company.theme);
+  const photo = usePhotoPicker();
 
   const save = async (e) => {
     e.preventDefault();
@@ -37,7 +39,11 @@ export default function Account({ go }) {
           <Logo dark />
         </div>
         <div className="mx-auto mt-8 flex max-w-3xl items-center gap-4">
-          <Avatar name={user.name} size={64} color="#2b47f0" className="ring-2 ring-white/30" />
+          <button onClick={photo.pick} className="relative shrink-0" aria-label="Change profile photo">
+            <Avatar name={user.name} photo={user.photo} size={72} color="#2b47f0" className="ring-2 ring-white/30" />
+            <span className="absolute -bottom-0.5 -right-0.5 grid h-7 w-7 place-items-center rounded-full bg-white text-neutral-950 ring-2 ring-[#0a0d2e]"><Camera className="h-3.5 w-3.5" /></span>
+          </button>
+          {photo.ui}
           <div>
             <h1 className="text-[32px] font-extrabold leading-tight tracking-[-0.03em]">{user.name}</h1>
             <div className="text-[15px] text-white/60">{ROLE[user.role]} · {company}</div>
@@ -56,6 +62,7 @@ export default function Account({ go }) {
               </div>
             </Card>
           )}
+          <ProfilePhotoCard />
           {!user.demo && (
             <Card>
               <CardHead title="Your details" sub="You sign in with your email or phone." />
@@ -79,6 +86,7 @@ export default function Account({ go }) {
               </form>
             </Card>
           )}
+          {user.role === "company" && <RatesCard rates={fees(state)} onSave={(f) => { act({ type: "company/update", patch: { fees: f } }); toast.success("Rates saved"); }} />}
           {user.role === "company" && (
             <Card data-testid="pick-a-look">
               <CardHead title="Pick a look" sub="Colours this dashboard and your riders' app, for everyone in your company." />
@@ -109,6 +117,21 @@ export default function Account({ go }) {
         </div>
       </main>
     </div>
+  );
+}
+
+// The two rates the money screens use: the fee taken from each delivered order, and a rider's pay per drop.
+function RatesCard({ rates, onSave }) {
+  const [f, setF] = useState({ delivery: String(rates.delivery), rider: String(rates.rider) });
+  return (
+    <Card data-testid="rates">
+      <CardHead title="Rates" sub="Vendors see the delivery fee on each payout. Riders see their pay per drop." />
+      <form onSubmit={(e) => { e.preventDefault(); onSave({ delivery: Math.max(0, Number(f.delivery) || 0), rider: Math.max(0, Number(f.rider) || 0) }); }} className="grid gap-3 p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+        <Field label="Delivery fee per order (₦)"><input className={inputCls} inputMode="numeric" value={f.delivery} onChange={(e) => setF({ ...f, delivery: e.target.value.replace(/[^\d]/g, "") })} /></Field>
+        <Field label="Rider pay per drop (₦)"><input className={inputCls} inputMode="numeric" value={f.rider} onChange={(e) => setF({ ...f, rider: e.target.value.replace(/[^\d]/g, "") })} /></Field>
+        <Btn type="submit" className="w-fit">Save</Btn>
+      </form>
+    </Card>
   );
 }
 

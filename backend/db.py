@@ -40,6 +40,7 @@ SCHEMA = [
 MIGRATIONS = [
     ("users", "team", "INT NOT NULL DEFAULT 0"),
     ("invites", "team", "INT NOT NULL DEFAULT 0"),
+    ("users", "photo", "TEXT"),
 ]
 
 

@@ -67,7 +67,8 @@ export function LedgerBar({ received, delivered, withRiders }) {
   );
 }
 
-export function Avatar({ name, color = "#a8a29e", size = 36, className }) {
+export function Avatar({ name, color = "#a8a29e", size = 36, className, photo }) {
+  if (photo) return <img src={photo} alt="" className={cn("shrink-0 rounded-full object-cover", className)} style={{ width: size, height: size }} />;
   return (
     <span className={cn("grid shrink-0 place-items-center rounded-full font-semibold text-white", className)} style={{ width: size, height: size, background: color, fontSize: size * 0.36 }}>
       {initials(name)}
@@ -81,6 +82,8 @@ const STATUS = {
   cancelled: { label: "Cancelled", cls: "bg-neutral-100 text-neutral-400", icon: XCircle },
   planned: { label: "Assigned", cls: "bg-sky-50 text-sky-700", icon: Bike },
   assigned: { label: "Assigned", cls: "bg-sky-50 text-sky-700", icon: Bike },
+  offered: { label: "Waiting for rider to accept", cls: "bg-amber-50 text-amber-700", icon: Clock },
+  declined: { label: "Turned down", cls: "bg-rose-50 text-rose-700", icon: XCircle },
   picked_up: { label: "On the way", cls: "bg-blue-50 text-blue-700", icon: Truck },
   awaiting: { label: "Delivered · payment to verify", cls: "bg-amber-50 text-amber-700", icon: Clock },
   delivered: { label: "Delivered · paid in", cls: "bg-emerald-50 text-emerald-700", icon: PackageCheck },
@@ -90,6 +93,8 @@ const STATUS = {
 
 export function statusOf(task) {
   if (task.status === "delivered" && !(task.payment && task.payment.confirmed)) return "awaiting";
+  if (task.status === "assigned" && task.declined) return "declined";
+  if (task.status === "assigned" && !task.acceptedAt) return "offered";
   return task.status;
 }
 

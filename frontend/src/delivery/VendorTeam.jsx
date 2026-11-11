@@ -141,7 +141,7 @@ export function VendorTeam({ vendor }) {
       <div className="mt-3">
         {team.members.map((m) => (
           <div key={m.id} className="flex items-center gap-3 border-t border-neutral-100 px-5 py-3.5 first:border-t-0">
-            <Avatar name={m.name} color={m.teammate ? "#8b5cf6" : vendor.color || "#2b47f0"} />
+            <Avatar name={m.name} photo={m.photo} color={m.teammate ? "#8b5cf6" : vendor.color || "#2b47f0"} />
             <div className="min-w-0 flex-1">
               <div className="truncate text-[14.5px] font-semibold text-neutral-900">{m.name}{m.id === user.id ? " (you)" : ""}<span className="ml-2 text-[12px] font-medium text-neutral-400">{m.teammate ? "Team" : "Main account"}</span></div>
               <div className="truncate text-[12.5px] text-neutral-500">{activity(m.id) || "Nothing added yet"}{m.lastSeen ? ` · seen ${ago(new Date(m.lastSeen * 1000).toISOString())}` : ""}</div>
