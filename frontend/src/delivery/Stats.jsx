@@ -71,7 +71,7 @@ export function StatPill({ state, className }) {
               aria-label={`${label}: ${shown[id]}. Tap for details`}
             >
               <div className="truncate text-[17px] font-bold leading-tight tracking-tight sm:text-[22px]">{shown[id]}</div>
-              <div className={cn("truncate text-[11px] font-medium transition-colors sm:text-[12.5px]", here ? "text-white/90" : "text-white/55")}>{label}</div>
+              <div className={cn("truncate text-[11px] font-medium transition-colors sm:text-[12.5px]", here ? "text-white/90" : "text-white/75")}>{label}</div>
             </button>
           );
         })}

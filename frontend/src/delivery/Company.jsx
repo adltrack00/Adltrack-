@@ -44,12 +44,13 @@ export default function Company({ go }) {
   const tabs = NAV.map(([id, label, Icon]) => [id, label, Icon, id === "today" ? needs.count : id === "messages" ? unread : 0]);
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className={`${theme.header} relative overflow-hidden px-5 pb-16 pt-6 text-white sm:px-10`}>
-        <div className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-blue-600/30 blur-3xl" />
+    <div className="relative min-h-screen bg-white">
+      {/* Same background as the vendor dashboard: bright blue at the top fading into white. No sheet over it. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[640px] bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_45%,#ffffff_100%)]" />
+      <header className="relative px-5 pb-8 pt-6 text-white sm:px-10">
         <div className="relative mx-auto flex max-w-7xl items-center gap-3">
           <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-white hover:text-white/80" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
-          <span className="hidden text-[14px] font-semibold text-white/70 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
+          <span className="hidden text-[14px] font-semibold text-white/85 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
           <div className="ml-auto flex items-center gap-2">
             {sync === "offline" && <LiveDot label="Offline, will save when back" tone="warn" />}
             <MeButton onClick={() => go("/account")} />
@@ -57,14 +58,14 @@ export default function Company({ go }) {
         </div>
         <div className="relative mx-auto mt-5 flex max-w-7xl flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
-            <div className="text-[15px] font-medium text-white/60">{new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
-            <h1 className="mt-1 text-[40px] font-extrabold leading-[1.05] tracking-[-0.035em] sm:text-[52px]">{titles[tab]}{tab === "today" ? <span className="text-white/50">, {state.company.dispatcher}.</span> : ""}</h1>
+            <div className="text-[15px] font-medium text-white/80">{new Date().toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
+            <h1 className="mt-1 text-[40px] font-extrabold leading-[1.05] tracking-[-0.035em] sm:text-[52px]">{titles[tab]}{tab === "today" ? <span className="text-white/70">, {state.company.dispatcher}.</span> : ""}</h1>
           </div>
           <StatPill state={state} className="w-full lg:w-[540px] lg:shrink-0" />
         </div>
       </header>
 
-      <main className="relative -mt-10 rounded-t-[40px] bg-white px-4 pb-36 pt-8 sm:px-10">
+      <main className="relative px-4 pb-36 pt-2 sm:px-10">
         <div className="mx-auto max-w-7xl">
           <Section openAda={openAda} setTab={setTab} />
         </div>

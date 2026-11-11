@@ -6,7 +6,7 @@ import { api, homeFor, useAuth } from "./auth";
 import { askForNotifications } from "./alerts";
 import { fees, useWorkspace } from "./store";
 import { Avatar, Btn, Card, CardHead, Field, inputCls, Logo } from "./ui";
-import { themeOf, ThemePicker } from "./scenes";
+import { ThemePicker } from "./scenes";
 import { ProfilePhotoCard, usePhotoPicker } from "./Photo";
 
 const ROLE = { company: "Company", vendor: "Vendor", rider: "Rider" };
@@ -18,7 +18,6 @@ export default function Account({ go }) {
   const [pw, setPw] = useState({ current: "", new: "" });
   const [notif, setNotif] = useState(typeof Notification !== "undefined" ? Notification.permission : "unsupported");
   const install = useInstallPrompt();
-  const theme = themeOf(state.company.theme);
   const photo = usePhotoPicker();
 
   const save = async (e) => {
@@ -32,8 +31,9 @@ export default function Account({ go }) {
   const out = async () => { await signOut(); go("/"); };
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className={`${theme.header} px-5 pb-16 pt-6 text-white sm:px-10`}>
+    <div className="relative min-h-screen bg-white">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_45%,#ffffff_100%)]" />
+      <header className="relative px-5 pb-8 pt-6 text-white sm:px-10">
         <div className="mx-auto flex max-w-3xl items-center gap-3">
           <button onClick={() => go(homeFor(user))} className="grid h-11 w-11 place-items-center rounded-full bg-white/10" aria-label="Back to dashboard"><ArrowLeft className="h-5 w-5" /></button>
           <Logo dark />
@@ -41,16 +41,16 @@ export default function Account({ go }) {
         <div className="mx-auto mt-8 flex max-w-3xl items-center gap-4">
           <button onClick={photo.pick} className="relative shrink-0" aria-label="Change profile photo">
             <Avatar name={user.name} photo={user.photo} size={72} color="#2b47f0" className="ring-2 ring-white/30" />
-            <span className="absolute -bottom-0.5 -right-0.5 grid h-7 w-7 place-items-center rounded-full bg-white text-neutral-950 ring-2 ring-[#0a0d2e]"><Camera className="h-3.5 w-3.5" /></span>
+            <span className="absolute -bottom-0.5 -right-0.5 grid h-7 w-7 place-items-center rounded-full bg-white text-neutral-950 ring-2 ring-[#2b47f0]"><Camera className="h-3.5 w-3.5" /></span>
           </button>
           {photo.ui}
           <div>
             <h1 className="text-[32px] font-extrabold leading-tight tracking-[-0.03em]">{user.name}</h1>
-            <div className="text-[15px] text-white/60">{ROLE[user.role]} · {company}</div>
+            <div className="text-[15px] text-white/80">{ROLE[user.role]} · {company}</div>
           </div>
         </div>
       </header>
-      <main className="relative -mt-10 rounded-t-[40px] bg-white px-4 pb-20 pt-8 sm:px-10">
+      <main className="relative px-4 pb-20 pt-2 sm:px-10">
         <div className="mx-auto grid max-w-3xl gap-5">
           {user.demo && (
             <Card className="p-5">
@@ -89,7 +89,7 @@ export default function Account({ go }) {
           {user.role === "company" && <RatesCard rates={fees(state)} onSave={(f) => { act({ type: "company/update", patch: { fees: f } }); toast.success("Rates saved"); }} />}
           {user.role === "company" && (
             <Card data-testid="pick-a-look">
-              <CardHead title="Pick a look" sub="Colours this dashboard and your riders' app, for everyone in your company." />
+              <CardHead title="Pick a look" sub="Colours your menu and your riders' app, for everyone in your company." />
               <div className="p-5"><ThemePicker value={state.company.theme || "night"} onChange={(id) => { act({ type: "company/update", patch: { theme: id } }); toast.success("Look changed"); }} /></div>
             </Card>
           )}
