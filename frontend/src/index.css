@@ -61,3 +61,25 @@
   font-weight: 400;
   letter-spacing: -0.01em;
 }
+
+/* Phones and tablets: iPhone Safari zooms the whole page in when you tap a text box whose
+   text is under 16px, and it stays zoomed, so the screen seems to shift about while you type
+   or use voice typing. Every text box gets at least 16px on touch screens; desktop is unchanged. */
+@media (pointer: coarse) {
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):is([class*="text-[1"]:not([class*="text-[16"]):not([class*="text-[17"]):not([class*="text-[18"]):not([class*="text-[19"]), [class*="text-xs"], [class*="text-sm"], :not([class*="text-"])),
+  textarea:is([class*="text-[1"]:not([class*="text-[16"]):not([class*="text-[17"]):not([class*="text-[18"]):not([class*="text-[19"]), [class*="text-xs"], [class*="text-sm"], :not([class*="text-"])),
+  select:is([class*="text-[1"]:not([class*="text-[16"]):not([class*="text-[17"]):not([class*="text-[18"]):not([class*="text-[19"]), [class*="text-xs"], [class*="text-sm"], :not([class*="text-"])) {
+    font-size: 16px !important;
+  }
+}
+
+/* The rider app fills the screen on a phone and scrolls inside itself, so the page behind it
+   never scrolls, the browser bars never slide in and out, and nothing resizes under the rider. */
+@media (max-width: 639px) {
+  html:has(.rider-shell),
+  html:has(.rider-shell) body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+}
