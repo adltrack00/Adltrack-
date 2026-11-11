@@ -67,27 +67,27 @@ function VendorDashboard({ vendor, go }) {
 
   return (
     <div className="relative min-h-screen bg-white">
-      {/* Blue fading into white, the same length as before on every page (the home header's height at each screen size). */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[708px] bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_45%,#ffffff_100%)] sm:h-[603px] lg:h-[390px]" />
+      {/* Soft sky blue band that blends out to white above and below, the same on every company and vendor page. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[780px] sm:h-[700px] lg:h-[620px] bg-[linear-gradient(180deg,#ffffff_0%,#aad9fd_50%,#ffffff_100%)]" />
       <header className="relative px-4 pb-10 pt-6 sm:px-6">
         <div className="mx-auto flex max-w-6xl items-center gap-3">
           {page
-            ? <button onClick={() => open(null)} className="grid h-11 w-11 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25" aria-label="Back to home" data-testid="back-home"><ArrowLeft className="h-5 w-5" /></button>
-            : <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-white hover:text-white/80" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>}
-          <span className="hidden rounded-full bg-white/15 px-3 py-1 text-[12px] font-semibold text-white sm:inline">Vendor portal</span>
+            ? <button onClick={() => open(null)} className="grid h-11 w-11 place-items-center rounded-full bg-white text-neutral-950 shadow-[0_6px_20px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 hover:bg-neutral-50" aria-label="Back to home" data-testid="back-home"><ArrowLeft className="h-5 w-5" /></button>
+            : <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-neutral-950 hover:text-neutral-600" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>}
+          <span className="hidden rounded-full bg-white/80 px-3 py-1 text-[12px] font-semibold text-neutral-900 ring-1 ring-black/5 sm:inline">Vendor portal</span>
           <div className="ml-auto flex items-center gap-2">
-            <span className="hidden max-w-[220px] truncate text-[13.5px] font-semibold text-white/90 sm:inline">{vendor.name}</span>
-            <button onClick={() => setChat(true)} className="relative flex h-10 items-center gap-1.5 rounded-full bg-white/20 px-4 text-[13.5px] font-semibold text-white backdrop-blur" data-testid="vendor-messages">
+            <span className="hidden max-w-[220px] truncate text-[13.5px] font-semibold text-neutral-700 sm:inline">{vendor.name}</span>
+            <button onClick={() => setChat(true)} className="relative flex h-10 items-center gap-1.5 rounded-full bg-white px-4 text-[13.5px] font-semibold text-neutral-950 shadow-[0_6px_20px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5" data-testid="vendor-messages">
               <MessageSquare className="h-4 w-4" /> <span className="hidden sm:inline">Message {state.company.name || "the office"}</span><span className="sm:hidden">Messages</span>
-              {!!unread && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-rose-500 px-1 text-[10.5px] font-bold">{unread}</span>}
+              {!!unread && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-rose-500 px-1 text-[10.5px] font-bold text-white">{unread}</span>}
             </button>
             <MeButton onClick={() => go("/account")} color={vendor.color || "#2b47f0"} />
           </div>
         </div>
         {page ? (
           <div className="mx-auto mt-6 max-w-6xl">
-            <div className="text-[15px] font-medium text-white/80">{vendor.name}</div>
-            <h1 className="mt-1 text-[40px] font-extrabold leading-[1.05] tracking-[-0.035em] text-white sm:text-[52px]">{PAGES[page]}</h1>
+            <div className="text-[15px] font-medium text-neutral-500">{vendor.name}</div>
+            <h1 className="mt-1 text-[40px] font-extrabold leading-[1.05] tracking-[-0.035em] text-neutral-950 sm:text-[52px]">{PAGES[page]}</h1>
           </div>
         ) : (
         <div className="mx-auto mt-8 grid max-w-6xl gap-5 lg:grid-cols-[1.2fr_1fr] lg:items-end">
