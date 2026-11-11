@@ -79,7 +79,6 @@ export default function Company({ go }) {
         name={(user && user.name ? user.name : state.company.dispatcher || "there").split(" ")[0]}
         email={user ? user.email || user.phone : ""}
         active={tab}
-        panel="bg-[#6b85ff]"
         items={[
           ...tabs.filter(([id]) => id !== "today").map(([id, label, Icon, badge]) => ({ id, label, icon: Icon, badge, onClick: () => setTab(id) })),
           { id: "settings", label: "Settings", icon: Settings, onClick: () => go("/account") },
