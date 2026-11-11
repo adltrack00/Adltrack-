@@ -1,4 +1,4 @@
-// The dashboards' main menu, in Delivery's own style (light grey-white panel, dark text, each section on a round icon,
+// The dashboards' main menu, in Delivery's own style (the page's own sky blue to white, dark text, each section on a round icon,
 // the open one as a white pill).
 // - Laptop and wider: a sidebar built into the page, always there. A toggle at its top shrinks it to a rail of icons
 //   and back; the choice is remembered on this device.
@@ -46,8 +46,9 @@ export function SideMenu({ open, onClose, name, email, items, active, panel }) {
       <aside
         aria-label="Main menu"
         className={cn(
-          "sticky top-0 z-40 hidden h-screen shrink-0 flex-col border-r border-black/[0.06] text-neutral-950 transition-[width] duration-300 ease-out lg:flex",
-          panel || "bg-[#f5f6f8]",
+          "sticky top-0 z-40 hidden h-screen shrink-0 flex-col text-neutral-950 transition-[width] duration-300 ease-out lg:flex",
+          // See-through, so the page's sky blue band runs straight across it and it reads as part of the dashboard.
+          panel || "bg-transparent",
           collapsed ? "w-[84px]" : "w-[272px]",
         )}
         data-testid="side-nav"
@@ -87,7 +88,8 @@ export function SideMenu({ open, onClose, name, email, items, active, panel }) {
           aria-label="Main menu"
           className={cn(
             "absolute inset-y-0 left-0 flex w-[min(86vw,360px)] flex-col overflow-hidden rounded-r-[36px] text-neutral-950 transition-[transform,box-shadow] duration-300 ease-out",
-            panel || "bg-[#f5f6f8]",
+            // The same sky blue as the dashboards, blending to white.
+            panel || "bg-[linear-gradient(180deg,#ffffff_0%,#aad9fd_45%,#ffffff_100%)]",
             open ? "translate-x-0 shadow-[24px_0_70px_-20px_rgba(5,6,26,0.45)]" : "-translate-x-full shadow-none",
           )}
           data-testid="side-menu"
