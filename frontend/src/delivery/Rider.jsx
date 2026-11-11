@@ -74,9 +74,9 @@ function RiderApp({ rider, go }) {
   const openWallet = () => { goTab("earnings"); setTimeout(() => document.getElementById("wallet")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60); };
 
   return (
-    <div className="min-h-screen bg-neutral-200 sm:py-8">
+    <div className="rider-shell h-[100dvh] overflow-hidden bg-neutral-200 sm:h-auto sm:min-h-screen sm:overflow-visible sm:py-8">
       <div className={`${theme.rider} relative mx-auto flex h-[100dvh] max-w-[430px] flex-col sm:h-[880px] sm:overflow-hidden sm:rounded-[48px] sm:shadow-[0_30px_80px_rgba(0,0,0,0.3)] sm:ring-[10px] sm:ring-black`}>
-        <div ref={scroller} className="flex flex-1 flex-col overflow-y-auto [&>*]:shrink-0" data-testid="rider-scroll">
+        <div ref={scroller} className="flex flex-1 flex-col overflow-y-auto overscroll-contain [&>*]:shrink-0" data-testid="rider-scroll">
           {page === "level" ? (
             <LevelPage week={week} level={level} next={nextLevel} onBack={() => setPage(null)} />
           ) : tab === "menu" ? (

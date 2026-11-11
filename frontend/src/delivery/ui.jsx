@@ -251,7 +251,7 @@ export function Modal({ open, onClose, title, children, wide = false }) {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 backdrop-blur-[3px] sm:items-center sm:p-6" onClick={onClose}>
-      <div className={cn("max-h-[94vh] w-full overflow-y-auto rounded-t-[36px] bg-white px-5 pb-6 pt-4 shadow-2xl sm:rounded-[36px]", wide ? "sm:max-w-2xl" : "sm:max-w-md")} onClick={(e) => e.stopPropagation()}>
+      <div className={cn("max-h-[94dvh] w-full overflow-y-auto overscroll-contain rounded-t-[36px] bg-white px-5 pb-6 pt-4 shadow-2xl sm:rounded-[36px]", wide ? "sm:max-w-2xl" : "sm:max-w-md")} onClick={(e) => e.stopPropagation()}>
         <div className="mb-5 grid grid-cols-[40px_1fr_40px] items-center">
           <span />
           <h3 className="text-center text-[20px] font-bold tracking-tight text-neutral-950">{title}</h3>
