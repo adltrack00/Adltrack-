@@ -1,13 +1,14 @@
 // The delivery company's dashboard: vendors, riders, stock, deliveries and ADA.
 import React, { useMemo, useState } from "react";
 import {
-  AlertTriangle, ArrowDownUp, ArrowLeft, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Settings, Sparkles, Truck, Users, Wallet, X,
+  AlertTriangle, ArrowDownUp, CalendarDays, History, Megaphone, NotebookPen, Search, ArrowLeft, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Settings, Sparkles, Truck, Users, Wallet, X,
 } from "lucide-react";
 import { AdaPanel } from "./AdaPanel";
 import Team from "./Team";
 import { SideMenu } from "./SideMenu";
 import { MeButton } from "./Photo";
 import { StatPill } from "./Stats";
+import { ActivityLog, AnnounceModal, Announcements, CalendarPage, LogBook, LogEntryModal, QuickAdd, SearchPage } from "./Records";
 import { useAuth } from "./auth";
 import { DeliveryCard, Feed, LedgerLegend, PaymentActions, ProductTable } from "./shared";
 import { FixOrder, PasteOrders } from "./Intake";
@@ -25,6 +26,11 @@ const NAV = [
   ["riders", "Riders", Bike],
   ["messages", "Messages", MessageSquare],
   ["team", "Team", Users],
+  ["calendar", "Calendar", CalendarDays],
+  ["search", "Search", Search],
+  ["announce", "Announcements", Megaphone],
+  ["log", "Log book", NotebookPen],
+  ["activity", "Activity log", History],
 ];
 
 export default function Company({ go }) {
@@ -33,14 +39,19 @@ export default function Company({ go }) {
   const [ada, setAda] = useState(false);
   const [seed, setSeed] = useState("");
   const [menu, setMenu] = useState(false);
+  // What the "+" button opened: a new delivery, pasted orders, a log book entry or an announcement.
+  const [quick, setQuick] = useState("");
   const { user } = useAuth();
   const openAda = (say = "") => { setSeed(say); setAda(true); };
   const needs = needsYou(state);
   const unread = state.messages.filter((m) => (m.from === "rider" || m.from === "vendor") && !m.read).length;
   const t = totals(state);
-  const Section = { today: NeedsYou, overview: Overview, deliveries: Deliveries, stock: Stock, riders: Riders, messages: Messages, team: Team }[tab];
-  const titles = { today: needs.count ? `${needs.count} ${needs.count === 1 ? "thing needs" : "things need"} you` : "All clear", overview: "Overview", deliveries: "Deliveries", stock: "Vendors & stock", riders: "Riders", messages: "Messages", team: "Team & logins" };
-  const tabs = NAV.map(([id, label, Icon]) => [id, label, Icon, id === "today" ? needs.count : id === "messages" ? unread : 0]);
+  const Section = { today: NeedsYou, overview: Overview, deliveries: Deliveries, stock: Stock, riders: Riders, messages: Messages, team: Team, calendar: CalendarPage, search: SearchPage, announce: Announcements, log: LogBook, activity: ActivityLog }[tab];
+  const titles = { today: needs.count ? `${needs.count} ${needs.count === 1 ? "thing needs" : "things need"} you` : "All clear", overview: "Overview", deliveries: "Deliveries", stock: "Vendors & stock", riders: "Riders", messages: "Messages", team: "Team & logins", calendar: "Calendar", search: "Search", announce: "Announcements", log: "Log book", activity: "Activity log" };
+  const openIncidents = (state.log || []).filter((e) => e.status === "open").length;
+  const tabs = NAV.map(([id, label, Icon]) => [id, label, Icon, id === "today" ? needs.count : id === "messages" ? unread : id === "log" ? openIncidents : 0]);
+  const go2 = (id) => { setTab(id); window.scrollTo({ top: 0 }); };
+  const pickQuick = (id) => (id === "team" ? go2("team") : setQuick(id));
 
   return (
     <div className="relative min-h-screen bg-white lg:flex">
@@ -64,6 +75,7 @@ export default function Company({ go }) {
           <span className="hidden text-[14px] font-semibold text-neutral-600 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
           <div className="ml-auto flex items-center gap-2">
             {sync === "offline" && <LiveDot label="Offline, will save when back" tone="warn" />}
+            <QuickAdd onPick={pickQuick} />
             <MeButton onClick={() => go("/account")} />
           </div>
         </div>
@@ -87,6 +99,10 @@ export default function Company({ go }) {
       </div>
       </div>
 
+      <NewDelivery open={quick === "delivery"} onClose={() => setQuick("")} />
+      <Modal open={quick === "paste"} onClose={() => setQuick("")} title="Paste orders" wide><PasteOrders /></Modal>
+      <LogEntryModal kind={quick === "incident" || quick === "note" ? quick : null} onClose={() => setQuick("")} />
+      <AnnounceModal open={quick === "announce"} onClose={() => setQuick("")} />
       <AdaPanel open={ada} onClose={() => setAda(false)} seed={seed} onSeedUsed={() => setSeed("")} />
     </div>
   );
@@ -98,8 +114,11 @@ function navItems(tabs, pick, settings) {
   return [
     { ...t.today, label: "Home" },
     t.overview,
-    { id: "g-day", label: "Run the day", icon: Truck, children: [t.deliveries, t.riders, t.messages] },
+    t.calendar,
+    t.search,
+    { id: "g-day", label: "Run the day", icon: Truck, children: [t.deliveries, t.riders, t.messages, t.announce] },
     { id: "g-people", label: "Stock & people", icon: Users, children: [t.stock, { ...t.team, label: "Team & logins" }] },
+    { id: "g-records", label: "Records", icon: History, children: [t.log, t.activity] },
     { id: "settings", label: "Settings", icon: Settings, onClick: settings },
   ];
 }
