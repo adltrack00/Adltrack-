@@ -66,14 +66,38 @@ function VendorDashboard({ vendor, go }) {
   const shown = tasks.filter(filters.find((f) => f[0] === filter)[2]);
 
   return (
-    <div className="relative min-h-screen bg-white">
+    <div className="relative min-h-screen bg-white lg:flex">
       {/* Soft sky blue band that blends out to white above and below, the same on every company and vendor page. */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[780px] sm:h-[700px] lg:h-[620px] bg-[linear-gradient(180deg,#ffffff_0%,#aad9fd_50%,#ffffff_100%)]" />
+      <SideMenu
+        open={menu}
+        onClose={() => setMenu(false)}
+        name={((user && user.name) || vendor.contact || vendor.name).split(" ")[0]}
+        email={user ? user.email || user.phone : ""}
+        active={page || "home"}
+        items={[
+          { id: "home", label: "Home", icon: Home, onClick: () => open(null) },
+          { id: "money", label: "Your money", icon: Wallet, onClick: () => open("money") },
+          { id: "g-deliveries", label: "Deliveries", icon: Truck, children: [
+            { id: "deliveries", label: "All deliveries", onClick: () => open("deliveries") },
+            { id: "live", label: "Where parcels are", onClick: () => open("live") },
+            { id: "request", label: "Request deliveries", onClick: () => setRequesting(true) },
+          ] },
+          { id: "g-stock", label: "Stock", icon: Boxes, children: [
+            { id: "products", label: "Your products", onClick: () => open("products") },
+            { id: "send", label: "Send stock", onClick: () => setSending(true) },
+          ] },
+          ...(main ? [{ id: "team", label: "Your team", icon: Users, onClick: () => open("team") }] : []),
+          { id: "messages", label: "Messages", icon: MessageSquare, badge: unread, onClick: () => setChat(true) },
+          { id: "settings", label: "Settings", icon: Settings, onClick: () => go("/account") },
+        ]}
+      />
+      <div className="relative min-w-0 flex-1">
       <header className="relative px-4 pb-10 pt-6 sm:px-6">
         <div className="mx-auto flex max-w-6xl items-center gap-3">
           {page
             ? <button onClick={() => open(null)} className="grid h-11 w-11 place-items-center rounded-full bg-white text-neutral-950 shadow-[0_6px_20px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 hover:bg-neutral-50" aria-label="Back to home" data-testid="back-home"><ArrowLeft className="h-5 w-5" /></button>
-            : <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-neutral-950 hover:text-neutral-600" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>}
+            : <button onClick={() => setMenu(true)} className="-ml-1.5 grid lg:hidden h-10 w-10 place-items-center text-neutral-950 hover:text-neutral-600" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>}
           <span className="hidden rounded-full bg-white/80 px-3 py-1 text-[12px] font-semibold text-neutral-900 ring-1 ring-black/5 sm:inline">Vendor portal</span>
           <div className="ml-auto flex items-center gap-2">
             <span className="hidden max-w-[220px] truncate text-[13.5px] font-semibold text-neutral-700 sm:inline">{vendor.name}</span>
@@ -177,25 +201,7 @@ function VendorDashboard({ vendor, go }) {
           </div>
         </div>}
       </main>
-      <SideMenu
-        open={menu}
-        onClose={() => setMenu(false)}
-        name={((user && user.name) || vendor.contact || vendor.name).split(" ")[0]}
-        email={user ? user.email || user.phone : ""}
-        active={page || "home"}
-        items={[
-          { id: "home", label: "Home", icon: Home, onClick: () => open(null) },
-          { id: "money", label: "Your money", icon: Wallet, onClick: () => open("money") },
-          { id: "live", label: "Where parcels are", icon: Bike, onClick: () => open("live") },
-          { id: "deliveries", label: "Deliveries", icon: Truck, onClick: () => open("deliveries") },
-          { id: "products", label: "Your products", icon: Boxes, onClick: () => open("products") },
-          { id: "request", label: "Request deliveries", icon: Plus, onClick: () => setRequesting(true) },
-          { id: "send", label: "Send stock", icon: PackagePlus, onClick: () => setSending(true) },
-          ...(main ? [{ id: "team", label: "Your team", icon: Users, onClick: () => open("team") }] : []),
-          { id: "messages", label: "Messages", icon: MessageSquare, badge: unread, onClick: () => setChat(true) },
-          { id: "settings", label: "Settings", icon: Settings, onClick: () => go("/account") },
-        ]}
-      />
+      </div>
       <SendStock open={sending} onClose={() => setSending(false)} vendor={vendor} />
       <RequestDelivery open={requesting} onClose={() => setRequesting(false)} vendor={vendor} />
       <OfficeChat open={chat} onClose={() => setChat(false)} vendor={vendor} />

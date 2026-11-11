@@ -43,14 +43,23 @@ export default function Company({ go }) {
   const tabs = NAV.map(([id, label, Icon]) => [id, label, Icon, id === "today" ? needs.count : id === "messages" ? unread : 0]);
 
   return (
-    <div className="relative min-h-screen bg-white">
+    <div className="relative min-h-screen bg-white lg:flex">
       {/* Soft sky blue band that blends out to white above and below, the same on every company and vendor page. */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[780px] sm:h-[700px] lg:h-[620px] bg-[linear-gradient(180deg,#ffffff_0%,#aad9fd_50%,#ffffff_100%)]" />
+      <SideMenu
+        open={menu}
+        onClose={() => setMenu(false)}
+        name={(user && user.name ? user.name : state.company.dispatcher || "there").split(" ")[0]}
+        email={user ? user.email || user.phone : ""}
+        active={tab}
+        items={navItems(tabs, (id) => { setTab(id); window.scrollTo({ top: 0 }); }, () => go("/account"))}
+      />
+      <div className="relative min-w-0 flex-1">
       <header className="relative px-5 pb-8 pt-6 text-neutral-950 sm:px-10">
         <div className="relative mx-auto flex max-w-7xl items-center gap-3">
           {/* Home has the menu; every other page has a back arrow to home instead. */}
           {tab === "today"
-            ? <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-neutral-950 hover:text-neutral-600" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
+            ? <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 lg:hidden w-10 place-items-center text-neutral-950 hover:text-neutral-600" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
             : <button onClick={() => { setTab("today"); window.scrollTo({ top: 0 }); }} className="grid h-11 w-11 place-items-center rounded-full bg-white text-neutral-950 shadow-[0_6px_20px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 hover:bg-neutral-50" aria-label="Back to home" data-testid="back-home"><ArrowLeft className="h-5 w-5" /></button>}
           <span className="hidden text-[14px] font-semibold text-neutral-600 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
           <div className="ml-auto flex items-center gap-2">
@@ -76,21 +85,23 @@ export default function Company({ go }) {
       <div className="pointer-events-none fixed inset-x-0 bottom-5 z-30 flex items-center justify-end px-5 sm:px-8">
         <button onClick={() => openAda()} className="pointer-events-auto grid h-[68px] w-[68px] place-items-center rounded-full bg-white/80 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 backdrop-blur-xl" aria-label="Ask ADA"><AdaMark size={44} /></button>
       </div>
-      <SideMenu
-        open={menu}
-        onClose={() => setMenu(false)}
-        name={(user && user.name ? user.name : state.company.dispatcher || "there").split(" ")[0]}
-        email={user ? user.email || user.phone : ""}
-        active={tab}
-        items={[
-          ...tabs.filter(([id]) => id !== "today").map(([id, label, Icon, badge]) => ({ id, label, icon: Icon, badge, onClick: () => { setTab(id); window.scrollTo({ top: 0 }); } })),
-          { id: "settings", label: "Settings", icon: Settings, onClick: () => go("/account") },
-        ]}
-      />
+      </div>
 
       <AdaPanel open={ada} onClose={() => setAda(false)} seed={seed} onSeedUsed={() => setSeed("")} />
     </div>
   );
+}
+
+// The menu, grouped like a CRM sidebar: home and overview on top, the day's work and the people/stock each in a section.
+function navItems(tabs, pick, settings) {
+  const t = Object.fromEntries(tabs.map(([id, label, icon, badge]) => [id, { id, label, icon, badge, onClick: () => pick(id) }]));
+  return [
+    { ...t.today, label: "Home" },
+    t.overview,
+    { id: "g-day", label: "Run the day", icon: Truck, children: [t.deliveries, t.riders, t.messages] },
+    { id: "g-people", label: "Stock & people", icon: Users, children: [t.stock, { ...t.team, label: "Team & logins" }] },
+    { id: "settings", label: "Settings", icon: Settings, onClick: settings },
+  ];
 }
 
 /* ---------- Needs you: the company's home. Only what someone has to act on, each with its action. ---------- */
