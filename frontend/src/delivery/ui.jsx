@@ -205,7 +205,7 @@ export function Steps({ items, className }) {
 export function Logo({ className, dark = false }) {
   return (
     <span className={cn("flex items-center gap-2", className)}>
-      <span className={cn("grid h-8 w-8 place-items-center rounded-[10px]", dark ? "bg-white/10 ring-1 ring-white/20" : "bg-black")}>
+      <span className={cn("grid h-8 w-8 place-items-center rounded-[10px]", dark ? "bg-[#0a0d2e] ring-1 ring-white/20" : "bg-black")}>
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
           <path d="M4 15.5 12 4l8 11.5" stroke="#6b8bff" strokeWidth="2.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
           <circle cx="12" cy="18.5" r="2.4" fill="#fff" />

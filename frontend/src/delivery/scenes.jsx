@@ -4,14 +4,15 @@ import React from "react";
 import { ArrowLeft, Check, ChevronRight, Eye, Lightbulb } from "lucide-react";
 import { cn } from "../lib/utils";
 
-/* ---------- Looks: the company picks one and it colours the dashboard header and rider app. ---------- */
+/* ---------- Looks: the company picks one and it colours the dashboard background, menu and rider app. page = the dashboard
+   background, same shape as the vendor page (strong colour, lighter at 45%, white at the bottom) in the menu's colour. ---------- */
 
 export const THEMES = {
-  night: { name: "Night run", scene: "night", header: "bg-[radial-gradient(120%_80%_at_20%_0%,#141a5c_0%,#0a0d2e_45%,#05061a_100%)]", rider: "bg-[linear-gradient(180deg,#05061a_0%,#0f1450_45%,#2a3fe0_100%)]", tint: "#2b47f0" },
-  blue: { name: "Blue hour", scene: "blue", header: "bg-[linear-gradient(160deg,#1d2fc0_0%,#2b47f0_45%,#5a74ff_100%)]", rider: "bg-[linear-gradient(180deg,#14209a_0%,#2b47f0_55%,#7d93ff_100%)]", tint: "#3d5cff" },
-  dusk: { name: "Dusk", scene: "dusk", header: "bg-[linear-gradient(160deg,#2a1a6e_0%,#5b3fd0_50%,#9a7bff_100%)]", rider: "bg-[linear-gradient(180deg,#1c1250_0%,#5b3fd0_55%,#b39cff_100%)]", tint: "#7b5cff" },
-  sunset: { name: "Sunset", scene: "sunset", header: "bg-[linear-gradient(160deg,#3a1410_0%,#9a3a24_50%,#e2803f_100%)]", rider: "bg-[linear-gradient(180deg,#2a0f0c_0%,#9a3a24_55%,#f0a058_100%)]", tint: "#e2803f" },
-  mint: { name: "Mint", scene: "mint", header: "bg-[linear-gradient(160deg,#0b3b2c_0%,#147a55_50%,#4cc38a_100%)]", rider: "bg-[linear-gradient(180deg,#082a20_0%,#147a55_55%,#7fdcaa_100%)]", tint: "#22a06b" },
+  night: { name: "Night run", scene: "night", header: "bg-[radial-gradient(120%_80%_at_20%_0%,#141a5c_0%,#0a0d2e_45%,#05061a_100%)]", rider: "bg-[linear-gradient(180deg,#05061a_0%,#0f1450_45%,#2a3fe0_100%)]", page: "bg-[linear-gradient(180deg,#0a0d2e_0%,#141a5c_45%,#ffffff_100%)]", tint: "#2b47f0" },
+  blue: { name: "Blue hour", scene: "blue", header: "bg-[linear-gradient(160deg,#1d2fc0_0%,#2b47f0_45%,#5a74ff_100%)]", rider: "bg-[linear-gradient(180deg,#14209a_0%,#2b47f0_55%,#7d93ff_100%)]", page: "bg-[linear-gradient(180deg,#1d2fc0_0%,#2b47f0_45%,#ffffff_100%)]", tint: "#3d5cff" },
+  dusk: { name: "Dusk", scene: "dusk", header: "bg-[linear-gradient(160deg,#2a1a6e_0%,#5b3fd0_50%,#9a7bff_100%)]", rider: "bg-[linear-gradient(180deg,#1c1250_0%,#5b3fd0_55%,#b39cff_100%)]", page: "bg-[linear-gradient(180deg,#2a1a6e_0%,#5b3fd0_45%,#ffffff_100%)]", tint: "#7b5cff" },
+  sunset: { name: "Sunset", scene: "sunset", header: "bg-[linear-gradient(160deg,#3a1410_0%,#9a3a24_50%,#e2803f_100%)]", rider: "bg-[linear-gradient(180deg,#2a0f0c_0%,#9a3a24_55%,#f0a058_100%)]", page: "bg-[linear-gradient(180deg,#3a1410_0%,#9a3a24_45%,#ffffff_100%)]", tint: "#e2803f" },
+  mint: { name: "Mint", scene: "mint", header: "bg-[linear-gradient(160deg,#0b3b2c_0%,#147a55_50%,#4cc38a_100%)]", rider: "bg-[linear-gradient(180deg,#082a20_0%,#147a55_55%,#7fdcaa_100%)]", page: "bg-[linear-gradient(180deg,#0b3b2c_0%,#147a55_45%,#ffffff_100%)]", tint: "#22a06b" },
 };
 export const themeOf = (id) => THEMES[id] || THEMES.night;
 
