@@ -1,7 +1,7 @@
 // The vendor portal: a vendor sees their own products, every delivery as it happens (time, photo, payment)
 // and can request new deliveries. Same live data as the company and the riders.
 import React, { useEffect, useState } from "react";
-import { ArrowLeft, Bike, Boxes, Home, Menu, MessageSquare, Package, PackageCheck, PackagePlus, Plus, Send, Settings, Truck, Users, Wallet } from "lucide-react";
+import { Bike, Boxes, Home, Menu, MessageSquare, Package, PackageCheck, PackagePlus, Plus, Send, Settings, Truck, Users, Wallet } from "lucide-react";
 import { SendStock, StockSent, VendorTeam } from "./VendorTeam";
 import { LiveTracker, VendorMoney } from "./VendorMoney";
 import { useAuth } from "./auth";
@@ -95,9 +95,7 @@ function VendorDashboard({ vendor, go }) {
       <div className="relative min-w-0 flex-1">
       <header className="relative px-4 pb-10 pt-6 sm:px-6">
         <div className="mx-auto flex max-w-6xl items-center gap-3">
-          {page
-            ? <button onClick={() => open(null)} className="grid h-11 w-11 place-items-center rounded-full bg-white text-neutral-950 shadow-[0_6px_20px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 hover:bg-neutral-50" aria-label="Back to home" data-testid="back-home"><ArrowLeft className="h-5 w-5" /></button>
-            : <button onClick={() => setMenu(true)} className="-ml-1.5 grid lg:hidden h-10 w-10 place-items-center text-neutral-950 hover:text-neutral-600" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>}
+          <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-neutral-950 hover:text-neutral-600 lg:hidden" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
           <span className="hidden rounded-full bg-white/80 px-3 py-1 text-[12px] font-semibold text-neutral-900 ring-1 ring-black/5 sm:inline">Vendor portal</span>
           <div className="ml-auto flex items-center gap-2">
             <span className="hidden max-w-[220px] truncate text-[13.5px] font-semibold text-neutral-700 sm:inline">{vendor.name}</span>
