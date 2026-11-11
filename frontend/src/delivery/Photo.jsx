@@ -14,7 +14,7 @@ const OUT = 256;
 export function MeButton({ onClick, color = "#2b47f0", size = 44, className, testId = "account" }) {
   const { user } = useAuth();
   return (
-    <button onClick={onClick} className={cn("shrink-0 rounded-full ring-2 ring-white/40 transition hover:ring-white/70", className)} aria-label="Your account" data-testid={testId}>
+    <button onClick={onClick} className={cn("shrink-0 rounded-full ring-2 ring-white transition hover:ring-white/70", className)} aria-label="Your account" data-testid={testId}>
       <Avatar name={user ? user.name : ""} photo={user && user.photo} color={color} size={size} />
     </button>
   );

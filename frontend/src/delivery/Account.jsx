@@ -31,20 +31,20 @@ export default function Account({ go }) {
 
   return (
     <div className="relative min-h-screen bg-white">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[708px] sm:h-[603px] lg:h-[390px] bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_45%,#ffffff_100%)]" />
-      <header className="relative px-5 pb-8 pt-6 text-white sm:px-10">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[780px] sm:h-[700px] lg:h-[620px] bg-[linear-gradient(180deg,#ffffff_0%,#aad9fd_50%,#ffffff_100%)]" />
+      <header className="relative px-5 pb-8 pt-6 text-neutral-950 sm:px-10">
         <div className="mx-auto flex max-w-3xl items-center gap-3">
-          <button onClick={() => go(homeFor(user))} className="grid h-11 w-11 place-items-center rounded-full bg-white/10" aria-label="Back to dashboard"><ArrowLeft className="h-5 w-5" /></button>
+          <button onClick={() => go(homeFor(user))} className="grid h-11 w-11 place-items-center rounded-full bg-white text-neutral-950 shadow-[0_6px_20px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5" aria-label="Back to dashboard"><ArrowLeft className="h-5 w-5" /></button>
         </div>
         <div className="mx-auto mt-8 flex max-w-3xl items-center gap-4">
           <button onClick={photo.pick} className="relative shrink-0" aria-label="Change profile photo">
-            <Avatar name={user.name} photo={user.photo} size={72} color="#2b47f0" className="ring-2 ring-white/30" />
+            <Avatar name={user.name} photo={user.photo} size={72} color="#2b47f0" className="ring-2 ring-white" />
             <span className="absolute -bottom-0.5 -right-0.5 grid h-7 w-7 place-items-center rounded-full bg-white text-neutral-950 ring-2 ring-[#2b47f0]"><Camera className="h-3.5 w-3.5" /></span>
           </button>
           {photo.ui}
           <div>
             <h1 className="text-[32px] font-extrabold leading-tight tracking-[-0.03em]">{user.name}</h1>
-            <div className="text-[15px] text-white/80">{ROLE[user.role]} · {company}</div>
+            <div className="text-[15px] text-neutral-500">{ROLE[user.role]} · {company}</div>
           </div>
         </div>
       </header>

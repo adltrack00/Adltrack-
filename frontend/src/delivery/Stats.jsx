@@ -47,11 +47,11 @@ export function StatPill({ state, className }) {
 
   return (
     <>
-      <div className={cn("relative grid grid-cols-4 rounded-full bg-white/10 p-1.5 ring-1 ring-white/10 backdrop-blur-md", className)} data-testid="stat-pill">
+      <div className={cn("relative grid grid-cols-4 rounded-full bg-white/55 p-1.5 ring-1 ring-black/5 shadow-[0_10px_30px_-18px_rgba(30,80,140,0.45)] backdrop-blur-md", className)} data-testid="stat-pill">
         <span
           aria-hidden
           data-testid="stat-bubble"
-          className="pointer-events-none absolute inset-y-1.5 left-1.5 rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.32)_0%,rgba(255,255,255,0.12)_55%,rgba(255,255,255,0.2)_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.65),inset_0_-1px_0_rgba(255,255,255,0.18),0_10px_28px_-10px_rgba(0,0,0,0.6)] ring-1 ring-white/35 backdrop-blur-xl"
+          className="pointer-events-none absolute inset-y-1.5 left-1.5 rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.85)_55%,rgba(255,255,255,0.95)_100%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_24px_-12px_rgba(20,60,120,0.45)] ring-1 ring-black/5 backdrop-blur-xl"
           style={{
             width: "calc((100% - 12px) / 4)",
             transform: `translateX(${pos * 100}%) scaleX(${moving ? 1.12 : 1}) scaleY(${moving ? 0.92 : 1})`,
@@ -66,12 +66,12 @@ export function StatPill({ state, className }) {
             <button
               key={id}
               onClick={() => tap(i, id)}
-              className="relative z-10 min-w-0 rounded-full px-1 py-2 text-center text-white sm:py-2.5"
+              className="relative z-10 min-w-0 rounded-full px-1 py-2 text-center text-neutral-950 sm:py-2.5"
               data-testid={`stat-${id}`}
               aria-label={`${label}: ${shown[id]}. Tap for details`}
             >
               <div className="truncate text-[17px] font-bold leading-tight tracking-tight sm:text-[22px]">{shown[id]}</div>
-              <div className={cn("truncate text-[11px] font-medium transition-colors sm:text-[12.5px]", here ? "text-white/90" : "text-white/75")}>{label}</div>
+              <div className={cn("truncate text-[11px] font-medium transition-colors sm:text-[12.5px]", here ? "text-neutral-700" : "text-neutral-500")}>{label}</div>
             </button>
           );
         })}
