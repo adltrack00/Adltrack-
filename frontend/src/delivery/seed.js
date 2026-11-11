@@ -162,6 +162,16 @@ export function seedMessages() {
     { id: uid("m"), riderId: "r-tunde", from: "ada", text: "Morning Tunde. You have 2 drops in Ikeja today (8 units). First is Kola Adewale by 9:30.", at: minutesAgo(200), read: true },
     { id: uid("m"), riderId: "r-tunde", from: "rider", text: "Got it, heading to the warehouse.", at: minutesAgo(190), read: true },
     { id: uid("m"), riderId: "r-kwame", from: "ada", text: "Kwame, Femi Ojo wants 2 power banks by 1:30 PM at Sabo Market Road. Collect ₦44,000.", at: minutesAgo(40), read: false },
+    // One announcement that went to every rider.
+    ...RIDERS.map((r, i) => ({ id: uid("m"), riderId: r.id, from: "dispatcher", text: "Office closes at 6pm today. Hand in all cash before 5:30, please.", at: minutesAgo(150), read: i < 3, campaign: { id: "c-demo-close", audience: "riders" }, by: { name: "George", role: "company" } })),
+  ];
+}
+
+// The office log book: one open incident and a shift note, so the page isn't empty in the demo.
+export function seedLog() {
+  return [
+    { id: uid("log"), kind: "incident", type: "Customer complaint", status: "open", text: "Customer says the slides came in the wrong size. Wants an exchange tomorrow morning.", taskRef: "DL-1037", riderId: "r-amaka", vendorId: "v-kicks", at: minutesAgo(35), by: { name: "George", role: "company" } },
+    { id: uid("log"), kind: "note", type: "Shift note", status: "note", text: "Sade's bike is at the mechanic until 2pm. Give her Surulere drops after lunch only.", at: minutesAgo(240), by: { name: "George", role: "company" } },
   ];
 }
 
@@ -180,6 +190,7 @@ export function freshState() {
     orders: ORDERS,
     tasks: seedTasks(PRODUCTS),
     messages: seedMessages(),
+    log: seedLog(),
     nextRef: 1044,
   };
 }

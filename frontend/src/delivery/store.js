@@ -9,7 +9,7 @@ import { todayISO, uid } from "./utils";
 
 export const emptyState = (company = {}) => ({
   version: 5, company: { name: "", dispatcher: "", city: "", ...company },
-  vendors: [], riders: [], products: [], intake: [], orders: [], tasks: [], messages: [], nextRef: 1000,
+  vendors: [], riders: [], products: [], intake: [], orders: [], tasks: [], messages: [], log: [], nextRef: 1000,
 });
 
 // This device keeps the last copy it saw, so the app opens at once and works on a weak signal.
@@ -195,6 +195,13 @@ function reducer(state, action) {
 
     case "rider/online":
       return { ...state, riders: state.riders.map((r) => (r.id === action.id ? { ...r, online: action.online } : r)) };
+
+    // The office log book: shift notes for whoever takes over, and incidents (damaged parcel, complaint, missing
+    // stock...) that stay open until someone marks them sorted. Only the company sees it.
+    case "log/add":
+      return { ...state, log: [{ id: uid("log"), at: now(), by: byOf(action), status: action.entry.kind === "incident" ? "open" : "note", ...action.entry }, ...(state.log || [])] };
+    case "log/resolve":
+      return { ...state, log: (state.log || []).map((e) => (e.id === action.id ? { ...e, status: "resolved", resolvedAt: now(), resolvedBy: action.actorName || "", outcome: action.outcome || "" } : e)) };
 
     default:
       return state;
