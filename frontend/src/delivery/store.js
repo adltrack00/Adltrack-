@@ -143,11 +143,11 @@ function reducer(state, action) {
     }
 
     case "task/pickup":
-      return mapTask(state, action.id, (t) => stamp(t, "picked_up"));
+      return mapTask(state, action.id, (t) => ({ ...stamp(t, "picked_up"), acceptedAt: t.acceptedAt || now() }));
     // The rider collects everything for the day from the office in one go.
     case "task/pickupAll": {
       const ids = new Set(action.ids);
-      return { ...state, tasks: state.tasks.map((t) => (ids.has(t.id) && t.status === "assigned" ? stamp(t, "picked_up") : t)) };
+      return { ...state, tasks: state.tasks.map((t) => (ids.has(t.id) && t.status === "assigned" ? { ...stamp(t, "picked_up"), acceptedAt: t.acceptedAt || now() } : t)) };
     }
     case "task/confirmPayments": {
       const ids = new Set(action.ids);
@@ -167,7 +167,31 @@ function reducer(state, action) {
     case "task/fail":
       return mapTask(state, action.id, (t) => ({ ...stamp(t, "failed"), failReason: action.reason || "" }));
     case "task/reassign":
-      return mapTask(state, action.id, (t) => ({ ...t, riderId: action.riderId }));
+      return mapTask(state, action.id, (t) => ({ ...t, riderId: action.riderId, acceptedAt: null, declined: null }));
+    // A rider takes on (or turns down) the batch of drops the office sent them. A declined batch goes back to the
+    // office with the rider's reasons, to give to someone else.
+    case "task/accept": {
+      const ids = new Set(action.ids);
+      return { ...state, tasks: state.tasks.map((t) => (ids.has(t.id) ? { ...t, acceptedAt: now(), declined: null } : t)) };
+    }
+    case "task/decline": {
+      const ids = new Set(action.ids);
+      return { ...state, tasks: state.tasks.map((t) => (ids.has(t.id) && t.status === "assigned" ? { ...t, declined: { reasons: action.reasons || [], note: action.note || "", at: now() } } : t)) };
+    }
+    // Cash: the rider pays what they collected into the company account and says so; the office checks the bank.
+    case "cash/handIn": {
+      const ids = new Set(action.ids);
+      return { ...state, tasks: state.tasks.map((t) => (ids.has(t.id) && t.payment ? { ...t, payment: { ...t.payment, handedIn: { at: now(), ref: action.ref || "" } } } : t)) };
+    }
+    case "cash/verify": {
+      const ids = new Set(action.ids);
+      return { ...state, tasks: state.tasks.map((t) => (ids.has(t.id) && t.payment ? { ...t, payment: { ...t.payment, handedIn: t.payment.handedIn || { at: now(), ref: "" }, handInVerified: now() } } : t)) };
+    }
+    // The company paid the vendor what it owed for these drops.
+    case "vendor/settle": {
+      const ids = new Set(action.ids);
+      return { ...state, tasks: state.tasks.map((t) => (ids.has(t.id) ? { ...t, settled: { at: now(), ref: action.ref || "" } } : t)) };
+    }
 
     case "rider/online":
       return { ...state, riders: state.riders.map((r) => (r.id === action.id ? { ...r, online: action.online } : r)) };
@@ -412,6 +436,89 @@ export function lineLabel(state, l) {
   const name = (state.products.find((p) => p.id === l.productId) || {}).name || "item";
   if (!l.qty && l.free) return `${l.free} free ${name}`;
   return `${l.qty} × ${name}${l.free ? ` + ${l.free} free` : ""}`;
+}
+
+/* ---------- Money: rider pay, cash with riders, what each vendor is owed ---------- */
+
+// Until the company sets its own rates in Settings (the ops manual leaves them to management).
+export const DEFAULT_FEES = { delivery: 2000, rider: 1000 };
+export const fees = (state) => ({ ...DEFAULT_FEES, ...((state.company && state.company.fees) || {}) });
+export const collectedOf = (t) => (t.payment && t.payment.method !== "unpaid" ? Number(t.payment.amount) || 0 : 0);
+// A drop offered to a rider who hasn't said yes or no yet. Drops a rider already picked up count as accepted.
+export const isOffer = (t) => t.status === "assigned" && !t.acceptedAt && !t.declined;
+export const isDeclined = (t) => t.status === "assigned" && !!t.declined;
+// Cash the rider is holding: collected at the door and not yet paid into the company account.
+export const cashHeld = (t) => isDelivered(t) && t.payment && t.payment.method === "cash" && !t.payment.handedIn ? collectedOf(t) : 0;
+export const handInToCheck = (t) => isDelivered(t) && t.payment && t.payment.handedIn && !t.payment.handInVerified;
+// What the vendor gets for a delivered drop: what was collected minus the delivery fee (free delivery still pays it).
+export const vendorPayable = (state, t) => (isDelivered(t) ? Math.max(0, (isPaid(t) ? collectedOf(t) || value(t) : 0) - fees(state).delivery) : 0);
+
+const dayISO = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+// Monday to Sunday of the week holding `date`, as ISO days.
+export function weekDays(date = new Date()) {
+  const d = new Date(date);
+  const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7));
+  return Array.from({ length: 7 }, (_, i) => dayISO(new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i)));
+}
+
+// A rider's week: pay per day, drops, how many went well, photos and cash handed in on time.
+export function riderWeek(state, riderId, date = new Date()) {
+  const days = weekDays(date);
+  const rate = fees(state).rider;
+  const mine = state.tasks.filter((t) => t.riderId === riderId && days.includes(t.date));
+  const delivered = mine.filter(isDelivered);
+  const failed = mine.filter((t) => t.status === "failed");
+  const cash = delivered.filter((t) => t.payment && t.payment.method === "cash");
+  return {
+    days,
+    perDay: days.map((d) => delivered.filter((t) => t.date === d).length * rate),
+    earned: delivered.length * rate,
+    drops: delivered.length,
+    units: delivered.reduce((s, t) => s + units(t), 0),
+    collected: delivered.reduce((s, t) => s + collectedOf(t), 0),
+    successRate: delivered.length + failed.length ? delivered.length / (delivered.length + failed.length) : 1,
+    photoRate: delivered.length ? delivered.filter((t) => t.proof && t.proof.photo).length / delivered.length : 1,
+    handInRate: cash.length ? cash.filter((t) => t.payment.handedIn && t.payment.handedIn.at.slice(0, 10) === t.date).length / cash.length : 1,
+    delivered,
+    failed,
+  };
+}
+
+// Rider levels. Trusted riders may carry extra stock overnight (ops manual); Top riders get first pick of batches.
+export const LEVELS = [
+  { id: "new", name: "New rider", gem: "from-sky-300 via-blue-500 to-indigo-700" },
+  { id: "trusted", name: "Trusted", gem: "from-amber-200 via-amber-400 to-orange-600", needs: { drops: 20, successRate: 0.9, photoRate: 1, handInRate: 0.9 } },
+  { id: "top", name: "Top rider", gem: "from-fuchsia-200 via-violet-400 to-indigo-600", needs: { drops: 40, successRate: 0.95, photoRate: 1, handInRate: 1 } },
+];
+export function riderLevel(week) {
+  const meets = (lv) => !lv.needs || (week.drops >= lv.needs.drops && week.successRate >= lv.needs.successRate && week.photoRate >= lv.needs.photoRate && week.handInRate >= lv.needs.handInRate);
+  let at = 0;
+  LEVELS.forEach((lv, i) => { if (meets(lv)) at = i; });
+  return { level: LEVELS[at], next: LEVELS[at + 1] || null };
+}
+
+// What a rider is doing right now, in one line, for the company's live board.
+export function riderNow(state, rider) {
+  const today = state.tasks.filter((t) => t.riderId === rider.id && t.date === todayISO());
+  const active = today.filter(isActive);
+  const offers = active.filter(isOffer);
+  const declined = active.filter(isDeclined);
+  const onWay = active.find((t) => t.status === "picked_up");
+  const toCollect = active.filter((t) => t.status === "assigned" && t.acceptedAt);
+  const last = today.flatMap((t) => (t.history || []).map((h) => h.at)).concat(today.map((t) => t.acceptedAt).filter(Boolean)).sort().pop();
+  let phase = "idle";
+  let line = today.length ? "Done for today" : "No drops today";
+  if (!rider.online && !active.length) { phase = "off"; line = "Off duty"; }
+  else if (declined.length) { phase = "declined"; line = `Turned down ${declined.length} ${declined.length === 1 ? "drop" : "drops"}`; }
+  else if (offers.length) { phase = "offer"; line = `Hasn't accepted ${offers.length} new ${offers.length === 1 ? "drop" : "drops"}`; }
+  else if (toCollect.length) { phase = "collect"; line = `Collecting ${toCollect.reduce((s, t) => s + units(t), 0)} units at the office`; }
+  else if (onWay) { phase = "road"; line = `On the way to ${onWay.customer}${onWay.zone ? `, ${onWay.zone}` : ""}`; }
+  return {
+    phase, line, last, today,
+    done: today.filter(isDelivered).length,
+    failed: today.filter((t) => t.status === "failed").length,
+    cash: state.tasks.filter((t) => t.riderId === rider.id).reduce((s, t) => s + cashHeld(t), 0),
+  };
 }
 
 export const productById = (state, id) => state.products.find((p) => p.id === id);

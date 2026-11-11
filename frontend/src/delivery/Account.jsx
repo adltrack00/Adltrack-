@@ -4,7 +4,7 @@ import { ArrowLeft, Bell, Camera, LogOut, RotateCcw, Smartphone } from "lucide-r
 import { toast } from "sonner";
 import { api, homeFor, useAuth } from "./auth";
 import { askForNotifications } from "./alerts";
-import { useWorkspace } from "./store";
+import { fees, useWorkspace } from "./store";
 import { Avatar, Btn, Card, CardHead, Field, inputCls, Logo } from "./ui";
 import { themeOf, ThemePicker } from "./scenes";
 import { ProfilePhotoCard, usePhotoPicker } from "./Photo";
@@ -86,6 +86,7 @@ export default function Account({ go }) {
               </form>
             </Card>
           )}
+          {user.role === "company" && <RatesCard rates={fees(state)} onSave={(f) => { act({ type: "company/update", patch: { fees: f } }); toast.success("Rates saved"); }} />}
           {user.role === "company" && (
             <Card data-testid="pick-a-look">
               <CardHead title="Pick a look" sub="Colours this dashboard and your riders' app, for everyone in your company." />
@@ -116,6 +117,21 @@ export default function Account({ go }) {
         </div>
       </main>
     </div>
+  );
+}
+
+// The two rates the money screens use: the fee taken from each delivered order, and a rider's pay per drop.
+function RatesCard({ rates, onSave }) {
+  const [f, setF] = useState({ delivery: String(rates.delivery), rider: String(rates.rider) });
+  return (
+    <Card data-testid="rates">
+      <CardHead title="Rates" sub="Vendors see the delivery fee on each payout. Riders see their pay per drop." />
+      <form onSubmit={(e) => { e.preventDefault(); onSave({ delivery: Math.max(0, Number(f.delivery) || 0), rider: Math.max(0, Number(f.rider) || 0) }); }} className="grid gap-3 p-5 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+        <Field label="Delivery fee per order (₦)"><input className={inputCls} inputMode="numeric" value={f.delivery} onChange={(e) => setF({ ...f, delivery: e.target.value.replace(/[^\d]/g, "") })} /></Field>
+        <Field label="Rider pay per drop (₦)"><input className={inputCls} inputMode="numeric" value={f.rider} onChange={(e) => setF({ ...f, rider: e.target.value.replace(/[^\d]/g, "") })} /></Field>
+        <Btn type="submit" className="w-fit">Save</Btn>
+      </form>
+    </Card>
   );
 }
 

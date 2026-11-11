@@ -1,8 +1,9 @@
 // The vendor portal: a vendor sees their own products, every delivery as it happens (time, photo, payment)
 // and can request new deliveries. Same live data as the company and the riders.
 import React, { useEffect, useState } from "react";
-import { Boxes, Home, Menu, MessageSquare, Package, PackageCheck, PackagePlus, Plus, Send, Settings, Truck, Users, Wallet } from "lucide-react";
+import { Bike, Boxes, Home, Menu, MessageSquare, Package, PackageCheck, PackagePlus, Plus, Send, Settings, Truck, Users, Wallet } from "lucide-react";
 import { SendStock, StockSent, VendorTeam } from "./VendorTeam";
+import { LiveTracker, VendorMoney } from "./VendorMoney";
 import { useAuth } from "./auth";
 import { SideMenu } from "./SideMenu";
 import { MeButton } from "./Photo";
@@ -99,6 +100,10 @@ function VendorDashboard({ vendor, go }) {
           <Stat label="Payment to verify" value={num(s.awaiting)} sub={money(s.awaitingValue)} icon={Wallet} tone="amber" />
         </div>
 
+        <VendorMoney state={state} tasks={tasks} company={state.company.name} />
+
+        <LiveTracker state={state} tasks={tasks} />
+
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           <div>
             <LabelCloud labels={[
@@ -163,6 +168,8 @@ function VendorDashboard({ vendor, go }) {
         active="home"
         items={[
           { id: "home", label: "Home", icon: Home, onClick: () => jump() },
+          { id: "money", label: "Your money", icon: Wallet, onClick: () => jump("vendor-money") },
+          { id: "live", label: "Where parcels are", icon: Bike, onClick: () => jump("vendor-live") },
           { id: "deliveries", label: "Deliveries", icon: Truck, onClick: () => jump("vendor-deliveries") },
           { id: "products", label: "Your products", icon: Boxes, onClick: () => jump("vendor-products") },
           { id: "request", label: "Request deliveries", icon: Plus, onClick: () => setRequesting(true) },

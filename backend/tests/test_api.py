@@ -40,10 +40,20 @@ s3 = ok(r.get("/api/workspace")); x = s3["state"]; x["tasks"][0]["riderId"]="r2"
 ok(r.put("/api/workspace", json={"base_rev":s3["rev"],"state":x}), 403)
 ok(r.post("/api/ada", json={"messages":[],"context":{}}), 403)
 ok(r.get("/api/team"), 403)
+# rider hands in cash (allowed) but can't mark it checked; company rates: rider sees only their pay
+h = ok(r.get("/api/workspace")); hx = h["state"]; hx["tasks"][0]["payment"]["handedIn"] = {"at":"x","ref":"TRF-1"}; hx["tasks"][0]["acceptedAt"] = "x"
+h2 = ok(r.put("/api/workspace", json={"base_rev":h["rev"],"state":hx}))
+hy = h2["state"]; hy["tasks"][0]["payment"]["handInVerified"] = "x"
+ok(r.put("/api/workspace", json={"base_rev":h2["rev"],"state":hy}), 403)
+cw = ok(c.get("/api/workspace")); cs = cw["state"]; assert cs["tasks"][0]["payment"]["handedIn"]["ref"]=="TRF-1"
+cs["company"]["fees"] = {"delivery":2000,"rider":900}
+ok(c.put("/api/workspace", json={"base_rev":cw["rev"],"state":cs}))
+assert ok(r.get("/api/workspace"))["state"]["company"]["fees"]=={"rider":900}
 # vendor joins, adds order with colliding id, sees both tasks
 v = TestClient(server.app)
 ok(v.post("/api/auth/join", json={"code":vinv["code"],"name":"Funmi","email":"F@glow.com","password":"vendpass1"}))
 vv = ok(v.get("/api/workspace")); vs = vv["state"]
+assert vs["company"]["fees"]=={"delivery":2000}
 assert len(vs["tasks"])==2 and vs["tasks"][0]["proof"]["photo"].startswith("/api/photos/") and vs["messages"]==[]
 vs["orders"].insert(0, {"id":"ORD-3301","vendorId":"v1","customer":"New","items":[],"status":"open"})
 vs["messages"].append({"id":"mv","vendorId":"v1","from":"vendor","text":"hi"})

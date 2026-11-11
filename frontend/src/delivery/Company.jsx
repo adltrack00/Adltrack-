@@ -11,7 +11,8 @@ import { StatPill } from "./Stats";
 import { useAuth } from "./auth";
 import { DeliveryCard, Feed, LedgerLegend, PaymentActions, ProductTable } from "./shared";
 import { FixOrder, PasteOrders } from "./Intake";
-import { isActive, isAwaitingPayment, lineLabel, orderValue, productById, productLedger, riderLoad, totals, units as taskUnits, useWorkspace, value as taskValue, vendorById } from "./store";
+import { CashSection, DeclinedSection, MoneyToday, RiderBoard, SettleSection } from "./CompanyLive";
+import { handInToCheck, isActive, isAwaitingPayment, isDeclined, lineLabel, orderValue, productById, productLedger, riderLoad, totals, units as taskUnits, useWorkspace, value as taskValue, vendorById } from "./store";
 import { AlertStack, LabelCloud, ProgressScene, themeOf, ThemePicker, Tip } from "./scenes";
 import { AdaBar, AdaMark, ChecklistCard, Chips, HeroCard, Avatar, Bar, Btn, Card, CardHead, Empty, Field, inputCls, OptionList, LedgerBar, LiveDot, Modal, StatusPill, Stat, statusOf, Tag, Tile } from "./ui";
 import { ago, clock, money, num, time12, todayISO } from "./utils";
@@ -106,7 +107,9 @@ export function needsYou(state) {
     .map((p) => ({ p, l: productLedger(state, p) }))
     .filter(({ l }) => l.inWarehouse <= 5 || l.pendingOrders > l.inWarehouse);
   const incoming = state.intake.filter((i) => i.status === "sent");
-  return { ready, toFix, failed, awaiting, late, low, incoming, count: (ready.length ? 1 : 0) + toFix.length + failed.length + awaiting.length + late.length + (incoming.length ? 1 : 0) };
+  const declined = state.tasks.filter(isDeclined);
+  const handIns = state.tasks.filter(handInToCheck);
+  return { ready, toFix, failed, awaiting, late, low, incoming, declined, handIns, count: (ready.length ? 1 : 0) + toFix.length + failed.length + awaiting.length + late.length + (incoming.length ? 1 : 0) + declined.length + (handIns.length ? 1 : 0) };
 }
 
 function Section({ id, icon: Icon, tone, title, sub, right, children }) {
@@ -204,8 +207,14 @@ function NeedsYou({ openAda, setTab }) {
         </div>
       </section>
 
-      <div className="mt-10 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] [&>*]:min-w-0">
+      <div className="mt-10 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] [&>*]:min-w-0">
+        <RiderBoard onOpen={() => setTab("riders")} />
+        <MoneyToday onVerify={() => document.getElementById("cash")?.scrollIntoView({ behavior: "smooth", block: "center" })} />
+      </div>
+
+      <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] [&>*]:min-w-0">
         <div className="space-y-5">
+          <DeclinedSection Section={Section} Row={Row} />
           <Section icon={Truck} tone="sky" title={`Ready for a rider (${n.ready.length})`} sub={n.ready.length ? `${readyUnits} units · ${money(n.ready.reduce((s, o) => s + orderValue(state, o), 0))} to collect. ADA splits them by area and each rider's daily units.` : "Every order has a rider."}
             right={<Btn onClick={() => openAda("Dispatch today's orders")} disabled={!n.ready.length}><Sparkles className="h-4 w-4 text-blue-300" /> Plan with ADA</Btn>}>
             {n.ready.map((o) => (
@@ -284,6 +293,9 @@ function NeedsYou({ openAda, setTab }) {
               ))}
             </Section>
           )}
+
+          <CashSection Section={Section} Row={Row} />
+          <SettleSection Section={Section} Row={Row} />
 
           {!!n.late.length && (
             <Section icon={Clock} tone="orange" title={`Running late (${n.late.length})`} sub="Past the time the customer was promised.">
@@ -721,6 +733,8 @@ function AddVendor({ open, onClose, act }) {
 function Riders() {
   const { state, act } = useWorkspace();
   return (
+    <div className="space-y-5">
+    <RiderBoard onOpen={() => {}} />
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       {state.riders.map((r) => {
         const l = riderLoad(state, r.id);
@@ -748,6 +762,7 @@ function Riders() {
           </Card>
         );
       })}
+    </div>
     </div>
   );
 }
