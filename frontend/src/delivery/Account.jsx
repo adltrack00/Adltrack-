@@ -89,7 +89,7 @@ export default function Account({ go }) {
           {user.role === "company" && <RatesCard rates={fees(state)} onSave={(f) => { act({ type: "company/update", patch: { fees: f } }); toast.success("Rates saved"); }} />}
           {user.role === "company" && (
             <Card data-testid="pick-a-look">
-              <CardHead title="Pick a look" sub="Colours your menu and your riders' app, for everyone in your company." />
+              <CardHead title="Pick a look" sub="Colours your riders' app, for everyone in your company." />
               <div className="p-5"><ThemePicker value={state.company.theme || "night"} onChange={(id) => { act({ type: "company/update", patch: { theme: id } }); toast.success("Look changed"); }} /></div>
             </Card>
           )}

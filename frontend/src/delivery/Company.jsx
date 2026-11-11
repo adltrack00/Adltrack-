@@ -34,7 +34,6 @@ export default function Company({ go }) {
   const [seed, setSeed] = useState("");
   const [menu, setMenu] = useState(false);
   const { user } = useAuth();
-  const theme = themeOf(state.company.theme);
   const openAda = (say = "") => { setSeed(say); setAda(true); };
   const needs = needsYou(state);
   const unread = state.messages.filter((m) => (m.from === "rider" || m.from === "vendor") && !m.read).length;
@@ -80,7 +79,7 @@ export default function Company({ go }) {
         name={(user && user.name ? user.name : state.company.dispatcher || "there").split(" ")[0]}
         email={user ? user.email || user.phone : ""}
         active={tab}
-        panel={theme.header}
+        panel="bg-[#6b85ff]"
         items={[
           ...tabs.filter(([id]) => id !== "today").map(([id, label, Icon, badge]) => ({ id, label, icon: Icon, badge, onClick: () => setTab(id) })),
           { id: "settings", label: "Settings", icon: Settings, onClick: () => go("/account") },

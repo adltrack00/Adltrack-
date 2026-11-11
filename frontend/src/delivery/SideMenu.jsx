@@ -31,7 +31,7 @@ export function SideMenu({ open, onClose, name, email, items, active, panel }) {
         )}
         data-testid="side-menu"
       >
-        <div className="pointer-events-none absolute -right-20 top-24 h-64 w-64 rounded-full bg-blue-600/30 blur-3xl" />
+        {!panel && <div className="pointer-events-none absolute -right-20 top-24 h-64 w-64 rounded-full bg-blue-600/30 blur-3xl" />}
         <div className="relative flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pb-6 pt-7 [&>*]:shrink-0">
           <div className="flex items-center justify-between">
             <AdaMark size={40} />

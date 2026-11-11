@@ -166,6 +166,7 @@ function VendorDashboard({ vendor, go }) {
         name={((user && user.name) || vendor.contact || vendor.name).split(" ")[0]}
         email={user ? user.email || user.phone : ""}
         active="home"
+        panel="bg-[#6b85ff]"
         items={[
           { id: "home", label: "Home", icon: Home, onClick: () => jump() },
           { id: "money", label: "Your money", icon: Wallet, onClick: () => jump("vendor-money") },
