@@ -32,7 +32,7 @@ export default function Account({ go }) {
 
   return (
     <div className="relative min-h-screen bg-white">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_45%,#ffffff_100%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[708px] sm:h-[603px] lg:h-[390px] bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_45%,#ffffff_100%)]" />
       <header className="relative px-5 pb-8 pt-6 text-white sm:px-10">
         <div className="mx-auto flex max-w-3xl items-center gap-3">
           <button onClick={() => go(homeFor(user))} className="grid h-11 w-11 place-items-center rounded-full bg-white/10" aria-label="Back to dashboard"><ArrowLeft className="h-5 w-5" /></button>

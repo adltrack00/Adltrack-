@@ -45,8 +45,8 @@ export default function Company({ go }) {
 
   return (
     <div className="relative min-h-screen bg-white">
-      {/* Same background as the vendor dashboard: bright blue at the top fading into white. No sheet over it. */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[640px] bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_45%,#ffffff_100%)]" />
+      {/* Exactly the vendor dashboard background: same gradient over the same height as its header at each screen size (708px phone, 603px tablet, 390px laptop). */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[708px] sm:h-[603px] lg:h-[390px] bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_45%,#ffffff_100%)]" />
       <header className="relative px-5 pb-8 pt-6 text-white sm:px-10">
         <div className="relative mx-auto flex max-w-7xl items-center gap-3">
           <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-white hover:text-white/80" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
