@@ -4,7 +4,7 @@ import { ArrowRight, Bike, Building2, Camera, Check, ChevronDown, Clock, LayoutG
 import { toast } from "sonner";
 import { homeFor, useAuth } from "./auth";
 import { freshState } from "./seed";
-import { AdaBar, AdaMark, HeroCard, LiveDot, Logo, Steps } from "./ui";
+import { AdaBar, AdaMark, HeroCard, LiveDot, Steps } from "./ui";
 import { cn } from "../lib/utils";
 
 // Faint binary digits behind the welcome screen.
@@ -62,7 +62,6 @@ export default function Landing({ go }) {
       {/* Top bar */}
       <header className="absolute inset-x-0 top-0 z-20">
         <div className="mx-auto flex w-full max-w-6xl items-center gap-6 px-5 py-5">
-          <button onClick={() => go("/")} aria-label="Delivery home"><Logo dark /></button>
           <nav className="hidden items-center gap-6 text-[14px] font-medium text-white/80 md:flex">
             {links.map(([label, href]) => <a key={href} href={href} className="hover:text-white">{label}</a>)}
           </nav>
@@ -81,7 +80,7 @@ export default function Landing({ go }) {
       </header>
       {menu && (
         <div className="fixed inset-0 z-50 bg-[#05061a]/95 px-6 py-5 text-white backdrop-blur md:hidden">
-          <div className="flex items-center justify-between"><Logo dark /><button onClick={() => setMenu(false)} className="grid h-11 w-11 place-items-center rounded-full bg-white/10" aria-label="Close"><X className="h-5 w-5" /></button></div>
+          <div className="flex items-center justify-end"><button onClick={() => setMenu(false)} className="grid h-11 w-11 place-items-center rounded-full bg-white/10" aria-label="Close"><X className="h-5 w-5" /></button></div>
           <nav className="mt-10 grid gap-1 text-[22px] font-semibold">
             {links.map(([label, href]) => <a key={href} href={href} onClick={() => setMenu(false)} className="rounded-2xl px-2 py-3 hover:bg-white/5">{label}</a>)}
           </nav>
@@ -248,7 +247,6 @@ export default function Landing({ go }) {
       </section>
       <footer className="bg-black px-5 pb-10 text-white/40">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-[13px] sm:flex-row">
-          <Logo dark />
           <span>© {new Date().getFullYear()} Delivery. Live logistics for vendors, riders and the office.</span>
         </div>
       </footer>

@@ -1,7 +1,7 @@
 // The vendor portal: a vendor sees their own products, every delivery as it happens (time, photo, payment)
 // and can request new deliveries. Same live data as the company and the riders.
 import React, { useEffect, useState } from "react";
-import { Bike, Boxes, Home, Menu, MessageSquare, Package, PackageCheck, PackagePlus, Plus, Send, Settings, Truck, Users, Wallet } from "lucide-react";
+import { ArrowLeft, Bike, Boxes, Home, Menu, MessageSquare, Package, PackageCheck, PackagePlus, Plus, Send, Settings, Truck, Users, Wallet } from "lucide-react";
 import { SendStock, StockSent, VendorTeam } from "./VendorTeam";
 import { LiveTracker, VendorMoney } from "./VendorMoney";
 import { useAuth } from "./auth";
@@ -11,8 +11,11 @@ import { PasteOrders } from "./Intake";
 import { DeliveryCard, Feed, LedgerLegend, ProductTable } from "./shared";
 import { isActive, isAwaitingPayment, productById, totals, useWorkspace, lineLabel } from "./store";
 import { LabelCloud, MonthCal, ProgressScene, Tip } from "./scenes";
-import { Avatar, Btn, Card, CardHead, Chips, Empty, Field, HeroCard, inputCls, LiveDot, Logo, Modal, Stat, StatusPill, statusOf } from "./ui";
+import { Avatar, Btn, Card, CardHead, Chips, Empty, Field, HeroCard, inputCls, LiveDot, Modal, Stat, StatusPill, statusOf } from "./ui";
 import { clock, money, num, time12, todayISO } from "./utils";
+
+// Parts of the vendor dashboard that open as their own page from the menu.
+const PAGES = { money: "Your money", live: "Where parcels are", deliveries: "Deliveries", products: "Your products", team: "Your team" };
 
 const ZONES = ["Ikeja", "Yaba", "Lekki", "Surulere", "Victoria Island", "Ikoyi", "Ajah", "Gbagada"];
 
@@ -28,8 +31,7 @@ export function NotLinked({ go, company, what = "vendor" }) {
   return (
     <div className="grid min-h-screen place-items-center bg-white px-6 text-center">
       <div className="max-w-sm">
-        <Logo />
-        <h1 className="mt-8 text-[28px] font-extrabold tracking-tight">Not set up yet</h1>
+        <h1 className="text-[28px] font-extrabold tracking-tight">Not set up yet</h1>
         <p className="mt-2 text-[15px] text-neutral-500">{company || "Your company"} hasn't linked your account to a {what} yet. Ask them to send you a new invite from their Team page.</p>
         <Btn className="mt-6" onClick={() => go("/account")}>Your account</Btn>
       </div>
@@ -46,8 +48,10 @@ function VendorDashboard({ vendor, go }) {
   const [sending, setSending] = useState(false);
   const { user } = useAuth();
   const main = user && user.role === "vendor" && !user.teammate;
-  // Menu links scroll to a part of the page once the menu has slid away.
-  const jump = (id) => setTimeout(() => (id ? document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" }) : window.scrollTo({ top: 0, behavior: "smooth" })), 320);
+  // Home shows everything; a menu link opens one part as its own page, with a back arrow to home.
+  const [page, setPage] = useState(null);
+  const open = (p) => { setPage(p); window.scrollTo({ top: 0 }); };
+  const on = (p) => !page || page === p;
   const unread = state.messages.filter((m) => m.vendorId === vendor.id && m.from !== "vendor" && !m.read).length;
   const s = totals(state, vendor.id);
   const tasks = state.tasks.filter((t) => t.vendorId === vendor.id);
@@ -62,10 +66,14 @@ function VendorDashboard({ vendor, go }) {
   const shown = tasks.filter(filters.find((f) => f[0] === filter)[2]);
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_45%,#ffffff_100%)] px-4 pb-10 pt-6 sm:px-6">
+    <div className="relative min-h-screen bg-white">
+      {/* Blue fading into white, the same length as before on every page (the home header's height at each screen size). */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[708px] bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_45%,#ffffff_100%)] sm:h-[603px] lg:h-[390px]" />
+      <header className="relative px-4 pb-10 pt-6 sm:px-6">
         <div className="mx-auto flex max-w-6xl items-center gap-3">
-          <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-white hover:text-white/80" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
+          {page
+            ? <button onClick={() => open(null)} className="grid h-11 w-11 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25" aria-label="Back to home" data-testid="back-home"><ArrowLeft className="h-5 w-5" /></button>
+            : <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-white hover:text-white/80" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>}
           <span className="hidden rounded-full bg-white/15 px-3 py-1 text-[12px] font-semibold text-white sm:inline">Vendor portal</span>
           <div className="ml-auto flex items-center gap-2">
             <span className="hidden max-w-[220px] truncate text-[13.5px] font-semibold text-white/90 sm:inline">{vendor.name}</span>
@@ -76,6 +84,12 @@ function VendorDashboard({ vendor, go }) {
             <MeButton onClick={() => go("/account")} color={vendor.color || "#2b47f0"} />
           </div>
         </div>
+        {page ? (
+          <div className="mx-auto mt-6 max-w-6xl">
+            <div className="text-[15px] font-medium text-white/80">{vendor.name}</div>
+            <h1 className="mt-1 text-[40px] font-extrabold leading-[1.05] tracking-[-0.035em] text-white sm:text-[52px]">{PAGES[page]}</h1>
+          </div>
+        ) : (
         <div className="mx-auto mt-8 grid max-w-6xl gap-5 lg:grid-cols-[1.2fr_1fr] lg:items-end">
           <HeroCard onArrow={() => setRequesting(true)} className="min-h-[250px]">
             Hey {vendor.name.split(" ")[0]}!<br />
@@ -89,27 +103,28 @@ function VendorDashboard({ vendor, go }) {
             {user && user.teammate && <div className="mt-3 text-[13px] font-medium text-neutral-900/55">Signed in as {user.name} on {vendor.name}'s team</div>}
           </div>
         </div>
+        )}
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-6 px-4 pb-16 pt-4 sm:px-6">
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
+      <main className="relative mx-auto max-w-6xl space-y-6 px-4 pb-16 pt-4 sm:px-6">
+        {!page && <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
           <Stat label="Given to company" value={num(s.received)} sub={money(s.receivedValue)} icon={Package} />
           <Stat label="Delivered" value={num(s.delivered)} sub={money(s.deliveredValue)} icon={PackageCheck} tone="green" />
           <Stat label="Left" value={num(s.left)} sub={money(s.leftValue)} icon={Boxes} tone="orange" />
           <Stat label="With riders now" value={num(s.withRiders)} sub={`${tasks.filter(isActive).length} deliveries out`} icon={Truck} tone="blue" />
           <Stat label="Payment to verify" value={num(s.awaiting)} sub={money(s.awaitingValue)} icon={Wallet} tone="amber" />
-        </div>
+        </div>}
 
-        <VendorMoney state={state} tasks={tasks} company={state.company.name} />
+        {on("money") && <VendorMoney state={state} tasks={tasks} company={state.company.name} />}
 
-        <LiveTracker state={state} tasks={tasks} />
+        {on("live") && <LiveTracker state={state} tasks={tasks} />}
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {!page && <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           <div>
             <LabelCloud labels={[
               ["Waiting", orders.length], ["With riders", tasks.filter(isActive).length], ["Delivered", tasks.filter((t) => t.status === "delivered").length],
               ["To verify", tasks.filter(isAwaitingPayment).length], ["Not delivered", tasks.filter((t) => t.status === "failed").length],
-            ]} onPick={() => document.getElementById("vendor-deliveries")?.scrollIntoView({ behavior: "smooth" })} />
+            ]} onPick={() => open("deliveries")} />
             <div className="mt-4 px-1 text-[22px] font-extrabold tracking-[-0.03em] text-neutral-950">See what's due</div>
             <div className="px-1 text-[14px] text-neutral-400">Your orders, by where they are now.</div>
           </div>
@@ -122,19 +137,21 @@ function VendorDashboard({ vendor, go }) {
             <MonthCal counts={tasks.reduce((m, t) => ({ ...m, [t.date]: (m[t.date] || 0) + 1 }), {})} />
             <Tip className="mt-5 text-[14.5px]">Send all of a day's orders as one WhatsApp message. The office pastes it and ADA reads every order.</Tip>
           </Card>
-        </div>
+        </div>}
 
-        <Card id="vendor-products" className="scroll-mt-6">
+        {on("products") && <Card id="vendor-products" className="scroll-mt-6">
           <CardHead title="Your products" sub="Received, delivered and left, per product" right={<LedgerLegend />} />
           <div className="mt-3"><ProductTable state={state} vendorId={vendor.id} /></div>
-        </Card>
+        </Card>}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*]:min-w-0">
-          <StockSent vendor={vendor} onSend={() => setSending(true)} />
-          {main && <VendorTeam vendor={vendor} />}
-        </div>
+        {(on("products") || (main && on("team"))) && (
+          <div className={page ? "grid grid-cols-1 gap-6 [&>*]:min-w-0" : "grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*]:min-w-0"}>
+            {on("products") && <StockSent vendor={vendor} onSend={() => setSending(true)} />}
+            {main && on("team") && <VendorTeam vendor={vendor} />}
+          </div>
+        )}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] [&>*]:min-w-0">
+        {on("deliveries") && <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] [&>*]:min-w-0">
           <Card id="vendor-deliveries" className="scroll-mt-6">
             <CardHead title="Deliveries" sub="Tap one to see the photo, who received it and the payment" />
             <Chips className="mt-4 px-5" options={filters.map(([id, label, fn]) => [id, label, tasks.filter(fn).length])} value={filter} onChange={setFilter} />
@@ -158,23 +175,23 @@ function VendorDashboard({ vendor, go }) {
               </div>
             </Card>
           </div>
-        </div>
+        </div>}
       </main>
       <SideMenu
         open={menu}
         onClose={() => setMenu(false)}
         name={((user && user.name) || vendor.contact || vendor.name).split(" ")[0]}
         email={user ? user.email || user.phone : ""}
-        active="home"
+        active={page || "home"}
         items={[
-          { id: "home", label: "Home", icon: Home, onClick: () => jump() },
-          { id: "money", label: "Your money", icon: Wallet, onClick: () => jump("vendor-money") },
-          { id: "live", label: "Where parcels are", icon: Bike, onClick: () => jump("vendor-live") },
-          { id: "deliveries", label: "Deliveries", icon: Truck, onClick: () => jump("vendor-deliveries") },
-          { id: "products", label: "Your products", icon: Boxes, onClick: () => jump("vendor-products") },
+          { id: "home", label: "Home", icon: Home, onClick: () => open(null) },
+          { id: "money", label: "Your money", icon: Wallet, onClick: () => open("money") },
+          { id: "live", label: "Where parcels are", icon: Bike, onClick: () => open("live") },
+          { id: "deliveries", label: "Deliveries", icon: Truck, onClick: () => open("deliveries") },
+          { id: "products", label: "Your products", icon: Boxes, onClick: () => open("products") },
           { id: "request", label: "Request deliveries", icon: Plus, onClick: () => setRequesting(true) },
           { id: "send", label: "Send stock", icon: PackagePlus, onClick: () => setSending(true) },
-          ...(main ? [{ id: "team", label: "Your team", icon: Users, onClick: () => jump("vendor-team") }] : []),
+          ...(main ? [{ id: "team", label: "Your team", icon: Users, onClick: () => open("team") }] : []),
           { id: "messages", label: "Messages", icon: MessageSquare, badge: unread, onClick: () => setChat(true) },
           { id: "settings", label: "Settings", icon: Settings, onClick: () => go("/account") },
         ]}

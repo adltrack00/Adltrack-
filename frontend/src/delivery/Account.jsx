@@ -5,8 +5,7 @@ import { toast } from "sonner";
 import { api, homeFor, useAuth } from "./auth";
 import { askForNotifications } from "./alerts";
 import { fees, useWorkspace } from "./store";
-import { Avatar, Btn, Card, CardHead, Field, inputCls, Logo } from "./ui";
-import { ThemePicker } from "./scenes";
+import { Avatar, Btn, Card, CardHead, Field, inputCls } from "./ui";
 import { ProfilePhotoCard, usePhotoPicker } from "./Photo";
 
 const ROLE = { company: "Company", vendor: "Vendor", rider: "Rider" };
@@ -36,7 +35,6 @@ export default function Account({ go }) {
       <header className="relative px-5 pb-8 pt-6 text-white sm:px-10">
         <div className="mx-auto flex max-w-3xl items-center gap-3">
           <button onClick={() => go(homeFor(user))} className="grid h-11 w-11 place-items-center rounded-full bg-white/10" aria-label="Back to dashboard"><ArrowLeft className="h-5 w-5" /></button>
-          <Logo dark />
         </div>
         <div className="mx-auto mt-8 flex max-w-3xl items-center gap-4">
           <button onClick={photo.pick} className="relative shrink-0" aria-label="Change profile photo">
@@ -87,12 +85,6 @@ export default function Account({ go }) {
             </Card>
           )}
           {user.role === "company" && <RatesCard rates={fees(state)} onSave={(f) => { act({ type: "company/update", patch: { fees: f } }); toast.success("Rates saved"); }} />}
-          {user.role === "company" && (
-            <Card data-testid="pick-a-look">
-              <CardHead title="Pick a look" sub="Colours your riders' app, for everyone in your company." />
-              <div className="p-5"><ThemePicker value={state.company.theme || "night"} onChange={(id) => { act({ type: "company/update", patch: { theme: id } }); toast.success("Look changed"); }} /></div>
-            </Card>
-          )}
           <Card className="p-5">
             <div className="flex items-start gap-4">
               <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-blue-50 text-blue-600"><Bell className="h-6 w-6" /></span>

@@ -1,7 +1,7 @@
 // The delivery company's dashboard: vendors, riders, stock, deliveries and ADA.
 import React, { useMemo, useState } from "react";
 import {
-  AlertTriangle, ArrowDownUp, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Settings, Sparkles, Truck, Users, Wallet, X,
+  AlertTriangle, ArrowDownUp, ArrowLeft, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Settings, Sparkles, Truck, Users, Wallet, X,
 } from "lucide-react";
 import { AdaPanel } from "./AdaPanel";
 import Team from "./Team";
@@ -48,7 +48,10 @@ export default function Company({ go }) {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[708px] sm:h-[603px] lg:h-[390px] bg-[linear-gradient(180deg,#2b47f0_0%,#6b85ff_45%,#ffffff_100%)]" />
       <header className="relative px-5 pb-8 pt-6 text-white sm:px-10">
         <div className="relative mx-auto flex max-w-7xl items-center gap-3">
-          <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-white hover:text-white/80" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
+          {/* Home has the menu; every other page has a back arrow to home instead. */}
+          {tab === "today"
+            ? <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-white hover:text-white/80" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
+            : <button onClick={() => { setTab("today"); window.scrollTo({ top: 0 }); }} className="grid h-11 w-11 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25" aria-label="Back to home" data-testid="back-home"><ArrowLeft className="h-5 w-5" /></button>}
           <span className="hidden text-[14px] font-semibold text-white/85 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
           <div className="ml-auto flex items-center gap-2">
             {sync === "offline" && <LiveDot label="Offline, will save when back" tone="warn" />}
@@ -80,7 +83,7 @@ export default function Company({ go }) {
         email={user ? user.email || user.phone : ""}
         active={tab}
         items={[
-          ...tabs.filter(([id]) => id !== "today").map(([id, label, Icon, badge]) => ({ id, label, icon: Icon, badge, onClick: () => setTab(id) })),
+          ...tabs.filter(([id]) => id !== "today").map(([id, label, Icon, badge]) => ({ id, label, icon: Icon, badge, onClick: () => { setTab(id); window.scrollTo({ top: 0 }); } })),
           { id: "settings", label: "Settings", icon: Settings, onClick: () => go("/account") },
         ]}
       />
