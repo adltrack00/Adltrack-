@@ -7,6 +7,7 @@ import { LiveTracker, VendorMoney } from "./VendorMoney";
 import { useAuth } from "./auth";
 import { SideMenu } from "./SideMenu";
 import { MeButton } from "./Photo";
+import { AccountSettings } from "./Account";
 import { PasteOrders } from "./Intake";
 import { DeliveryCard, Feed, LedgerLegend, ProductTable } from "./shared";
 import { isActive, isAwaitingPayment, productById, totals, useWorkspace, lineLabel } from "./store";
@@ -15,7 +16,7 @@ import { Avatar, Btn, Card, CardHead, Chips, Empty, Field, HeroCard, inputCls, L
 import { clock, money, num, time12, todayISO } from "./utils";
 
 // Parts of the vendor dashboard that open as their own page from the menu.
-const PAGES = { money: "Your money", live: "Where parcels are", deliveries: "Deliveries", products: "Your products", team: "Your team" };
+const PAGES = { money: "Your money", live: "Where parcels are", deliveries: "Deliveries", products: "Your products", team: "Your team", settings: "Settings" };
 
 const ZONES = ["Ikeja", "Yaba", "Lekki", "Surulere", "Victoria Island", "Ikoyi", "Ajah", "Gbagada"];
 
@@ -89,7 +90,7 @@ function VendorDashboard({ vendor, go }) {
           ] },
           ...(main ? [{ id: "team", label: "Your team", icon: Users, onClick: () => open("team") }] : []),
           { id: "messages", label: "Messages", icon: MessageSquare, badge: unread, onClick: () => setChat(true) },
-          { id: "settings", label: "Settings", icon: Settings, onClick: () => go("/account") },
+          { id: "settings", label: "Settings", icon: Settings, onClick: () => open("settings") },
         ]}
       />
       <div className="relative min-w-0 flex-1">
@@ -103,7 +104,7 @@ function VendorDashboard({ vendor, go }) {
               <MessageSquare className="h-4 w-4" /> <span className="hidden sm:inline">Message {state.company.name || "the office"}</span><span className="sm:hidden">Messages</span>
               {!!unread && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-rose-500 px-1 text-[10.5px] font-bold text-white">{unread}</span>}
             </button>
-            <MeButton onClick={() => go("/account")} color={vendor.color || "#2b47f0"} />
+            <MeButton onClick={() => open("settings")} color={vendor.color || "#2b47f0"} />
           </div>
         </div>
         {page ? (
@@ -129,6 +130,7 @@ function VendorDashboard({ vendor, go }) {
       </header>
 
       <main className="relative mx-auto max-w-6xl space-y-6 px-4 pb-16 pt-4 sm:px-6">
+        {page === "settings" && <AccountSettings go={go} />}
         {!page && <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
           <Stat label="Given to company" value={num(s.received)} sub={money(s.receivedValue)} icon={Package} />
           <Stat label="Delivered" value={num(s.delivered)} sub={money(s.deliveredValue)} icon={PackageCheck} tone="green" />

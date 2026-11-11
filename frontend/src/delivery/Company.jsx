@@ -8,6 +8,7 @@ import Team from "./Team";
 import { SideMenu } from "./SideMenu";
 import { MeButton } from "./Photo";
 import { StatPill } from "./Stats";
+import { AccountSettings } from "./Account";
 import { ActivityLog, AnnounceModal, Announcements, CalendarPage, LogBook, LogEntryModal, QuickAdd, SearchPage } from "./Records";
 import { useAuth } from "./auth";
 import { DeliveryCard, Feed, LedgerLegend, PaymentActions, ProductTable } from "./shared";
@@ -46,8 +47,8 @@ export default function Company({ go }) {
   const needs = needsYou(state);
   const unread = state.messages.filter((m) => (m.from === "rider" || m.from === "vendor") && !m.read).length;
   const t = totals(state);
-  const Section = { today: NeedsYou, overview: Overview, deliveries: Deliveries, stock: Stock, riders: Riders, messages: Messages, team: Team, calendar: CalendarPage, search: SearchPage, announce: Announcements, log: LogBook, activity: ActivityLog }[tab];
-  const titles = { today: needs.count ? `${needs.count} ${needs.count === 1 ? "thing needs" : "things need"} you` : "All clear", overview: "Overview", deliveries: "Deliveries", stock: "Vendors & stock", riders: "Riders", messages: "Messages", team: "Team & logins", calendar: "Calendar", search: "Search", announce: "Announcements", log: "Log book", activity: "Activity log" };
+  const Section = { today: NeedsYou, overview: Overview, deliveries: Deliveries, stock: Stock, riders: Riders, messages: Messages, team: Team, calendar: CalendarPage, search: SearchPage, announce: Announcements, log: LogBook, activity: ActivityLog, settings: AccountSettings }[tab];
+  const titles = { today: needs.count ? `${needs.count} ${needs.count === 1 ? "thing needs" : "things need"} you` : "All clear", overview: "Overview", deliveries: "Deliveries", stock: "Vendors & stock", riders: "Riders", messages: "Messages", team: "Team & logins", calendar: "Calendar", search: "Search", announce: "Announcements", log: "Log book", activity: "Activity log", settings: "Settings" };
   const openIncidents = (state.log || []).filter((e) => e.status === "open").length;
   const tabs = NAV.map(([id, label, Icon]) => [id, label, Icon, id === "today" ? needs.count : id === "messages" ? unread : id === "log" ? openIncidents : 0]);
   const go2 = (id) => { setTab(id); window.scrollTo({ top: 0 }); };
@@ -63,7 +64,7 @@ export default function Company({ go }) {
         name={(user && user.name ? user.name : state.company.dispatcher || "there").split(" ")[0]}
         email={user ? user.email || user.phone : ""}
         active={tab}
-        items={navItems(tabs, (id) => { setTab(id); window.scrollTo({ top: 0 }); }, () => go("/account"))}
+        items={navItems(tabs, (id) => { setTab(id); window.scrollTo({ top: 0 }); }, () => go2("settings"))}
       />
       <div className="relative min-w-0 flex-1">
       <header className="relative px-5 pb-8 pt-6 text-neutral-950 sm:px-10">
@@ -73,7 +74,7 @@ export default function Company({ go }) {
           <div className="ml-auto flex items-center gap-2">
             {sync === "offline" && <LiveDot label="Offline, will save when back" tone="warn" />}
             <QuickAdd onPick={pickQuick} />
-            <MeButton onClick={() => go("/account")} />
+            <MeButton onClick={() => go2("settings")} />
           </div>
         </div>
         <div className="relative mx-auto mt-5 flex max-w-7xl flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -87,7 +88,7 @@ export default function Company({ go }) {
 
       <main className="relative px-4 pb-36 pt-2 sm:px-10">
         <div className="mx-auto max-w-7xl">
-          <Section openAda={openAda} setTab={setTab} />
+          <Section openAda={openAda} setTab={setTab} go={go} />
         </div>
       </main>
 
