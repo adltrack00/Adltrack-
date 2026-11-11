@@ -1,7 +1,7 @@
 // The delivery company's dashboard: vendors, riders, stock, deliveries and ADA.
 import React, { useMemo, useState } from "react";
 import {
-  AlertTriangle, ArrowDownUp, CalendarDays, History, Megaphone, NotebookPen, Search, ArrowLeft, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Settings, Sparkles, Truck, Users, Wallet, X,
+  AlertTriangle, ArrowDownUp, CalendarDays, History, Megaphone, NotebookPen, Search, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Settings, Sparkles, Truck, Users, Wallet, X,
 } from "lucide-react";
 import { AdaPanel } from "./AdaPanel";
 import Team from "./Team";
@@ -68,11 +68,8 @@ export default function Company({ go }) {
       <div className="relative min-w-0 flex-1">
       <header className="relative px-5 pb-8 pt-6 text-neutral-950 sm:px-10">
         <div className="relative mx-auto flex max-w-7xl items-center gap-3">
-          {/* Home has the menu; every other page has a back arrow to home instead. */}
-          {tab === "today"
-            ? <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 lg:hidden w-10 place-items-center text-neutral-950 hover:text-neutral-600" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
-            : <button onClick={() => { setTab("today"); window.scrollTo({ top: 0 }); }} className="grid h-11 w-11 place-items-center rounded-full bg-white text-neutral-950 shadow-[0_6px_20px_-10px_rgba(0,0,0,0.35)] ring-1 ring-black/5 hover:bg-neutral-50" aria-label="Back to home" data-testid="back-home"><ArrowLeft className="h-5 w-5" /></button>}
-          <span className="hidden text-[14px] font-semibold text-neutral-600 sm:inline">· {state.company.name !== "Delivery" ? `${state.company.name}, ` : ""}{state.company.city}</span>
+          {/* The menu button opens the slide-out menu on phones; laptops have the sidebar. */}
+          <button onClick={() => setMenu(true)} className="-ml-1.5 grid h-10 w-10 place-items-center text-neutral-950 hover:text-neutral-600 lg:hidden" aria-label="Open menu" data-testid="open-menu"><Menu className="h-7 w-7" strokeWidth={2} /></button>
           <div className="ml-auto flex items-center gap-2">
             {sync === "offline" && <LiveDot label="Offline, will save when back" tone="warn" />}
             <QuickAdd onPick={pickQuick} />
