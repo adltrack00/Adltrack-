@@ -11,11 +11,12 @@ short /api/photos/<id> link in their place, so the workspace stays small.
 """
 import asyncio
 import base64
+import copy
 import json
 import logging
 import re
 import secrets
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse, Response, StreamingResponse
@@ -65,6 +66,39 @@ class Hub:
 
 
 hub = Hub()
+
+# Called after every saved change with (workspace id, before, after, base url). WhatsApp listens here: a drop given to
+# a rider, a message from the office, a delivery done... each is sent to the right person's WhatsApp.
+hooks: List[Callable] = []
+
+
+def changed(wid: int, before: Optional[Dict[str, Any]], after: Dict[str, Any], base_url: str = "") -> None:
+    for h in hooks:
+        try:
+            asyncio.get_running_loop().create_task(h(wid, before, after, base_url))
+        except Exception as err:  # never let a listener break a save
+            log.warning("Hook failed: %s", err)
+
+
+async def mutate(wid: int, fn: Callable[[Dict[str, Any]], Any], base_url: str = "") -> Optional[Dict[str, Any]]:
+    """A change the server makes itself (a rider's WhatsApp reply, a message status). fn edits the state in place and
+    returns False to save nothing. Open pages hear about it like any other save."""
+    async with hub.lock(wid):
+        for _ in range(3):
+            rev, full = await asyncio.to_thread(Hub.load, wid)
+            if full is None:
+                return None
+            before = copy.deepcopy(full)
+            if fn(full) is False or full == before:
+                return full
+            if await asyncio.to_thread(Hub.write, wid, rev, full):
+                break
+        else:
+            log.warning("Could not save a server change to workspace %s", wid)
+            return None
+    hub.announce(wid, rev + 1)
+    changed(wid, before, full, base_url)
+    return full
 
 
 def new_workspace(wid: int, state: Dict[str, Any]) -> None:
@@ -134,6 +168,7 @@ def router() -> APIRouter:
                 return _json({"rev": rev, "state": access.view(full, role, ref)}, status=409)
             rev += 1
         hub.announce(wid, rev)
+        changed(wid, full, nxt, str(request.base_url))
         # Photos may have been moved out; the browser adopts this copy so it shows the short links.
         return _json({"rev": rev, "state": access.view(nxt, role, ref)})
 
@@ -170,6 +205,7 @@ def router() -> APIRouter:
             rev, _ = await asyncio.to_thread(Hub.load, DEMO_WORKSPACE)
             await asyncio.to_thread(Hub.write, DEMO_WORKSPACE, rev, seed)
         hub.announce(DEMO_WORKSPACE, rev + 1)
+        changed(DEMO_WORKSPACE, None, seed, str(request.base_url))
         return {"rev": rev + 1}
 
     @api.get("/photos/{pid}")

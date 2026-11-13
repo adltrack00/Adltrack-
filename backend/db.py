@@ -31,6 +31,10 @@ SCHEMA = [
     """CREATE TABLE IF NOT EXISTS invites (
         code TEXT PRIMARY KEY, workspace_id INT NOT NULL, role TEXT NOT NULL, ref TEXT, name TEXT,
         created_by TEXT, created_at BIGINT NOT NULL, used_at BIGINT, used_by TEXT)""",
+    # Sign-in links ADA sends riders on WhatsApp: one tap opens the app at the right drop, no password.
+    "CREATE TABLE IF NOT EXISTS links (token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL, target TEXT NOT NULL, created_at BIGINT NOT NULL, expires_at BIGINT NOT NULL)",
+    # WhatsApp message ids already handled: Meta and Twilio send a webhook again if it was slow to answer.
+    "CREATE TABLE IF NOT EXISTS wa_seen (id TEXT PRIMARY KEY, created_at BIGINT NOT NULL)",
     "CREATE TABLE IF NOT EXISTS photos (id TEXT PRIMARY KEY, workspace_id INT NOT NULL, mime TEXT NOT NULL, data {blob} NOT NULL, created_at BIGINT NOT NULL)",
 ]
 

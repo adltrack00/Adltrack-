@@ -1,0 +1,185 @@
+{
+ "vendors": [
+  {
+   "id": "v-glow",
+   "name": "GlowSkin Naturals",
+   "contact": "Funmi Ade",
+   "phone": "+234 802 410 7781",
+   "color": "#f97316"
+  },
+  {
+   "id": "v-kicks",
+   "name": "Kicks Plug NG",
+   "contact": "Daniel Eze",
+   "phone": "+234 813 902 1150",
+   "color": "#0ea5e9"
+  },
+  {
+   "id": "v-gadget",
+   "name": "Gadget Hub Lagos",
+   "contact": "Seyi Martins",
+   "phone": "+234 809 776 0034",
+   "color": "#10b981"
+  },
+  {
+   "id": "v-mama",
+   "name": "Mama's Pantry",
+   "contact": "Mrs. Okon",
+   "phone": "+234 705 118 9902",
+   "color": "#8b5cf6"
+  }
+ ],
+ "products": [
+  {
+   "id": "p-serum",
+   "vendorId": "v-glow",
+   "name": "Vitamin C face serum",
+   "unit": "bottle",
+   "price": 12500,
+   "received": 100,
+   "aliases": [
+    "serum",
+    "face serum",
+    "vitamin c"
+   ]
+  },
+  {
+   "id": "p-soap",
+   "vendorId": "v-glow",
+   "name": "Black soap bar",
+   "unit": "bar",
+   "price": 3500,
+   "received": 60,
+   "aliases": [
+    "soap",
+    "black soap"
+   ]
+  },
+  {
+   "id": "p-sneaker",
+   "vendorId": "v-kicks",
+   "name": "Air runner sneakers",
+   "unit": "pair",
+   "price": 45000,
+   "received": 40,
+   "aliases": [
+    "sneaker",
+    "sneakers",
+    "shoe",
+    "shoes",
+    "kicks"
+   ]
+  },
+  {
+   "id": "p-slide",
+   "vendorId": "v-kicks",
+   "name": "Comfort slides",
+   "unit": "pair",
+   "price": 15000,
+   "received": 50,
+   "aliases": [
+    "slide",
+    "slides",
+    "slippers"
+   ]
+  },
+  {
+   "id": "p-buds",
+   "vendorId": "v-gadget",
+   "name": "Wireless earbuds",
+   "unit": "box",
+   "price": 28000,
+   "received": 30,
+   "aliases": [
+    "earbuds",
+    "buds",
+    "airpods",
+    "earpiece"
+   ]
+  },
+  {
+   "id": "p-power",
+   "vendorId": "v-gadget",
+   "name": "20,000mAh power bank",
+   "unit": "box",
+   "price": 22000,
+   "received": 25,
+   "aliases": [
+    "power bank",
+    "powerbank",
+    "power banks"
+   ]
+  },
+  {
+   "id": "p-chinchin",
+   "vendorId": "v-mama",
+   "name": "Chin chin jar (1kg)",
+   "unit": "jar",
+   "price": 6000,
+   "received": 80,
+   "aliases": [
+    "chin chin",
+    "chinchin"
+   ]
+  },
+  {
+   "id": "p-pepper",
+   "vendorId": "v-mama",
+   "name": "Pepper sauce (500ml)",
+   "unit": "jar",
+   "price": 4500,
+   "received": 45,
+   "aliases": [
+    "pepper sauce",
+    "pepper",
+    "sauce"
+   ]
+  }
+ ],
+ "riders": [
+  {
+   "id": "r-tunde",
+   "name": "Tunde Bakare",
+   "short": "Tunde",
+   "phone": "+234 803 111 2041",
+   "zone": "Ikeja",
+   "vehicle": "Bike · LAG 214 KJA",
+   "online": true,
+   "dailyUnits": 10,
+   "color": "#f97316"
+  },
+  {
+   "id": "r-amaka",
+   "name": "Amaka Obi",
+   "short": "Amaka",
+   "phone": "+234 806 552 9010",
+   "zone": "Lekki",
+   "vehicle": "Bike · LAG 908 LKK",
+   "online": true,
+   "dailyUnits": 10,
+   "color": "#0ea5e9"
+  },
+  {
+   "id": "r-kwame",
+   "name": "Kwame Mensah",
+   "short": "Kwame",
+   "phone": "+234 812 404 7733",
+   "zone": "Yaba",
+   "vehicle": "Bike · LAG 331 YAB",
+   "online": true,
+   "dailyUnits": 12,
+   "color": "#10b981"
+  },
+  {
+   "id": "r-sade",
+   "name": "Sade Adeyemi",
+   "short": "Sade",
+   "phone": "+234 809 220 1188",
+   "zone": "Surulere",
+   "vehicle": "Bike · LAG 552 SRL",
+   "online": true,
+   "dailyUnits": 10,
+   "color": "#8b5cf6"
+  }
+ ]
+}

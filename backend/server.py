@@ -11,8 +11,10 @@ Run:  pip install -r requirements.txt && uvicorn server:app --port 8001
 Env:  ANTHROPIC_API_KEY (or an `ant auth login` profile), optional ADA_MODEL and CORS_ORIGINS.
       STATIC_DIR (optional): a built frontend to serve from the same site, as on Render (see Dockerfile).
 """
+import asyncio
 import json
 import logging
+from datetime import datetime
 import os
 import re
 from typing import Any, Dict, List
@@ -24,6 +26,8 @@ from pydantic import BaseModel, Field
 from starlette.middleware.cors import CORSMiddleware
 
 import auth
+import intake
+import whatsapp
 import workspace
 from db import db
 
@@ -150,6 +154,23 @@ if os.environ.get("CORS_ORIGINS"):
 
 app.include_router(auth.router(workspace.new_workspace))
 app.include_router(workspace.router())
+app.include_router(whatsapp.router())
+
+
+class IntakeRequest(BaseModel):
+    text: str = Field(max_length=60000)
+    vendorId: str = Field(default="", max_length=80)
+
+
+# The company's (or a vendor's) "Paste WhatsApp orders" box. The same reader as orders sent to ADA on WhatsApp.
+@app.post("/api/intake/read")
+async def read_intake(body: IntakeRequest, user=Depends(auth.require_user)):
+    if user["role"] not in ("company", "vendor"):
+        raise HTTPException(403, "Only the company and vendors send orders.")
+    _, state = await asyncio.to_thread(workspace.Hub.load, user["workspaceId"])
+    vendor = user["ref"] if user["role"] == "vendor" else body.vendorId
+    orders = intake.read_orders(state or {}, body.text, vendor or "", today=datetime.now(whatsapp.TZ).date())
+    return {"orders": orders}
 
 
 @app.on_event("startup")
