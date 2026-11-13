@@ -6,7 +6,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowDownLeft, ArrowLeft, ArrowUpRight, BadgeCheck, Camera, Check, ChevronDown, ChevronRight, ChevronsRight, Clock, Delete, Gem, Home, Inbox, Landmark,
-  LogOut, MapPin, Menu as MenuIcon, MessageSquare, Navigation, Package, Phone, Power, Send, Star, Wallet, X,
+  LogOut, MapPin, Menu as MenuIcon, MessageCircle, MessageSquare, Navigation, Package, Phone, Power, Send, Star, Wallet, X,
 } from "lucide-react";
 import { cashHeld, collectedOf, fees, handInToCheck, isActive, isDeclined, isDelivered, isOffer, LEVELS, productById, riderLevel, riderLoad, riderWeek, units as taskUnits, useWorkspace, value as taskValue, lineLabel } from "./store";
 import { SceneCta, themeOf, Tip } from "./scenes";
@@ -15,6 +15,7 @@ import { ago, clock, money, shrinkPhoto, time12, todayISO } from "./utils";
 import { NotLinked } from "./Vendor";
 import { MeButton } from "./Photo";
 import { useAuth } from "./auth";
+import { toast } from "sonner";
 import { cn } from "../lib/utils";
 
 export default function Rider({ riderId, go }) {
@@ -69,7 +70,23 @@ function RiderApp({ rider, go }) {
   const holding = myTasks.filter((t) => cashHeld(t) > 0);
   const cash = holding.reduce((s, t) => s + cashHeld(t), 0);
 
+  // Drops the rider said were delivered on WhatsApp, still waiting for the doorstep photo.
+  const needPhoto = myTasks.filter((t) => isDelivered(t) && t.proof && t.proof.photoPending);
+  const [photoFor, setPhotoFor] = useState(null);
+
   const scroller = useRef(null);
+  // A link ADA sent on WhatsApp: /rider?drop=<id>&do=deliver (photo and payment) or do=photo, or ?tab=earnings.
+  const { fresh } = useWorkspace();
+  useEffect(() => {
+    if (!fresh) return;
+    const q = new URLSearchParams(window.location.search);
+    const drop = q.get("drop") && state.tasks.find((t) => t.id === q.get("drop") && t.riderId === rider.id);
+    if (q.get("tab") && ["home", "earnings", "inbox", "menu"].includes(q.get("tab"))) setTab(q.get("tab"));
+    if (drop && isDelivered(drop) && drop.proof && drop.proof.photoPending) setPhotoFor(drop);
+    else if (drop && drop.status === "picked_up") setDelivering(drop);
+    else if (drop && q.get("do")) toast(isDelivered(drop) ? `${drop.customer}'s drop is already confirmed.` : "Collect your parcels at the office first.");
+    if (q.toString()) window.history.replaceState(null, "", window.location.pathname);
+  }, [fresh]); // eslint-disable-line react-hooks/exhaustive-deps
   const goTab = (id) => { setPage(null); setTab(id); if (scroller.current) scroller.current.scrollTop = 0; };
   const openWallet = () => { goTab("earnings"); setTimeout(() => document.getElementById("wallet")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60); };
 
@@ -125,6 +142,13 @@ function RiderApp({ rider, go }) {
                         <div className="text-[14px] leading-snug text-neutral-600">You turned down {declined.length} {declined.length === 1 ? "drop" : "drops"} ({declined[0].declined.reasons.join(", ") || "no reason"}). The office is finding another rider.</div>
                       </div>
                     )}
+                    {needPhoto.map((t) => (
+                      <button key={t.id} onClick={() => setPhotoFor(t)} className="mb-4 flex w-full items-center gap-3 rounded-[22px] bg-blue-50 p-4 text-left" data-testid="need-photo">
+                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-blue-600 text-white"><Camera className="h-5 w-5" /></span>
+                        <span className="flex-1"><span className="block text-[15px] font-bold text-neutral-950">Add the photo for {t.customer}</span><span className="block text-[13px] text-neutral-500">You confirmed it on WhatsApp. One photo and it's done.</span></span>
+                        <ChevronRight className="h-5 w-5 text-neutral-400" />
+                      </button>
+                    ))}
                     {!!toCollect.length && <CollectCard tasks={toCollect} state={state} onDone={() => act({ type: "task/pickupAll", ids: toCollect.map((t) => t.id) })} />}
 
                     {next ? (
@@ -146,6 +170,10 @@ function RiderApp({ rider, go }) {
                     )}
 
                     <Tip className="mt-6 text-[14.5px]">Take the photo at the door before you hand over the parcel, and type the exact amount you collected.</Tip>
+                    <div className="mt-3 flex items-start gap-2.5 rounded-[22px] bg-emerald-50 p-4 text-[14px] leading-snug text-emerald-900">
+                      <MessageCircle className="mt-0.5 h-5 w-5 shrink-0 text-[#25D366]" />
+                      <span>ADA sends your drops on WhatsApp too. Reply there with YES, COLLECTED, ARRIVED or DELIVERED and this screen updates by itself.</span>
+                    </div>
 
                     {!!done.length && (
                       <details className="mt-6">
@@ -197,6 +225,7 @@ function RiderApp({ rider, go }) {
         </div>
       </div>
       <DeliverSheet task={delivering} onClose={() => setDelivering(null)} act={act} />
+      <PhotoSheet task={photoFor} onClose={() => setPhotoFor(null)} act={act} />
       <ReasonSheet
         open={!!failing} onClose={() => setFailing(null)} title="Couldn't deliver" question="What happened?" sub="The items go back to the warehouse count and the office sees it right away."
         options={FAIL_REASONS} max={1} submit="Report"
@@ -557,8 +586,11 @@ function RiderChat({ rider, msgs, act }) {
             {m.from === "ada" && <AdaMark size={28} className="mt-1" />}
             {m.from === "dispatcher" && <span className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-neutral-900 text-white"><MessageSquare className="h-3.5 w-3.5" /></span>}
             <div className="max-w-[82%]">
-              <div className={`whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-snug ${m.from === "rider" ? "rounded-br-md bg-neutral-900 text-white" : "rounded-bl-md bg-neutral-100 text-neutral-800"}`}>{m.text}</div>
-              <div className={`mt-1 text-[11px] text-neutral-400 ${m.from === "rider" ? "text-right" : ""}`}>{m.from === "ada" ? "ADA" : m.from === "dispatcher" ? "Dispatch" : "You"} · {clock(m.at)}</div>
+              <div className={`whitespace-pre-line break-words rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-snug ${m.from === "rider" ? "rounded-br-md bg-neutral-900 text-white" : "rounded-bl-md bg-neutral-100 text-neutral-800"}`}>
+                {m.photo && <img src={m.photo} alt="" className="mb-1.5 max-h-48 rounded-xl object-cover" />}
+                {m.text}
+              </div>
+              <div className={`mt-1 flex items-center gap-1 text-[11px] text-neutral-400 ${m.from === "rider" ? "justify-end" : ""}`}>{(m.channel === "whatsapp" || m.wa) && <MessageCircle className="h-3 w-3 text-[#25D366]" />}{m.from === "ada" ? "ADA" : m.from === "dispatcher" ? "Dispatch" : "You"} · {clock(m.at)}{m.channel === "whatsapp" ? " · WhatsApp" : ""}</div>
             </div>
           </div>
         )) : <Empty icon={Inbox} title="No messages yet" />}
@@ -688,6 +720,27 @@ function ReasonSheet({ open, onClose, title, question, sub, options, max, submit
       <div className="mt-5 flex items-center justify-between">
         <span className="text-[14px] text-neutral-400">{picked.length} of {max}</span>
         <Btn size="lg" disabled={!picked.length} onClick={() => onSubmit(picked)} data-testid="reason-send">{submit}</Btn>
+      </div>
+    </Modal>
+  );
+}
+
+// The doorstep photo for a drop the rider already confirmed on WhatsApp.
+function PhotoSheet({ task, onClose, act }) {
+  const [photo, setPhoto] = useState(null);
+  const file = useRef(null);
+  useEffect(() => { setPhoto(null); }, [task]);
+  if (!task) return null;
+  const pick = async (e) => { const f = e.target.files && e.target.files[0]; if (f) setPhoto(await shrinkPhoto(f, 1280)); };
+  return (
+    <Modal open={!!task} onClose={onClose} title="Doorstep photo">
+      <div className="grid gap-4">
+        <p className="text-center text-[15px] text-neutral-500">{task.customer} · {money((task.payment && task.payment.amount) || 0)} {task.payment ? task.payment.method : ""} recorded on WhatsApp</p>
+        <input ref={file} type="file" accept="image/*" capture="environment" className="hidden" onChange={pick} data-testid="late-photo-input" />
+        <button onClick={() => file.current.click()} className={`flex w-full items-center gap-3 overflow-hidden rounded-[22px] ${photo ? "h-48" : "h-16 justify-center bg-black text-white"}`}>
+          {photo ? <img src={photo} alt="Proof of delivery" className="h-full w-full object-cover" /> : <><Camera className="h-5 w-5" /><span className="text-[16px] font-medium">Take the photo</span></>}
+        </button>
+        <Btn size="lg" className="h-[60px] text-[18px]" disabled={!photo} onClick={() => { act({ type: "task/addPhoto", id: task.id, photo }); onClose(); }}>{photo ? "Save" : "Take the photo first"}</Btn>
       </div>
     </Modal>
   );

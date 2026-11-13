@@ -245,8 +245,12 @@ def plan(state_before, after, wid) -> Tuple[List[str], List[Dict[str, Any]]]:
     """Office messages to send on WhatsApp too, and new messages for things worth telling someone."""
     s = settings(after)
     before_ids = {m.get("id") for m in state_before.get("messages", [])}
-    forward = [m["id"] for m in after.get("messages", []) if m.get("id") not in before_ids and m.get("from") in OFFICE and "wa" not in m and key_of(m)]
-    covered = {m.get("riderId") for m in after.get("messages", []) if m.get("id") in forward and m.get("kind") == "drop"}
+    # A drop message is often saved a moment before or after the drops themselves: one WhatsApp per batch, not two.
+    cutoff = (datetime.now(timezone.utc) - timedelta(seconds=120)).strftime("%Y-%m-%dT%H:%M:%S")
+    recent_auto = {m.get("riderId") for m in after.get("messages", []) if m.get("kind") == "drop" and m.get("taskIds") and str(m.get("at") or "") >= cutoff}
+    forward = [m["id"] for m in after.get("messages", []) if m.get("id") not in before_ids and m.get("from") in OFFICE and "wa" not in m and key_of(m)
+               and not (m.get("kind") == "drop" and not m.get("taskIds") and m.get("riderId") in recent_auto)]
+    covered = {m.get("riderId") for m in after.get("messages", []) if m.get("kind") == "drop" and not m.get("taskIds") and str(m.get("at") or "") >= cutoff and (m.get("id") in forward or "wa" in m)}
     new: List[Dict[str, Any]] = []
     old_tasks = {t.get("id"): t for t in state_before.get("tasks", [])}
     offers: Dict[str, List] = {}

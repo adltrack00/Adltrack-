@@ -24,7 +24,8 @@ export function AdaPanel({ open, onClose, seed, onSeedUsed }) {
     setText("");
     // A pasted WhatsApp message with orders: read them and let the person check each one.
     if (looksLikeOrders(words)) {
-      const orders = readOrders(state, words);
+      let orders = [];
+      try { orders = await readOrders(state, words); } catch (e) { /* fall through to ADA */ }
       if (orders.length) {
         setTurns((cur) => [...cur, { role: "assistant", text: "Here's what I read from that message. Fix anything in red, then add them.", intake: orders, state: "ready" }]);
         return;

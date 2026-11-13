@@ -162,6 +162,9 @@ function reducer(state, action) {
         proof: { photo: action.photo || null, receivedBy: action.receivedBy || "", note: action.note || "", at: now() },
         payment: { method: action.method, amount: Number(action.amount) || 0, confirmed: !!action.confirmed, at: action.confirmed ? now() : null },
       }));
+    // The doorstep photo for a drop the rider confirmed on WhatsApp first.
+    case "task/addPhoto":
+      return mapTask(state, action.id, (t) => ({ ...t, proof: { ...(t.proof || {}), photo: action.photo, photoPending: false } }));
     case "task/confirmPayment":
       return mapTask(state, action.id, (t) => ({ ...t, payment: { ...(t.payment || {}), confirmed: true, at: now() } }));
     case "task/fail":
@@ -519,7 +522,11 @@ export function riderNow(state, rider) {
   else if (declined.length) { phase = "declined"; line = `Turned down ${declined.length} ${declined.length === 1 ? "drop" : "drops"}`; }
   else if (offers.length) { phase = "offer"; line = `Hasn't accepted ${offers.length} new ${offers.length === 1 ? "drop" : "drops"}`; }
   else if (toCollect.length) { phase = "collect"; line = `Collecting ${toCollect.reduce((s, t) => s + units(t), 0)} units at the office`; }
-  else if (onWay) { phase = "road"; line = `On the way to ${onWay.customer}${onWay.zone ? `, ${onWay.zone}` : ""}`; }
+  else if (onWay) {
+    const here = active.find((t) => t.status === "picked_up" && t.arrivedAt);
+    phase = "road";
+    line = here ? `At ${here.customer}'s door` : `On the way to ${onWay.customer}${onWay.zone ? `, ${onWay.zone}` : ""}`;
+  }
   return {
     phase, line, last, today,
     done: today.filter(isDelivered).length,

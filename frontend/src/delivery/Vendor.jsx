@@ -157,7 +157,7 @@ function VendorDashboard({ vendor, go }) {
           </div>
           <Card className="p-6 md:col-span-2 xl:col-span-1">
             <MonthCal counts={tasks.reduce((m, t) => ({ ...m, [t.date]: (m[t.date] || 0) + 1 }), {})} />
-            <Tip className="mt-5 text-[14.5px]">Send all of a day's orders as one WhatsApp message. The office pastes it and ADA reads every order.</Tip>
+            <Tip className="mt-5 text-[14.5px]">Send your orders to ADA on WhatsApp, as you'd normally type them. ADA reads every order, adds it here and tells you if anything is missing. Reply BALANCE on WhatsApp any time to see what you're owed.</Tip>
           </Card>
         </div>}
 

@@ -1,11 +1,11 @@
 /* Reading a vendor's WhatsApp orders. Vendors send orders as chat messages, each in their own layout:
    labelled lines ("Name: ..."), one line with commas, numbered lists, several orders in one message.
-   readOrders() splits the pasted text into orders, reads each field it can find and checks the result.
+   readOrders() asks the server to read them and checks the result.
    It never fills in what the message doesn't say: anything missing or doubtful is flagged for a person to fix
    (ops manual: never invent an address, phone number or amount). */
-import { findProduct, findVendor, zoneOf } from "./ada";
+import { api } from "./auth";
 import { productLedger } from "./store";
-import { money, todayISO, addDaysISO } from "./utils";
+import { money } from "./utils";
 
 const LABELS = [
   ["customer", /^(?:customer(?:'?s)? name|customer|client(?: name)?|name|receiver|recipient|deliver to|to)$/],
@@ -22,7 +22,6 @@ const LABELS = [
 ];
 
 const PHONE = /(?:\+?234[\s-]?|0)[789][01]\d(?:[\s-]?\d){7}/g;
-const MONEY = /(?:₦|ngn|n(?=\d))?\s*(\d{1,3}(?:[,.]\d{3})+|\d+(?:\.\d+)?)\s*(k)?\b/i;
 
 export function normalizePhone(raw) {
   const d = String(raw || "").replace(/\D/g, "");
@@ -33,171 +32,12 @@ export function normalizePhone(raw) {
   return `+234 ${n.slice(0, 3)} ${n.slice(3, 6)} ${n.slice(6)}`;
 }
 
-function parseMoney(text) {
-  const m = String(text).match(MONEY);
-  if (!m) return 0;
-  const n = Number(m[1].replace(/[,.](?=\d{3}\b)/g, ""));
-  return Math.round(n * (m[2] ? 1000 : 1));
-}
-
-// "2 serums", "serum x2", "2x serum", "serum (2)", "1 sneakers size 42 + 1 free slides"
-function parseItemText(text) {
-  const out = [];
-  for (let part of String(text).split(/,|\+|&|\band\b|\n|;/i)) {
-    part = part.trim().replace(/[.!]+$/, "");
-    if (!part) continue;
-    const free = /\b(free|bonus|gift|extra)\b/i.test(part);
-    part = part.replace(/\b(free|bonus|gift|extra)\b/gi, "").replace(/\s+/g, " ").trim();
-    let m = part.match(/^(\d+)\s*(?:x|pcs?|pieces?|units?|bottles?|pairs?|jars?|boxes?|bars?|packs?)?\s*(?:of\s+)?(.+)$/i);
-    let qty, name;
-    if (m) { qty = Number(m[1]); name = m[2]; }
-    else if ((m = part.match(/^(.+?)\s*(?:x\s*|\(\s*|-\s*|qty:?\s*)(\d+)\)?$/i))) { qty = Number(m[2]); name = m[1]; }
-    else { qty = 1; name = part; }
-    name = name.replace(/\s*(?:@|at)\s*(?:₦|n)?\s*[\d,.]+k?.*$/i, "").replace(/[(){}]/g, "").trim();
-    if (name && qty > 0 && qty < 1000) out.push({ name, qty, free });
-  }
-  return out;
-}
-
-function parseWhen(text, base) {
-  const t = String(text).toLowerCase();
-  const out = {};
-  if (/\b(urgent|asap|now|immediately|rush|express|quick(ly)?)\b/.test(t)) out.urgent = true;
-  if (/\btomorrow|tmrw|tmr\b/.test(t)) out.date = addDaysISO(1);
-  else if (/\btoday|tonight|this (morning|afternoon|evening)\b/.test(t)) out.date = base;
-  const range = t.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*(?:-|–|to|and)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
-  const one = t.match(/(?:by|before|at|around|from|after)?\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/) || t.match(/\b(?:by|before|at|around)\s+(\d{1,2})(?::(\d{2}))?\b/);
-  const hh = (h, m, ap, fallbackAp) => {
-    let n = Number(h);
-    const a = ap || fallbackAp || (n < 7 ? "pm" : "");
-    if (a === "pm" && n < 12) n += 12;
-    if (a === "am" && n === 12) n = 0;
-    return n < 24 ? `${String(n).padStart(2, "0")}:${String(Number(m || 0)).padStart(2, "0")}` : "";
-  };
-  if (range) { out.start = hh(range[1], range[2], range[3], range[6]); out.end = hh(range[4], range[5], range[6]); }
-  else if (one) { const by = /\b(by|before)\b/.test(t); const v = hh(one[1], one[2], one[3]); if (by) out.end = v; else out.start = v; }
-  if (/\bmorning\b/.test(t) && !out.start) { out.start = "09:00"; out.end = out.end || "12:00"; }
-  if (/\bafternoon\b/.test(t) && !out.start) { out.start = "12:00"; out.end = out.end || "16:00"; }
-  if (/\bevening\b/.test(t) && !out.start) { out.start = "16:00"; out.end = out.end || "19:00"; }
-  return out;
-}
-
-// Split a pasted message into one block of lines per order.
-function splitOrders(text) {
-  const lines = String(text).replace(/\r/g, "").split("\n").map((l) => l.replace(/^[\s*•▪➤✅🔸🔹👉-]+/u, "").replace(/\*+/g, "").trim());
-  const blocks = [];
-  let cur = [];
-  let hasName = false;
-  const push = () => { if (cur.some((l) => l)) blocks.push(cur.filter(Boolean)); cur = []; hasName = false; };
-  for (const raw of lines) {
-    if (!raw) { if (cur.length > 1) push(); continue; }
-    // "Order 2", "#2", "2." or "2)" on its own line, or a numbered line, starts a new order.
-    const header = raw.match(/^(?:order\s*#?\s*\d+|#\s*\d+|\d+\s*[.)])\s*[:\-]?\s*(.*)$/i);
-    if (header && !/^\d+\s*[.)]\s*\d/.test(raw)) {
-      push();
-      if (header[1]) cur.push(header[1]);
-      continue;
-    }
-    const label = labelOf(raw);
-    if (label && label.key === "customer" && hasName) push();
-    if (label && label.key === "customer") hasName = true;
-    cur.push(raw);
-  }
-  push();
-  return blocks;
-}
-
 function labelOf(line) {
   const m = line.match(/^([a-z][a-z0-9 '#/.?]{1,28}?)\s*[:=\-–]\s*(.*)$/i);
   if (!m) return null;
   const key = m[1].toLowerCase().replace(/[?.]/g, "").replace(/\s+/g, " ").trim();
   for (const [field, re] of LABELS) if (re.test(key)) return { key: field, value: m[2].trim() };
   return null;
-}
-
-const looksLikeAddress = (s) => /\d|street|st\b|road|rd\b|avenue|ave\b|close|crescent|estate|way|drive|lane|junction|phase|off |opposite|plaza|hall|market|bus ?stop|ikeja|yaba|lekki|surulere|ikoyi|ajah|island|vi\b|maryland|gbagada|apapa/i.test(s) && /[a-z]{3}/i.test(s);
-
-function readBlock(state, lines, vendorId) {
-  const f = { customer: "", phone: "", altPhone: "", address: "", landmark: "", items: [], amount: 0, ref: "", note: [], when: "", unknown: [] };
-  const loose = [];
-  const takePhones = (s) => (s.match(PHONE) || []).map(normalizePhone).filter(Boolean);
-
-  // A single line with commas: "Chioma Okafor, 08020004411, 12 Allen Ave Ikeja, 2 serum, 25k"
-  const parts = lines.length === 1 && !labelOf(lines[0]) ? lines[0].split(/\s*[,|]\s*(?![0-9]{3}\b)/) : lines;
-
-  for (const line of parts) {
-    const l = labelOf(line);
-    if (l) {
-      if (l.key === "phone" || l.key === "altPhone") {
-        const phones = takePhones(l.value);
-        if (!phones.length) { f.badPhone = l.value; continue; }
-        if (l.key === "phone" && !f.phone) { f.phone = phones[0]; if (phones[1]) f.altPhone = phones[1]; } else f.altPhone = f.altPhone || phones[0];
-      } else if (l.key === "items") f.items.push(...parseItemText(l.value));
-      else if (l.key === "free") f.items.push(...parseItemText(l.value).map((x) => ({ ...x, free: true })));
-      else if (l.key === "amount") f.amount = parseMoney(l.value) || f.amount;
-      else if (l.key === "note") f.note.push(l.value);
-      else if (l.key === "when") f.when += ` ${l.value}`;
-      else if (l.key === "address") { f.address = l.value; }
-      else f[l.key] = l.value;
-      continue;
-    }
-    loose.push(line);
-  }
-
-  // Lines without a label: work out what each one most likely is.
-  for (const line of loose) {
-    const phones = takePhones(line);
-    const rest = line.replace(PHONE, "").replace(/\s+/g, " ").trim().replace(/^[,:\-]+|[,:\-]+$/g, "").trim();
-    if (phones.length) {
-      if (!f.phone) { f.phone = phones[0]; if (phones[1]) f.altPhone = phones[1]; } else if (!f.altPhone) f.altPhone = phones[0];
-      if (!rest) continue;
-    }
-    const target = rest || line;
-    if (/^(?:₦|ngn|n\d)|\b\d+(?:,\d{3})*\s*k?\s*(?:naira)\b|^\d{1,3}(?:,\d{3})+$|^\d+(?:\.\d+)?k$/i.test(target) && !f.amount) { f.amount = parseMoney(target); continue; }
-    if (/\b(urgent|asap|tomorrow|today|morning|afternoon|evening|\d\s*(am|pm))\b/i.test(target) && target.split(" ").length <= 8) { f.when += ` ${target}`; continue; }
-    if (/\bfree delivery\b/i.test(target)) { f.freeDelivery = true; continue; }
-    const items = parseItemText(target).map((x) => ({ ...x, product: findProduct(state, x.name, vendorId) }));
-    if (items.length && items.every((x) => x.product)) { f.items.push(...items); continue; }
-    if (!f.address && looksLikeAddress(target)) { f.address = target; continue; }
-    if (!f.customer && /^[a-z][a-z .'-]{1,40}$/i.test(target) && target.split(" ").length <= 4) { f.customer = target; continue; }
-    if (/^(near|opposite|beside|close to|after|behind)\b/i.test(target)) { f.landmark = target; continue; }
-    f.note.push(target);
-  }
-
-  const when = parseWhen(f.when + " " + f.note.join(" "), todayISO());
-  if (/\bfree delivery\b/i.test(f.note.join(" "))) f.freeDelivery = true;
-
-  // Items to products of this vendor.
-  const items = [];
-  for (const it of f.items) {
-    const p = it.product || findProduct(state, it.name, vendorId);
-    if (!p) { f.unknown.push(it.name); continue; }
-    const same = items.find((x) => x.productId === p.id);
-    if (same) { if (it.free) same.free += it.qty; else same.qty += it.qty; }
-    else items.push({ productId: p.id, qty: it.free ? 0 : it.qty, free: it.free ? it.qty : 0 });
-  }
-
-  return {
-    vendorId: vendorId || (items[0] && state.products.find((p) => p.id === items[0].productId).vendorId) || "",
-    ref: f.ref,
-    customer: f.customer,
-    phone: f.phone,
-    altPhone: f.altPhone,
-    badPhone: f.phone ? "" : f.badPhone || "",
-    address: f.address,
-    landmark: f.landmark,
-    zone: zoneOf(`${f.address} ${f.landmark}`),
-    items,
-    unknown: f.unknown,
-    amount: f.amount,
-    urgent: !!when.urgent,
-    freeDelivery: !!f.freeDelivery,
-    date: when.date || todayISO(),
-    start: when.start || "",
-    end: when.end || "",
-    note: f.note.filter((n) => !/\bfree delivery\b/i.test(n)).join(". "),
-    source: lines.join("\n"),
-  };
 }
 
 export const listValue = (state, order) => order.items.reduce((s, l) => s + l.qty * ((state.products.find((p) => p.id === l.productId) || {}).price || 0), 0);
@@ -232,12 +72,10 @@ export function checkOrder(state, order, others = []) {
 
 export const blocking = (issues) => issues.some((i) => i.level === "fix");
 
-// The whole message to a list of checked orders.
-export function readOrders(state, text, vendorId = "") {
-  const vendor = vendorId || (findVendor(state, String(text).slice(0, 200)) || {}).id || "";
-  const orders = splitOrders(text)
-    .map((lines) => readBlock(state, lines, vendor))
-    .filter((o) => o.customer || o.phone || o.address || o.items.length || o.unknown.length);
+// The whole message to a list of checked orders. The server reads it (backend/intake.py), the same reader ADA uses
+// for orders vendors send on WhatsApp; the checks run here so they update as someone fixes a field.
+export async function readOrders(state, text, vendorId = "") {
+  const { orders } = await api("/api/intake/read", { method: "POST", body: { text, vendorId } });
   return orders.map((o) => ({ ...o, issues: checkOrder(state, o, orders) }));
 }
 

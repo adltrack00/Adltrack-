@@ -108,3 +108,27 @@ The Blueprint also creates the Postgres database (`delivery-db`) and passes it t
 
 Tables (created on first start): `workspace` (one row per company), `users`, `sessions`, `invites`, `photos`.
 The demo uses workspace 1, so data from before accounts existed becomes the demo.
+
+
+## WhatsApp
+
+ADA talks to riders and vendors on WhatsApp (backend/whatsapp.py, wa_providers.py; company page "WhatsApp").
+
+- Riders get each new batch with Accept / Can't take it, then reply COLLECTED, ARRIVED, DELIVERED 25000 CASH, PROBLEM,
+  NEXT, EARNINGS, PAID IN. ARRIVED answers with a one-tap link that signs them in and opens the photo and payment step.
+  A photo sent on WhatsApp is attached to the drop. Pidgin works for the common replies; with ANTHROPIC_API_KEY set,
+  ADA uses Claude for anything the rules don't catch.
+- Vendors send orders (any layout) or stock ("Sending 40 serum"), and ask BALANCE or TODAY. They hear when a drop is
+  delivered or failed, when stock is counted in, and when a payout is made.
+- Everything the office sends in the app also goes to WhatsApp. Staff can Step in on a chat; ADA goes quiet there.
+- Without credentials the app uses a test line: nothing leaves the server and the phone simulator shows each chat.
+
+Connect a real number (Meta Cloud API): verify a WhatsApp Business number in Meta Business Manager, set WHATSAPP_TOKEN,
+WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_VERIFY_TOKEN, WHATSAPP_APP_SECRET and WHATSAPP_DISPLAY_NUMBER, and point the webhook
+at `https://<your site>/api/whatsapp/webhook` (fields: messages). Create an approved template named `ada_update`
+(language en) with one body field, e.g. "Delivery update from ADA: {{1}}": WhatsApp only lets a business start a chat,
+or write after 24 hours of silence, with a template. Twilio works too: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN,
+TWILIO_WHATSAPP_FROM (and TWILIO_CONTENT_SID for the template), webhook `https://<your site>/api/whatsapp/twilio`.
+Riders and vendors are matched by the phone number on their profile.
+
+Tests: `python3 backend/tests/test_intake.py && python3 backend/tests/test_whatsapp.py && python3 backend/tests/test_api.py`

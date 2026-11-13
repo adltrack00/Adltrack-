@@ -14,6 +14,18 @@ services:
         sync: false
       - key: ADA_MODEL
         value: claude-opus-5-5
+      # WhatsApp. Without these the app runs on the test line (phone simulator on the company's WhatsApp page).
+      # Meta Cloud API: token, phone number id, a verify token you choose, and the app secret that signs webhooks.
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_VERIFY_TOKEN
+        sync: false
+      - key: WHATSAPP_APP_SECRET
+        sync: false
+      - key: WHATSAPP_DISPLAY_NUMBER
+        sync: false
       # Where the shared delivery data (vendors, stock, riders, orders, deliveries) is kept.
       - key: DATABASE_URL
         fromDatabase:
