@@ -83,11 +83,45 @@ with TestClient(server.app) as c:
     say("rider:r-tunde", "", image=png)
     st = wait(c, lambda s: (s["tasks"][0]["proof"] or {}).get("photo"), "photo")
     assert not st["tasks"][0]["proof"]["photoPending"] and st["tasks"][0]["proof"]["photo"].startswith("/api/photos/")
+    # ...and the vendor gets the doorstep photo on WhatsApp, through a signed link that needs no login
+    st = wait(c, lambda s: any(m.get("photo") and "Doorstep photo for Chioma" in m["text"] for m in msgs_to(s, "vendorId", "v-glow")), "vendor photo")
+    pic = st["tasks"][0]["proof"]["photo"]
+    import workspace as wsmod
+    shared = wsmod.shared_photo_url(pic, "http://testserver")
+    assert shared.startswith("http://testserver/api/photos/") and "/shared?s=" in shared
+    assert TestClient(server.app).get(shared[len("http://testserver"):]).content.startswith(b"\x89PNG")
+    ok(TestClient(server.app).get(shared[len("http://testserver"):-4] + "0000"), 404)
+    mp = wa_providers.Meta().payload("234", "Delivered", None, False, shared)
+    assert mp["type"] == "image" and mp["image"]["link"] == shared and mp["image"]["caption"] == "Delivered"
     # 7. A problem at the second stop, with the reason
     say("rider:r-tunde", "Customer not picking calls")
     st = wait(c, lambda s: s["tasks"][1]["status"] == "failed", "failed")
     assert st["tasks"][1]["failReason"] == "Customer not picking calls"
     assert any("Couldn't deliver to Halima" in m["text"] for m in msgs_to(st, "vendorId", "v-glow")) or wait(c, lambda s: any("Couldn't deliver to Halima" in m["text"] for m in msgs_to(s, "vendorId", "v-glow")), "vendor failed")
+    # 7b. Both of Glow's drops are done: one wrap-up for the day, with a link to the day's record
+    st = wait(c, lambda s: any(m.get("kind") == "wrap" for m in msgs_to(s, "vendorId", "v-glow")), "wrap")
+    wrap = next(m for m in msgs_to(st, "vendorId", "v-glow") if m.get("kind") == "wrap")
+    assert wrap["day"] == today and "1 delivered, 1 not delivered" in wrap["text"] and "Doorstep photos: 1 of 1" in wrap["text"], wrap
+    assert f"day={today}" in wrap["waText"] or "/signin?next=/vendor?day=" in wrap["waText"], wrap["waText"]
+    # 7c. RECORD on WhatsApp: the day, drop by drop
+    say("vendor:v-glow", "record today")
+    st = wait(c, lambda s: last(s, "vendorId", "v-glow")["text"].startswith("📒 Today: 1 delivered, 1 not delivered"), "vendor record")
+    r = last(st, "vendorId", "v-glow")["text"]
+    assert "DL-1001 Chioma Okafor" in r and "by Tunde" in r and "📷" in r and "Halima Yusuf: not delivered, Customer not picking calls" in r and f"day={today}" in r, r
+    say("rider:r-tunde", "", button="RECORD")
+    st = wait(c, lambda s: last(s, "riderId", "r-tunde")["text"].startswith("📒 Today"), "rider record")
+    assert "You earned ₦1,000" in last(st, "riderId", "r-tunde")["text"]
+    say("vendor:v-glow", "what happened yesterday?")
+    wait(c, lambda s: last(s, "vendorId", "v-glow")["text"].startswith("📒 No deliveries on yesterday"), "yesterday")
+    from datetime import date as _d
+    T = _d(2026, 11, 13)  # a Friday
+    pd = lambda txt: whatsapp.parse_day(st, txt, T)
+    assert pd("yesterday") == "2026-11-12" and pd("record tuesday") == "2026-11-10" and pd("next monday") == "2026-11-16"
+    assert pd("12 nov") == "2026-11-12" and pd("Nov 3rd") == "2026-11-03" and pd("5/11") == "2026-11-05" and pd("2026-10-01") == "2026-10-01"
+    assert pd("record DL-1001") == today and pd("hello") is None
+    assert whatsapp.rider_intent("record yesterday")["intent"] == "record" and whatsapp.rider_intent("delivered 25k cash")["intent"] == "delivered"
+    assert whatsapp.vendor_intent(st, "v-glow", "12 nov")["intent"] == "record" and whatsapp.vendor_intent(st, "v-glow", "today")["intent"] == "today"
+
     # 8. Earnings and paying in cash
     say("rider:r-tunde", "how much did I earn today?")
     st = wait(c, lambda s: last(s, "riderId", "r-tunde")["text"].startswith("💰 Today: ₦1,000 for 1 drop"), "earnings")
@@ -114,6 +148,14 @@ with TestClient(server.app) as c:
     i = next(i for i in cs["intake"] if i.get("status") == "sent"); i.update(status="received", qty=38)
     ok(c.put("/api/workspace", json={"base_rev": cw["rev"], "state": cs}))
     wait(c, lambda s: "counted in 38 × Vitamin C face serum (you sent 40)" in last(s, "vendorId", "v-glow")["text"], "counted")
+    # 11b. The office gives Adaeze's order to a rider: Glow is told who has it
+    cw = ok(c.get("/api/workspace")); cs = cw["state"]
+    o = next(o for o in cs["orders"] if o["id"] == a["id"]); o["status"] = "planned"
+    cs["tasks"].append({"id": "t3", "ref": "DL-1003", "riderId": "r-amaka", "vendorId": "v-glow", "customer": "Adaeze Nnaji", "address": "15 Adeniran Ogunsanya St", "date": today, "time": "15:00",
+                        "items": [{"productId": "p-serum", "qty": 2, "free": 0, "price": 12500}], "status": "assigned", "history": [{"status": "assigned", "at": "x"}], "orderId": a["id"]})
+    ok(c.put("/api/workspace", json={"base_rev": cw["rev"], "state": cs}))
+    st = wait(c, lambda s: last(s, "vendorId", "v-glow")["text"].startswith("🛵 With a rider today"), "planned")
+    assert f"{a['id']} Adaeze Nnaji: with Amaka (DL-1003), by 3:00 PM" in last(st, "vendorId", "v-glow")["text"], last(st, "vendorId", "v-glow")["text"]
     say("vendor:v-glow", "balance?")
     wait(c, lambda s: last(s, "vendorId", "v-glow")["text"].startswith("💸 We owe you ₦23,000 for 1 delivered order"), "balance")
 
@@ -139,7 +181,7 @@ with TestClient(server.app) as c:
     class FakeMeta(wa_providers.Meta):
         def __init__(self):
             super().__init__(); self.verify_token = "vt"; self.secret = "s3cret"
-        def send(self, to, text, buttons=None, outside_window=False):
+        def send(self, to, text, buttons=None, outside_window=False, image=""):
             sent.append((to, text, outside_window)); return wa_providers.Result(id=f"wamid.{len(sent)}", status="sent")
     wa_providers.line = FakeMeta()
     assert c.get("/api/whatsapp/webhook", params={"hub.mode": "subscribe", "hub.verify_token": "vt", "hub.challenge": "42"}).text == "42"

@@ -36,6 +36,8 @@ SCHEMA = [
     # WhatsApp message ids already handled: Meta and Twilio send a webhook again if it was slow to answer.
     "CREATE TABLE IF NOT EXISTS wa_seen (id TEXT PRIMARY KEY, created_at BIGINT NOT NULL)",
     "CREATE TABLE IF NOT EXISTS photos (id TEXT PRIMARY KEY, workspace_id INT NOT NULL, mime TEXT NOT NULL, data {blob} NOT NULL, created_at BIGINT NOT NULL)",
+    # Small server settings, such as the key that signs photo links WhatsApp fetches.
+    "CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT NOT NULL)",
 ]
 
 

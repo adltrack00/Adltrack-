@@ -138,7 +138,7 @@ def items_text(state, t) -> str:
 
 def stamp(t, status) -> None:
     t["status"] = status
-    t["history"] = list(t.get("history") or []) + [{"status": status, "at": now_iso()}]
+    t["history"] = list(t.get("history") or []) + [{"status": status, "at": now_iso(), "via": "whatsapp"}]
 
 
 def by_time(t) -> Tuple:
@@ -236,7 +236,7 @@ def next_stop_reply(state, rid) -> Tuple[str, Optional[List]]:
     held = sum(cash_held(t) for t in state["tasks"] if t.get("riderId") == rid)
     if held:
         return f"That was your last drop today. 🎉 Please pay the {money(held)} cash you're holding into the company account, then reply PAID IN with the transfer ref.", [{"id": "EARNINGS", "title": "My earnings"}]
-    return "That was your last drop today. 🎉 Great work.", [{"id": "EARNINGS", "title": "My earnings"}]
+    return "That was your last drop today. 🎉 Great work. Reply RECORD any time to see your day.", [{"id": "EARNINGS", "title": "My earnings"}, {"id": "RECORD", "title": "My day"}]
 
 
 # ---------- on every save: what to send ----------
@@ -268,17 +268,27 @@ def plan(state_before, after, wid) -> Tuple[List[str], List[Dict[str, Any]]]:
                 rider = person(after, f"rider:{rid}") or {}
                 pay = t.get("payment") or {}
                 got = "Not paid at the door." if pay.get("method") == "unpaid" else f"Collected {money(collected(t))} ({pay.get('method', 'cash')})."
-                new.append(office_message(f"vendor:{vid}", f"✅ Delivered to {t.get('customer')}{' (' + t['orderId'] + ')' if t.get('orderId') else ''}: {items_text(after, t)}. {got} Rider: {rider.get('first', '')}, {clock(now_iso())}.", kind="update", taskId=t["id"]))
+                proof = t.get("proof") or {}
+                pic = proof.get("photo") or ""
+                seen = f" Received by {proof['receivedBy']}." if proof.get("receivedBy") else ""
+                tail = " 📷 Doorstep photo attached." if pic else " Doorstep photo to follow."
+                new.append(office_message(f"vendor:{vid}", f"✅ Delivered to {t.get('customer')}{' (' + t['orderId'] + ')' if t.get('orderId') else ''}: {items_text(after, t)}. {got}{seen} Rider: {rider.get('first', '')}, {clock(now_iso())}.{tail}",
+                                          kind="update", taskId=t["id"], **({"photo": pic} if pic else {})))
             proof = t.get("proof") or {}
             if rid and proof.get("via") != "whatsapp" and s["notify"]["riderUpdates"]:
                 text, buttons = next_stop_reply(after, rid)
                 new.append(office_message(f"rider:{rid}", f"✅ {t.get('ref')} confirmed: {money(collected(t))} from {t.get('customer')}.\n\n{text}", kind="update", buttons=buttons, taskId=t["id"]))
+        if o.get("status") == "delivered" and t.get("status") == "delivered" and not (o.get("proof") or {}).get("photo") and (t.get("proof") or {}).get("photo") and vid and s["notify"]["vendorDeliveries"]:
+            new.append(office_message(f"vendor:{vid}", f"📷 Doorstep photo for {t.get('customer')} ({t.get('ref')}), delivered {clock(t.get('deliveredAt') or delivered_at(t))}.", kind="update", taskId=t["id"], photo=t["proof"]["photo"]))
         if o.get("status") != "failed" and t.get("status") == "failed" and vid and s["notify"]["vendorDeliveries"]:
             new.append(office_message(f"vendor:{vid}", f"⚠️ Couldn't deliver to {t.get('customer')}: {t.get('failReason') or 'no reason given'}. The office will try again or bring it back to stock.", kind="update", taskId=t["id"]))
         if not o.get("settled") and t.get("settled") and vid:
             settled.setdefault(vid, []).append(t)
         if not (o.get("payment") or {}).get("handInVerified") and (t.get("payment") or {}).get("handInVerified") and rid:
             verified.setdefault(rid, []).append(t)
+    if s["notify"]["vendorDeliveries"]:
+        new += planned_notices(state_before, after)
+        new += day_wraps(state_before, after)
     if s["notify"]["drops"]:
         for rid, tasks in offers.items():
             r = person(after, f"rider:{rid}")
@@ -303,6 +313,185 @@ def plan(state_before, after, wid) -> Tuple[List[str], List[Dict[str, Any]]]:
     return forward, new
 
 
+def delivered_at(t) -> str:
+    for h in reversed(t.get("history") or []):
+        if h.get("status") == "delivered":
+            return h.get("at") or ""
+    return ""
+
+
+def planned_notices(before, after) -> List[Dict[str, Any]]:
+    """An order a vendor sent is now with a rider: one message per vendor for the batch."""
+    old = {o.get("id"): o for o in before.get("orders", [])}
+    by_order = {t.get("orderId"): t for t in after.get("tasks", []) if t.get("orderId")}
+    per: Dict[str, List] = {}
+    for o in after.get("orders", []):
+        was = old.get(o.get("id"))
+        if was and was.get("status") in ("open", "needs_fix") and o.get("status") == "planned" and o.get("vendorId") and by_order.get(o["id"]):
+            per.setdefault(o["vendorId"], []).append((o, by_order[o["id"]]))
+    out = []
+    for vid, pairs in per.items():
+        lines = []
+        for o, t in pairs:
+            r = person(after, f"rider:{t.get('riderId')}") or {}
+            when = f", by {time12(t['time'])}" if t.get("time") else ""
+            lines.append(f"• {o['id']} {o.get('customer')}: with {r.get('first') or 'a rider'} ({t.get('ref')}){when}")
+        out.append(office_message(f"vendor:{vid}", "🛵 With a rider today:\n" + "\n".join(lines) + "\n\nI'll message you when each one is delivered, with the doorstep photo.", kind="update", taskIds=[t["id"] for _, t in pairs]))
+    return out
+
+
+DONE = ("delivered", "failed")
+
+
+def day_wraps(before, after) -> List[Dict[str, Any]]:
+    """When a vendor's last drop of a day is done, one wrap-up with the day's record. Again if more drops end later."""
+    old = {t.get("id"): t for t in before.get("tasks", [])}
+    touched = set()
+    for t in after.get("tasks", []):
+        o = old.get(t.get("id"))
+        if t.get("vendorId") and t.get("status") in DONE and (not o or o.get("status") not in DONE):
+            touched.add((t["vendorId"], t.get("date") or today_iso()))
+    out = []
+    for vid, day in touched:
+        mine = [t for t in after.get("tasks", []) if t.get("vendorId") == vid and t.get("date") == day]
+        if any(t.get("status") not in DONE for t in mine):
+            continue
+        if any(o.get("vendorId") == vid and o.get("date") == day and o.get("status") in ("open", "needs_fix") for o in after.get("orders", [])):
+            continue
+        done = [t for t in mine if t.get("status") == "delivered"]
+        failed = [t for t in mine if t.get("status") == "failed"]
+        last = max((m.get("wrapCount") or 0 for m in after.get("messages", []) if m.get("kind") == "wrap" and m.get("vendorId") == vid and m.get("day") == day), default=0)
+        if len(mine) <= last:
+            continue
+        photos = sum(1 for t in done if (t.get("proof") or {}).get("photo"))
+        lines = [f"📒 That's all for {nice_day(day)}: {len(done)} delivered, {len(failed)} not delivered."]
+        if done:
+            lines.append(f"Collected {money(sum(collected(t) for t in done))}; due to you {money(sum(vendor_payable(after, t) for t in done))}. Doorstep photos: {photos} of {len(done)}.")
+        if failed:
+            lines.append("Not delivered: " + "; ".join(f"{t.get('customer')} ({t.get('failReason') or 'no reason'})" for t in failed[:4]))
+        lines.append("Everything is saved in your dashboard: who delivered what, when, with the photos.")
+        out.append(office_message(f"vendor:{vid}", "\n".join(lines), kind="wrap", day=day, wrapCount=len(mine)))
+    return out
+
+
+# ---------- day records: what happened on a day, or what's planned ----------
+
+MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+RECORD_WORDS = re.compile(r"\b(record|records|history|what happened|report for|log for|summary for|my day|planned|scheduled|schedule)\b|^\W*(yesterday|tomorrow)\W*$", re.I)
+
+
+def nice_day(day: str) -> str:
+    try:
+        d = date.fromisoformat(day)
+    except ValueError:
+        return day
+    t = datetime.now(TZ).date()
+    if d == t:
+        return "today"
+    if d == t - timedelta(days=1):
+        return "yesterday"
+    if d == t + timedelta(days=1):
+        return "tomorrow"
+    return f"{d.strftime('%a')} {d.day} {d.strftime('%b')}"
+
+
+def parse_day(state, text: str, today: Optional[date] = None) -> Optional[str]:
+    """today, yesterday, tomorrow, a weekday (the last one, or "next friday"), 12 nov, nov 12, 12/11, 2026-11-12, or a
+    DL-/ORD- ref, which means the day of that delivery."""
+    t = (text or "").lower()
+    today = today or datetime.now(TZ).date()
+    ref = re.search(r"\b(dl|ord)-?(\d+)\b", t)
+    if ref:
+        code = f"{ref.group(1).upper()}-{ref.group(2)}"
+        if code.startswith("DL"):
+            hit = next((x for x in state.get("tasks", []) if x.get("ref") == code), None)
+        else:
+            hit = next((x for x in state.get("tasks", []) if x.get("orderId") == code), None) or next((x for x in state.get("orders", []) if x.get("id") == code), None)
+        if hit and hit.get("date"):
+            return hit["date"]
+    m = re.search(r"\b(20\d\d)-(\d\d)-(\d\d)\b", t)
+    if m:
+        return m.group(0)
+    if re.search(r"\byesterday\b", t):
+        return (today - timedelta(days=1)).isoformat()
+    if re.search(r"\btomorrow\b", t):
+        return (today + timedelta(days=1)).isoformat()
+    if re.search(r"\btoday\b", t):
+        return today.isoformat()
+
+    def pick(day: int, month: int) -> Optional[str]:
+        try:
+            d = date(today.year, month, day)
+        except ValueError:
+            return None
+        if d - today > timedelta(days=60):  # "28 dec" in January: last December
+            d = date(today.year - 1, month, day)
+        return d.isoformat()
+
+    m = re.search(r"\b(\d{1,2})(?:st|nd|rd|th)?\s*(?:of\s+)?(" + "|".join(MONTHS) + r")[a-z]*\b", t) or None
+    if m:
+        return pick(int(m.group(1)), MONTHS.index(m.group(2)) + 1)
+    m = re.search(r"\b(" + "|".join(MONTHS) + r")[a-z]*\.?\s+(\d{1,2})(?:st|nd|rd|th)?\b", t)
+    if m:
+        return pick(int(m.group(2)), MONTHS.index(m.group(1)) + 1)
+    m = re.search(r"\b(\d{1,2})/(\d{1,2})(?:/\d{2,4})?\b", t)  # day first, as in Nigeria
+    if m:
+        return pick(int(m.group(1)), int(m.group(2)))
+    for n, name in enumerate(WEEKDAYS):
+        if re.search(rf"\b{name[:3]}(?:{name[3:]})?\b", t):
+            if re.search(rf"\bnext\s+{name[:3]}", t):
+                return (today + timedelta(days=(n - today.weekday()) % 7 or 7)).isoformat()
+            return (today - timedelta(days=(today.weekday() - n) % 7)).isoformat()
+    return None
+
+
+def day_record(state, role: str, ref: str, day: str) -> str:
+    """The day in a few WhatsApp lines: each drop, who did it and when, or what's planned for a day still to come."""
+    mine = sorted([t for t in state.get("tasks", []) if t.get("date") == day and t.get("riderId" if role == "rider" else "vendorId") == ref],
+                  key=lambda t: (delivered_at(t) or "9", by_time(t)))
+    future = day > today_iso()
+    rider_name = lambda t: (person(state, f"rider:{t.get('riderId')}") or {}).get("first") or "no rider"
+    if future:
+        orders = [o for o in state.get("orders", []) if role == "vendor" and o.get("vendorId") == ref and o.get("date") == day and o.get("status") in ("open", "needs_fix")]
+        if not mine and not orders:
+            return f"🗓️ Nothing planned for {nice_day(day)} yet."
+        lines = [f"🗓️ Planned for {nice_day(day)}: {len(mine)} {'drop' if len(mine) == 1 else 'drops'}" + (f", {len(orders)} {'order' if len(orders) == 1 else 'orders'} waiting for a rider" if orders else "") + "."]
+        for t in mine[:8]:
+            when = f" by {time12(t['time'])}" if t.get("time") else ""
+            lines.append(f"• {t.get('ref')} {t.get('customer')}: {items_text(state, t)}{when}" + (f", {rider_name(t)}" if role == "vendor" else ""))
+        for o in orders[:4]:
+            lines.append(f"• {o['id']} {o.get('customer')}: waiting for a rider")
+        return "\n".join(lines)
+    if not mine:
+        return f"📒 No deliveries on {nice_day(day)}."
+    done = [t for t in mine if t.get("status") == "delivered"]
+    failed = [t for t in mine if t.get("status") == "failed"]
+    lines = [f"📒 {nice_day(day)[:1].upper() + nice_day(day)[1:]}: {len(done)} delivered, {len(failed)} not delivered, {len(mine) - len(done) - len(failed)} still open. Collected {money(sum(collected(t) for t in done))}."]
+    for t in mine[:10]:
+        if t.get("status") == "delivered":
+            pay = t.get("payment") or {}
+            how = "not paid" if pay.get("method") == "unpaid" else f"{money(collected(t))} {pay.get('method', 'cash')}"
+            pic = " 📷" if (t.get("proof") or {}).get("photo") else ""
+            lines.append(f"• {clock(delivered_at(t))} ✅ {t.get('ref')} {t.get('customer')}: {items_text(state, t)}, {how}" + (f", by {rider_name(t)}" if role == "vendor" else "") + pic)
+        elif t.get("status") == "failed":
+            lines.append(f"• ⚠️ {t.get('ref')} {t.get('customer')}: not delivered, {t.get('failReason') or 'no reason given'}")
+        else:
+            lines.append(f"• {t.get('ref')} {t.get('customer')}: {'on the way' if t.get('status') == 'picked_up' else 'not collected yet'}")
+    if len(mine) > 10:
+        lines.append(f"…and {len(mine) - 10} more.")
+    if role == "rider":
+        lines.append(f"You earned {money(fees(state)['rider'] * len(done))}.")
+    return "\n".join(lines)
+
+
+def record_link(wid: int, state, m) -> str:
+    key = key_of(m)
+    role, _, ref = key.partition(":")
+    p = person(state, key) or {}
+    return f"See it with photos: {link(wid, role, ref, f'/{role}?day={m['day']}', p.get('name', ''))}"
+
+
 def drop_footer(wid, state, m) -> str:
     r = person(state, f"rider:{m['riderId']}") or {}
     return f"\n\nReply YES to accept, or NO if you can't take them.\nOpen in the app: {link(wid, 'rider', m['riderId'], '/rider', r.get('name', ''))}"
@@ -323,6 +512,8 @@ async def on_change(wid: int, before: Optional[Dict[str, Any]], after: Dict[str,
             for m in new:
                 if m.get("kind") == "drop":
                     m["waText"] = m["text"] + await asyncio.to_thread(drop_footer, wid, after, m)
+                elif m.get("day"):
+                    m["waText"] = m["text"] + "\n" + await asyncio.to_thread(record_link, wid, after, m)
 
             def enqueue(st):
                 ids = set(forward)
@@ -355,7 +546,8 @@ async def send(wid: int, state, msgs: List[Dict[str, Any]]) -> None:
             results[m["id"]] = {"status": "no_number", "at": now_iso()}
             continue
         last_in = (seen.get(key) or {}).get("lastIn") or 0
-        res = await asyncio.to_thread(line.send, p["phone"], m.get("waText") or m["text"], m.get("buttons"), now() - last_in > WINDOW)
+        image = await asyncio.to_thread(workspace.shared_photo_url, m["photo"], base_url(wid)) if m.get("photo") and m.get("from") in OFFICE else ""
+        res = await asyncio.to_thread(line.send, p["phone"], m.get("waText") or m["text"], m.get("buttons"), now() - last_in > WINDOW, image=image)
         results[m["id"]] = {"status": res.get("status"), "id": res.get("id", ""), "at": now_iso(), **({"error": res["error"]} if res.get("error") else {})}
 
     def record(st):
@@ -373,7 +565,7 @@ async def send(wid: int, state, msgs: List[Dict[str, Any]]) -> None:
 
 BUTTON_INTENTS = {"ACCEPT": "accept", "DECLINE": "decline", "COLLECTED": "collected", "ARRIVED": "arrived", "DELIVERED": "delivered",
                   "PROBLEM": "problem", "EARNINGS": "earnings", "NEXT": "next", "HELP": "help", "PAID_CASH": "amount", "PAID_TRANSFER": "amount",
-                  "NOT_PAID": "amount", "BALANCE": "balance", "TODAY": "today", "REASON_1": "reason", "REASON_2": "reason", "REASON_3": "reason"}
+                  "NOT_PAID": "amount", "BALANCE": "balance", "TODAY": "today", "RECORD": "record", "REASON_1": "reason", "REASON_2": "reason", "REASON_3": "reason"}
 REASONS = {"REASON_1": "Customer not picking calls", "REASON_2": "Wrong or unclear address", "REASON_3": "Customer refused the order"}
 
 
@@ -417,6 +609,8 @@ def rider_intent(text: str, button: str = "") -> Dict[str, Any]:
     w = re.sub(r"[^\w\s']", " ", t).strip()
     if re.fullmatch(r"(help|menu|hi|hello|hey|start|options|good (morning|afternoon|evening))", w):
         out["intent"] = "help"
+    elif RECORD_WORDS.search(t):
+        out["intent"] = "record"
     elif re.search(r"\b(paid in|i have paid|i don pay|i've paid|sent the money|remit+ed|remit|paid the cash|deposited)\b", t):
         out["intent"] = "paid_in"
         r = re.search(r"\b(?:ref(?:erence)?|trf|transaction)\s*[:#-]?\s*([a-z0-9-]{4,})", t)
@@ -462,13 +656,15 @@ def vendor_intent(state, vendor_id: str, text: str, button: str = "") -> Dict[st
         lines, _ = intake.read_stock(state, text, vendor_id)
         if lines:
             return {"intent": "stock"}
+    if RECORD_WORDS.search(t) or (button == "" and re.fullmatch(r"(what about |and )?(yesterday|tomorrow|(last |next )?(mon|tues|wednes|thurs|fri|satur|sun)day|\d{1,2}(st|nd|rd|th)? \w+|\w+ \d{1,2}|\d{1,2}/\d{1,2}(/\d{2,4})?)\??", w)):
+        return {"intent": "record"}
     if re.search(r"\b(today|status|report|update|deliveries|how far|summary)\b", t):
         return {"intent": "today"}
     return {"intent": "unknown"}
 
 
 CLAUDE_SYSTEM = """You read one WhatsApp message a {role} sent to a delivery company's assistant and say what they mean.
-Rider intents: accept (takes the new drops), decline (can't take them), collected (picked up the parcels at the office), arrived (at the customer), delivered (handed over; amount and method if said), amount (only says how much was collected), problem (could not deliver; reason), earnings, next (what's next / my drops), paid_in (paid cash into the company account; ref), help, unknown.
+Rider intents: accept (takes the new drops), decline (can't take them), collected (picked up the parcels at the office), arrived (at the customer), delivered (handed over; amount and method if said), amount (only says how much was collected), problem (could not deliver; reason), earnings, next (what's next / my drops), paid_in (paid cash into the company account; ref), record (asks what happened on a day, or what is planned), help, unknown.
 Vendor intents: orders (customer orders with name, phone, address), stock (stock being sent to the office), balance (money owed or payouts), today (how today's deliveries are going), help, unknown.
 The message may be in Nigerian Pidgin, Yoruba, Igbo or Hausa mixed with English. amount is in naira (25k = 25000), 0 if not said. method is cash, transfer, pos, unpaid or none."""
 
@@ -481,7 +677,7 @@ def claude_intent(role: str, text: str) -> Optional[Dict[str, Any]]:
 
         client = anthropic.Anthropic(timeout=20.0, max_retries=0)
         schema = {"type": "object", "additionalProperties": False, "required": ["intent", "amount", "method", "reason"], "properties": {
-            "intent": {"type": "string", "enum": ["accept", "decline", "collected", "arrived", "delivered", "amount", "problem", "earnings", "next", "paid_in", "orders", "stock", "balance", "today", "help", "unknown"]},
+            "intent": {"type": "string", "enum": ["accept", "decline", "collected", "arrived", "delivered", "amount", "problem", "earnings", "next", "paid_in", "record", "orders", "stock", "balance", "today", "help", "unknown"]},
             "amount": {"type": "number"}, "method": {"type": "string", "enum": ["cash", "transfer", "pos", "unpaid", "none"]}, "reason": {"type": "string"}}}
         res = client.messages.create(
             model=os.environ.get("ADA_MODEL", "claude-opus-5-5"), max_tokens=300,
@@ -501,7 +697,8 @@ def claude_intent(role: str, text: str) -> Optional[Dict[str, Any]]:
 RIDER_HELP = ("Hi {first}, I'm ADA, the office assistant. You can reply:\n"
               "YES / NO — take or turn down new drops\nCOLLECTED — you have the parcels\nARRIVED — you're at the customer\n"
               "DELIVERED 25000 CASH — done, with what you collected\nPROBLEM — couldn't deliver\nNEXT — your drops today\n"
-              "EARNINGS — what you've made\nPAID IN — you paid cash into the company account\nAnything else goes to the office.")
+              "EARNINGS — what you've made\nPAID IN — you paid cash into the company account\n"
+              "RECORD — your day; RECORD YESTERDAY or RECORD 12 NOV for another day\nAnything else goes to the office.")
 
 
 def amount_buttons(t) -> List[Dict[str, str]]:
@@ -553,12 +750,17 @@ def rider_turn(st, wid: int, rid: str, it: Dict[str, Any], photo: Optional[str],
             return f"📸 Got the photo for {current.get('customer')}. How much did you collect?", amount_buttons(current)
 
     if intent == "help":
-        return RIDER_HELP.format(first=r["first"]), [{"id": "NEXT", "title": "My drops"}, {"id": "EARNINGS", "title": "My earnings"}]
+        return RIDER_HELP.format(first=r["first"]), [{"id": "NEXT", "title": "My drops"}, {"id": "EARNINGS", "title": "My earnings"}, {"id": "RECORD", "title": "My day"}]
+
+    if intent == "record":
+        day = parse_day(st, it.get("text", "")) or today
+        return f"{day_record(st, 'rider', rid, day)}\nSee it with photos: {link(wid, 'rider', rid, f'/rider?day={day}', r['name'])}", None
 
     if intent == "accept":
         if offers:
             for t in offers:
                 t["acceptedAt"] = now_iso()
+                t["acceptedVia"] = "whatsapp"
                 t["declined"] = None
             u = sum(units(t) for t in offers)
             return (f"Thanks {r['first']}! {len(offers)} {'drop' if len(offers) == 1 else 'drops'} accepted ({u} {'unit' if u == 1 else 'units'}). "
@@ -592,6 +794,7 @@ def rider_turn(st, wid: int, rid: str, it: Dict[str, Any], photo: Optional[str],
                 return "Collect your parcels at the office first, then reply COLLECTED.", [{"id": "COLLECTED", "title": "Collected"}]
             return "I don't see a drop on the road for you. Reply NEXT to see your drops.", None
         current["arrivedAt"] = now_iso()
+        current["arrivedVia"] = "whatsapp"
         return (f"You're at {current.get('customer')}. Collect {money(value(current))}.\n\n"
                 f"Tap to take the photo and confirm payment:\n{deep(current)}\n\nOr reply DELIVERED with the amount, e.g. DELIVERED {value(current)} CASH."), [{"id": "DELIVERED", "title": "Delivered"}, {"id": "PROBLEM", "title": "Problem"}]
 
@@ -661,7 +864,7 @@ def rider_turn(st, wid: int, rid: str, it: Dict[str, Any], photo: Optional[str],
             return "You're not holding any cash for the office right now. Thank you!", None
         total = sum(cash_held(t) for t in held)
         for t in held:
-            t["payment"] = {**t["payment"], "handedIn": {"at": now_iso(), "ref": it.get("reason") or ""}}
+            t["payment"] = {**t["payment"], "handedIn": {"at": now_iso(), "ref": it.get("reason") or "", "via": "whatsapp"}}
         return f"Thanks! I've told the office you paid in {money(total)}{' (ref ' + it['reason'] + ')' if it.get('reason') else ''}. They'll confirm once it's in the bank.", None
 
     return None
@@ -673,6 +876,7 @@ VENDOR_HELP = ("Hi {first}, I'm ADA from {company}. Send me:\n"
                "• Your orders, as you'd normally type them (name, phone, address, item, amount). One or many in a message.\n"
                "• Stock you're sending, e.g. \"Sending 50 serum and 20 black soap\".\n"
                "BALANCE — what we owe you and payouts\nTODAY — how today's deliveries are going\nCANCEL ORD-3310 — call off an order\n"
+               "RECORD YESTERDAY, RECORD 12 NOV or RECORD ORD-3310 — who delivered what and when, with photos\n"
                "Anything else goes to the office.")
 
 
@@ -683,7 +887,7 @@ def vendor_turn(st, wid: int, vid: str, it: Dict[str, Any], text: str, who: Dict
     company = (st.get("company") or {}).get("name") or "the office"
     intent = it["intent"]
     if intent == "help":
-        return VENDOR_HELP.format(first=v["first"], company=company), [{"id": "BALANCE", "title": "Balance"}, {"id": "TODAY", "title": "Today"}]
+        return VENDOR_HELP.format(first=v["first"], company=company), [{"id": "BALANCE", "title": "Balance"}, {"id": "TODAY", "title": "Today"}, {"id": "RECORD", "title": "Day record"}]
 
     if intent == "orders":
         found = intake.read_orders(st, text, vid, today=datetime.now(TZ).date())
@@ -750,6 +954,10 @@ def vendor_turn(st, wid: int, vid: str, it: Dict[str, Any], text: str, who: Dict
         if fix:
             lines.append(f"{len(fix)} {'order needs' if len(fix) == 1 else 'orders need'} a fix: " + "; ".join(f"{o['id']} {o.get('customer') or ''}: {' '.join(o.get('issues') or [])}" for o in fix[:3]))
         return "\n".join(lines), None
+
+    if intent == "record":
+        day = parse_day(st, text) or today_iso()
+        return f"{day_record(st, 'vendor', vid, day)}\nSee it with photos: {link(wid, 'vendor', vid, f'/vendor?day={day}', v['name'])}", None
 
     if intent == "cancel":
         o = next((o for o in st.get("orders", []) if o.get("id") == it.get("ref") and o.get("vendorId") == vid), None)

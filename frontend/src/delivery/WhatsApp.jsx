@@ -2,7 +2,7 @@
 // (drops, "arrived", "delivered", orders, stock, balances); staff can read along, step in, and hand the chat back.
 // While no real WhatsApp number is connected, the phone simulator lets anyone try it as a rider or a vendor.
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Camera, Check, CheckCheck, Clock, Hand, MessageCircle, Send, Settings2, Smartphone, Sparkles, X } from "lucide-react";
+import { CalendarCheck, Camera, Check, CheckCheck, Clock, Hand, MessageCircle, Send, Settings2, Smartphone, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "./auth";
 import { useWorkspace } from "./store";
@@ -52,7 +52,7 @@ function threadsOf(state) {
 }
 const inThread = (m, t) => (t.vendorId ? m.vendorId === t.vendorId : m.riderId === t.riderId && !m.vendorId);
 
-export default function WhatsAppInbox() {
+export default function WhatsAppInbox({ openDay }) {
   const { state, act } = useWorkspace();
   const status = useWaStatus();
   const s = waSettings(state);
@@ -140,7 +140,7 @@ export default function WhatsAppInbox() {
             {paused || !s.autoReply ? <><Hand className="h-3.5 w-3.5" /> You're handling this chat. ADA won't answer {th.first} until you hand it back.</> : <><AdaMark size={16} /> ADA is answering {th.first} on WhatsApp. Step in any time.</>}
           </div>
           <div ref={body} className="flex-1 space-y-2.5 overflow-y-auto bg-[#f4f1ec] p-4 sm:p-5" style={{ maxHeight: 560 }}>
-            {thread.map((m) => <Bubble key={m.id} m={m} mine={!theirs(m)} />)}
+            {thread.map((m) => <Bubble key={m.id} m={m} mine={!theirs(m)} day={dayOfMessage(state, m)} onDay={openDay} />)}
             {!thread.length && <Empty icon={MessageCircle} title="No messages yet" sub={th.phone ? `ADA will message ${th.first} here and on WhatsApp.` : `Add ${th.first}'s WhatsApp number under Team.`} />}
           </div>
           <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { act({ type: "messages/send", messages: [{ riderId: th.riderId, vendorId: th.vendorId, from: "dispatcher", text: text.trim() }] }); setText(""); } }} className="flex gap-2 border-t border-neutral-100 p-3">
@@ -156,7 +156,15 @@ export default function WhatsAppInbox() {
   );
 }
 
-function Bubble({ m, mine }) {
+// A message about a drop or a day (a delivery notice, the end-of-day wrap) links to that day's record.
+export function dayOfMessage(state, m) {
+  if (m.day) return m.day;
+  const id = m.taskId || (m.taskIds && m.taskIds[0]);
+  const t = id && state.tasks.find((x) => x.id === id);
+  return t ? t.date : "";
+}
+
+function Bubble({ m, mine, day, onDay }) {
   const who = m.from === "ada" ? "ADA" : m.from === "dispatcher" ? (m.by && m.by.name) || "Office" : null;
   return (
     <div className={cn("max-w-[85%] sm:max-w-[75%]", mine ? "ml-auto" : "")}>
@@ -166,6 +174,11 @@ function Bubble({ m, mine }) {
         <div className="whitespace-pre-line break-words">{m.text}</div>
         {!!(m.buttons && m.buttons.length) && (
           <div className="mt-2 flex flex-wrap gap-1.5">{m.buttons.map((b) => <span key={b.id} className="rounded-full bg-white/10 px-2.5 py-1 text-[11.5px] font-semibold text-white/85 ring-1 ring-white/15">{b.title}</span>)}</div>
+        )}
+        {day && onDay && (
+          <button onClick={() => onDay(day)} className={cn("mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-semibold", mine ? "bg-white/15 text-white hover:bg-white/25" : "bg-neutral-100 text-neutral-800 hover:bg-neutral-200")} data-testid="bubble-day">
+            <CalendarCheck className="h-3.5 w-3.5" /> Day record
+          </button>
         )}
       </div>
       <div className={cn("mt-0.5 flex items-center gap-1 text-[10.5px] text-neutral-400", mine ? "justify-end" : "")}>
@@ -228,7 +241,8 @@ export function Simulator({ open, onClose, threads, start }) {
   const [busy, setBusy] = useState(false);
   const file = useRef(null);
   const body = useRef(null);
-  useEffect(() => { if (open) setKey(start); }, [open, start]);
+  // Pick the contact when the phone opens, not each time a new message moves another chat to the top.
+  useEffect(() => { if (open) setKey(start); }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
   const th = threads.find((t) => t.key === key) || threads[0];
   const msgs = th ? state.messages.filter((m) => inThread(m, th) && (m.channel === "whatsapp" || m.wa)) : [];
   useEffect(() => { if (body.current) body.current.scrollTop = body.current.scrollHeight; }, [msgs.length, open, key]);

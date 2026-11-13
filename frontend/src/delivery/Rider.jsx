@@ -13,6 +13,7 @@ import { SceneCta, themeOf, Tip } from "./scenes";
 import { AdaMark, Btn, Empty, HeroCard, inputCls, Modal, Stars, StatusPill, statusOf, Tag, WeekStrip } from "./ui";
 import { ago, clock, money, shrinkPhoto, time12, todayISO } from "./utils";
 import { NotLinked } from "./Vendor";
+import { DayRecords } from "./DayRecord";
 import { MeButton } from "./Photo";
 import { useAuth } from "./auth";
 import { toast } from "sonner";
@@ -40,7 +41,8 @@ function RiderApp({ rider, go }) {
   const { state, act } = useWorkspace();
   const { signOut } = useAuth();
   const [tab, setTab] = useState("home");
-  const [page, setPage] = useState(null); // a page opened from the menu: "level"
+  const [page, setPage] = useState(null); // a page opened from the menu: "level" or "records"
+  const [recDay, setRecDay] = useState(null);
   const [delivering, setDelivering] = useState(null);
   const [failing, setFailing] = useState(null);
   const [declining, setDeclining] = useState(null);
@@ -82,6 +84,7 @@ function RiderApp({ rider, go }) {
     const q = new URLSearchParams(window.location.search);
     const drop = q.get("drop") && state.tasks.find((t) => t.id === q.get("drop") && t.riderId === rider.id);
     if (q.get("tab") && ["home", "earnings", "inbox", "menu"].includes(q.get("tab"))) setTab(q.get("tab"));
+    if (/^\d{4}-\d{2}-\d{2}$/.test(q.get("day") || "")) { setRecDay(q.get("day")); setPage("records"); }
     if (drop && isDelivered(drop) && drop.proof && drop.proof.photoPending) setPhotoFor(drop);
     else if (drop && drop.status === "picked_up") setDelivering(drop);
     else if (drop && q.get("do")) toast(isDelivered(drop) ? `${drop.customer}'s drop is already confirmed.` : "Collect your parcels at the office first.");
@@ -96,8 +99,10 @@ function RiderApp({ rider, go }) {
         <div ref={scroller} className="flex flex-1 flex-col overflow-y-auto overscroll-contain [&>*]:shrink-0" data-testid="rider-scroll">
           {page === "level" ? (
             <LevelPage week={week} level={level} next={nextLevel} onBack={() => setPage(null)} />
+          ) : page === "records" ? (
+            <RiderRecords rider={rider} state={state} day={recDay} onDay={setRecDay} onBack={() => setPage(null)} />
           ) : tab === "menu" ? (
-            <MenuPage rider={rider} week={week} level={level} company={state.company} onPick={(id) => (id === "wallet" ? openWallet() : id === "level" ? (setPage("level"), scroller.current && (scroller.current.scrollTop = 0)) : id === "account" ? go("/account") : goTab(id))} onSignOut={async () => { await signOut(); go("/"); }} />
+            <MenuPage rider={rider} week={week} level={level} company={state.company} onPick={(id) => (id === "wallet" ? openWallet() : id === "level" || id === "records" ? (setPage(id), scroller.current && (scroller.current.scrollTop = 0)) : id === "account" ? go("/account") : goTab(id))} onSignOut={async () => { await signOut(); go("/"); }} />
           ) : (
             <>
               <header className="flex items-center gap-3 px-5 pb-4 pt-7 text-white">
@@ -630,7 +635,7 @@ function MenuPage({ rider, week, level, company, onPick, onSignOut }) {
         </div>
       </div>
       <nav className="mt-8 grid gap-1" data-testid="rider-menu">
-        {[["earnings", "Earnings"], ["wallet", "Wallet"], ["level", "Your level"], ["inbox", "Inbox"], ["account", "Account"]].map(([id, label]) => (
+        {[["earnings", "Earnings"], ["records", "History"], ["wallet", "Wallet"], ["level", "Your level"], ["inbox", "Inbox"], ["account", "Account"]].map(([id, label]) => (
           <button key={id} onClick={() => onPick(id)} className="py-1.5 text-left text-[44px] font-extrabold leading-[1.1] tracking-[-0.04em] text-white transition hover:text-white/70" data-testid={`menu-${id}`}>{label}</button>
         ))}
       </nav>
@@ -655,6 +660,22 @@ const PERKS = {
   trusted: ["Carry extra stock overnight, ready for morning drops", "Bigger batches, so more pay a day"],
   top: ["First pick of urgent batches", "Your name on the office board"],
 };
+
+// Every day the rider worked: each drop, the time, the photo and the money, and the days ahead with drops planned.
+function RiderRecords({ rider, state, day, onDay, onBack }) {
+  return (
+    <div className="flex flex-1 flex-col">
+      <div className="px-5 pb-8 pt-7 text-white">
+        <div className="flex items-center justify-between"><button onClick={onBack} className="grid h-11 w-11 place-items-center rounded-full bg-white/10" aria-label="Back"><ArrowLeft className="h-5 w-5" /></button><span className="text-[17px] font-semibold">History</span><span className="w-11" /></div>
+        <div className="mt-6 text-[34px] font-extrabold leading-[1.05] tracking-[-0.04em]">Your days,<br />drop by drop.</div>
+        <div className="mt-2 text-[14px] text-white/60">Tap a day. On WhatsApp, reply RECORD to ADA.</div>
+      </div>
+      <div className="flex-1 rounded-t-[40px] bg-white px-4 pb-36 pt-6">
+        <DayRecords state={state} scope={{ role: "rider", id: rider.id }} day={day} onDay={onDay} />
+      </div>
+    </div>
+  );
+}
 
 function LevelPage({ week, level, next, onBack }) {
   return (

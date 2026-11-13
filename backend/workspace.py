@@ -12,8 +12,11 @@ short /api/photos/<id> link in their place, so the workspace stays small.
 import asyncio
 import base64
 import copy
+import hashlib
+import hmac
 import json
 import logging
+import os
 import re
 import secrets
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -99,6 +102,35 @@ async def mutate(wid: int, fn: Callable[[Dict[str, Any]], Any], base_url: str = 
     hub.announce(wid, rev + 1)
     changed(wid, before, full, base_url)
     return full
+
+
+_photo_key: Dict[str, bytes] = {}
+
+
+def photo_signature(pid: str) -> str:
+    """Signs /api/photos/<id>/shared links. The key is PHOTO_LINK_SECRET, or one made once and kept in the database."""
+    if "k" not in _photo_key:
+        key = os.environ.get("PHOTO_LINK_SECRET", "")
+        if not key:
+            row = db.one("SELECT v FROM kv WHERE k = %s", ("photo_link_key",))
+            if row:
+                key = row[0]
+            else:
+                key = secrets.token_hex(32)
+                try:
+                    db.execute("INSERT INTO kv (k, v) VALUES (%s, %s)", ("photo_link_key", key))
+                except Exception:  # another worker made it first
+                    key = db.one("SELECT v FROM kv WHERE k = %s", ("photo_link_key",))[0]
+        _photo_key["k"] = key.encode()
+    return hmac.new(_photo_key["k"], pid.encode(), hashlib.sha256).hexdigest()[:32]
+
+
+def shared_photo_url(path: str, base: str) -> str:
+    """/api/photos/<id> -> a full link WhatsApp can fetch. Inline drawings and other links: none."""
+    m = re.fullmatch(r"/api/photos/([\w-]+)", path or "")
+    if not m:
+        return ""
+    return f"{base.rstrip('/')}/api/photos/{m.group(1)}/shared?s={photo_signature(m.group(1))}"
 
 
 def new_workspace(wid: int, state: Dict[str, Any]) -> None:
@@ -207,6 +239,16 @@ def router() -> APIRouter:
         hub.announce(DEMO_WORKSPACE, rev + 1)
         changed(DEMO_WORKSPACE, None, seed, str(request.base_url))
         return {"rev": rev + 1}
+
+    # The same photo for WhatsApp, which fetches it with no login: the link carries a signature instead.
+    @api.get("/photos/{pid}/shared")
+    def shared_photo(pid: str, s: str = ""):
+        if not hmac.compare_digest(photo_signature(pid), s or ""):
+            raise HTTPException(404, "Not found.")
+        row = db.one("SELECT mime, data FROM photos WHERE id = %s", (pid,))
+        if not row:
+            raise HTTPException(404, "Not found.")
+        return Response(content=bytes(row[1]), media_type=row[0], headers={"Cache-Control": "public, max-age=604800"})
 
     @api.get("/photos/{pid}")
     def photo(pid: str, user=Depends(require_user)):

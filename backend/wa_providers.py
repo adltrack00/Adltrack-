@@ -62,7 +62,7 @@ class TestLine:
     def missing(self) -> List[str]:
         return []
 
-    def send(self, to: str, text: str, buttons: Optional[List[Button]] = None, outside_window: bool = False) -> Result:
+    def send(self, to: str, text: str, buttons: Optional[List[Button]] = None, outside_window: bool = False, image: str = "") -> Result:
         return Result(id=f"test-{secrets.token_hex(6)}", status="delivered")
 
 
@@ -86,7 +86,7 @@ class Meta:
     def ready(self) -> bool:
         return not self.missing()
 
-    def payload(self, to: str, text: str, buttons: Optional[List[Button]], outside_window: bool) -> Dict[str, Any]:
+    def payload(self, to: str, text: str, buttons: Optional[List[Button]], outside_window: bool, image: str = "") -> Dict[str, Any]:
         base = {"messaging_product": "whatsapp", "recipient_type": "individual", "to": to}
         if outside_window and self.template:
             # Outside the 24-hour window WhatsApp only delivers approved templates. Template fields can't hold new lines.
@@ -94,14 +94,18 @@ class Meta:
             return {**base, "type": "template", "template": {"name": self.template, "language": {"code": self.lang},
                     "components": [{"type": "body", "parameters": [{"type": "text", "text": flat}]}]}}
         if buttons:
-            return {**base, "type": "interactive", "interactive": {
-                "type": "button", "body": {"text": text[:1024]},
-                "action": {"buttons": [{"type": "reply", "reply": {"id": b["id"], "title": b["title"][:20]}} for b in buttons[:3]]}}}
+            inter = {"type": "button", "body": {"text": text[:1024]},
+                     "action": {"buttons": [{"type": "reply", "reply": {"id": b["id"], "title": b["title"][:20]}} for b in buttons[:3]]}}
+            if image:
+                inter["header"] = {"type": "image", "image": {"link": image}}
+            return {**base, "type": "interactive", "interactive": inter}
+        if image:
+            return {**base, "type": "image", "image": {"link": image, "caption": text[:1024]}}
         return {**base, "type": "text", "text": {"body": text[:4096], "preview_url": False}}
 
-    def send(self, to: str, text: str, buttons: Optional[List[Button]] = None, outside_window: bool = False) -> Result:
+    def send(self, to: str, text: str, buttons: Optional[List[Button]] = None, outside_window: bool = False, image: str = "") -> Result:
         url = f"https://graph.facebook.com/{self.version}/{self.phone_id}/messages"
-        body = json.dumps(self.payload(to, text, buttons, outside_window)).encode()
+        body = json.dumps(self.payload(to, text, buttons, outside_window, image)).encode()
         status, raw = http("POST", url, body, {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"})
         try:
             data = json.loads(raw or b"{}")
@@ -151,13 +155,15 @@ class Twilio:
     def _basic(self) -> str:
         return "Basic " + base64.b64encode(f"{self.sid}:{self.auth}".encode()).decode()
 
-    def send(self, to: str, text: str, buttons: Optional[List[Button]] = None, outside_window: bool = False) -> Result:
+    def send(self, to: str, text: str, buttons: Optional[List[Button]] = None, outside_window: bool = False, image: str = "") -> Result:
         form = {"From": self.sender, "To": f"whatsapp:+{to}"}
         if outside_window and self.content_sid:
             form["ContentSid"] = self.content_sid
             form["ContentVariables"] = json.dumps({"1": " · ".join(l.strip() for l in text.splitlines() if l.strip())[:1000]})
         else:
             form["Body"] = with_choices(text, buttons)[:1600]
+            if image:
+                form["MediaUrl"] = image
         if self.status_url:
             form["StatusCallback"] = self.status_url
         url = f"https://api.twilio.com/2010-04-01/Accounts/{self.sid}/Messages.json"

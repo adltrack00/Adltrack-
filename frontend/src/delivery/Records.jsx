@@ -6,6 +6,7 @@ import {
   AlertTriangle, Bike, Boxes, Building2, CalendarDays, Check, ChevronLeft, ChevronRight, ClipboardPaste, History, Megaphone, MessageSquare, NotebookPen, Package, Phone, Plus, Search, Truck, UserPlus, User, Wallet,
 } from "lucide-react";
 import { cn } from "../lib/utils";
+import { DropRecord } from "./DayRecord";
 import { productLedger, riderById, useWorkspace, value as taskValue, vendorById } from "./store";
 import { Avatar, Btn, Card, CardHead, Chips, Empty, Field, inputCls, Modal, StatusPill } from "./ui";
 import { ago, clock, money, num, pad, time12, todayISO } from "./utils";
@@ -221,18 +222,10 @@ function Event({ e, onOpen, compact }) {
 
 function TaskSummary({ task }) {
   const { state } = useWorkspace();
-  const r = riderById(state, task.riderId) || {};
-  const v = vendorById(state, task.vendorId) || {};
+  // Past or still to come, the drop's full record: each step with its time and who did it, the photo and the money.
   return (
     <div className="grid gap-3 text-[14px]">
-      <div className="flex items-center justify-between"><span className="text-[17px] font-bold">{task.customer}</span><StatusPill status={task.status} /></div>
-      <div className="text-neutral-600">{task.address}</div>
-      <div className="grid grid-cols-2 gap-2 rounded-2xl bg-neutral-50 p-3 text-[13px]">
-        <span className="text-neutral-500">Rider</span><span className="font-semibold">{r.name || "None"}</span>
-        <span className="text-neutral-500">Vendor</span><span className="font-semibold">{v.name || ""}</span>
-        <span className="text-neutral-500">Due</span><span className="font-semibold">{time12(task.time || task.due) || "Any time"}</span>
-        <span className="text-neutral-500">To collect</span><span className="font-semibold">{money(taskValue(task))}</span>
-      </div>
+      <DropRecord state={state} task={task} />
       {task.phone && <a href={`tel:${task.phone}`} className="inline-flex items-center gap-2 font-semibold text-blue-600"><Phone className="h-4 w-4" /> {task.phone}</a>}
     </div>
   );
