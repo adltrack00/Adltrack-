@@ -1,13 +1,15 @@
 // The delivery company's dashboard: vendors, riders, stock, deliveries and ADA.
 import React, { useMemo, useState } from "react";
 import {
-  AlertTriangle, ArrowDownUp, CalendarDays, History, Megaphone, NotebookPen, Search, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Settings, Sparkles, Truck, Users, Wallet, X,
+  AlertTriangle, ArrowDownUp, CalendarCheck, CalendarDays, History, Megaphone, NotebookPen, Search, ArrowRight, BellRing, Bike, Boxes, Building2, ClipboardPaste, Clock, Flame, LayoutGrid, LogOut, Menu, MessageCircle, MessageSquare, Package, PackageCheck, Palette, Phone, Plus, RotateCcw, Send, Settings, Sparkles, Truck, Users, Wallet, X,
 } from "lucide-react";
 import { AdaPanel } from "./AdaPanel";
 import Team from "./Team";
+import WhatsAppInbox from "./WhatsApp";
 import { SideMenu } from "./SideMenu";
 import { MeButton } from "./Photo";
 import { StatPill } from "./Stats";
+import { DayRecords, dayFromUrl } from "./DayRecord";
 import { ActivityLog, AnnounceModal, Announcements, CalendarPage, LogBook, LogEntryModal, QuickAdd, SearchPage } from "./Records";
 import { useAuth } from "./auth";
 import { DeliveryCard, Feed, LedgerLegend, PaymentActions, ProductTable } from "./shared";
@@ -24,18 +26,22 @@ const NAV = [
   ["deliveries", "Deliveries", Truck],
   ["stock", "Vendors & stock", Boxes],
   ["riders", "Riders", Bike],
-  ["messages", "Messages", MessageSquare],
+  ["messages", "WhatsApp", MessageCircle],
   ["team", "Team", Users],
   ["calendar", "Calendar", CalendarDays],
   ["search", "Search", Search],
   ["announce", "Announcements", Megaphone],
+  ["records", "Day records", CalendarCheck],
   ["log", "Log book", NotebookPen],
   ["activity", "Activity log", History],
 ];
 
 export default function Company({ go }) {
   const { state, act, sync } = useWorkspace();
-  const [tab, setTab] = useState("today");
+  // ?day=2026-11-12 opens that day's record.
+  const [recDay, setRecDay] = useState(() => dayFromUrl());
+  const [tab, setTab] = useState(() => (recDay ? "records" : "today"));
+  const openDay = (d) => { setRecDay(d); setTab("records"); window.scrollTo({ top: 0 }); };
   const [ada, setAda] = useState(false);
   const [seed, setSeed] = useState("");
   const [menu, setMenu] = useState(false);
@@ -46,8 +52,8 @@ export default function Company({ go }) {
   const needs = needsYou(state);
   const unread = state.messages.filter((m) => (m.from === "rider" || m.from === "vendor") && !m.read).length;
   const t = totals(state);
-  const Section = { today: NeedsYou, overview: Overview, deliveries: Deliveries, stock: Stock, riders: Riders, messages: Messages, team: Team, calendar: CalendarPage, search: SearchPage, announce: Announcements, log: LogBook, activity: ActivityLog }[tab];
-  const titles = { today: needs.count ? `${needs.count} ${needs.count === 1 ? "thing needs" : "things need"} you` : "All clear", overview: "Overview", deliveries: "Deliveries", stock: "Vendors & stock", riders: "Riders", messages: "Messages", team: "Team & logins", calendar: "Calendar", search: "Search", announce: "Announcements", log: "Log book", activity: "Activity log" };
+  const Section = { today: NeedsYou, overview: Overview, deliveries: Deliveries, stock: Stock, riders: Riders, messages: WhatsAppInbox, team: Team, calendar: CalendarPage, records: CompanyRecords, search: SearchPage, announce: Announcements, log: LogBook, activity: ActivityLog }[tab];
+  const titles = { today: needs.count ? `${needs.count} ${needs.count === 1 ? "thing needs" : "things need"} you` : "All clear", overview: "Overview", deliveries: "Deliveries", stock: "Vendors & stock", riders: "Riders", messages: "WhatsApp", team: "Team & logins", calendar: "Calendar", records: "Day records", search: "Search", announce: "Announcements", log: "Log book", activity: "Activity log" };
   const openIncidents = (state.log || []).filter((e) => e.status === "open").length;
   const tabs = NAV.map(([id, label, Icon]) => [id, label, Icon, id === "today" ? needs.count : id === "messages" ? unread : id === "log" ? openIncidents : 0]);
   const go2 = (id) => { setTab(id); window.scrollTo({ top: 0 }); };
@@ -87,7 +93,7 @@ export default function Company({ go }) {
 
       <main className="relative px-4 pb-36 pt-2 sm:px-10">
         <div className="mx-auto max-w-7xl">
-          <Section openAda={openAda} setTab={setTab} />
+          <Section openAda={openAda} setTab={setTab} openDay={openDay} day={recDay} setDay={setRecDay} />
         </div>
       </main>
 
@@ -115,9 +121,15 @@ function navItems(tabs, pick, settings) {
     t.search,
     { id: "g-day", label: "Run the day", icon: Truck, children: [t.deliveries, t.riders, t.messages, t.announce] },
     { id: "g-people", label: "Stock & people", icon: Users, children: [t.stock, { ...t.team, label: "Team & logins" }] },
-    { id: "g-records", label: "Records", icon: History, children: [t.log, t.activity] },
+    { id: "g-records", label: "Records", icon: History, children: [t.records, t.log, t.activity] },
     { id: "settings", label: "Settings", icon: Settings, onClick: settings },
   ];
+}
+
+// Every day's record: who did what and when, the photos and the WhatsApp chats, and what's planned for days to come.
+function CompanyRecords({ day, setDay }) {
+  const { state } = useWorkspace();
+  return <DayRecords state={state} scope={{ role: "company" }} day={day} onDay={setDay} />;
 }
 
 /* ---------- Needs you: the company's home. Only what someone has to act on, each with its action. ---------- */
@@ -210,7 +222,7 @@ function NeedsYou({ openAda, setTab }) {
       riderId, vendorId: task.vendorId, customer: task.customer, phone: task.phone, altPhone: task.altPhone || "", address: task.address, landmark: task.landmark || "", zone: task.zone, time: "",
       amount: task.amount != null ? task.amount : null, note: `Second try. Last time: ${task.failReason || "not delivered"}.`, items: task.items.map((l) => ({ productId: l.productId, qty: l.qty, free: l.free || 0 })),
     }] });
-    act({ type: "messages/send", messages: [{ riderId, from: "dispatcher", text: `Second try for ${task.customer}, ${task.address}: ${items(task.items)}. Collect ${money(taskValue(task))}. Call first: last time it was "${task.failReason}".` }] });
+    act({ type: "messages/send", messages: [{ riderId, from: "dispatcher", kind: "drop", text: `Second try for ${task.customer}, ${task.address}: ${items(task.items)}. Collect ${money(taskValue(task))}. Call first: last time it was "${task.failReason}".` }] });
     act({ type: "task/handled", id: task.id, how: "resent" });
   };
 
@@ -592,7 +604,7 @@ function NewDelivery({ open, onClose }) {
     e.preventDefault();
     act({ type: "deliveries/create", by: "dispatcher", deliveries: [{ riderId: f.riderId, vendorId: product.vendorId, customer: f.customer, phone: f.phone, address: f.address, zone: "", time: f.time, items: [{ productId: f.productId, qty: Number(f.qty) }] }] });
     const r = state.riders.find((x) => x.id === f.riderId);
-    act({ type: "messages/send", messages: [{ riderId: f.riderId, from: "dispatcher", text: `New drop: ${f.qty} × ${product.name} to ${f.customer}, ${f.address}${f.time ? ` by ${time12(f.time)}` : ""}. Collect ${money(product.price * f.qty)}.` }] });
+    act({ type: "messages/send", messages: [{ riderId: f.riderId, from: "dispatcher", kind: "drop", text: `New drop: ${f.qty} × ${product.name} to ${f.customer}, ${f.address}${f.time ? ` by ${time12(f.time)}` : ""}. Collect ${money(product.price * f.qty)}.` }] });
     setF(blank);
     onClose();
     return r;
@@ -793,61 +805,6 @@ function Riders() {
       })}
     </div>
     </div>
-  );
-}
-
-/* ---------- Messages: one conversation per rider and per vendor ---------- */
-
-function Messages() {
-  const { state, act } = useWorkspace();
-  const threads = [
-    ...state.riders.map((r) => ({ key: `r:${r.id}`, riderId: r.id, name: r.name, color: r.color, sub: r.phone, kind: "Rider", first: r.short || r.name })),
-    ...state.vendors.map((v) => ({ key: `v:${v.id}`, vendorId: v.id, name: v.name, color: v.color, sub: v.contact || v.phone, kind: "Vendor", first: v.name })),
-  ];
-  const [key, setKey] = useState(threads[0] ? threads[0].key : "");
-  const [text, setText] = useState("");
-  const th = threads.find((t) => t.key === key) || threads[0];
-  const inThread = (m, t) => (t.vendorId ? m.vendorId === t.vendorId : m.riderId === t.riderId && !m.vendorId);
-  const thread = useMemo(() => (th ? state.messages.filter((m) => inThread(m, th)) : []), [state.messages, th]); // eslint-disable-line react-hooks/exhaustive-deps
-  const unreadIn = (t) => state.messages.filter((m) => inThread(m, t) && (m.from === "rider" || m.from === "vendor") && !m.read).length;
-  const openUnread = th ? unreadIn(th) : 0;
-  React.useEffect(() => {
-    if (th && openUnread) act({ type: "messages/read", by: "company", riderId: th.riderId, vendorId: th.vendorId });
-  }, [th, openUnread, act]);
-  if (!th) return <Card><Empty icon={MessageSquare} title="No one to message yet" sub="Add riders and vendors under Team." /></Card>;
-  const theirs = (m) => m.from === "rider" || m.from === "vendor";
-  return (
-    <Card className="grid min-h-[560px] overflow-hidden md:grid-cols-[280px_1fr]">
-      <div className="max-h-[260px] overflow-y-auto border-b border-neutral-100 md:max-h-none md:border-b-0 md:border-r">
-        {threads.map((t) => {
-          const last = [...state.messages].reverse().find((m) => inThread(m, t));
-          const n = unreadIn(t);
-          return (
-            <button key={t.key} onClick={() => setKey(t.key)} className={`flex w-full items-center gap-3 px-4 py-3 text-left ${t.key === th.key ? "bg-neutral-50" : "hover:bg-neutral-50/60"}`}>
-              <Avatar name={t.name} color={t.color} />
-              <div className="min-w-0 flex-1"><div className="flex items-center gap-2 text-[14px] font-semibold text-neutral-900"><span className="truncate">{t.name}</span><span className="rounded-full bg-neutral-100 px-1.5 text-[10px] font-semibold uppercase text-neutral-500">{t.kind}</span></div><div className="truncate text-[12px] text-neutral-500">{last ? last.text : "No messages yet"}</div></div>
-              {!!n && <span className="grid h-5 min-w-5 place-items-center rounded-full bg-blue-600 px-1 text-[10.5px] font-bold text-white">{n}</span>}
-            </button>
-          );
-        })}
-      </div>
-      <div className="flex flex-col">
-        <div className="flex items-center gap-3 border-b border-neutral-100 px-5 py-3"><Avatar name={th.name} color={th.color} size={32} /><div><div className="text-[14px] font-semibold">{th.name}</div><div className="text-[12px] text-neutral-500">{th.kind}{th.sub ? ` · ${th.sub}` : ""}</div></div></div>
-        <div className="flex-1 space-y-3 overflow-y-auto p-5">
-          {thread.map((m) => (
-            <div key={m.id} className={`max-w-[80%] ${theirs(m) ? "" : "ml-auto"}`}>
-              <div className={`whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-snug ${theirs(m) ? "rounded-bl-md bg-neutral-100 text-neutral-800" : "rounded-br-md bg-neutral-900 text-white"}`}>{m.text}</div>
-              <div className={`mt-1 text-[11px] text-neutral-400 ${theirs(m) ? "" : "text-right"}`}>{m.from === "ada" ? "ADA · " : m.from === "dispatcher" ? "You · " : ""}{clock(m.at)}{!theirs(m) && m.read ? " · Read" : ""}</div>
-            </div>
-          ))}
-          {!thread.length && <Empty icon={MessageSquare} title="No messages yet" />}
-        </div>
-        <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { act({ type: "messages/send", messages: [{ riderId: th.riderId, vendorId: th.vendorId, from: "dispatcher", text: text.trim() }] }); setText(""); } }} className="flex gap-2 border-t border-neutral-100 p-3">
-          <input value={text} onChange={(e) => setText(e.target.value)} placeholder={`Message ${th.first}…`} className={`${inputCls} h-11 rounded-full px-4`} />
-          <Btn size="lg" className="h-11" type="submit" aria-label="Send"><Send className="h-4 w-4" /></Btn>
-        </form>
-      </div>
-    </Card>
   );
 }
 

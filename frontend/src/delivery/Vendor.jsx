@@ -1,13 +1,15 @@
 // The vendor portal: a vendor sees their own products, every delivery as it happens (time, photo, payment)
 // and can request new deliveries. Same live data as the company and the riders.
 import React, { useEffect, useState } from "react";
-import { Bike, Boxes, Home, Menu, MessageSquare, Package, PackageCheck, PackagePlus, Plus, Send, Settings, Truck, Users, Wallet } from "lucide-react";
+import { Bike, Boxes, CalendarCheck, Home, Menu, MessageSquare, Package, PackageCheck, PackagePlus, Plus, Send, Settings, Truck, Users, Wallet } from "lucide-react";
 import { SendStock, StockSent, VendorTeam } from "./VendorTeam";
 import { LiveTracker, VendorMoney } from "./VendorMoney";
 import { useAuth } from "./auth";
 import { SideMenu } from "./SideMenu";
 import { MeButton } from "./Photo";
 import { PasteOrders } from "./Intake";
+import { DayRecords, dayFromUrl } from "./DayRecord";
+import { dayOfMessage } from "./WhatsApp";
 import { DeliveryCard, Feed, LedgerLegend, ProductTable } from "./shared";
 import { isActive, isAwaitingPayment, productById, totals, useWorkspace, lineLabel } from "./store";
 import { LabelCloud, MonthCal, ProgressScene, Tip } from "./scenes";
@@ -15,7 +17,7 @@ import { Avatar, Btn, Card, CardHead, Chips, Empty, Field, HeroCard, inputCls, L
 import { clock, money, num, time12, todayISO } from "./utils";
 
 // Parts of the vendor dashboard that open as their own page from the menu.
-const PAGES = { money: "Your money", live: "Where parcels are", deliveries: "Deliveries", products: "Your products", team: "Your team" };
+const PAGES = { records: "Day records", money: "Your money", live: "Where parcels are", deliveries: "Deliveries", products: "Your products", team: "Your team" };
 
 const ZONES = ["Ikeja", "Yaba", "Lekki", "Surulere", "Victoria Island", "Ikoyi", "Ajah", "Gbagada"];
 
@@ -49,8 +51,11 @@ function VendorDashboard({ vendor, go }) {
   const { user } = useAuth();
   const main = user && user.role === "vendor" && !user.teammate;
   // Home shows everything; a menu link opens one part as its own page, with a back arrow to home.
-  const [page, setPage] = useState(null);
+  // A WhatsApp link with ?day= (ADA's "RECORD" reply or the end-of-day wrap) opens that day's record.
+  const [recDay, setRecDay] = useState(() => dayFromUrl());
+  const [page, setPage] = useState(() => (recDay ? "records" : null));
   const open = (p) => { setPage(p); window.scrollTo({ top: 0 }); };
+  const openDay = (d) => { setRecDay(d); setChat(false); open("records"); };
   const on = (p) => !page || page === p;
   const unread = state.messages.filter((m) => m.vendorId === vendor.id && m.from !== "vendor" && !m.read).length;
   const s = totals(state, vendor.id);
@@ -78,6 +83,7 @@ function VendorDashboard({ vendor, go }) {
         items={[
           { id: "home", label: "Home", icon: Home, onClick: () => open(null) },
           { id: "money", label: "Your money", icon: Wallet, onClick: () => open("money") },
+          { id: "records", label: "Day records", icon: CalendarCheck, onClick: () => open("records") },
           { id: "g-deliveries", label: "Deliveries", icon: Truck, children: [
             { id: "deliveries", label: "All deliveries", onClick: () => open("deliveries") },
             { id: "live", label: "Where parcels are", onClick: () => open("live") },
@@ -137,6 +143,8 @@ function VendorDashboard({ vendor, go }) {
           <Stat label="Payment to verify" value={num(s.awaiting)} sub={money(s.awaitingValue)} icon={Wallet} tone="amber" />
         </div>}
 
+        {page === "records" && <DayRecords state={state} scope={{ role: "vendor", id: vendor.id }} day={recDay} onDay={setRecDay} />}
+
         {on("money") && <VendorMoney state={state} tasks={tasks} company={state.company.name} />}
 
         {on("live") && <LiveTracker state={state} tasks={tasks} />}
@@ -156,8 +164,9 @@ function VendorDashboard({ vendor, go }) {
             <div className="px-1 text-[14px] text-neutral-400">Today's drops counting down.</div>
           </div>
           <Card className="p-6 md:col-span-2 xl:col-span-1">
-            <MonthCal counts={tasks.reduce((m, t) => ({ ...m, [t.date]: (m[t.date] || 0) + 1 }), {})} />
-            <Tip className="mt-5 text-[14.5px]">Send all of a day's orders as one WhatsApp message. The office pastes it and ADA reads every order.</Tip>
+            <MonthCal counts={tasks.reduce((m, t) => ({ ...m, [t.date]: (m[t.date] || 0) + 1 }), {})} onPick={openDay} />
+            <button onClick={() => open("records")} className="mt-3 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-blue-600" data-testid="vendor-records"><CalendarCheck className="h-4 w-4" /> Tap a day to see who delivered what, and when</button>
+            <Tip className="mt-5 text-[14.5px]">Send your orders to ADA on WhatsApp, as you'd normally type them. ADA reads every order, adds it here and tells you if anything is missing. Reply BALANCE on WhatsApp any time to see what you're owed.</Tip>
           </Card>
         </div>}
 
@@ -202,13 +211,13 @@ function VendorDashboard({ vendor, go }) {
       </div>
       <SendStock open={sending} onClose={() => setSending(false)} vendor={vendor} />
       <RequestDelivery open={requesting} onClose={() => setRequesting(false)} vendor={vendor} />
-      <OfficeChat open={chat} onClose={() => setChat(false)} vendor={vendor} />
+      <OfficeChat open={chat} onClose={() => setChat(false)} vendor={vendor} onDay={openDay} />
     </div>
   );
 }
 
 // The vendor's conversation with the office.
-function OfficeChat({ open, onClose, vendor }) {
+function OfficeChat({ open, onClose, vendor, onDay }) {
   const { state, act } = useWorkspace();
   const [text, setText] = useState("");
   const msgs = state.messages.filter((m) => m.vendorId === vendor.id);
@@ -219,7 +228,12 @@ function OfficeChat({ open, onClose, vendor }) {
       <div className="max-h-[50vh] min-h-[200px] space-y-3 overflow-y-auto">
         {msgs.map((m) => (
           <div key={m.id} className={`max-w-[82%] ${m.from === "vendor" ? "ml-auto" : ""}`}>
-            <div className={`whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-[14px] leading-snug ${m.from === "vendor" ? "rounded-br-md bg-neutral-900 text-white" : "rounded-bl-md bg-neutral-100 text-neutral-800"}`}>{m.text}</div>
+            <div className={`whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-[14px] leading-snug ${m.from === "vendor" ? "rounded-br-md bg-neutral-900 text-white" : "rounded-bl-md bg-neutral-100 text-neutral-800"}`}>
+              {m.photo && <img src={m.photo} alt="" className="mb-1.5 max-h-52 rounded-xl object-cover" />}
+              {m.text}
+              {m.from !== "vendor" && dayOfMessage(state, m) && <button onClick={() => onDay(dayOfMessage(state, m))} className="mt-2 flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[12px] font-semibold text-neutral-900 ring-1 ring-black/5"><CalendarCheck className="h-3.5 w-3.5" /> Day record</button>}
+            </div>
+            {m.channel === "whatsapp" && <div className={`mt-0.5 text-[10.5px] font-semibold text-emerald-600 ${m.from === "vendor" ? "text-right" : ""}`}>WhatsApp</div>}
             <div className={`mt-1 text-[11px] text-neutral-400 ${m.from === "vendor" ? "text-right" : ""}`}>{m.from === "vendor" ? "You · " : ""}{clock(m.at)}</div>
           </div>
         ))}

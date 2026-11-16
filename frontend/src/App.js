@@ -38,7 +38,7 @@ function Signed({ role, children }) {
   const { me, user, expired } = useAuth();
   const location = useLocation();
   if (me === undefined) return <Loading />;
-  if (!user) return <Navigate to={`/signin?next=${encodeURIComponent(location.pathname)}`} replace />;
+  if (!user) return <Navigate to={`/signin?next=${encodeURIComponent(location.pathname + location.search)}`} replace />;
   if (role && user.role !== role) return <Navigate to={homeFor(user)} replace />;
   return (
     <WorkspaceProvider key={user.id} user={user} onExpired={expired}>

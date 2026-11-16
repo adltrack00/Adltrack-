@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { AlertTriangle, Check, ClipboardPaste, Flame, Gift, Plus, Trash2 } from "lucide-react";
 import { blocking, checkOrder, listValue, normalizePhone, readOrders, toOrder } from "./intake";
+import { toast } from "sonner";
 import { useWorkspace } from "./store";
 import { AdaMark, Btn, inputCls, Tag } from "./ui";
 import { money } from "./utils";
@@ -30,7 +31,13 @@ export function PasteOrders({ vendorId = "", onAdded, compact = false }) {
   const [orders, setOrders] = useState(null);
   const [added, setAdded] = useState(null);
 
-  const read = () => { setAdded(null); setOrders(readOrders(state, text, vendor)); };
+  const [reading, setReading] = useState(false);
+  const read = async () => {
+    setAdded(null);
+    setReading(true);
+    try { setOrders(await readOrders(state, text, vendor)); } catch (e) { toast.error(e.message); }
+    setReading(false);
+  };
   const save = () => {
     const list = orders.map(toOrder);
     act({ type: "order/add", orders: list });
@@ -67,7 +74,7 @@ export function PasteOrders({ vendorId = "", onAdded, compact = false }) {
           </select>
         )}
         <button type="button" onClick={() => setText(EXAMPLE)} className="text-[12.5px] font-medium text-neutral-500 underline-offset-2 hover:underline">Try an example</button>
-        <Btn className="ml-auto" onClick={read} disabled={!text.trim()}><ClipboardPaste className="h-4 w-4" /> Read orders</Btn>
+        <Btn className="ml-auto" onClick={read} disabled={!text.trim() || reading}><ClipboardPaste className="h-4 w-4" /> {reading ? "Reading…" : "Read orders"}</Btn>
       </div>
     </div>
   );

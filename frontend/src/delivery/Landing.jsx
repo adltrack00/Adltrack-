@@ -25,11 +25,11 @@ const ROLES = [
   },
   {
     id: "vendor", icon: Building2, title: "For vendors", tone: "from-[#1d2fc0] to-[#5a74ff]",
-    points: ["Send orders straight from WhatsApp text", "Watch each delivery happen, with the doorstep photo", "Units given, delivered and left, always up to date"],
+    points: ["Send orders to ADA on WhatsApp, the way you already type them", "Watch each delivery happen, with the doorstep photo", "Units given, delivered and left, always up to date"],
   },
   {
     id: "rider", icon: Bike, title: "For riders", tone: "from-[#0f1450] to-[#2a3fe0]",
-    points: ["Today's drops, one at a time, in riding order", "Photo, amount collected and done in three taps", "Messages from the office in the same app"],
+    points: ["Today's drops, one at a time, in riding order", "Photo, amount collected and done in three taps", "Drops come on WhatsApp: reply YES, ARRIVED, DELIVERED"],
   },
 ];
 
