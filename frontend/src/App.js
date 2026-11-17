@@ -94,6 +94,18 @@ export default function App() {
         <Toaster position="top-center" richColors closeButton />
         <Routes>
           <Route path="/" element={<Page C={Landing} />} />
+          <Route path="/for-companies" element={<Page C={Landing} />} />
+          <Route path="/for-vendors" element={<Page C={Landing} />} />
+          <Route path="/for-riders" element={<Page C={Landing} />} />
+          <Route path="/how-it-works" element={<Page C={Landing} />} />
+          <Route path="/ada" element={<Page C={Landing} />} />
+          <Route path="/whatsapp" element={<Page C={Landing} />} />
+          <Route path="/proof-of-delivery" element={<Page C={Landing} />} />
+          <Route path="/pricing" element={<Page C={Landing} />} />
+          <Route path="/questions" element={<Page C={Landing} />} />
+          <Route path="/book-a-demo" element={<Page C={Landing} />} />
+          <Route path="/demo" element={<Page C={Landing} />} />
+          <Route path="/privacy" element={<Page C={Landing} />} />
           <Route path="/get-started" element={<Page C={GetStarted} />} />
           <Route path="/signin" element={<Page C={SignIn} />} />
           <Route path="/signup/company" element={<Page C={SignUpCompany} />} />

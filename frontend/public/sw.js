@@ -1,8 +1,9 @@
 // Delivery's service worker: lets the app open from the home screen with a weak or no signal.
 // Pages and the app's files come from the network when it answers, otherwise from the last copy saved here.
 // The API (/api/...) is never cached: live data and saves always go to the server.
-const CACHE = "delivery-shell-v1";
-const SHELL = ["/", "/manifest.json", "/icon-192.png", "/icon-512.png"];
+const CACHE = "ada-shell-v2";
+const MARKETING_ROUTES = new Set(["/", "/for-companies", "/for-vendors", "/for-riders", "/how-it-works", "/ada", "/whatsapp", "/proof-of-delivery", "/pricing", "/questions", "/book-a-demo", "/demo", "/privacy"]);
+const SHELL = ["/", "/index.html", "/manifest.json", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -24,10 +25,24 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(req).then((res) => {
         const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put("/", copy));
+        caches.open(CACHE).then((c) => c.put(req, copy));
         return res;
-      }).catch(() => caches.match("/")),
+      }).catch(async () => {
+        const exact = await caches.match(req);
+        if (exact) return exact;
+        const marketing = MARKETING_ROUTES.has(url.pathname.replace(/\/$/, "") || "/") || url.pathname.startsWith("/marketing/");
+        return caches.match(marketing ? "/" : "/index.html");
+      }),
     );
+    return;
+  }
+
+  // Marketing files keep their names between releases; refresh them online, retain a copy offline.
+  if (url.pathname.startsWith("/marketing/")) {
+    event.respondWith(fetch(req).then((res) => {
+      if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
+      return res;
+    }).catch(() => caches.match(req)));
     return;
   }
 

@@ -22,6 +22,7 @@ from typing import Any, Dict, List
 import anthropic
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from marketing import marketing_file
 from pydantic import BaseModel, Field
 from starlette.middleware.cors import CORSMiddleware
 
@@ -254,4 +255,7 @@ if STATIC_DIR and os.path.isdir(STATIC_DIR):
         if path and file.startswith(ROOT + os.sep) and os.path.isfile(file):
             cache = "public, max-age=31536000, immutable" if path.startswith("static/") else "no-cache"
             return FileResponse(file, headers={"Cache-Control": cache})
+        public_page = marketing_file(ROOT, path)
+        if public_page:
+            return FileResponse(public_page, headers={"Cache-Control": "no-cache"})
         return FileResponse(os.path.join(ROOT, "index.html"), headers={"Cache-Control": "no-cache"})

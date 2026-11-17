@@ -3,43 +3,32 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Bike, Building2, Eye, EyeOff, KeyRound, LayoutGrid, Lock, Mail, Phone, User } from "lucide-react";
 import { api, homeFor, useAuth } from "./auth";
-import { AdaMark } from "./ui";
+import "./AuthPages.css";
 import { cn } from "../lib/utils";
 
-const field = "h-14 w-full rounded-2xl border border-neutral-200 bg-neutral-50 pl-12 pr-4 text-[16px] text-neutral-950 outline-none transition placeholder:text-neutral-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10";
+const field = "ada-auth-input";
 
-// Navy panel with ADA on the left on a laptop, a navy header on a phone; the form sits on white.
+// Same cream, green and original parcel illustration as the approved marketing site.
 function Shell({ title, sub, children, go, back = "/" }) {
+  useEffect(() => { document.title = title + " — Ada"; }, [title]);
   return (
-    <div className="min-h-screen bg-white lg:grid lg:grid-cols-[1fr_1.05fr]">
-      <aside className="relative hidden overflow-hidden bg-[radial-gradient(120%_80%_at_20%_0%,#141a5c_0%,#0a0d2e_45%,#05061a_100%)] p-10 text-white lg:flex lg:flex-col">
-        <div className="pointer-events-none absolute -right-24 top-24 h-80 w-80 rounded-full bg-blue-600/30 blur-3xl" />
-        <div className="relative mt-auto">
-          <AdaMark size={64} />
-          <div className="mt-8 max-w-md text-[38px] font-extrabold leading-[1.05] tracking-[-0.035em]">Every delivery, live for everyone.</div>
-          <p className="mt-4 max-w-md text-[16px] text-white/60">The company, every vendor and every rider see the same numbers the same second: given, delivered, left and paid.</p>
-        </div>
+    <div className="ada-auth">
+      <aside className="ada-auth-story" aria-label="Ada: a connected delivery day">
+        <a className="ada-auth-name" href="/">Ada</a>
+        <div className="ada-auth-story-copy"><span className="ada-auth-eyebrow">YOUR PEOPLE. ONE SHARED DAY.</span><h2>Less chasing.<br />More delivering.</h2><p>Your office, vendors and riders.<br />Together for the next delivery.</p></div>
+        <img className="ada-auth-parcel" src="/marketing/assets/delivery-parcel-mascot.webp" alt="A cheerful parcel on its way" width="1024" height="1536" />
+        <span className="ada-auth-story-note">A little joy for the journey.</span>
       </aside>
-      <main className="flex min-h-screen flex-col">
-        <div className="bg-[radial-gradient(120%_80%_at_20%_0%,#141a5c_0%,#0a0d2e_45%,#05061a_100%)] px-5 pb-14 pt-5 lg:hidden">
-          <div className="flex items-center justify-between">
-            <button onClick={() => go(back)} className="grid h-11 w-11 place-items-center rounded-full bg-white/10 text-white" aria-label="Back"><ArrowLeft className="h-5 w-5" /></button>
-          </div>
-        </div>
-        <div className="-mt-8 flex flex-1 flex-col rounded-t-[36px] bg-white px-5 pb-10 pt-8 lg:mt-0 lg:justify-center lg:rounded-none lg:px-16">
-          <div className="mx-auto w-full max-w-md">
-            <button onClick={() => go(back)} className="mb-8 hidden items-center gap-2 text-[14px] font-medium text-neutral-500 hover:text-neutral-900 lg:inline-flex"><ArrowLeft className="h-4 w-4" /> Back</button>
-            <h1 className="text-[32px] font-extrabold leading-tight tracking-[-0.035em] text-neutral-950 sm:text-[38px]">{title}</h1>
-            {sub && <p className="mt-2 text-[16px] text-neutral-500">{sub}</p>}
-            <div className="mt-8">{children}</div>
-          </div>
-        </div>
+      <main className="ada-auth-main" id="main">
+        <div className="ada-auth-top"><a href="/" className="ada-auth-mobile-name">Ada</a><button type="button" onClick={() => back === "/" ? window.location.assign("/") : go(back)} className="ada-auth-back"><ArrowLeft size={16} /> Back</button></div>
+        <div className="ada-auth-form"><span className="ada-auth-eyebrow">LET’S GET MOVING</span><h1>{title}</h1>{sub && <p className="ada-auth-sub">{sub}</p>}<div className="ada-auth-fields">{children}</div></div>
+        <p className="ada-auth-footnote">Your people. Your operation. One connected day.</p>
       </main>
     </div>
   );
 }
 
-function Input({ icon: Icon, label, type = "text", ...rest }) {
+function Input({ icon: Icon, label, type = "text", className, ...rest }) {
   const [show, setShow] = useState(false);
   const isPass = type === "password";
   return (
@@ -47,9 +36,9 @@ function Input({ icon: Icon, label, type = "text", ...rest }) {
       <span className="mb-2 block text-[14px] font-semibold text-neutral-700">{label}</span>
       <span className="relative block">
         <Icon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-400" />
-        <input type={isPass && show ? "text" : type} className={cn(field, isPass && "pr-12")} {...rest} />
+        <input type={isPass && show ? "text" : type} className={cn(field, isPass && "ada-auth-password", className)} {...rest} />
         {isPass && (
-          <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center text-neutral-400" aria-label={show ? "Hide password" : "Show password"}>
+          <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center text-neutral-400" aria-pressed={show} aria-label={show ? "Hide password" : "Show password"}>
             {show ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
           </button>
         )}
@@ -59,11 +48,7 @@ function Input({ icon: Icon, label, type = "text", ...rest }) {
 }
 
 function Submit({ busy, children }) {
-  return (
-    <button type="submit" disabled={busy} className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-b from-neutral-800 to-black text-[17px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(0,0,0,0.6)] disabled:opacity-60">
-      {busy ? <AdaMark size={26} spin /> : <>{children} <ArrowRight className="h-5 w-5" /></>}
-    </button>
-  );
+  return <button type="submit" disabled={busy} aria-busy={busy} className="ada-auth-submit">{busy ? "Please wait…" : <>{children}<ArrowRight size={18} /></>}</button>;
 }
 
 function ErrorNote({ text }) {
@@ -110,12 +95,13 @@ export function SignIn({ go }) {
   const [f, , bind] = useForm({ login: "", password: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  useEffect(() => { if (user) go(next && next.startsWith("/") ? next : homeFor(user)); }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (user) go(next && /^\/(company|vendor|rider|setup|account|app)(?:[/?#]|$)/.test(next) ? next : homeFor(user)); }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const submit = async (e) => {
     e.preventDefault();
+    if (busy) return;
     setBusy(true); setError("");
-    try { await signIn(f.login, f.password); } catch (err) { setError(err.message); }
+    try { await signIn(f.login.trim(), f.password); } catch (err) { setError(err.message); }
     setBusy(false);
   };
   return (
@@ -147,9 +133,9 @@ export function SignUpCompany({ go }) {
   return (
     <Shell go={go} back="/get-started" title="Sign up your company" sub="You'll add your vendors and riders next, and send each of them an invite.">
       <form onSubmit={submit} className="grid gap-5">
-        <Input icon={LayoutGrid} label="Company name" placeholder="e.g. Swift Couriers" required {...bind("company")} />
+        <Input icon={LayoutGrid} label="Company name" autoComplete="organization" placeholder="e.g. Swift Couriers" required {...bind("company")} />
         <Input icon={User} label="Your name" autoComplete="name" placeholder="Full name" required {...bind("name")} />
-        <Input icon={Building2} label="City" placeholder="Lagos" {...bind("city")} />
+        <Input icon={Building2} label="City" autoComplete="address-level2" placeholder="Lagos" {...bind("city")} />
         <Input icon={Mail} label="Email" type="email" autoComplete="email" placeholder="you@company.com" {...bind("email")} />
         <Input icon={Phone} label="Phone (optional)" type="tel" autoComplete="tel" placeholder="0803 000 0000" {...bind("phone")} />
         <Input icon={Lock} label="Password" type="password" autoComplete="new-password" placeholder="At least 8 characters" minLength={8} required {...bind("password")} />

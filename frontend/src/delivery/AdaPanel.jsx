@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { AlertTriangle, ArrowUp, Check, ChevronLeft, MessageSquare, Mic, PackagePlus, Route, Sparkles } from "lucide-react";
 import { applyPlan, askAda, SUGGESTIONS } from "./ada";
 import { looksLikeOrders, readOrders, toOrder } from "./intake";
-import { IntakeReview } from "./Intake";
+import { IntakeReview } from "./Intake.jsx";
 import { useWorkspace } from "./store";
 import { Avatar, Btn, Tag } from "./ui";
 import { money, time12 } from "./utils";
