@@ -13,7 +13,7 @@ import { DayRecords, dayFromUrl } from "./DayRecord";
 import { ActivityLog, AnnounceModal, Announcements, CalendarPage, LogBook, LogEntryModal, QuickAdd, SearchPage } from "./Records";
 import { useAuth } from "./auth";
 import { DeliveryCard, Feed, LedgerLegend, PaymentActions, ProductTable } from "./shared";
-import { FixOrder, PasteOrders } from "./Intake";
+import { FixOrder, PasteOrders } from "./Intake.jsx";
 import { CashSection, DeclinedSection, MoneyToday, RiderBoard, SettleSection } from "./CompanyLive";
 import { handInToCheck, isActive, isAwaitingPayment, isDeclined, lineLabel, orderValue, productById, productLedger, riderLoad, totals, units as taskUnits, useWorkspace, value as taskValue, vendorById } from "./store";
 import { AlertStack, LabelCloud, ProgressScene, themeOf, ThemePicker, Tip } from "./scenes";

@@ -7,7 +7,7 @@ import { LiveTracker, VendorMoney } from "./VendorMoney";
 import { useAuth } from "./auth";
 import { SideMenu } from "./SideMenu";
 import { MeButton } from "./Photo";
-import { PasteOrders } from "./Intake";
+import { PasteOrders } from "./Intake.jsx";
 import { DayRecords, dayFromUrl } from "./DayRecord";
 import { dayOfMessage } from "./WhatsApp";
 import { DeliveryCard, Feed, LedgerLegend, ProductTable } from "./shared";

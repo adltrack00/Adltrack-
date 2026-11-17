@@ -1,0 +1,23 @@
+import fs from 'node:fs/promises';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+const events={};const saved=new Map();let online=false;
+const cache={put:async(req,response)=>saved.set(typeof req==='string'?req:req.url,response),addAll:async(paths)=>{assert.ok(paths.includes('/'));assert.ok(paths.includes('/index.html'));}};
+const caches={open:async()=>cache,match:async(req)=>saved.get(typeof req==='string'?req:req.url),keys:async()=>[]};
+const self={location:{origin:'https://ada.test'},clients:{claim:async()=>{}},skipWaiting:async()=>{},addEventListener:(type,cb)=>events[type]=cb};
+vm.runInNewContext(await fs.readFile(new URL('../public/sw.js',import.meta.url),'utf8'),{self,caches,URL,fetch:async()=>{if(!online)throw Error('offline');return new Response('fresh document');}});
+saved.set('/',new Response('marketing landing'));saved.set('/index.html',new Response('application shell'));
+async function request(path,mode='navigate'){let result;events.fetch({request:{url:'https://ada.test'+path,method:'GET',mode},respondWith:p=>result=p});return result;}
+assert.equal(await (await request('/company')).clone().text(),'application shell');
+assert.equal(await (await request('/signin')).clone().text(),'application shell');
+assert.equal(await (await request('/how-it-works')).clone().text(),'marketing landing');
+assert.equal(await (await request('/pricing/?from=nav')).clone().text(),'marketing landing');
+assert.equal(await request('/api/auth/me','cors'),undefined);
+saved.set('https://ada.test/marketing/delivery.js',new Response('cached marketing script'));
+assert.equal(await (await request('/marketing/delivery.js','cors')).clone().text(),'cached marketing script');
+online=true;
+assert.equal(await (await request('/company')).clone().text(),'fresh document');
+await Promise.resolve();assert.ok(saved.has('https://ada.test/company'));
+assert.equal(await saved.get('/').clone().text(),'marketing landing');
+let install;events.install({waitUntil:p=>install=p});await install;
+console.log('PASS: offline marketing/app separation, route normalization, API exclusion, asset fallback and navigation cache keys.');
