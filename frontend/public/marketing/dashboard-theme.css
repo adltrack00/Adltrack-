@@ -1,0 +1,145 @@
+/* Company + vendor references: Company.jsx / Vendor.jsx canvas; ui.jsx Card,
+   HeroCard, Btn, Tile, StatusPill; Stats.jsx segmented StatPill.
+   Styling only. Existing landing markup, artwork, copy and handlers are preserved. */
+body.home-page{
+  --paper:#fff;--spring:#aad9fd;--ink:#0a0a0a;--navy:#171717;
+  --muted:#737373;--blue:#2563eb;--lilac:#dbeafe;--yellow:#f5f5f5;
+  --dash-card-radius:28px;--dash-hero-radius:34px;
+  --dash-card-shadow:0 10px 40px -12px rgba(10,14,40,.14);
+  --dash-ring:0 0 0 1px rgba(0,0,0,.04);
+  --dash-ink-button:linear-gradient(180deg,#262626,#000);
+  --dash-blue-button:linear-gradient(180deg,#3b82f6,#2563eb);
+  background-color:#fff;
+  background-image:linear-gradient(180deg,#fff 0%,#aad9fd 50%,#fff 100%);
+  background-size:100% 620px;background-repeat:no-repeat;color:var(--ink);
+}
+.home-page .site-header,.home-page .hero-human{background:transparent}
+.home-page .logo{color:var(--ink)}
+.home-page .hero-human .eyebrow:before{background:#2563eb}
+.home-page .hero-human h1,.home-page .landing-rebuild :is(.dn-intro,.dn-chapter,.dn-ride,.dn-demo,.dn-questions) h2{color:var(--ink)}
+.home-page .hero-human h1 .underline svg,.home-page .landing-rebuild :is(.dn-intro,.dn-chapter,.dn-ride,.dn-demo,.dn-questions) .underline svg,.home-page .landing-rest .lr-playground-top .underline svg{stroke:#93c5fd}
+.home-page .btn,.home-page .header-actions .btn,.home-page .landing-rest .lr-playground-top .btn{
+  background:var(--dash-ink-button);color:#fff;border:0;border-radius:999px;
+  padding:14px 24px;gap:10px;min-height:54px;font-weight:600;
+  box-shadow:0 6px 16px -6px rgba(0,0,0,.5);
+  transition:background .2s,box-shadow .2s,transform .2s;
+}
+.home-page .btn>svg,.home-page .header-actions .btn>svg,.home-page .landing-rest .lr-playground-top .btn>svg{
+  width:19px;height:19px;padding:0;border-radius:0;background:transparent;color:inherit;
+}
+.home-page .btn:hover,.home-page .header-actions .btn:hover,.home-page .landing-rest .lr-playground-top .btn:hover{
+  background:linear-gradient(180deg,#404040,#171717);color:#fff;transform:translateY(-1px);
+}
+.home-page .btn:hover>svg{transform:none}
+.home-page .btn.blue{background:var(--dash-blue-button);color:#fff;box-shadow:0 8px 20px -8px rgba(43,78,240,.7)}
+.home-page .btn.blue:hover{background:linear-gradient(180deg,#60a5fa,#2563eb)}
+.home-page .btn.outline,.home-page .hero-human .btn.outline{
+  background:rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.05);color:#171717;
+  box-shadow:0 4px 14px -4px rgba(0,0,0,.12);
+}
+.home-page .btn.outline:hover,.home-page .hero-human .btn.outline:hover{background:#fff;color:#171717}
+.home-page .btn.outline>svg,.home-page .hero-human .btn.outline>svg{background:transparent;padding:0;width:19px;height:19px}
+.home-page .header-actions .btn{min-height:44px;padding:11px 20px}
+.home-page .text-link,.home-page .landing-rebuild :is(.dn-quiet-link,.dn-copy>.text-link,.dn-ride-actions .text-link),.home-page .landing-rest .lr-invite{color:#2563eb;border-color:#bfdbfe}
+.home-page .text-link:hover,.home-page .landing-rest .lr-invite:hover{color:#1d4ed8}
+.home-page :is(a,button,summary):focus-visible{outline:3px solid #2563eb;outline-offset:4px}
+.home-page .dropdown,.home-page .mobile-menu{background:#fff;color:#171717}
+.home-page .dropdown{border-radius:28px;border:1px solid rgba(0,0,0,.04);box-shadow:var(--dash-card-shadow)}
+.home-page .dropdown a:hover{background:#eff6ff}
+.home-page .mobile-menu .btn.white{background:#f5f5f5;color:#171717;box-shadow:none}
+.home-page .mobile-menu .btn.white>svg{background:transparent}
+/* Keep every illustration and its placement. Status tags adopt StatusPill colors. */
+.home-page .art-tag,.home-page .landing-rebuild .dn-art-tag{
+  border-radius:999px;background:#fff;color:#404040;border:1px solid rgba(0,0,0,.04);
+  box-shadow:var(--dash-card-shadow);font-weight:600;
+}
+.home-page .art-tag svg{color:inherit}
+.home-page .tag-right,.home-page .landing-rebuild :is(.dn-tag-approve,.dn-tag-delivered){background:#ecfdf5;color:#047857;border-color:#d1fae5}
+.home-page .landing-rebuild .dn-tag-route{background:#eff6ff;color:#1d4ed8;border-color:#dbeafe}
+.home-page .landing-rebuild .dn-tag-money{background:#f5f5f5;color:#525252}
+.home-page .orb{background:radial-gradient(circle at 30% 25%,#cfeaff 0%,#8096ff 25%,#4b49ff 55%,#2020ad 75%,#10194d 100%);box-shadow:0 0 19px #667aff40,inset 0 0 4px #fff7}
+.home-page .landing-rest{background:#fff;color:#171717;border-radius:34px 34px 0 0}
+.home-page .landing-rebuild .dn-eyebrow{color:#737373}
+.home-page .landing-rebuild :is(.dn-copy p,.dn-intro>p,.dn-demo p,.dn-copy .dn-fineprint,.dn-demo-roles small){color:#737373}
+/* StatPill: one glass surface, separate touch targets, white active/hover bubble. */
+.home-page .landing-rebuild .dn-role-links{
+  background:rgba(255,255,255,.55);border:1px solid rgba(0,0,0,.05);border-radius:999px;
+  padding:6px;gap:6px;backdrop-filter:blur(12px);
+  box-shadow:0 10px 30px -18px rgba(30,80,140,.45);
+}
+.home-page .landing-rebuild .dn-role-links a{padding:20px 22px;border:0;border-radius:999px;transition:background .2s,box-shadow .2s}
+.home-page .landing-rebuild .dn-role-links a:hover{background:#fff;box-shadow:0 4px 14px -4px rgba(0,0,0,.12)}
+.home-page .landing-rebuild .dn-role-links small{color:#737373}
+.home-page .landing-rebuild .dn-role-links a:hover b{color:#2563eb}
+.home-page .landing-rebuild .dn-role-symbol{background:#f5f5f5}
+.home-page .landing-rebuild .dn-role-symbol svg{color:#2563eb}
+/* HeroCard: the existing sample plan gets the dashboard's dark summary treatment. */
+.home-page .landing-rebuild .dn-ada-plan{
+  background:linear-gradient(180deg,#000,#171717);color:#fff;border-radius:34px;
+  padding:28px;box-shadow:0 24px 60px -24px rgba(0,0,0,.6);
+}
+.home-page .landing-rebuild .dn-ada-plan h3{color:#fff;font-weight:600}
+.home-page .landing-rebuild .dn-ada-plan>span,.home-page .landing-rebuild .dn-ada-plan p,.home-page .landing-rebuild .dn-ada-plan small{color:#d4d4d4}
+.home-page .landing-rebuild .dn-ada-plan .btn>svg{width:18px;height:18px;padding:0}
+/* Same white -> sky -> white canvas as company and vendor, repeated at the handover. */
+.home-page .landing-rebuild .dn-ride{
+  background:linear-gradient(180deg,#fff 0%,#aad9fd 50%,#fff 100%);border-radius:34px;
+}
+.home-page .landing-rebuild .dn-ride .dn-eyebrow{color:#737373}
+.home-page .landing-rebuild .dn-day-steps{border-color:#e5e5e5}
+.home-page .landing-rebuild .dn-day-steps li>span{background:var(--dash-ink-button);color:#fff;font-weight:600}
+.home-page .landing-rebuild .dn-day-steps p{color:#737373}
+.home-page .landing-rebuild .dn-ride-actions .btn>svg{background:transparent}
+.home-page .landing-rebuild .dn-doodle{stroke:#737373}
+.home-page .landing-rebuild .dn-message{
+  background:#fff;color:#171717;border-radius:24px;box-shadow:var(--dash-card-shadow),var(--dash-ring);
+}
+.home-page .landing-rebuild .dn-message small{color:#737373}
+.home-page .landing-rebuild .dn-message-two{background:#eff6ff;color:#1d4ed8}
+.home-page .landing-rebuild .dn-message-three{background:#f5f5f5}
+/* Reuse the existing switch behavior; styling matches the dashboard segmented controls. */
+.home-page .landing-rebuild .dn-switch{background:#f5f5f5;border-radius:999px;padding:6px;gap:4px;width:max-content;max-width:100%}
+.home-page .landing-rebuild .dn-switch button{background:transparent;color:#737373;border:0;border-radius:999px;font-weight:600}
+.home-page .landing-rebuild .dn-switch button[aria-pressed=true]{background:#fff;color:#171717;box-shadow:0 4px 14px -4px rgba(0,0,0,.2),var(--dash-ring)}
+.home-page .landing-rebuild .dn-demo{border-color:#e5e5e5}
+/* Tile + Card: no new content, just the same surfaces used by dashboard shortcuts. */
+.home-page .landing-rebuild .dn-demo-roles>a{background:#f5f5f5;color:#171717;border-radius:26px;box-shadow:0 8px 24px -14px rgba(0,0,0,.25);transition:background .2s,transform .2s}
+.home-page .landing-rebuild .dn-demo-roles>a:hover{background:#fafafa;transform:translateY(-2px)}
+.home-page .landing-rebuild .dn-demo-roles>a>span>svg{color:#737373}
+.home-page .landing-rebuild .dn-demo-roles i{background:var(--dash-ink-button);color:#fff}
+.home-page .landing-rebuild .dn-questions .faq-list{background:#fff;border-radius:28px;padding:8px 26px;box-shadow:var(--dash-card-shadow),var(--dash-ring)}
+.home-page .landing-rebuild .dn-questions details{border-color:#e5e5e5}
+.home-page .landing-rebuild .dn-questions details:last-child{border-bottom:0}
+.home-page .landing-rebuild .dn-questions details p{color:#737373}
+.home-page .landing-rest .lr-playground{background:linear-gradient(180deg,#fff 0%,#aad9fd 50%,#fff 100%)}
+.home-page .landing-rest .lr-playground-top p{color:#525252}
+.home-page .landing-rest :is(.lr-cloud,.lr-horizon){stroke:#737373}
+.home-page .landing-rest .lr-game-button{
+  background:var(--dash-blue-button);color:#fff;border:0;border-radius:999px;
+  box-shadow:0 8px 20px -8px rgba(43,78,240,.7);font-weight:600;
+}
+.home-page .landing-rest .lr-game-button:hover{background:linear-gradient(180deg,#60a5fa,#2563eb)}
+.home-page .landing-rest .lr-game-button>span{background:#ffffff26;color:#fff}
+.home-page .landing-rest .lr-endline{border-color:#e5e5e5;color:#737373}
+.home-page .dn-home-footer{background:#fff;color:#171717}
+.home-page .dn-home-footer .dn-footer-wrap{border-color:#e5e5e5}
+.home-page .dn-home-footer small{color:#737373}
+@media(max-width:1023px){body.home-page{background-size:100% 700px}.home-page .landing-rebuild .dn-role-links a{padding:17px 15px;gap:10px}}
+@media(max-width:700px){
+  .home-page .header-actions .btn{min-height:43px;padding:10px 15px;font-size:11px}
+  .home-page .header-actions .btn>svg{width:16px;height:16px}
+  .home-page .hero-human .btn{min-height:48px;padding:12px 17px;font-size:11px;gap:8px}
+  .home-page .hero-human .btn>svg,.home-page .hero-human .btn.outline>svg{width:16px;height:16px;padding:0}
+  .home-page .landing-rebuild .dn-role-links{border-radius:28px;gap:0;padding:6px}
+  .home-page .landing-rebuild .dn-role-links a{border-radius:22px;padding:18px 14px;border:0}
+  .home-page .landing-rebuild .dn-role-links a+a{border-top:1px solid #e5e5e5}
+  .home-page .landing-rebuild .dn-ada-plan{padding:24px;border-radius:28px}
+  .home-page .landing-rebuild .dn-ride{border-radius:28px}
+  .home-page .landing-rebuild .dn-switch button{padding:11px 15px;gap:10px}
+  .home-page .landing-rebuild .dn-questions .faq-list{padding:4px 20px}
+  .home-page .landing-rest .lr-playground-top .btn{min-height:49px;padding:12px 20px;font-size:12px}
+}
+@media(max-width:639px){body.home-page{background-size:100% 780px}}
+@media(prefers-reduced-motion:reduce){.home-page .btn,.home-page .landing-rebuild .dn-role-links a,.home-page .landing-rebuild .dn-demo-roles>a{transition:none;transform:none}}
+
+.home-page .landing-rebuild .dn-message-three small{color:#525252}
