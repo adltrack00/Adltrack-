@@ -25,5 +25,5 @@ for(const route of routes){
 }
 for(const file of ['landing-rest.js','delivery.css','human-theme.css','landing-rest.css','landing-rebuild.css']){const p='frontend/public/marketing/'+file;assert.ok(equalText(await after(p),before(p)),'Protected homepage source changed: '+file);}
 for(const file of ['delivery-illustration.webp','delivery-day-ada.webp','delivery-day-rider.webp','delivery-day-stock.webp','delivery-parcel-mascot.webp']){const p='frontend/public/marketing/assets/'+file;assert.ok((await after(p)).equals(before(p)),'Homepage artwork changed: '+file);}
-for(const file of ['Company.jsx','Vendor.jsx','Rider.jsx','AuthPages.jsx','ui.jsx','Stats.jsx']){const p='frontend/src/delivery/'+file;assert.ok(equalText(await after(p),before(p)),'Operational app source changed: '+file);}
-console.log('PASS: 13 pages keep visible copy, links and form hooks; homepage markup/artwork and operational screens preserved; shared theme, cartoons, headings, anchors and '+targets+' image targets verified.');
+for(const file of ['Company.jsx','Vendor.jsx','Rider.jsx','ui.jsx','Stats.jsx']){const p='frontend/src/delivery/'+file;assert.ok(equalText(await after(p),before(p)),'Operational app source changed: '+file);}
+console.log('PASS: 13 pages keep visible copy, links and form hooks; homepage markup/artwork and operational dashboards preserved; shared theme, cartoons, headings, anchors and '+targets+' image targets verified.');

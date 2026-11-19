@@ -6,5 +6,5 @@ export default function Landing() {
   const { pathname, search, hash } = useLocation();
   const target = process.env.NODE_ENV === "production" ? pathname : "/marketing" + (pathname === "/" ? "" : pathname) + "/index.html";
   useEffect(() => { window.location.replace(target + search + hash); }, [target, search, hash]);
-  return <main style={{padding:32, background:"#f8f7f2", minHeight:"100vh"}}><a href={target + search + hash}>Continue to Ada</a></main>;
+  return <main style={{padding:32, background:"linear-gradient(180deg,#fff,#aad9fd 50%,#fff)", minHeight:"100vh"}}><a href={target + search + hash}>Continue to Ada</a></main>;
 }
