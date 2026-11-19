@@ -130,7 +130,7 @@ def staff_alert(wid: int, state, text: str) -> List[Dict[str, Any]]:
     return [W.office_message(f"staff:{s['id']}", text, kind="nudge") for s in W.staff_of(wid)]
 
 
-def turn(st, wid: int, digits: str, it: str, text: str) -> Optional[Tuple[str, Optional[List]]]:
+def turn(st, wid: int, digits: str, it: str, text: str, photo: Optional[str] = None) -> Optional[Tuple[str, Optional[List]]]:
     t = current_task(st, digits)
     if not t:
         return None
@@ -146,11 +146,13 @@ def turn(st, wid: int, digits: str, it: str, text: str) -> Optional[Tuple[str, O
         return f"Thank you, {first}! Enjoy it. 🙏", None
     if it == "problem":
         note = text.strip() if text and not re.fullmatch(r"\W*(2|no|problem)\W*", text, re.I) else ""
+        if note in ("📷 Photo",) and photo:
+            note = "Sent a photo"
         if not note:
             t["customerIssue"] = {"at": W.now_iso(), "text": ""}
             W.contacts(st).setdefault(f"customer:{digits}", {})["awaiting"] = {"what": "problem", "taskId": t["id"]}
             return "I'm sorry. What went wrong? Tell me in a few words (or send a photo) and I'll get the team on it now.", None
-        return report(st, wid, t, note)
+        return report(st, wid, t, note, photo)
     if it in ("reschedule", "later"):
         if it == "later" or not text:
             W.contacts(st).setdefault(f"customer:{digits}", {})["awaiting"] = {"what": "when", "taskId": t["id"]}
@@ -159,10 +161,10 @@ def turn(st, wid: int, digits: str, it: str, text: str) -> Optional[Tuple[str, O
     return None
 
 
-def report(st, wid: int, t, note: str) -> Tuple[str, Optional[List]]:
-    t["customerIssue"] = {"at": W.now_iso(), "text": note}
+def report(st, wid: int, t, note: str, photo: Optional[str] = None) -> Tuple[str, Optional[List]]:
+    t["customerIssue"] = {"at": W.now_iso(), "text": note, **({"photo": photo} if photo else {})}
     st.setdefault("log", []).insert(0, {"id": W.uid("log"), "at": W.now_iso(), "kind": "incident", "status": "open", "taskId": t["id"],
-                                        "title": f"Customer problem: {t.get('customer')} ({t.get('ref')})", "text": note, "by": {"name": t.get("customer"), "role": "customer", "via": "whatsapp"}})
+                                        "title": f"Customer problem: {t.get('customer')} ({t.get('ref')})", "text": note, "by": {"name": t.get("customer"), "role": "customer", "via": "whatsapp"}, **({"photo": photo} if photo else {})})
     st.setdefault("messages", []).extend(staff_alert(wid, st, f"🚨 {t.get('customer')} reports a problem with {t.get('ref')}: \"{note}\". Logged as an incident."))
     if t.get("vendorId"):
         st["messages"].append(W.office_message(f"vendor:{t['vendorId']}", f"⚠️ {t.get('customer')} ({t.get('ref')}) says: \"{note}\". The office is on it.", kind="update", taskId=t["id"]))
@@ -194,7 +196,7 @@ def reschedule(st, t, text: str) -> Tuple[str, Optional[List]]:
     return "Thanks, I've passed that to the team.", None
 
 
-def awaiting_turn(st, wid: int, digits: str, text: str) -> Optional[Tuple[str, Optional[List]]]:
+def awaiting_turn(st, wid: int, digits: str, text: str, photo: Optional[str] = None) -> Optional[Tuple[str, Optional[List]]]:
     memo = W.contacts(st).setdefault(f"customer:{digits}", {})
     aw = memo.pop("awaiting", None)
     if not aw or not text:
@@ -203,7 +205,7 @@ def awaiting_turn(st, wid: int, digits: str, text: str) -> Optional[Tuple[str, O
     if not t:
         return None
     if aw["what"] == "problem":
-        return report(st, wid, t, text)
+        return report(st, wid, t, text, photo)
     if aw["what"] == "when":
         return reschedule(st, t, text)
     return None

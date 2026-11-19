@@ -18,7 +18,7 @@ export function waSettings(state) {
   const w = (state.company && state.company.whatsapp) || {};
   return {
     enabled: w.enabled !== false, autoReply: w.autoReply !== false, paused: w.paused || {},
-    notify: { drops: true, riderUpdates: true, vendorDeliveries: true, vendorPayouts: true, vendorStock: true, nudges: true, staffBriefs: true, customers: false, ...(w.notify || {}) },
+    notify: { drops: true, riderUpdates: true, vendorDeliveries: true, vendorPayouts: true, vendorStock: true, nudges: true, staffBriefs: true, customers: false, calls: false, ...(w.notify || {}) },
   };
 }
 
@@ -43,8 +43,8 @@ export function Ticks({ m, dark = false }) {
   return <CheckCheck className={cn("inline h-3.5 w-3.5", wa.status === "read" ? "text-sky-400" : dark ? "text-white/60" : "")} />;
 }
 
-const theirs = (m) => m.from === "rider" || m.from === "vendor" || m.from === "staff" || m.from === "customer";
-const keyOf = (t) => (t.staffId ? "staff:me" : t.customerId ? `customer:${t.customerId}` : t.riderId ? `rider:${t.riderId}` : `vendor:${t.vendorId}`);
+const theirs = (m) => m.from === "rider" || m.from === "vendor" || m.from === "staff" || m.from === "customer" || m.from === "guest";
+const keyOf = (t) => (t.groupId ? "staff:me" : t.staffId ? "staff:me" : t.customerId ? `customer:${t.customerId}` : t.riderId ? `rider:${t.riderId}` : `vendor:${t.vendorId}`);
 
 function threadsOf(state, user) {
   const office = user && user.role === "company" ? [{ key: `staff:${user.id}`, staffId: user.id, name: `${user.name || "You"} · Office`, color: "#0f1450", phone: user.phone, kind: "Office", first: "you" }] : [];
@@ -53,7 +53,14 @@ function threadsOf(state, user) {
     ...state.riders.map((r) => ({ key: `rider:${r.id}`, riderId: r.id, name: r.name, color: r.color, phone: r.phone, kind: "Rider", first: r.short || r.name })),
     ...state.vendors.map((v) => ({ key: `vendor:${v.id}`, vendorId: v.id, name: v.name, color: v.color, phone: v.phone, kind: "Vendor", first: (v.contact || v.name).split(" ")[0] })),
     ...customerThreads(state),
+    ...groupThreads(state),
   ];
+}
+
+// Team groups ADA is in (made from the office chat: "make a team group").
+function groupThreads(state) {
+  const groups = (((state.company || {}).whatsapp || {}).groups || []).filter((g) => g.status === "ready" && g.id);
+  return groups.map((g) => ({ key: `group:${g.id}`, groupId: g.id, name: g.name || "Team group", color: "#25D366", phone: g.invite || "", kind: "Group", first: "everyone" }));
 }
 
 // Customers show up once ADA has written to them or they've written in (with "Message customers" on).
@@ -67,7 +74,7 @@ function customerThreads(state) {
     return { key: `customer:${id}`, customerId: id, name, color: "#64748b", phone: `+${id}`, kind: "Customer", first: name.split(" ")[0] };
   });
 }
-const inThread = (m, t) => (t.staffId ? m.staffId === t.staffId : t.customerId ? m.customerId === t.customerId : t.vendorId ? m.vendorId === t.vendorId : m.riderId === t.riderId && !m.vendorId && !m.staffId && !m.customerId);
+const inThread = (m, t) => (t.groupId ? m.groupId === t.groupId : m.groupId ? false : t.staffId ? m.staffId === t.staffId : t.customerId ? m.customerId === t.customerId : t.vendorId ? m.vendorId === t.vendorId : m.riderId === t.riderId && !m.vendorId && !m.staffId && !m.customerId);
 
 export default function WhatsAppInbox({ openDay }) {
   const { state, act } = useWorkspace();
@@ -187,11 +194,11 @@ export function dayOfMessage(state, m) {
 }
 
 function Bubble({ m, mine, day, onDay }) {
-  const who = m.from === "ada" ? "ADA" : m.from === "dispatcher" ? (m.by && m.by.name) || "Office" : null;
+  const who = m.from === "ada" ? "ADA" : m.from === "dispatcher" ? (m.by && m.by.name) || "Office" : m.groupId && m.authorName ? m.authorName : null;
   return (
     <div className={cn("max-w-[85%] sm:max-w-[75%]", mine ? "ml-auto" : "")}>
       <div className={cn("rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-snug shadow-sm", mine ? (m.from === "ada" ? "rounded-br-md bg-[#0f1450] text-white" : "rounded-br-md bg-neutral-900 text-white") : "rounded-bl-md bg-white text-neutral-800")}>
-        {who && <div className={cn("mb-0.5 flex items-center gap-1 text-[11px] font-bold", m.from === "ada" ? "text-sky-300" : "text-white/60")}>{m.from === "ada" && <AdaMark size={12} />}{who}</div>}
+        {who && <div className={cn("mb-0.5 flex items-center gap-1 text-[11px] font-bold", m.from === "ada" ? "text-sky-300" : mine ? "text-white/60" : "text-emerald-700")}>{m.from === "ada" && <AdaMark size={12} />}{who}</div>}
         {m.photo && <img src={m.photo} alt="" className="mb-1.5 max-h-56 rounded-xl object-cover" />}
         <Media m={m} />
         <div className="whitespace-pre-line break-words">{m.text}</div>
@@ -219,6 +226,8 @@ function Media({ m }) {
     <>
       {m.audio && <audio controls src={m.audio} className="mb-1.5 h-10 w-60 max-w-full" data-testid="wa-audio" />}
       {m.audio && m.transcribed && <div className="mb-0.5 text-[11px] font-semibold opacity-60">Voice note, typed out by ADA:</div>}
+      {m.channel === "call" && <div className="mb-0.5 text-[11px] font-semibold opacity-60" data-testid="wa-call">📞 {m.from === "ada" ? "Said on a phone call" : "Said on a phone call, typed out"}{m.wa && m.wa.status === "simulated" ? " (test line)" : ""}</div>}
+      {m.photoRead && m.photoRead.summary && <div className="mb-1 rounded-lg bg-black/5 px-2 py-1 text-[11.5px] font-semibold opacity-80" data-testid="wa-photo-read">ADA read: {m.photoRead.summary}</div>}
       {m.location && m.location.lat != null && (
         <a href={`https://maps.google.com/?q=${m.location.lat},${m.location.lng}`} target="_blank" rel="noreferrer" className="mb-1.5 block text-[12.5px] font-semibold underline">Open location in Maps{m.location.name ? ` · ${m.location.name}` : ""}</a>
       )}
@@ -251,6 +260,7 @@ function SettingsModal({ open, onClose, s, save, status }) {
         <Toggle on={n.vendorPayouts} onChange={(v) => save({ notify: { vendorPayouts: v } })} label="Tell vendors about payouts" />
         <Toggle on={n.nudges} onChange={(v) => save({ notify: { nudges: v } })} label="ADA follows up by itself" sub="Nudges riders who haven't answered or gone quiet, reminds them about cash, and tells the office who's still silent." />
         <Toggle on={n.customers} onChange={(v) => save({ notify: { customers: v } })} label="Message customers" sub="On the way, at the door, delivered. Customers can confirm, report a problem or pick a new time." testId="wa-customers" />
+        <Toggle on={n.calls} onChange={(v) => save({ notify: { calls: v } })} label="ADA phones riders who don't answer" sub="A short call when new drops are still unanswered after the WhatsApp nudge. Needs a Twilio voice number." testId="wa-calls" />
         <Toggle on={n.staffBriefs} onChange={(v) => save({ notify: { staffBriefs: v } })} label="Morning brief and evening wrap" sub="To everyone at the office with a WhatsApp number on their login." />
       </div>
       {status && !status.live && (
@@ -267,7 +277,7 @@ function SettingsModal({ open, onClose, s, save, status }) {
 
 const RIDER_TRIES = ["Yes", "Collected", "Arrived", "Delivered", "Customer not picking calls", "How much did I earn today?", "Paid in ref TRF2231"];
 const CUSTOMER_TRIES = ["Where is my order?", "I won't be home, bring it tomorrow after 2pm", "Yes, I got it", "The serum is damaged"];
-const OFFICE_TRIES = ["How far today?", "Dispatch", "GlowSkin dropped 40 serum", "Count in", "Cash", "What do we owe?", "Tell all riders to return unsold items by 6pm", "Login"];
+const OFFICE_TRIES = ["How far today?", "Dispatch", "Call Tunde: are you taking the new drops?", "Make a team group", "GlowSkin dropped 40 serum", "Count in", "Cash", "What do we owe?", "Tell all riders to return unsold items by 6pm", "Login"];
 const VENDOR_TRIES = [
   "Tuesday orders\n1. Adaeze Nnaji 08035551234, 15 Adeniran Ogunsanya St Surulere, 2 serum, 25k\n2. Tayo 08123456677, 07012345678, 3 black soap, 10,500",
   "Sending 40 serum and 20 black soap tomorrow",
@@ -280,6 +290,7 @@ export function Simulator({ open, onClose, threads, start }) {
   const [key, setKey] = useState(start);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  const [onCall, setOnCall] = useState(false);
   const file = useRef(null);
   const body = useRef(null);
   // Pick the contact when the phone opens, not each time a new message moves another chat to the top.
@@ -290,11 +301,12 @@ export function Simulator({ open, onClose, threads, start }) {
   if (!open || !th) return null;
   const send = async (payload) => {
     setBusy(true);
-    try { await api("/api/whatsapp/simulate", { method: "POST", body: { contact: keyOf(th), ...payload } }); setText(""); } catch (e) { toast.error(e.message); }
+    const extra = { ...(th.groupId ? { group: th.groupId } : {}), ...(onCall && !th.groupId ? { channel: "call" } : {}) };
+    try { await api("/api/whatsapp/simulate", { method: "POST", body: { contact: keyOf(th), ...extra, ...payload } }); setText(""); } catch (e) { toast.error(e.message); }
     setBusy(false);
   };
   const pick = async (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ""; if (f) send({ image: await shrinkPhoto(f, 1024) }); };
-  const tries = th.staffId ? OFFICE_TRIES : th.customerId ? CUSTOMER_TRIES : th.riderId ? RIDER_TRIES : VENDOR_TRIES;
+  const tries = th.groupId ? ["ADA, how far today?", "ADA, who has DL-1001?", "Morning everyone"] : th.staffId ? OFFICE_TRIES : th.customerId ? CUSTOMER_TRIES : th.riderId ? RIDER_TRIES : VENDOR_TRIES;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3 backdrop-blur-[3px]" onClick={onClose}>
       <div className="flex h-[min(820px,96dvh)] w-full max-w-[400px] flex-col overflow-hidden rounded-[40px] bg-black p-2.5 shadow-2xl" onClick={(e) => e.stopPropagation()} data-testid="wa-phone">
@@ -304,11 +316,15 @@ export function Simulator({ open, onClose, threads, start }) {
             <div className="min-w-0 flex-1">
               <div className="text-[15px] font-semibold">ADA · {state.company.name || "Delivery"}</div>
               <select value={th.key} onChange={(e) => setKey(e.target.value)} className="mt-0.5 max-w-full rounded-md bg-white/15 px-1.5 py-0.5 text-[12px] text-white outline-none" data-testid="wa-sim-as">
-                {threads.map((t) => <option key={t.key} value={t.key} className="text-neutral-900">{t.staffId ? "You, at the office" : `You are ${t.name} (${t.kind.toLowerCase()})`}</option>)}
+                {threads.map((t) => <option key={t.key} value={t.key} className="text-neutral-900">{t.groupId ? `${t.name} (group, you at the office)` : t.staffId ? "You, at the office" : `You are ${t.name} (${t.kind.toLowerCase()})`}</option>)}
               </select>
             </div>
+            {!th.groupId && !th.staffId && (
+              <button onClick={() => setOnCall(!onCall)} aria-label="Answer as a phone call" title="Speak as if on a phone call with ADA" className={cn("grid h-9 w-9 place-items-center rounded-full", onCall ? "bg-white text-[#0b6b55]" : "bg-white/10")} data-testid="wa-sim-call">📞</button>
+            )}
             <button onClick={onClose} aria-label="Close" className="grid h-9 w-9 place-items-center rounded-full bg-white/10"><X className="h-5 w-5" /></button>
           </div>
+          {onCall && !th.groupId && !th.staffId && <div className="bg-[#0b6b55] px-4 pb-2 text-[11.5px] text-white/85">📞 On a call with ADA: what you send is said out loud, and ADA's answer is spoken.</div>}
           <div ref={body} className="flex-1 space-y-2 overflow-y-auto px-3 py-3">
             <div className="mx-auto w-fit rounded-lg bg-[#fff5c4] px-3 py-1.5 text-center text-[11.5px] text-neutral-600">Test line. This is what {th.first} sees on WhatsApp.</div>
             {msgs.map((m) => {
@@ -338,7 +354,7 @@ export function Simulator({ open, onClose, threads, start }) {
               <textarea value={text} onChange={(e) => setText(e.target.value)} rows={Math.min(5, Math.max(1, text.split("\n").length))} placeholder="Message" className="max-h-32 flex-1 resize-none bg-transparent py-2.5 text-[16px] outline-none" data-testid="wa-sim-input"
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (text.trim()) send({ text }); } }} />
               <input ref={file} type="file" accept="image/*" className="hidden" onChange={pick} />
-              {th.riderId && <button type="button" onClick={() => file.current.click()} className="py-2.5 pl-2 text-neutral-500" aria-label="Send a photo"><Camera className="h-5 w-5" /></button>}
+              {!th.customerId && <button type="button" onClick={() => file.current.click()} className="py-2.5 pl-2 text-neutral-500" aria-label="Send a photo"><Camera className="h-5 w-5" /></button>}
             </div>
             <button type="submit" disabled={busy || !text.trim()} className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-white disabled:opacity-60" style={{ background: "#0b8a6d" }} aria-label="Send" data-testid="wa-sim-send"><Send className="h-5 w-5" /></button>
           </form>

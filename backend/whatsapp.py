@@ -36,6 +36,7 @@ from fastapi.responses import PlainTextResponse, Response
 from pydantic import BaseModel, Field
 
 import auth
+import brain
 import intake
 import stt
 import wa_providers
@@ -160,6 +161,8 @@ def settings(state) -> Dict[str, Any]:
 
 
 def key_of(m) -> Optional[str]:
+    if m.get("groupId"):
+        return f"group:{m['groupId']}"
     if m.get("staffId"):
         return f"staff:{m['staffId']}"
     if m.get("customerId"):
@@ -175,6 +178,9 @@ def person(state, key: str) -> Optional[Dict[str, Any]]:
     role, _, ref = key.partition(":")
     if role == "staff":
         return staff_person(ref)
+    if role == "group":
+        g = next((g for g in groups(state) if g.get("id") == ref), None)
+        return {"role": "group", "ref": ref, "name": g.get("name", "Team group"), "first": "", "phone": "", "group": ref} if g else None
     if role == "customer":
         import customers
 
@@ -202,6 +208,11 @@ def staff_of(wid: int) -> List[Dict[str, Any]]:
     """Everyone at the office who can hear from ADA on WhatsApp."""
     rows = db.all("SELECT id, name, phone FROM users WHERE workspace_id = %s AND role = 'company' AND demo = 0 AND phone IS NOT NULL", (wid,))
     return [{"role": "staff", "ref": r[0], "id": r[0], "name": r[1] or "", "first": (r[1] or "").split(" ")[0], "phone": intake.phone_digits(r[2])} for r in rows if r[2]]
+
+
+def groups(state) -> List[Dict[str, Any]]:
+    """The company's WhatsApp groups with ADA in them (see office.plan_group)."""
+    return ((state.get("company") or {}).get("whatsapp") or {}).get("groups") or []
 
 
 def contacts(state) -> Dict[str, Any]:
@@ -235,7 +246,7 @@ def link_user(wid: int, user_id: str, target: str) -> str:
 def office_message(key: str, text: str, kind: str = "", buttons=None, wa_text: str = "", **extra) -> Dict[str, Any]:
     role, _, ref = key.partition(":")
     m = {"id": uid("m"), "at": now_iso(), "read": False, "from": "ada", "text": text, "channel": "whatsapp", "wa": {"status": "queued"}, **extra}
-    m[{"rider": "riderId", "vendor": "vendorId", "staff": "staffId", "customer": "customerId"}.get(role, "vendorId")] = ref
+    m[{"rider": "riderId", "vendor": "vendorId", "staff": "staffId", "customer": "customerId", "group": "groupId"}.get(role, "vendorId")] = ref
     if kind:
         m["kind"] = kind
     if buttons:
@@ -589,6 +600,10 @@ async def send(wid: int, state, msgs: List[Dict[str, Any]]) -> None:
     for m in msgs:
         key = key_of(m)
         p = person(state, key) if key else None
+        if p and p.get("group"):
+            res = await asyncio.to_thread(line.send_group, p["group"], m.get("waText") or m["text"], m.get("buttons"))
+            results[m["id"]] = {"status": res.get("status"), "id": res.get("id", ""), "at": now_iso(), **({"error": res["error"]} if res.get("error") else {})}
+            continue
         if not p or not p["phone"]:
             results[m["id"]] = {"status": "no_number", "at": now_iso()}
             continue
@@ -708,35 +723,6 @@ def vendor_intent(state, vendor_id: str, text: str, button: str = "") -> Dict[st
     if re.search(r"\b(today|status|report|update|deliveries|how far|summary)\b", t):
         return {"intent": "today"}
     return {"intent": "unknown"}
-
-
-CLAUDE_SYSTEM = """You read one WhatsApp message a {role} sent to a delivery company's assistant and say what they mean.
-Rider intents: accept (takes the new drops), decline (can't take them), collected (picked up the parcels at the office), arrived (at the customer), delivered (handed over; amount and method if said), amount (only says how much was collected), problem (could not deliver; reason), earnings, next (what's next / my drops), paid_in (paid cash into the company account; ref), record (asks what happened on a day, or what is planned), help, unknown.
-Vendor intents: orders (customer orders with name, phone, address), stock (stock being sent to the office), balance (money owed or payouts), today (how today's deliveries are going), help, unknown.
-The message may be in Nigerian Pidgin, Yoruba, Igbo or Hausa mixed with English. amount is in naira (25k = 25000), 0 if not said. method is cash, transfer, pos, unpaid or none."""
-
-
-def claude_intent(role: str, text: str) -> Optional[Dict[str, Any]]:
-    if not os.environ.get("ANTHROPIC_API_KEY") or not text.strip():
-        return None
-    try:
-        import anthropic
-
-        client = anthropic.Anthropic(timeout=20.0, max_retries=0)
-        schema = {"type": "object", "additionalProperties": False, "required": ["intent", "amount", "method", "reason"], "properties": {
-            "intent": {"type": "string", "enum": ["accept", "decline", "collected", "arrived", "delivered", "amount", "problem", "earnings", "next", "paid_in", "record", "orders", "stock", "balance", "today", "help", "unknown"]},
-            "amount": {"type": "number"}, "method": {"type": "string", "enum": ["cash", "transfer", "pos", "unpaid", "none"]}, "reason": {"type": "string"}}}
-        res = client.messages.create(
-            model=os.environ.get("ADA_MODEL", "claude-opus-5-5"), max_tokens=300,
-            output_config={"effort": "low", "format": {"type": "json_schema", "schema": schema}},
-            system=CLAUDE_SYSTEM.format(role=role), messages=[{"role": "user", "content": text[:1500]}],
-        )
-        out = json.loads(next((b.text for b in res.content if b.type == "text"), "{}"))
-        return {"intent": out.get("intent", "unknown"), "amount": int(out["amount"]) if out.get("amount") else None,
-                "method": None if out.get("method") in (None, "none") else out["method"], "reason": out.get("reason", ""), "ref": ""}
-    except Exception as err:
-        log.info("Claude couldn't read a WhatsApp message: %s", err)
-        return None
 
 
 # ---------- ADA and a rider ----------
@@ -910,9 +896,14 @@ def rider_turn(st, wid: int, rid: str, it: Dict[str, Any], photo: Optional[str],
         if not held:
             return "You're not holding any cash for the office right now. Thank you!", None
         total = sum(cash_held(t) for t in held)
+        receipt, shown = it.get("receipt"), it.get("amount") if it.get("receipt") else None
         for t in held:
-            t["payment"] = {**t["payment"], "handedIn": {"at": now_iso(), "ref": it.get("reason") or "", "via": "whatsapp"}}
-        return f"Thanks! I've told the office you paid in {money(total)}{' (ref ' + it['reason'] + ')' if it.get('reason') else ''}. They'll confirm once it's in the bank.", None
+            t["payment"] = {**t["payment"], "handedIn": {"at": now_iso(), "ref": it.get("reason") or "", "via": "whatsapp", **({"receipt": receipt, "receiptAmount": shown or 0} if receipt else {})}}
+        check = ""
+        if receipt and shown and shown != total:
+            check = f" The receipt shows {money(shown)}, {money(abs(total - shown))} {'less' if shown < total else 'more'} than the {money(total)} you're holding, so the office will check it with you."
+        return (f"Thanks! I've told the office you paid in {money(total)}{' (ref ' + it['reason'] + ')' if it.get('reason') else ''}. "
+                + ("🧾 I've kept the receipt for them. " if receipt else "") + f"They'll confirm once it's in the bank.{check}"), None
 
     return None
 
@@ -1079,9 +1070,27 @@ def login_reply(wid: int, st, role: str, ref: str) -> str:
     return f"🔐 Your dashboard, signed in: {url}\nThe link works once, for a day."
 
 
+RIDER_INTENTS = {"accept", "decline", "collected", "arrived", "delivered", "amount", "problem", "earnings", "next", "paid_in", "record", "help"}
+VENDOR_INTENTS = {"orders", "stock", "balance", "today", "record", "cancel", "help"}
+CUSTOMER_INTENTS = {"confirm", "problem", "reschedule", "where", "later", "help"}
+
+
+def _think(wid: int, role: str, ref: str, said: str, chat_key: str) -> Optional[Dict[str, Any]]:
+    """Claude reads the message with the chat so far and what ADA knows (see brain.py)."""
+    _, st = workspace.Hub.load(wid)
+    if not st:
+        return None
+    return brain.understand(role, said, brain.history(st, chat_key), brain.context(st, role, ref))
+
+
 async def receive(wid: int, role: str, ref: str, text: str = "", photo: Optional[str] = None, button: str = "", wa_id: str = "", who: Optional[Dict[str, Any]] = None, url: str = "",
-                  audio: Optional[str] = None, location: Optional[Dict[str, Any]] = None, heard: bool = False) -> None:
-    """One message from a rider, vendor, customer or someone at the office: shown in the inbox, acted on by ADA, answered."""
+                  audio: Optional[str] = None, location: Optional[Dict[str, Any]] = None, heard: bool = False, read: Optional[Dict[str, Any]] = None,
+                  channel: str = "whatsapp", group: Optional[str] = None, addressed: bool = True) -> Optional[str]:
+    """One message from a rider, vendor, customer or someone at the office: shown in the inbox, acted on by ADA, answered.
+
+    read is what Claude saw in a photo. channel "call" is a phone call (calls.py): the reply is spoken, not sent.
+    group is a WhatsApp group the message came from: ADA only acts when addressed, and answers in the group.
+    Returns ADA's reply, if there is one."""
     import customers
     import office
 
@@ -1089,26 +1098,43 @@ async def receive(wid: int, role: str, ref: str, text: str = "", photo: Optional
         _base_urls[wid] = url.rstrip("/")
     who = who or {}
     key = f"{role}:{ref}"
-    rough = rider_intent(text, button) if role == "rider" else None
-    if role == "rider" and rough["intent"] == "unknown" and text and not photo:
-        smart = await asyncio.to_thread(claude_intent, "rider", text)
-        if smart and smart["intent"] != "unknown":
-            rough = {**rough, **{k: v for k, v in smart.items() if v not in (None, "")}}
-    if rough is not None:
-        rough["text"] = text
-    staff_intent, staff_text = "", text
+    chat_key = f"group:{group}" if group else key
     if role == "staff":
-        staff_intent = office.office_intent(text, button)
-        if staff_intent == "unknown" and text and not (photo or audio):
-            smart = await asyncio.to_thread(office.claude_office, text)
-            if smart and smart["intent"] != "unknown":
-                staff_intent, staff_text = smart["intent"], smart["text"]
         staff = await asyncio.to_thread(staff_person, ref)
         who = {**(staff or {}), **{k: v for k, v in who.items() if v}}
-    vendor_smart = None
-    if role == "vendor" and text and not button and vendor_intent({"products": [], "orders": []}, ref, text)["intent"] == "unknown" and not intake.looks_like_orders(text):
-        vendor_smart = await asyncio.to_thread(claude_intent, "vendor", text)
+    pic = read or {}
+    kind = pic.get("kind") or ""
+    said = text
+    if kind in ("order_list", "stock_note") and pic.get("text"):
+        said = (text + "\n" if text else "") + pic["text"]
+    smart = None
+    if addressed and said and not button and brain.ready() and kind not in ("order_list", "stock_note", "receipt") and (role != "staff" or who.get("id")):
+        smart = await asyncio.to_thread(_think, wid, role, ref, said, chat_key)
+    cmd = (smart or {}).get("command") or said
+    if smart:
+        log.info("ADA read a %s message as %s", role, smart["intent"])
+
+    rough = None
+    if role == "rider":
+        rough = rider_intent(cmd, button)
+        if smart and smart["intent"] in RIDER_INTENTS:
+            rough["intent"] = smart["intent"]
+            rough.update({k: smart[k] for k in ("amount", "method", "reason", "ref") if smart.get(k) not in (None, "")})
+        if kind == "receipt":
+            rough.update(intent="paid_in", amount=pic.get("amount") or None, reason=(pic.get("ref") or rough.get("reason") or "").upper(), receipt=photo)
+        rough["text"] = cmd
+    staff_intent, staff_text = "", said
+    if role == "staff":
+        staff_intent = office.office_intent(said, button)
+        if smart and smart["intent"] not in ("unknown", "answer"):
+            staff_intent, staff_text = smart["intent"], (said if smart["intent"] == "orders" else cmd)
+        if kind == "order_list":
+            staff_intent = "orders"
+        elif kind == "receipt":
+            staff_intent = "receipt"
     wants_login = bool(LOGIN_WORDS.match(text or "")) or button == "LOGIN"
+    answer = smart["answer"] if smart and smart["intent"] == "answer" and smart.get("answer") else ""
+    replied: List[str] = []
 
     def apply(st):
         if role == "staff":
@@ -1117,8 +1143,13 @@ async def receive(wid: int, role: str, ref: str, text: str = "", photo: Optional
         elif not person(st, key):
             return False
         label = "📷 Photo" if photo else "🎤 Voice note" if audio else "📍 Location" if location else ""
-        msg = {"id": uid("m"), "at": now_iso(), "read": False, "from": role, "text": text or label, "channel": "whatsapp", "wa": {"status": "received", "id": wa_id}}
-        msg[{"rider": "riderId", "vendor": "vendorId", "staff": "staffId", "customer": "customerId"}[role]] = ref
+        msg = {"id": uid("m"), "at": now_iso(), "read": False, "from": role, "text": text or label, "channel": channel, "wa": {"status": "received", "id": wa_id}}
+        if group:
+            msg["groupId"] = group
+            msg["author"] = key
+            msg["authorName"] = who.get("name") or (person(st, key) or {}).get("name") or ""
+        else:
+            msg[{"rider": "riderId", "vendor": "vendorId", "staff": "staffId", "customer": "customerId"}[role]] = ref
         if role == "customer":
             t = customers.current_task(st, ref)
             msg["taskId"] = t.get("id") if t else None
@@ -1126,6 +1157,8 @@ async def receive(wid: int, role: str, ref: str, text: str = "", photo: Optional
             msg["staffName"] = who.get("name") or ""
         if photo:
             msg["photo"] = photo
+        if pic:
+            msg["photoRead"] = {k: pic.get(k) for k in ("kind", "summary", "amount", "ref", "bank") if pic.get(k)}
         if audio:
             msg["audio"] = audio
             if heard:
@@ -1142,20 +1175,40 @@ async def receive(wid: int, role: str, ref: str, text: str = "", photo: Optional
             msg["by"] = {"id": who.get("id"), "name": who.get("name"), "role": "vendor"}
         st.setdefault("messages", []).append(msg)
         memo = contacts(st).setdefault(key, {})
-        memo["lastIn"] = now()
+        if group:
+            contacts(st).setdefault(chat_key, {})["lastIn"] = now()
+        else:
+            memo["lastIn"] = now()
+        if not addressed:
+            return  # a group message that isn't for ADA: kept, not answered
         s = settings(st)
-        if not s["enabled"] or not s["autoReply"] or s["paused"].get(key):
+        if not s["enabled"] or not s["autoReply"] or s["paused"].get(chat_key):
             return
+
+        def say(reply: str, buttons=None) -> None:
+            m = office_message(chat_key, reply, kind="reply", buttons=buttons)
+            if channel == "call":
+                m["channel"], m["wa"] = "call", {"status": "spoken"}
+            st["messages"].append(m)
+            replied.append(reply)
+
         if role == "customer":
             if not customers.enabled(st):
                 return  # kept for the office; ADA only talks to customers once the company turns it on
-            out = customers.awaiting_turn(st, wid, ref, text or ("📷 Photo" if photo else "")) or customers.turn(st, wid, ref, customers.intent(text, button), text)
+            note = said or (f"📷 {pic['summary']}" if pic.get("summary") else label)
+            it = customers.intent(said, button)
+            if smart and smart["intent"] in CUSTOMER_INTENTS:
+                it = smart["intent"]
+            if kind == "damage" and it == "unknown":
+                it = "problem"
+            out = customers.awaiting_turn(st, wid, ref, note, photo) or (
+                (answer, None) if answer else customers.turn(st, wid, ref, it, cmd if it == "reschedule" else note, photo))
             if out is None:
                 if now() - (memo.get("passedAt") or 0) < 600:
                     return
                 memo["passedAt"] = now()
                 out = ("Thanks, I've passed your message to the team.", None)
-            st["messages"].append(office_message(key, out[0], kind="reply", buttons=out[1]))
+            say(*out)
             return
         if wants_login:
             out = (login_reply(wid, st, role, ref), None)
@@ -1163,27 +1216,31 @@ async def receive(wid: int, role: str, ref: str, text: str = "", photo: Optional
             out = (VOICE_REPLY.format(example=VOICE_EXAMPLE[role]), None)
         elif location and not text:
             out = ("📍 Thanks, the office can see where you are now." if role == "rider" else "📍 Got your location.", None)
+        elif answer:
+            out = (answer, None)
         elif role == "staff":
-            out = office.office_turn(st, wid, who, staff_intent, staff_text, memo)
+            out = office.office_turn(st, wid, who, staff_intent, staff_text, memo, photo=photo, read=pic, chat=chat_key)
             if out is None:
                 out = ("I didn't catch that. Reply HELP to see what I can do, or LOGIN to open the dashboard.", [{"id": "TODAY", "title": "Today"}])
         elif role == "rider":
             out = rider_turn(st, wid, ref, rough, photo, memo)
         else:
-            it = vendor_intent(st, ref, text, button)
-            if it["intent"] == "unknown" and vendor_smart and vendor_smart["intent"] in ("balance", "today", "record", "help"):
-                it = {"intent": vendor_smart["intent"]}
-            out = vendor_turn(st, wid, ref, it, text, who)
+            it = vendor_intent(st, ref, said, button)
+            if smart and smart["intent"] in VENDOR_INTENTS and not (it["intent"] in ("orders", "stock") and smart["intent"] not in ("orders", "stock")):
+                it = {"intent": smart["intent"], "ref": smart.get("ref") or it.get("ref", "")}
+            if kind == "order_list":
+                it = {"intent": "orders"}
+            out = vendor_turn(st, wid, ref, it, said if it["intent"] in ("orders", "stock") else cmd, who)
         if out is None:
             last = memo.get("passedAt") or 0
             if now() - last < 600:
                 return  # don't say "passed to the office" after every line of a chat
             memo["passedAt"] = now()
             out = ("Thanks, I've passed your message to the office. Reply HELP to see what I can do.", None)
-        reply, buttons = out
-        st["messages"].append(office_message(key, reply, kind="reply", buttons=buttons))
+        say(*out)
 
     await workspace.mutate(wid, apply, url)
+    return replied[0] if replied else None
 
 
 JOIN_WORDS = re.compile(r"^\W*(join|code|invite|my code is|register)?\W*([A-HJ-NP-Z2-9]{6})\W*$", re.I)
@@ -1221,8 +1278,43 @@ async def join(digits: str, code: str, url: str = "") -> None:
     await asyncio.to_thread(wa_providers.line.send, digits, f"Welcome to {user['company']}{', ' + first if first else ''}! 🎉 You're in, with this WhatsApp number. {what}\n\nYour dashboard: {link_url}\nReply HELP any time.")
 
 
-async def receive_from(digits: str, text: str = "", media: Optional[Tuple[str, bytes]] = None, button: str = "", wa_id: str = "", url: str = "", location: Optional[Dict[str, Any]] = None) -> None:
+ADDRESSED = re.compile(r"^\s*@?(ada|ada bot)\b[\s,:;.!-]*", re.I)
+
+
+def find_group(group_id: str) -> Optional[int]:
+    for wid, text in db.all("SELECT id, state::text FROM workspace WHERE state::text LIKE %s", (f"%{group_id}%",)):
+        try:
+            if any(g.get("id") == group_id for g in groups(json.loads(text))):
+                return int(wid)
+        except ValueError:
+            continue
+    return None
+
+
+async def receive_group(group_id: str, digits: str, text: str = "", media: Optional[Tuple[str, bytes]] = None, button: str = "", wa_id: str = "", url: str = "", name: str = "") -> None:
+    """A message in a team group ADA is in. Kept for the office; ADA answers when someone starts with "ADA" (or taps one of its buttons)."""
+    wid = await asyncio.to_thread(find_group, group_id)
+    if wid is None:
+        log.info("WhatsApp group message from a group no company has")
+        return
     found = await asyncio.to_thread(find_contact, digits)
+    if not found or found[0] != wid:
+        def keep(st):
+            st.setdefault("messages", []).append({"id": uid("m"), "at": now_iso(), "read": False, "from": "guest", "text": text or "📷 Photo", "channel": "whatsapp",
+                                                  "groupId": group_id, "authorName": name or "+" + digits, "wa": {"status": "received", "id": wa_id}})
+        await workspace.mutate(wid, keep, url)
+        return
+    _, role, ref, who = found
+    if role == "customer":
+        return
+    hit = ADDRESSED.match(text or "")
+    addressed = bool(hit) or bool(button)
+    await receive_from(digits, text[hit.end():] if hit else text, media, button, wa_id, url, group=group_id, addressed=addressed, found=found)
+
+
+async def receive_from(digits: str, text: str = "", media: Optional[Tuple[str, bytes]] = None, button: str = "", wa_id: str = "", url: str = "", location: Optional[Dict[str, Any]] = None,
+                       group: Optional[str] = None, addressed: bool = True, found=None) -> None:
+    found = found or await asyncio.to_thread(find_contact, digits)
     if not found and JOIN_WORDS.match(text or ""):
         await join(digits, JOIN_WORDS.match(text).group(2), url)
         return
@@ -1231,7 +1323,7 @@ async def receive_from(digits: str, text: str = "", media: Optional[Tuple[str, b
         await asyncio.to_thread(wa_providers.line.send, digits, "Hi! This number isn't linked to a Delivery account yet. Ask the delivery company you work with to add your WhatsApp number to your profile.")
         return
     wid, role, ref, who = found
-    photo = audio = None
+    photo = audio = read = None
     if media and media[1]:
         stored = await asyncio.to_thread(store_photo, wid, media[0], media[1])
         if media[0].startswith("audio/"):
@@ -1241,8 +1333,10 @@ async def receive_from(digits: str, text: str = "", media: Optional[Tuple[str, b
                 text = f"🎤 {heard}" if heard else ""
         else:
             photo = stored
+            if addressed:
+                read = await asyncio.to_thread(brain.read_image, media[0], media[1], role, text)
     heard = text.startswith("🎤 ")
-    await receive(wid, role, ref, text[2:] if heard else text, photo, button, wa_id, who, url, audio=audio, location=location, heard=heard)
+    await receive(wid, role, ref, text[2:] if heard else text, photo, button, wa_id, who, url, audio=audio, location=location, heard=heard, read=read, group=group, addressed=addressed)
     if wa_id:
         await asyncio.to_thread(wa_providers.line.mark_read, wa_id)
 
@@ -1254,6 +1348,8 @@ class Simulated(BaseModel):
     text: str = Field(default="", max_length=4000)
     button: str = Field(default="", max_length=40)
     image: Optional[str] = Field(default=None, max_length=9_000_000)
+    group: Optional[str] = Field(default=None, max_length=80)
+    channel: str = Field(default="whatsapp", pattern="^(whatsapp|call)$")
 
 
 class Settings(BaseModel):
@@ -1277,7 +1373,8 @@ def router() -> APIRouter:
             "provider": line.name, "live": line.live, "ready": line.ready(), "missing": line.missing(),
             "number": wa_providers.DISPLAY_NUMBER, "simulator": not line.live,
             "webhook": f"{base}/api/whatsapp/{'twilio' if line.name == 'twilio' else 'webhook'}",
-            "claude": bool(os.environ.get("ANTHROPIC_API_KEY")),
+            "claude": brain.ready(), "voiceNotes": stt.ready(), "calls": __import__("calls").ready(),
+            "groups": line.name in ("meta", "test"), "voiceWebhook": f"{base}/api/voice/incoming",
         }
 
     @api.post("/whatsapp/simulate")
@@ -1290,17 +1387,26 @@ def router() -> APIRouter:
             ref = user["id"]  # the office side of the simulator is always you
         if role not in ("rider", "vendor", "staff", "customer") or not ref:
             raise HTTPException(400, "Pick a rider or vendor.")
-        photo = None
+        photo = read = None
+        text = body.text.strip()
+        hit = ADDRESSED.match(text) if body.group else None
+        addressed = not body.group or bool(hit) or bool(body.button)
+        if hit:
+            text = text[hit.end():]
         if body.image:
             m = DATA_URL.match(body.image)
             if not m:
                 raise HTTPException(400, "That photo can't be read.")
-            photo = await asyncio.to_thread(store_photo, user["workspaceId"], m.group(1), base64.b64decode(m.group(2)))
-        if not (body.text.strip() or body.button or photo):
+            data = base64.b64decode(m.group(2))
+            photo = await asyncio.to_thread(store_photo, user["workspaceId"], m.group(1), data)
+            if addressed:
+                read = await asyncio.to_thread(brain.read_image, m.group(1), data, role, text)
+        if not (text or body.button or photo):
             raise HTTPException(400, "Type a message.")
         who = {"id": user["id"], "name": user["name"]} if role == "staff" else {}
-        await receive(user["workspaceId"], role, ref, body.text.strip(), photo, body.button, f"sim-{secrets.token_hex(6)}", who, str(request.base_url))
-        return {"ok": True}
+        reply = await receive(user["workspaceId"], role, ref, text, photo, body.button, f"sim-{secrets.token_hex(6)}", who, str(request.base_url),
+                              read=read, channel=body.channel, group=body.group, addressed=addressed)
+        return {"ok": True, "reply": reply}
 
     @api.put("/whatsapp/settings")
     async def save_settings(body: Settings, user=Depends(auth.require_company)):
@@ -1340,6 +1446,11 @@ def router() -> APIRouter:
         for entry in body.get("entry", []):
             for change in entry.get("changes", []):
                 val = change.get("value") or {}
+                if change.get("field") == "group_lifecycle_update":
+                    import groups as G
+
+                    await G.lifecycle(val)
+                    continue
                 for st in val.get("statuses", []):
                     await status_update(st.get("id", ""), st.get("status", ""), (st.get("errors") or [{}])[0].get("title", ""))
                 for m in val.get("messages", []):
@@ -1368,6 +1479,10 @@ def router() -> APIRouter:
                         continue
                     else:
                         text = f"[{kind} message]"
+                    if m.get("group_id"):
+                        names = {c.get("wa_id"): (c.get("profile") or {}).get("name", "") for c in val.get("contacts", [])}
+                        asyncio.get_running_loop().create_task(receive_group(m["group_id"], intake.phone_digits(m.get("from")), text, media, button, m.get("id", ""), url, names.get(m.get("from"), "")))
+                        continue
                     asyncio.get_running_loop().create_task(receive_from(intake.phone_digits(m.get("from")), text, media, button, m.get("id", ""), url))
         return {"ok": True}
 
