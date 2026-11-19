@@ -58,8 +58,9 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
-    "test": "craco test"
+    "build": "node scripts/build-marketing.mjs && craco build",
+    "test": "craco test",
+    "build:marketing": "node scripts/build-marketing.mjs"
   },
   "browserslist": {
     "production": [

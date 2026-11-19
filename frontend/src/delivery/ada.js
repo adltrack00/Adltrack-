@@ -347,7 +347,7 @@ export function resolve(state, draft) {
       .sort((a, b) => (Number(!!b.urgent) - Number(!!a.urgent)) || (a.time < b.time ? -1 : 1))
       .map((d, n) => `${n + 1}) ${d.urgent ? "URGENT " : ""}${d.customer}${d.address ? `, ${d.address}` : ""}: ${d.items.map((l) => (l.qty ? `${l.qty} ${l.name}${l.free ? ` + ${l.free} free` : ""}` : `${l.free} free ${l.name}`)).join(", ")}${d.time ? ` by ${time12(d.time)}` : ""}. Collect ${money(d.value)}.`);
     const unitsN = list.reduce((s, d) => s + d.units, 0);
-    messages.push({ riderId, from: "ada", text: `Hi ${r.short}, ADA here. ${list.length} new ${list.length === 1 ? "drop" : "drops"} for you today (${unitsN} ${unitsN === 1 ? "unit" : "units"}). Pick up at the warehouse.\n${lines.join("\n")}\nSnap a photo at each door and confirm payment in the app.` });
+    messages.push({ riderId, from: "ada", kind: "drop", text: `Hi ${r.short}, ADA here. ${list.length} new ${list.length === 1 ? "drop" : "drops"} for you today (${unitsN} ${unitsN === 1 ? "unit" : "units"}). Pick up at the warehouse.\n${lines.join("\n")}\nSnap a photo at each door and confirm payment in the app, or reply on WhatsApp.` });
   }
 
   const reply = draft.reply || summary(state, stock, deliveries, messages, warnings);

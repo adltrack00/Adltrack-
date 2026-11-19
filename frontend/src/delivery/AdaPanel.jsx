@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { AlertTriangle, ArrowUp, Check, ChevronLeft, MessageSquare, Mic, PackagePlus, Route, Sparkles } from "lucide-react";
 import { applyPlan, askAda, SUGGESTIONS } from "./ada";
 import { looksLikeOrders, readOrders, toOrder } from "./intake";
-import { IntakeReview } from "./Intake";
+import { IntakeReview } from "./Intake.jsx";
 import { useWorkspace } from "./store";
 import { Avatar, Btn, Tag } from "./ui";
 import { money, time12 } from "./utils";
@@ -24,7 +24,8 @@ export function AdaPanel({ open, onClose, seed, onSeedUsed }) {
     setText("");
     // A pasted WhatsApp message with orders: read them and let the person check each one.
     if (looksLikeOrders(words)) {
-      const orders = readOrders(state, words);
+      let orders = [];
+      try { orders = await readOrders(state, words); } catch (e) { /* fall through to ADA */ }
       if (orders.length) {
         setTurns((cur) => [...cur, { role: "assistant", text: "Here's what I read from that message. Fix anything in red, then add them.", intake: orders, state: "ready" }]);
         return;

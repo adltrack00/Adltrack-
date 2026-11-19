@@ -19,6 +19,7 @@ import time
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 
 import access
@@ -352,6 +353,18 @@ def router(on_new_workspace) -> APIRouter:
         start_session(response, request, d["id"])
         return me_payload(_get_user(d["id"]))
 
+    # A link ADA sent on WhatsApp: signs the rider (or vendor) in on this phone and opens the right page.
+    @api.get("/auth/link/{token}")
+    def open_link(token: str, request: Request):
+        db.setup()
+        row = db.one("SELECT user_id, target, expires_at FROM links WHERE token_hash = %s", (token_hash(token),))
+        if not row or row[2] < now() or not _user_exists(row[0]):
+            return RedirectResponse("/signin?expired=1", status_code=303)
+        target = row[1] if str(row[1]).startswith("/") else "/"
+        response = RedirectResponse(target, status_code=303)
+        start_session(response, request, row[0])
+        return response
+
     @api.post("/auth/signout")
     def signout(request: Request, response: Response):
         token = request.cookies.get(COOKIE)
@@ -511,3 +524,75 @@ def _get_user(user_id: str) -> Dict[str, Any]:
 def _delete_user(user_id: str) -> None:
     db.execute("DELETE FROM sessions WHERE user_id = %s", (user_id,))
     db.execute("DELETE FROM users WHERE id = %s", (user_id,))
+
+
+LINK_HOURS = 24
+
+
+def _user_exists(user_id: str) -> bool:
+    return bool(db.one("SELECT id FROM users WHERE id = %s", (user_id,)))
+
+
+def login_for(workspace_id: int, role: str, ref: str, name: str = "") -> Optional[str]:
+    """The login of this rider or vendor (the vendor's main account). The demo makes one when it's missing."""
+    row = db.one("SELECT id FROM users WHERE workspace_id = %s AND role = %s AND ref = %s ORDER BY team, created_at LIMIT 1", (workspace_id, role, ref))
+    if row:
+        return row[0]
+    if workspace_id != DEMO_WORKSPACE:
+        return None
+    uid = f"demo-{role}-{ref}"
+    db.execute(
+        "INSERT INTO users (id, workspace_id, role, ref, name, email, phone, password_hash, owner, demo, created_at) VALUES (%s, %s, %s, %s, %s, NULL, NULL, NULL, 0, 1, %s)",
+        (uid, DEMO_WORKSPACE, role, ref, f"{name or ref} (demo)", now()),
+    )
+    return uid
+
+
+def join_by_whatsapp(code: str, phone: str, name: str = "") -> Dict[str, Any]:
+    """Someone texts their invite code to the business number: their login is made with that WhatsApp number, no
+    form and no password (they sign in with the one-tap links ADA sends, or set a password later). ValueError says
+    what went wrong, in words to send back."""
+    db.setup()
+    code = (code or "").strip().upper()
+    phone = clean_phone(phone)
+    if _too_many("join-wa:" + (phone or "")):
+        raise ValueError("Too many tries. Wait a few minutes and try again.")
+    row = db.one("SELECT workspace_id, role, ref, used_at, team, name FROM invites WHERE code = %s", (code,))
+    if not row:
+        _failed("join-wa:" + (phone or ""))
+        raise ValueError("That invite code isn't valid. Check it with your delivery company.")
+    if row[3]:
+        raise ValueError("This invite has already been used. Ask your delivery company for a new one.")
+    if phone and db.one("SELECT id FROM users WHERE phone = %s", (phone,)):
+        raise ValueError("This WhatsApp number already has an account. Reply LOGIN to open it.")
+    workspace_id, role, ref, team = row[0], row[1], row[2], 1 if row[4] else 0
+    if ref and not team:
+        for (old_id,) in db.all("SELECT id FROM users WHERE workspace_id = %s AND role = %s AND ref = %s AND team = 0", (workspace_id, role, ref)):
+            _delete_user(old_id)
+    user_id = new_id("u")
+    db.execute(
+        "INSERT INTO users (id, workspace_id, role, ref, name, email, phone, password_hash, owner, demo, created_at, team) VALUES (%s, %s, %s, %s, %s, NULL, %s, NULL, 0, 0, %s, %s)",
+        (user_id, workspace_id, role, ref, (name or row[5] or role.capitalize()).strip()[:80], phone, now(), team),
+    )
+    db.execute("UPDATE invites SET used_at = %s, used_by = %s WHERE code = %s", (now(), user_id, code))
+    return {"id": user_id, "workspaceId": workspace_id, "role": role, "ref": ref, "team": team, "name": (name or row[5] or "").strip(), "company": company_name(workspace_id)}
+
+
+def make_user_link(user_id: str, target: str, base: str) -> str:
+    """A one-tap link for one login (staff at the office have no rider or vendor ref)."""
+    token = secrets.token_urlsafe(18)
+    db.execute("INSERT INTO links (token_hash, user_id, target, created_at, expires_at) VALUES (%s, %s, %s, %s, %s)",
+               (token_hash(token), user_id, target, now(), now() + LINK_HOURS * 3600))
+    return f"{base.rstrip('/')}/api/auth/link/{token}"
+
+
+def make_link(workspace_id: int, role: str, ref: str, target: str, base: str, name: str = "") -> str:
+    """A one-tap link for WhatsApp. Without a login yet it opens the sign-in page, then the target."""
+    base = base.rstrip("/")
+    user_id = login_for(workspace_id, role, ref, name)
+    if not user_id:
+        return f"{base}/signin?next={target}"
+    token = secrets.token_urlsafe(18)
+    db.execute("INSERT INTO links (token_hash, user_id, target, created_at, expires_at) VALUES (%s, %s, %s, %s, %s)",
+               (token_hash(token), user_id, target, now(), now() + LINK_HOURS * 3600))
+    return f"{base}/api/auth/link/{token}"

@@ -278,7 +278,7 @@ export function ThemePicker({ value, onChange, className }) {
 
 /* ---------- A month calendar with a dot on busy days ---------- */
 
-export function MonthCal({ counts = {}, className, dark = false }) {
+export function MonthCal({ counts = {}, className, dark = false, onPick }) {
   const now = new Date();
   const first = new Date(now.getFullYear(), now.getMonth(), 1);
   const days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
@@ -294,11 +294,11 @@ export function MonthCal({ counts = {}, className, dark = false }) {
           const c = counts[key(d)] || 0;
           const today = d === now.getDate();
           return (
-            <div key={d} className={cn("relative grid aspect-square place-items-center rounded-[14px] text-[15px]",
+            <button type="button" key={d} onClick={() => onPick && onPick(key(d))} disabled={!onPick} className={cn("relative grid aspect-square place-items-center rounded-[14px] text-[15px] disabled:cursor-default", onPick && "hover:ring-2 hover:ring-blue-500/40",
               today ? (dark ? "bg-white/15 font-bold text-white ring-1 ring-white/40" : "bg-black font-bold text-white") : dark ? "text-white/80" : "bg-neutral-100/70 text-neutral-800")}>
               {d}
               {c > 0 && <span className={cn("absolute bottom-1.5 h-1.5 w-1.5 rounded-full", today ? "bg-blue-300" : "bg-blue-600")} title={`${c} deliveries`} />}
-            </div>
+            </button>
           );
         })}
       </div>

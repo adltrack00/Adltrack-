@@ -100,7 +100,7 @@ export function DeclinedSection({ Section, Row }) {
     const riderId = to[t.id] || (state.riders.find((r) => r.online && r.id !== t.riderId) || {}).id;
     if (!riderId) return;
     act({ type: "task/reassign", id: t.id, riderId });
-    act({ type: "messages/send", messages: [{ riderId, from: "dispatcher", text: `New drop for you: ${t.customer}, ${t.address}. ${t.items.map((l) => lineLabel(state, l)).join(", ")}. Accept it on your Home screen.` }] });
+    act({ type: "messages/send", messages: [{ riderId, from: "dispatcher", kind: "drop", text: `New drop for you: ${t.customer}, ${t.address}. ${t.items.map((l) => lineLabel(state, l)).join(", ")}. Accept it in the app or reply YES on WhatsApp.` }] });
   };
   return (
     <Section icon={Undo2} tone="rose" title={`Turned down by a rider (${declined.length})`} sub="Give each one to another rider. They'll get it as a new card to accept.">

@@ -1,0 +1,1546 @@
+"""WhatsApp: ADA talks to riders and vendors where they already are.
+
+Everything the office tells a rider or vendor in the app goes to their WhatsApp too, and what they answer on WhatsApp
+updates the app live. Nothing new to learn for a rider: they get their drops on WhatsApp, reply YES, COLLECTED,
+ARRIVED, DELIVERED, and tap one link to take the doorstep photo in the app.
+
+  Riders   new drops (Accept / Can't take it), collect, arrive, deliver with the amount, problems, earnings, cash paid in
+  Vendors  send orders or stock as a chat message; get "delivered", "couldn't deliver", stock counted and payouts back
+  Company  every conversation shows on the WhatsApp page; staff can step in, and ADA goes quiet in that chat.
+           Staff with a WhatsApp number on their login run the day by texting ADA too (office.py), and ADA follows
+           up by itself: nudges, a morning brief and an evening wrap (nudges.py).
+  Customers  on the way / at your door / delivered, and they can confirm, report a problem or move the day
+           (customers.py; off until the company turns on "Message customers").
+  Anyone   LOGIN for a one-tap link to their dashboard; voice notes are typed out when a speech-to-text key is set
+           (stt.py) and kept for the office to play; a new rider, vendor or staff member joins by texting JOIN and
+           their invite code.
+
+How it fits: workspace.py calls on_change() after every save. New office messages and things worth telling someone
+(a drop given to a rider, a delivery done, a payout) become WhatsApp messages marked "queued" in the workspace; the
+next pass sends them and records sent / delivered / read / failed. Messages that arrive (webhook or the simulator)
+go through receive(), which updates the workspace the same way the app does and writes ADA's answer.
+"""
+import asyncio
+import base64
+import json
+import logging
+import os
+import re
+import secrets
+from datetime import date, datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional, Tuple
+from urllib.parse import parse_qsl
+
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import PlainTextResponse, Response
+from pydantic import BaseModel, Field
+
+import auth
+import brain
+import intake
+import stt
+import wa_providers
+import workspace
+from db import db, now
+
+try:
+    from zoneinfo import ZoneInfo
+
+    TZ = ZoneInfo(os.environ.get("APP_TIMEZONE", "Africa/Lagos"))
+except Exception:  # no tz database: Lagos is UTC+1 all year
+    TZ = timezone(timedelta(hours=1))
+
+log = logging.getLogger("whatsapp")
+OFFICE = ("dispatcher", "ada", "company")
+WINDOW = 24 * 3600
+_base_urls: Dict[int, str] = {}
+
+
+# ---------- small helpers, the same rules as the app's store.js ----------
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.") + f"{datetime.now(timezone.utc).microsecond // 1000:03d}Z"
+
+
+def today_iso() -> str:
+    return datetime.now(TZ).date().isoformat()
+
+
+def week_days(day: Optional[date] = None) -> List[str]:
+    d = day or datetime.now(TZ).date()
+    monday = d - timedelta(days=d.weekday())
+    return [(monday + timedelta(days=i)).isoformat() for i in range(7)]
+
+
+def clock(iso: Optional[str]) -> str:
+    if not iso:
+        return ""
+    try:
+        t = datetime.fromisoformat(iso.replace("Z", "+00:00")).astimezone(TZ)
+    except ValueError:
+        return ""
+    return t.strftime("%I:%M %p").lstrip("0")
+
+
+def time12(hhmm: str) -> str:
+    if not re.match(r"^\d{2}:\d{2}$", hhmm or ""):
+        return ""
+    h, m = map(int, hhmm.split(":"))
+    return f"{(h + 11) % 12 + 1}:{m:02d} {'PM' if h >= 12 else 'AM'}"
+
+
+money = intake.money
+
+
+def uid(prefix: str) -> str:
+    return f"{prefix}-{secrets.token_hex(5)}"
+
+
+def fees(state) -> Dict[str, int]:
+    return {"delivery": 2000, "rider": 1000, **((state.get("company") or {}).get("fees") or {})}
+
+
+def units(t) -> int:
+    return sum((l.get("qty") or 0) + (l.get("free") or 0) for l in t.get("items", []))
+
+
+def value(t) -> int:
+    if t.get("amount") not in (None, ""):
+        return int(float(t["amount"]))
+    return int(sum((l.get("qty") or 0) * (l.get("price") or 0) for l in t.get("items", [])))
+
+
+def collected(t) -> int:
+    p = t.get("payment") or {}
+    return int(p.get("amount") or 0) if p.get("method") != "unpaid" else 0
+
+
+def is_paid(t) -> bool:
+    return t.get("status") == "delivered" and bool((t.get("payment") or {}).get("confirmed"))
+
+
+def cash_held(t) -> int:
+    p = t.get("payment") or {}
+    return collected(t) if t.get("status") == "delivered" and p.get("method") == "cash" and not p.get("handedIn") else 0
+
+
+def vendor_payable(state, t) -> int:
+    if t.get("status") != "delivered":
+        return 0
+    return max(0, ((collected(t) or value(t)) if is_paid(t) else 0) - fees(state)["delivery"])
+
+
+def product(state, pid) -> Dict[str, Any]:
+    return next((p for p in state.get("products", []) if p.get("id") == pid), {})
+
+
+def line_label(state, l) -> str:
+    name = product(state, l.get("productId")).get("name") or "item"
+    if not l.get("qty") and l.get("free"):
+        return f"{l['free']} free {name}"
+    return f"{l.get('qty')} × {name}" + (f" + {l['free']} free" if l.get("free") else "")
+
+
+def items_text(state, t) -> str:
+    return ", ".join(line_label(state, l) for l in t.get("items", []))
+
+
+def stamp(t, status) -> None:
+    t["status"] = status
+    t["history"] = list(t.get("history") or []) + [{"status": status, "at": now_iso(), "via": "whatsapp"}]
+
+
+def by_time(t) -> Tuple:
+    return (0 if t.get("urgent") else 1, t.get("time") or t.get("end") or "99:99", t.get("ref") or "")
+
+
+def settings(state) -> Dict[str, Any]:
+    w = (state.get("company") or {}).get("whatsapp") or {}
+    notify = {"drops": True, "riderUpdates": True, "vendorDeliveries": True, "vendorPayouts": True, "vendorStock": True, **(w.get("notify") or {})}
+    return {"enabled": w.get("enabled", True), "autoReply": w.get("autoReply", True), "paused": w.get("paused") or {}, "notify": notify}
+
+
+def key_of(m) -> Optional[str]:
+    if m.get("groupId"):
+        return f"group:{m['groupId']}"
+    if m.get("staffId"):
+        return f"staff:{m['staffId']}"
+    if m.get("customerId"):
+        return f"customer:{m['customerId']}"
+    if m.get("riderId"):
+        return f"rider:{m['riderId']}"
+    if m.get("vendorId"):
+        return f"vendor:{m['vendorId']}"
+    return None
+
+
+def person(state, key: str) -> Optional[Dict[str, Any]]:
+    role, _, ref = key.partition(":")
+    if role == "staff":
+        return staff_person(ref)
+    if role == "group":
+        g = next((g for g in groups(state) if g.get("id") == ref), None)
+        return {"role": "group", "ref": ref, "name": g.get("name", "Team group"), "first": "", "phone": "", "group": ref} if g else None
+    if role == "customer":
+        import customers
+
+        return customers.person(state, ref)
+    lst = state.get("riders" if role == "rider" else "vendors", [])
+    rec = next((x for x in lst if x.get("id") == ref), None)
+    if not rec:
+        return None
+    first = (rec.get("short") or rec.get("contact") or rec.get("name") or "").split(" ")[0]
+    return {"role": role, "ref": ref, "name": rec.get("name", ""), "first": first, "phone": intake.phone_digits(rec.get("phone"))}
+
+
+def staff_person(user_id: str) -> Optional[Dict[str, Any]]:
+    """A company login: the owner or someone on the office team. Their WhatsApp is the phone on their profile."""
+    try:
+        row = db.one("SELECT name, phone FROM users WHERE id = %s AND role = 'company'", (user_id,))
+    except Exception:
+        row = None
+    if not row:
+        return None
+    return {"role": "staff", "ref": user_id, "id": user_id, "name": row[0] or "", "first": (row[0] or "").split(" ")[0], "phone": intake.phone_digits(row[1])}
+
+
+def staff_of(wid: int) -> List[Dict[str, Any]]:
+    """Everyone at the office who can hear from ADA on WhatsApp."""
+    rows = db.all("SELECT id, name, phone FROM users WHERE workspace_id = %s AND role = 'company' AND demo = 0 AND phone IS NOT NULL", (wid,))
+    return [{"role": "staff", "ref": r[0], "id": r[0], "name": r[1] or "", "first": (r[1] or "").split(" ")[0], "phone": intake.phone_digits(r[2])} for r in rows if r[2]]
+
+
+def groups(state) -> List[Dict[str, Any]]:
+    """The company's WhatsApp groups with ADA in them (see office.plan_group)."""
+    return ((state.get("company") or {}).get("whatsapp") or {}).get("groups") or []
+
+
+def contacts(state) -> Dict[str, Any]:
+    c = state.get("waContacts")
+    if not isinstance(c, dict):
+        c = state["waContacts"] = {}
+    return c
+
+
+def base_url(wid: int, fallback: str = "") -> str:
+    return (os.environ.get("APP_URL") or os.environ.get("RENDER_EXTERNAL_URL") or _base_urls.get(wid) or fallback or "http://localhost:3000").rstrip("/")
+
+
+def link(wid: int, role: str, ref: str, target: str, name: str = "") -> str:
+    try:
+        return auth.make_link(wid, role, ref, target, base_url(wid), name)
+    except Exception as err:  # the link is a convenience; the message still goes
+        log.warning("Could not make a sign-in link: %s", err)
+        return f"{base_url(wid)}{target}"
+
+
+def link_user(wid: int, user_id: str, target: str) -> str:
+    """A one-tap link that signs this login in and opens target (staff have no rider or vendor ref)."""
+    try:
+        return auth.make_user_link(user_id, target, base_url(wid))
+    except Exception as err:
+        log.warning("Could not make a sign-in link: %s", err)
+        return f"{base_url(wid)}{target}"
+
+
+def office_message(key: str, text: str, kind: str = "", buttons=None, wa_text: str = "", **extra) -> Dict[str, Any]:
+    role, _, ref = key.partition(":")
+    m = {"id": uid("m"), "at": now_iso(), "read": False, "from": "ada", "text": text, "channel": "whatsapp", "wa": {"status": "queued"}, **extra}
+    m[{"rider": "riderId", "vendor": "vendorId", "staff": "staffId", "customer": "customerId", "group": "groupId"}.get(role, "vendorId")] = ref
+    if kind:
+        m["kind"] = kind
+    if buttons:
+        m["buttons"] = buttons
+    if wa_text:
+        m["waText"] = wa_text
+    return m
+
+
+# ---------- what ADA tells riders ----------
+
+ACCEPT_BUTTONS = [{"id": "ACCEPT", "title": "Accept"}, {"id": "DECLINE", "title": "Can't take it"}]
+
+
+def run_sheet(state, rider, tasks) -> str:
+    rate = fees(state)["rider"]
+    lines = []
+    for n, t in enumerate(sorted(tasks, key=by_time), 1):
+        when = f" by {time12(t.get('time'))}" if t.get("time") else ""
+        lines.append(f"{n}) {'URGENT ' if t.get('urgent') else ''}{t.get('customer')}, {t.get('address')}: {items_text(state, t)}{when}. Collect {money(value(t))}.")
+    u = sum(units(t) for t in tasks)
+    return (f"Hi {rider['first']}, ADA here. {len(tasks)} new {'drop' if len(tasks) == 1 else 'drops'} for you today "
+            f"({u} {'unit' if u == 1 else 'units'}, you earn {money(rate * len(tasks))}):\n" + "\n".join(lines))
+
+
+def stop_text(state, t) -> str:
+    bits = [f"*{t.get('ref')}* · {t.get('customer')}", t.get("address") or ""]
+    if t.get("landmark"):
+        bits.append(f"Landmark: {t['landmark']}")
+    if t.get("phone"):
+        bits.append(f"Call: {t['phone']}")
+    bits.append(f"{items_text(state, t)}. Collect {money(value(t))}.")
+    if t.get("note"):
+        bits.append(f"Note: {t['note']}")
+    return "\n".join(b for b in bits if b)
+
+
+def next_stop_reply(state, rid) -> Tuple[str, Optional[List]]:
+    on_road = sorted([t for t in state["tasks"] if t.get("riderId") == rid and t.get("date") == today_iso() and t.get("status") == "picked_up"], key=by_time)
+    if on_road:
+        return f"Next stop:\n{stop_text(state, on_road[0])}\n\nReply ARRIVED when you get there.", [{"id": "ARRIVED", "title": "Arrived"}, {"id": "PROBLEM", "title": "Problem"}]
+    held = sum(cash_held(t) for t in state["tasks"] if t.get("riderId") == rid)
+    if held:
+        return f"That was your last drop today. 🎉 Please pay the {money(held)} cash you're holding into the company account, then reply PAID IN with the transfer ref.", [{"id": "EARNINGS", "title": "My earnings"}]
+    return "That was your last drop today. 🎉 Great work. Reply RECORD any time to see your day.", [{"id": "EARNINGS", "title": "My earnings"}, {"id": "RECORD", "title": "My day"}]
+
+
+# ---------- on every save: what to send ----------
+
+def plan(state_before, after, wid) -> Tuple[List[str], List[Dict[str, Any]]]:
+    """Office messages to send on WhatsApp too, and new messages for things worth telling someone."""
+    s = settings(after)
+    before_ids = {m.get("id") for m in state_before.get("messages", [])}
+    # A drop message is often saved a moment before or after the drops themselves: one WhatsApp per batch, not two.
+    cutoff = (datetime.now(timezone.utc) - timedelta(seconds=120)).strftime("%Y-%m-%dT%H:%M:%S")
+    recent_auto = {m.get("riderId") for m in after.get("messages", []) if m.get("kind") == "drop" and m.get("taskIds") and str(m.get("at") or "") >= cutoff}
+    forward = [m["id"] for m in after.get("messages", []) if m.get("id") not in before_ids and m.get("from") in OFFICE and "wa" not in m and key_of(m)
+               and not (m.get("kind") == "drop" and not m.get("taskIds") and m.get("riderId") in recent_auto)]
+    covered = {m.get("riderId") for m in after.get("messages", []) if m.get("kind") == "drop" and not m.get("taskIds") and str(m.get("at") or "") >= cutoff and (m.get("id") in forward or "wa" in m)}
+    new: List[Dict[str, Any]] = []
+    old_tasks = {t.get("id"): t for t in state_before.get("tasks", [])}
+    offers: Dict[str, List] = {}
+    settled: Dict[str, List] = {}
+    verified: Dict[str, List] = {}
+    for t in after.get("tasks", []):
+        o = old_tasks.get(t.get("id"))
+        rid, vid = t.get("riderId"), t.get("vendorId")
+        if t.get("status") == "assigned" and rid and not t.get("acceptedAt") and not t.get("declined") and (o is None or o.get("riderId") != rid):
+            offers.setdefault(rid, []).append(t)
+        if not o:
+            continue
+        if o.get("status") != "delivered" and t.get("status") == "delivered":
+            if vid and s["notify"]["vendorDeliveries"]:
+                rider = person(after, f"rider:{rid}") or {}
+                pay = t.get("payment") or {}
+                got = "Not paid at the door." if pay.get("method") == "unpaid" else f"Collected {money(collected(t))} ({pay.get('method', 'cash')})."
+                proof = t.get("proof") or {}
+                pic = proof.get("photo") or ""
+                seen = f" Received by {proof['receivedBy']}." if proof.get("receivedBy") else ""
+                tail = " 📷 Doorstep photo attached." if pic else " Doorstep photo to follow."
+                new.append(office_message(f"vendor:{vid}", f"✅ Delivered to {t.get('customer')}{' (' + t['orderId'] + ')' if t.get('orderId') else ''}: {items_text(after, t)}. {got}{seen} Rider: {rider.get('first', '')}, {clock(now_iso())}.{tail}",
+                                          kind="update", taskId=t["id"], **({"photo": pic} if pic else {})))
+            proof = t.get("proof") or {}
+            if rid and proof.get("via") != "whatsapp" and s["notify"]["riderUpdates"]:
+                text, buttons = next_stop_reply(after, rid)
+                new.append(office_message(f"rider:{rid}", f"✅ {t.get('ref')} confirmed: {money(collected(t))} from {t.get('customer')}.\n\n{text}", kind="update", buttons=buttons, taskId=t["id"]))
+        if o.get("status") == "delivered" and t.get("status") == "delivered" and not (o.get("proof") or {}).get("photo") and (t.get("proof") or {}).get("photo") and vid and s["notify"]["vendorDeliveries"]:
+            new.append(office_message(f"vendor:{vid}", f"📷 Doorstep photo for {t.get('customer')} ({t.get('ref')}), delivered {clock(t.get('deliveredAt') or delivered_at(t))}.", kind="update", taskId=t["id"], photo=t["proof"]["photo"]))
+        if o.get("status") != "failed" and t.get("status") == "failed" and vid and s["notify"]["vendorDeliveries"]:
+            new.append(office_message(f"vendor:{vid}", f"⚠️ Couldn't deliver to {t.get('customer')}: {t.get('failReason') or 'no reason given'}. The office will try again or bring it back to stock.", kind="update", taskId=t["id"]))
+        if not o.get("settled") and t.get("settled") and vid:
+            settled.setdefault(vid, []).append(t)
+        if not (o.get("payment") or {}).get("handInVerified") and (t.get("payment") or {}).get("handInVerified") and rid:
+            verified.setdefault(rid, []).append(t)
+    import customers
+
+    new += customers.updates(state_before, after)
+    if s["notify"]["vendorDeliveries"]:
+        new += planned_notices(state_before, after)
+        new += day_wraps(state_before, after)
+    if s["notify"]["drops"]:
+        for rid, tasks in offers.items():
+            r = person(after, f"rider:{rid}")
+            if not r or rid in covered:
+                continue
+            new.append(office_message(f"rider:{rid}", run_sheet(after, r, tasks), kind="drop", buttons=ACCEPT_BUTTONS, taskIds=[t["id"] for t in tasks]))
+    if s["notify"]["vendorPayouts"]:
+        for vid, tasks in settled.items():
+            total = sum(vendor_payable(after, t) for t in tasks)
+            ref = (tasks[0].get("settled") or {}).get("ref") or ""
+            new.append(office_message(f"vendor:{vid}", f"💸 Payout sent: {money(total)} for {len(tasks)} {'order' if len(tasks) == 1 else 'orders'}{'. Ref: ' + ref if ref else ''}. Reply BALANCE any time to see what's owed.", kind="update"))
+    for rid, tasks in verified.items():
+        new.append(office_message(f"rider:{rid}", f"🏦 The office confirmed the {money(sum(collected(t) for t in tasks))} you paid in. Thank you!", kind="update"))
+    if s["notify"]["vendorStock"]:
+        old_in = {i.get("id"): i for i in state_before.get("intake", [])}
+        for i in after.get("intake", []):
+            o = old_in.get(i.get("id"))
+            if o and o.get("status") == "sent" and i.get("status") == "received":
+                name = product(after, i.get("productId")).get("name", "item")
+                note = f" (you sent {o.get('qty')})" if o.get("qty") != i.get("qty") else ""
+                new.append(office_message(f"vendor:{i.get('vendorId')}", f"📦 The office counted in {i.get('qty')} × {name}{note}. They're in stock now.", kind="update"))
+    return forward, new
+
+
+def delivered_at(t) -> str:
+    for h in reversed(t.get("history") or []):
+        if h.get("status") == "delivered":
+            return h.get("at") or ""
+    return ""
+
+
+def planned_notices(before, after) -> List[Dict[str, Any]]:
+    """An order a vendor sent is now with a rider: one message per vendor for the batch."""
+    old = {o.get("id"): o for o in before.get("orders", [])}
+    by_order = {t.get("orderId"): t for t in after.get("tasks", []) if t.get("orderId")}
+    per: Dict[str, List] = {}
+    for o in after.get("orders", []):
+        was = old.get(o.get("id"))
+        if was and was.get("status") in ("open", "needs_fix") and o.get("status") == "planned" and o.get("vendorId") and by_order.get(o["id"]):
+            per.setdefault(o["vendorId"], []).append((o, by_order[o["id"]]))
+    out = []
+    for vid, pairs in per.items():
+        lines = []
+        for o, t in pairs:
+            r = person(after, f"rider:{t.get('riderId')}") or {}
+            when = f", by {time12(t['time'])}" if t.get("time") else ""
+            lines.append(f"• {o['id']} {o.get('customer')}: with {r.get('first') or 'a rider'} ({t.get('ref')}){when}")
+        out.append(office_message(f"vendor:{vid}", "🛵 With a rider today:\n" + "\n".join(lines) + "\n\nI'll message you when each one is delivered, with the doorstep photo.", kind="update", taskIds=[t["id"] for _, t in pairs]))
+    return out
+
+
+DONE = ("delivered", "failed")
+
+
+def day_wraps(before, after) -> List[Dict[str, Any]]:
+    """When a vendor's last drop of a day is done, one wrap-up with the day's record. Again if more drops end later."""
+    old = {t.get("id"): t for t in before.get("tasks", [])}
+    touched = set()
+    for t in after.get("tasks", []):
+        o = old.get(t.get("id"))
+        if t.get("vendorId") and t.get("status") in DONE and (not o or o.get("status") not in DONE):
+            touched.add((t["vendorId"], t.get("date") or today_iso()))
+    out = []
+    for vid, day in touched:
+        mine = [t for t in after.get("tasks", []) if t.get("vendorId") == vid and t.get("date") == day]
+        if any(t.get("status") not in DONE for t in mine):
+            continue
+        if any(o.get("vendorId") == vid and o.get("date") == day and o.get("status") in ("open", "needs_fix") for o in after.get("orders", [])):
+            continue
+        done = [t for t in mine if t.get("status") == "delivered"]
+        failed = [t for t in mine if t.get("status") == "failed"]
+        last = max((m.get("wrapCount") or 0 for m in after.get("messages", []) if m.get("kind") == "wrap" and m.get("vendorId") == vid and m.get("day") == day), default=0)
+        if len(mine) <= last:
+            continue
+        photos = sum(1 for t in done if (t.get("proof") or {}).get("photo"))
+        lines = [f"📒 That's all for {nice_day(day)}: {len(done)} delivered, {len(failed)} not delivered."]
+        if done:
+            lines.append(f"Collected {money(sum(collected(t) for t in done))}; due to you {money(sum(vendor_payable(after, t) for t in done))}. Doorstep photos: {photos} of {len(done)}.")
+        if failed:
+            lines.append("Not delivered: " + "; ".join(f"{t.get('customer')} ({t.get('failReason') or 'no reason'})" for t in failed[:4]))
+        lines.append("Everything is saved in your dashboard: who delivered what, when, with the photos.")
+        out.append(office_message(f"vendor:{vid}", "\n".join(lines), kind="wrap", day=day, wrapCount=len(mine)))
+    return out
+
+
+# ---------- day records: what happened on a day, or what's planned ----------
+
+MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+RECORD_WORDS = re.compile(r"\b(record|records|history|what happened|report for|log for|summary for|my day|planned|scheduled|schedule)\b|^\W*(yesterday|tomorrow)\W*$", re.I)
+
+
+def nice_day(day: str) -> str:
+    try:
+        d = date.fromisoformat(day)
+    except ValueError:
+        return day
+    t = datetime.now(TZ).date()
+    if d == t:
+        return "today"
+    if d == t - timedelta(days=1):
+        return "yesterday"
+    if d == t + timedelta(days=1):
+        return "tomorrow"
+    return f"{d.strftime('%a')} {d.day} {d.strftime('%b')}"
+
+
+def parse_day(state, text: str, today: Optional[date] = None) -> Optional[str]:
+    """today, yesterday, tomorrow, a weekday (the last one, or "next friday"), 12 nov, nov 12, 12/11, 2026-11-12, or a
+    DL-/ORD- ref, which means the day of that delivery."""
+    t = (text or "").lower()
+    today = today or datetime.now(TZ).date()
+    ref = re.search(r"\b(dl|ord)-?(\d+)\b", t)
+    if ref:
+        code = f"{ref.group(1).upper()}-{ref.group(2)}"
+        if code.startswith("DL"):
+            hit = next((x for x in state.get("tasks", []) if x.get("ref") == code), None)
+        else:
+            hit = next((x for x in state.get("tasks", []) if x.get("orderId") == code), None) or next((x for x in state.get("orders", []) if x.get("id") == code), None)
+        if hit and hit.get("date"):
+            return hit["date"]
+    m = re.search(r"\b(20\d\d)-(\d\d)-(\d\d)\b", t)
+    if m:
+        return m.group(0)
+    if re.search(r"\byesterday\b", t):
+        return (today - timedelta(days=1)).isoformat()
+    if re.search(r"\btomorrow\b", t):
+        return (today + timedelta(days=1)).isoformat()
+    if re.search(r"\btoday\b", t):
+        return today.isoformat()
+
+    def pick(day: int, month: int) -> Optional[str]:
+        try:
+            d = date(today.year, month, day)
+        except ValueError:
+            return None
+        if d - today > timedelta(days=60):  # "28 dec" in January: last December
+            d = date(today.year - 1, month, day)
+        return d.isoformat()
+
+    m = re.search(r"\b(\d{1,2})(?:st|nd|rd|th)?\s*(?:of\s+)?(" + "|".join(MONTHS) + r")[a-z]*\b", t) or None
+    if m:
+        return pick(int(m.group(1)), MONTHS.index(m.group(2)) + 1)
+    m = re.search(r"\b(" + "|".join(MONTHS) + r")[a-z]*\.?\s+(\d{1,2})(?:st|nd|rd|th)?\b", t)
+    if m:
+        return pick(int(m.group(2)), MONTHS.index(m.group(1)) + 1)
+    m = re.search(r"\b(\d{1,2})/(\d{1,2})(?:/\d{2,4})?\b", t)  # day first, as in Nigeria
+    if m:
+        return pick(int(m.group(1)), int(m.group(2)))
+    for n, name in enumerate(WEEKDAYS):
+        if re.search(rf"\b{name[:3]}(?:{name[3:]})?\b", t):
+            if re.search(rf"\bnext\s+{name[:3]}", t):
+                return (today + timedelta(days=(n - today.weekday()) % 7 or 7)).isoformat()
+            return (today - timedelta(days=(today.weekday() - n) % 7)).isoformat()
+    return None
+
+
+def day_record(state, role: str, ref: str, day: str) -> str:
+    """The day in a few WhatsApp lines: each drop, who did it and when, or what's planned for a day still to come."""
+    mine = sorted([t for t in state.get("tasks", []) if t.get("date") == day and t.get("riderId" if role == "rider" else "vendorId") == ref],
+                  key=lambda t: (delivered_at(t) or "9", by_time(t)))
+    future = day > today_iso()
+    rider_name = lambda t: (person(state, f"rider:{t.get('riderId')}") or {}).get("first") or "no rider"
+    if future:
+        orders = [o for o in state.get("orders", []) if role == "vendor" and o.get("vendorId") == ref and o.get("date") == day and o.get("status") in ("open", "needs_fix")]
+        if not mine and not orders:
+            return f"🗓️ Nothing planned for {nice_day(day)} yet."
+        lines = [f"🗓️ Planned for {nice_day(day)}: {len(mine)} {'drop' if len(mine) == 1 else 'drops'}" + (f", {len(orders)} {'order' if len(orders) == 1 else 'orders'} waiting for a rider" if orders else "") + "."]
+        for t in mine[:8]:
+            when = f" by {time12(t['time'])}" if t.get("time") else ""
+            lines.append(f"• {t.get('ref')} {t.get('customer')}: {items_text(state, t)}{when}" + (f", {rider_name(t)}" if role == "vendor" else ""))
+        for o in orders[:4]:
+            lines.append(f"• {o['id']} {o.get('customer')}: waiting for a rider")
+        return "\n".join(lines)
+    if not mine:
+        return f"📒 No deliveries on {nice_day(day)}."
+    done = [t for t in mine if t.get("status") == "delivered"]
+    failed = [t for t in mine if t.get("status") == "failed"]
+    lines = [f"📒 {nice_day(day)[:1].upper() + nice_day(day)[1:]}: {len(done)} delivered, {len(failed)} not delivered, {len(mine) - len(done) - len(failed)} still open. Collected {money(sum(collected(t) for t in done))}."]
+    for t in mine[:10]:
+        if t.get("status") == "delivered":
+            pay = t.get("payment") or {}
+            how = "not paid" if pay.get("method") == "unpaid" else f"{money(collected(t))} {pay.get('method', 'cash')}"
+            pic = " 📷" if (t.get("proof") or {}).get("photo") else ""
+            lines.append(f"• {clock(delivered_at(t))} ✅ {t.get('ref')} {t.get('customer')}: {items_text(state, t)}, {how}" + (f", by {rider_name(t)}" if role == "vendor" else "") + pic)
+        elif t.get("status") == "failed":
+            lines.append(f"• ⚠️ {t.get('ref')} {t.get('customer')}: not delivered, {t.get('failReason') or 'no reason given'}")
+        else:
+            lines.append(f"• {t.get('ref')} {t.get('customer')}: {'on the way' if t.get('status') == 'picked_up' else 'not collected yet'}")
+    if len(mine) > 10:
+        lines.append(f"…and {len(mine) - 10} more.")
+    if role == "rider":
+        lines.append(f"You earned {money(fees(state)['rider'] * len(done))}.")
+    return "\n".join(lines)
+
+
+def record_link(wid: int, state, m) -> str:
+    key = key_of(m)
+    role, _, ref = key.partition(":")
+    p = person(state, key) or {}
+    return f"See it with photos: {link(wid, role, ref, f'/{role}?day={m['day']}', p.get('name', ''))}"
+
+
+def drop_footer(wid, state, m) -> str:
+    r = person(state, f"rider:{m['riderId']}") or {}
+    return f"\n\nReply YES to accept, or NO if you can't take them.\nOpen in the app: {link(wid, 'rider', m['riderId'], '/rider', r.get('name', ''))}"
+
+
+async def on_change(wid: int, before: Optional[Dict[str, Any]], after: Dict[str, Any], url: str = "") -> None:
+    try:
+        if url:
+            _base_urls[wid] = url.rstrip("/")
+        if before is None or not settings(after)["enabled"]:
+            return
+        forward, new = plan(before, after, wid)
+        if forward or new:
+            footers = {}
+            for m in after.get("messages", []):
+                if m.get("id") in forward and m.get("kind") == "drop" and m.get("riderId"):
+                    footers[m["id"]] = await asyncio.to_thread(drop_footer, wid, after, m)
+            for m in new:
+                if m.get("kind") == "drop":
+                    m["waText"] = m["text"] + await asyncio.to_thread(drop_footer, wid, after, m)
+                elif m.get("day"):
+                    m["waText"] = m["text"] + "\n" + await asyncio.to_thread(record_link, wid, after, m)
+
+            def enqueue(st):
+                ids = set(forward)
+                for m in st.get("messages", []):
+                    if m.get("id") in ids and "wa" not in m:
+                        m["wa"] = {"status": "queued"}
+                        if m["id"] in footers:
+                            m["waText"] = m["text"] + footers[m["id"]]
+                            m["buttons"] = ACCEPT_BUTTONS
+                have = {m.get("id") for m in st.get("messages", [])}
+                st.setdefault("messages", []).extend(m for m in new if m["id"] not in have)
+
+            await workspace.mutate(wid, enqueue)
+        was = {m.get("id"): (m.get("wa") or {}).get("status") for m in before.get("messages", [])}
+        queued = [m for m in after.get("messages", []) if (m.get("wa") or {}).get("status") == "queued" and was.get(m.get("id")) != "queued"]
+        if queued:
+            await send(wid, after, queued)
+    except Exception:
+        log.exception("WhatsApp update failed")
+
+
+async def send(wid: int, state, msgs: List[Dict[str, Any]]) -> None:
+    line = wa_providers.line
+    seen = contacts(state)
+    results = {}
+    for m in msgs:
+        key = key_of(m)
+        p = person(state, key) if key else None
+        if p and p.get("group"):
+            res = await asyncio.to_thread(line.send_group, p["group"], m.get("waText") or m["text"], m.get("buttons"))
+            results[m["id"]] = {"status": res.get("status"), "id": res.get("id", ""), "at": now_iso(), **({"error": res["error"]} if res.get("error") else {})}
+            continue
+        if not p or not p["phone"]:
+            results[m["id"]] = {"status": "no_number", "at": now_iso()}
+            continue
+        last_in = (seen.get(key) or {}).get("lastIn") or 0
+        image = await asyncio.to_thread(workspace.shared_photo_url, m["photo"], base_url(wid)) if m.get("photo") and m.get("from") in OFFICE else ""
+        res = await asyncio.to_thread(line.send, p["phone"], m.get("waText") or m["text"], m.get("buttons"), now() - last_in > WINDOW, image=image)
+        results[m["id"]] = {"status": res.get("status"), "id": res.get("id", ""), "at": now_iso(), **({"error": res["error"]} if res.get("error") else {})}
+
+    def record(st):
+        for m in st.get("messages", []):
+            if m.get("id") in results:
+                m["wa"] = {**(m.get("wa") or {}), **results[m["id"]]}
+                k = key_of(m)
+                if k:
+                    contacts(st).setdefault(k, {})["lastOut"] = now()
+
+    await workspace.mutate(wid, record)
+
+
+# ---------- what riders and vendors send ----------
+
+BUTTON_INTENTS = {"ACCEPT": "accept", "DECLINE": "decline", "COLLECTED": "collected", "ARRIVED": "arrived", "DELIVERED": "delivered",
+                  "PROBLEM": "problem", "EARNINGS": "earnings", "NEXT": "next", "HELP": "help", "PAID_CASH": "amount", "PAID_TRANSFER": "amount",
+                  "NOT_PAID": "amount", "BALANCE": "balance", "TODAY": "today", "RECORD": "record", "REASON_1": "reason", "REASON_2": "reason", "REASON_3": "reason"}
+REASONS = {"REASON_1": "Customer not picking calls", "REASON_2": "Wrong or unclear address", "REASON_3": "Customer refused the order"}
+
+
+def _amount(t: str) -> Optional[int]:
+    t = re.sub(r"\bdl-?\d+\b|\bord-?\d+\b", " ", t, flags=re.I)
+    t = intake.PHONE.sub(" ", t)
+    m = re.search(r"(?:₦|\bn|\bngn\s?)?\s?(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\s?(k\b)?", t, re.I)
+    if not m:
+        return None
+    n = float(m.group(1).replace(",", "")) * (1000 if m.group(2) else 1)
+    return int(round(n)) if n >= 50 else None
+
+
+def _method(t: str) -> Optional[str]:
+    if re.search(r"\b(not paid|didn'?t pay|did not pay|no pay|never pay|owes?|unpaid|pay later)\b", t):
+        return "unpaid"
+    if re.search(r"\b(transfer|transferred|trf|bank|sent to account)\b", t):
+        return "transfer"
+    if re.search(r"\b(pos|card)\b", t):
+        return "pos"
+    if re.search(r"\b(cash|kudi|owo)\b", t):
+        return "cash"
+    return None
+
+
+def rider_intent(text: str, button: str = "") -> Dict[str, Any]:
+    t = re.sub(r"\s+", " ", (text or "").lower()).strip()
+    ref = re.search(r"\bdl-?(\d+)\b", t)
+    out: Dict[str, Any] = {"intent": "unknown", "amount": _amount(t), "method": _method(t), "reason": "", "ref": f"DL-{ref.group(1)}" if ref else ""}
+    if button:
+        out["intent"] = BUTTON_INTENTS.get(button, "unknown")
+        if button == "PAID_CASH":
+            out["method"] = "cash"
+        elif button == "PAID_TRANSFER":
+            out["method"] = "transfer"
+        elif button == "NOT_PAID":
+            out["method"], out["amount"] = "unpaid", 0
+        if button in REASONS:
+            out["reason"] = REASONS[button]
+        return out
+    w = re.sub(r"[^\w\s']", " ", t).strip()
+    if re.fullmatch(r"(help|menu|hi|hello|hey|start|options|good (morning|afternoon|evening))", w):
+        out["intent"] = "help"
+    elif RECORD_WORDS.search(t):
+        out["intent"] = "record"
+    elif re.search(r"\b(paid in|i have paid|i don pay|i've paid|sent the money|remit+ed|remit|paid the cash|deposited)\b", t):
+        out["intent"] = "paid_in"
+        r = re.search(r"\b(?:ref(?:erence)?|trf|transaction)\s*[:#-]?\s*([a-z0-9-]{4,})", t)
+        out["reason"] = r.group(1).upper() if r else ""
+    elif re.search(r"\b(earn|earning|earnings|my pay|how much (did|have|do) i|wallet|salary|my money|commission)\b", t):
+        out["intent"] = "earnings"
+    elif re.search(r"\b(not picking|no answer|not answering|unreachable|switched off|not reachable|refused|rejected|reject|cancel+ed|wrong address|can'?t find|cannot find|couldn'?t find|not around|not at home|not delivered|couldn'?t deliver|can'?t deliver|cannot deliver|failed|problem|issue|e no work|no dey)\b", t):
+        out["intent"] = "problem"
+        out["reason"] = "" if re.fullmatch(r"(problem|issue|i have a problem|there'?s a problem)", w) else text.strip()
+    elif re.fullmatch(r"(1|yes|y|yeah|yep|ok|okay|accept|accepted|i accept|i'?ll take (it|them)|i will take (it|them)|sure|no wahala|i dey|confirm|confirmed|oya)", w):
+        out["intent"] = "accept"
+    elif re.match(r"^(2|no|nope|decline|can'?t|cannot|not available|i no fit|busy|i'?m busy)\b", w):
+        out["intent"] = "decline"
+        out["reason"] = text.strip() if len(w.split()) > 1 else ""
+    elif re.search(r"\b(collected|picked up|picked|i have (the|them|it)|got (them|it|the goods)|i don collect|have collected|pickup done|picked them)\b", t):
+        out["intent"] = "collected"
+    elif re.search(r"\b(arrived|arrive|i'?m here|i am here|at the (location|gate|door|house|address|office)|reached|i don reach|don reach|outside)\b", t):
+        out["intent"] = "arrived"
+    elif re.search(r"\b(delivered|deliver|done|completed|complete|i don deliver|don deliver|dropped|handed (it )?over|customer (has )?(collected|received|got it)|received it)\b", t):
+        out["intent"] = "delivered"
+    elif re.search(r"\b(next|my drops|drops|list|route|where next|what'?s next|today)\b", t):
+        out["intent"] = "next"
+    elif out["amount"] is not None or out["method"]:
+        out["intent"] = "amount"
+    return out
+
+
+def vendor_intent(state, vendor_id: str, text: str, button: str = "") -> Dict[str, Any]:
+    t = re.sub(r"\s+", " ", (text or "").lower()).strip()
+    if button:
+        return {"intent": BUTTON_INTENTS.get(button, "unknown")}
+    w = re.sub(r"[^\w\s']", " ", t).strip()
+    cancel = re.search(r"\bcancel\b.*\b(ord-?\d+)\b", t)
+    if cancel:
+        return {"intent": "cancel", "ref": "ORD-" + re.sub(r"\D", "", cancel.group(1))}
+    if intake.looks_like_orders(text) and intake.PHONE.search(text):
+        return {"intent": "orders"}
+    if re.fullmatch(r"(help|menu|hi|hello|hey|start|options|good (morning|afternoon|evening))", w):
+        return {"intent": "help"}
+    if re.search(r"\b(balance|payout|pay ?out|owed|owe me|how much|my money|settle|settlement|paid me|payment)\b", t):
+        return {"intent": "balance"}
+    if intake.STOCK_WORDS.search(t):
+        lines, _ = intake.read_stock(state, text, vendor_id)
+        if lines:
+            return {"intent": "stock"}
+    if RECORD_WORDS.search(t) or (button == "" and re.fullmatch(r"(what about |and )?(yesterday|tomorrow|(last |next )?(mon|tues|wednes|thurs|fri|satur|sun)day|\d{1,2}(st|nd|rd|th)? \w+|\w+ \d{1,2}|\d{1,2}/\d{1,2}(/\d{2,4})?)\??", w)):
+        return {"intent": "record"}
+    if re.search(r"\b(today|status|report|update|deliveries|how far|summary)\b", t):
+        return {"intent": "today"}
+    return {"intent": "unknown"}
+
+
+# ---------- ADA and a rider ----------
+
+RIDER_HELP = ("Hi {first}, I'm ADA, the office assistant. You can reply:\n"
+              "YES / NO — take or turn down new drops\nCOLLECTED — you have the parcels\nARRIVED — you're at the customer\n"
+              "DELIVERED 25000 CASH — done, with what you collected\nPROBLEM — couldn't deliver\nNEXT — your drops today\n"
+              "EARNINGS — what you've made\nPAID IN — you paid cash into the company account\n"
+              "RECORD — your day; RECORD YESTERDAY or RECORD 12 NOV for another day\nLOGIN — open the app\nAnything else goes to the office.")
+
+
+def amount_buttons(t) -> List[Dict[str, str]]:
+    v = money(value(t))
+    return [{"id": "PAID_CASH", "title": f"{v} cash"[:20]}, {"id": "PAID_TRANSFER", "title": f"{v} transfer"[:20]}, {"id": "NOT_PAID", "title": "Not paid"}]
+
+
+def deliver(t, amount: int, method: str, photo: Optional[str]) -> None:
+    stamp(t, "delivered")
+    t["proof"] = {"photo": photo, "receivedBy": "", "note": "", "at": now_iso(), "via": "whatsapp", **({} if photo else {"photoPending": True})}
+    unpaid = method == "unpaid"
+    t["payment"] = {"method": method, "amount": 0 if unpaid else amount, "confirmed": not unpaid, "at": None if unpaid else now_iso()}
+    if unpaid:
+        t["proof"]["note"] = f"Not paid at the door. Owes {money(value(t))}."
+    t.pop("waPhoto", None)
+
+
+def rider_turn(st, wid: int, rid: str, it: Dict[str, Any], photo: Optional[str], memo: Dict[str, Any]) -> Optional[Tuple[str, Optional[List]]]:
+    r = person(st, f"rider:{rid}")
+    today = today_iso()
+    mine = [t for t in st["tasks"] if t.get("riderId") == rid]
+    active = sorted([t for t in mine if t.get("date") == today and t.get("status") in ("assigned", "picked_up")], key=by_time)
+    offers = [t for t in active if t["status"] == "assigned" and not t.get("acceptedAt") and not t.get("declined")]
+    to_collect = [t for t in active if t["status"] == "assigned" and t.get("acceptedAt")]
+    on_road = [t for t in active if t["status"] == "picked_up"]
+    by_ref = next((t for t in mine if it.get("ref") and t.get("ref") == it["ref"]), None)
+    current = by_ref or next((t for t in on_road if t.get("arrivedAt")), None) or (on_road[0] if on_road else None)
+    aw = memo.get("awaiting") or {}
+    waiting_task = next((t for t in mine if t.get("id") == aw.get("taskId")), None)
+    intent = it["intent"]
+    deep = lambda t, what="deliver": link(wid, "rider", rid, f"/rider?drop={t['id']}&do={what}", r["name"])  # noqa: E731
+
+    # An answer to the question ADA just asked.
+    if aw.get("what") == "reason" and waiting_task and waiting_task["status"] == "picked_up" and intent in ("unknown", "reason", "problem") and (it.get("reason") or intent == "unknown"):
+        intent, it = "problem", {**it, "reason": it.get("reason") or it.get("text", "")}
+        current = waiting_task
+    if aw.get("what") == "amount" and waiting_task and waiting_task["status"] == "picked_up" and intent in ("amount", "delivered") and (it.get("amount") is not None or it.get("method")):
+        intent, current = "delivered", waiting_task
+    if photo and intent in ("unknown", "delivered", "amount", "photo"):
+        pending = sorted([t for t in mine if t.get("status") == "delivered" and (t.get("proof") or {}).get("photoPending")], key=lambda t: (t.get("proof") or {}).get("at") or "", reverse=True)
+        if pending and intent not in ("delivered", "amount"):
+            t = pending[0]
+            t["proof"] = {**t["proof"], "photo": photo, "photoPending": False}
+            memo.pop("awaiting", None)
+            return f"📸 Photo saved for {t.get('customer')} ({t.get('ref')}). Thank you!", None
+        if current and intent not in ("delivered", "amount"):
+            current["waPhoto"] = photo
+            memo["awaiting"] = {"what": "amount", "taskId": current["id"]}
+            return f"📸 Got the photo for {current.get('customer')}. How much did you collect?", amount_buttons(current)
+
+    if intent == "help":
+        return RIDER_HELP.format(first=r["first"]), [{"id": "NEXT", "title": "My drops"}, {"id": "EARNINGS", "title": "My earnings"}, {"id": "RECORD", "title": "My day"}]
+
+    if intent == "record":
+        day = parse_day(st, it.get("text", "")) or today
+        return f"{day_record(st, 'rider', rid, day)}\nSee it with photos: {link(wid, 'rider', rid, f'/rider?day={day}', r['name'])}", None
+
+    if intent == "accept":
+        if offers:
+            for t in offers:
+                t["acceptedAt"] = now_iso()
+                t["acceptedVia"] = "whatsapp"
+                t["declined"] = None
+            u = sum(units(t) for t in offers)
+            return (f"Thanks {r['first']}! {len(offers)} {'drop' if len(offers) == 1 else 'drops'} accepted ({u} {'unit' if u == 1 else 'units'}). "
+                    "Collect them at the office, then reply COLLECTED."), [{"id": "COLLECTED", "title": "Collected"}]
+        if to_collect:
+            return "You've already accepted these. Collect them at the office, then reply COLLECTED.", [{"id": "COLLECTED", "title": "Collected"}]
+        return "You have no new drops to accept right now. I'll message you when the office sends some.", None
+
+    if intent == "decline" and offers:
+        for t in offers:
+            t["declined"] = {"reasons": [it.get("reason") or "Said no on WhatsApp"], "note": "", "at": now_iso()}
+        return "No problem, I've told the office you can't take them. They'll give them to someone else.", None
+    if intent == "decline" and not current:
+        return "You have no new drops to turn down right now.", None
+    if intent == "decline":
+        intent = "problem"
+
+    if intent == "collected":
+        targets = offers + to_collect
+        if not targets:
+            return ("You've already collected today's drops." if on_road else "There's nothing to collect right now."), None
+        for t in targets:
+            t["acceptedAt"] = t.get("acceptedAt") or now_iso()
+            stamp(t, "picked_up")
+        text, buttons = next_stop_reply(st, rid)
+        return f"Great, {len(targets)} {'drop' if len(targets) == 1 else 'drops'} on the way. {text}", buttons
+
+    if intent == "arrived":
+        if not current:
+            if to_collect or offers:
+                return "Collect your parcels at the office first, then reply COLLECTED.", [{"id": "COLLECTED", "title": "Collected"}]
+            return "I don't see a drop on the road for you. Reply NEXT to see your drops.", None
+        current["arrivedAt"] = now_iso()
+        current["arrivedVia"] = "whatsapp"
+        return (f"You're at {current.get('customer')}. Collect {money(value(current))}.\n\n"
+                f"Tap to take the photo and confirm payment:\n{deep(current)}\n\nOr reply DELIVERED with the amount, e.g. DELIVERED {value(current)} CASH."), [{"id": "DELIVERED", "title": "Delivered"}, {"id": "PROBLEM", "title": "Problem"}]
+
+    if intent in ("delivered", "amount"):
+        t = current
+        if not t:
+            if intent == "amount":
+                return None
+            return "I don't see a drop on the road for you. Reply NEXT to see your drops.", None
+        amount, method = it.get("amount"), it.get("method")
+        if method == "unpaid":
+            amount = 0
+        if amount is None and method:
+            amount = value(t)
+        if amount is None:
+            memo["awaiting"] = {"what": "amount", "taskId": t["id"]}
+            return f"Nice! How much did you collect from {t.get('customer')}?", amount_buttons(t)
+        photo_now = photo or t.get("waPhoto")
+        deliver(t, amount, method or "cash", photo_now)
+        memo.pop("awaiting", None)
+        paid = "Not paid at the door — the office will follow up." if method == "unpaid" else f"{money(amount)} {method or 'cash'} recorded."
+        extra = "" if photo_now else f"\n\nLast step: add the doorstep photo. Tap {deep(t, 'photo')} or send the photo here."
+        text, buttons = next_stop_reply(st, rid)
+        return f"✅ {t.get('ref')} delivered to {t.get('customer')}. {paid}{extra}\n\n{text}", buttons
+
+    if intent in ("problem", "reason"):
+        t = current
+        if not t:
+            return "I don't see a drop on the road for you. I've passed your message to the office.", None
+        reason = (it.get("reason") or "").strip()
+        if not reason:
+            memo["awaiting"] = {"what": "reason", "taskId": t["id"]}
+            return f"Sorry about that. What happened with {t.get('customer')}?", [{"id": "REASON_1", "title": "Not picking calls"}, {"id": "REASON_2", "title": "Wrong address"}, {"id": "REASON_3", "title": "Customer refused"}]
+        stamp(t, "failed")
+        t["failReason"] = reason[:200]
+        memo.pop("awaiting", None)
+        text, buttons = next_stop_reply(st, rid)
+        return f"OK, I've marked {t.get('customer')} as not delivered: \"{reason[:120]}\". Keep the parcel safe; the office will tell you what to do with it.\n\n{text}", buttons
+
+    if intent == "earnings":
+        rate = fees(st)["rider"]
+        days = week_days()
+        done_today = [t for t in mine if t.get("date") == today and t.get("status") == "delivered"]
+        week = [t for t in mine if t.get("date") in days and t.get("status") == "delivered"]
+        held = sum(cash_held(t) for t in mine)
+        left = len([t for t in active if not (t["status"] == "assigned" and not t.get("acceptedAt"))])
+        lines = [f"💰 Today: {money(len(done_today) * rate)} for {len(done_today)} {'drop' if len(done_today) == 1 else 'drops'}" + (f", {left} still to go" if left else "") + ".",
+                 f"This week: {money(len(week) * rate)} for {len(week)} drops."]
+        if held:
+            lines.append(f"Cash you're holding: {money(held)}. Pay it into the company account and reply PAID IN.")
+        lines.append(f"See it all in the app: {link(wid, 'rider', rid, '/rider?tab=earnings', r['name'])}")
+        return "\n".join(lines), None
+
+    if intent == "next":
+        if offers:
+            return run_sheet(st, r, offers) + "\n\nReply YES to accept, or NO if you can't take them.", ACCEPT_BUTTONS
+        if to_collect:
+            return f"Collect {sum(units(t) for t in to_collect)} units at the office for {len(to_collect)} {'drop' if len(to_collect) == 1 else 'drops'}, then reply COLLECTED.", [{"id": "COLLECTED", "title": "Collected"}]
+        if on_road:
+            rest = "\n".join(f"{n}) {t.get('customer')}, {t.get('address')}" for n, t in enumerate(on_road[1:], 2))
+            return f"Next stop:\n{stop_text(st, on_road[0])}" + (f"\n\nAfter that:\n{rest}" if rest else "") + "\n\nReply ARRIVED when you get there.", [{"id": "ARRIVED", "title": "Arrived"}, {"id": "PROBLEM", "title": "Problem"}]
+        return "No drops for you right now. I'll message you when the office sends some.", None
+
+    if intent == "paid_in":
+        held = [t for t in mine if cash_held(t) > 0]
+        if not held:
+            return "You're not holding any cash for the office right now. Thank you!", None
+        total = sum(cash_held(t) for t in held)
+        receipt, shown = it.get("receipt"), it.get("amount") if it.get("receipt") else None
+        for t in held:
+            t["payment"] = {**t["payment"], "handedIn": {"at": now_iso(), "ref": it.get("reason") or "", "via": "whatsapp", **({"receipt": receipt, "receiptAmount": shown or 0} if receipt else {})}}
+        check = ""
+        if receipt and shown and shown != total:
+            check = f" The receipt shows {money(shown)}, {money(abs(total - shown))} {'less' if shown < total else 'more'} than the {money(total)} you're holding, so the office will check it with you."
+        return (f"Thanks! I've told the office you paid in {money(total)}{' (ref ' + it['reason'] + ')' if it.get('reason') else ''}. "
+                + ("🧾 I've kept the receipt for them. " if receipt else "") + f"They'll confirm once it's in the bank.{check}"), None
+
+    return None
+
+
+# ---------- ADA and a vendor ----------
+
+VENDOR_HELP = ("Hi {first}, I'm ADA from {company}. Send me:\n"
+               "• Your orders, as you'd normally type them (name, phone, address, item, amount). One or many in a message.\n"
+               "• Stock you're sending, e.g. \"Sending 50 serum and 20 black soap\".\n"
+               "BALANCE — what we owe you and payouts\nTODAY — how today's deliveries are going\nCANCEL ORD-3310 — call off an order\n"
+               "RECORD YESTERDAY, RECORD 12 NOV or RECORD ORD-3310 — who delivered what and when, with photos\n"
+               "LOGIN — open your dashboard\n"
+               "Anything else goes to the office.")
+
+
+def vendor_turn(st, wid: int, vid: str, it: Dict[str, Any], text: str, who: Dict[str, Any]) -> Optional[Tuple[str, Optional[List]]]:
+    v = person(st, f"vendor:{vid}")
+    vrec = next((x for x in st.get("vendors", []) if x.get("id") == vid), {})
+    who = {"id": who.get("id"), "name": who.get("name") or vrec.get("contact") or vrec.get("name")}
+    company = (st.get("company") or {}).get("name") or "the office"
+    intent = it["intent"]
+    if intent == "help":
+        return VENDOR_HELP.format(first=v["first"], company=company), [{"id": "BALANCE", "title": "Balance"}, {"id": "TODAY", "title": "Today"}, {"id": "RECORD", "title": "Day record"}]
+
+    if intent == "orders":
+        found = intake.read_orders(st, text, vid, today=datetime.now(TZ).date())
+        if not found:
+            return None
+        top = 3300
+        for o in st.get("orders", []):
+            d = re.sub(r"\D", "", str(o.get("id")))
+            if d:
+                top = max(top, int(d))
+        lines, fixes = [], []
+        for n, raw in enumerate(found, 1):
+            o = intake.to_order(st, raw)
+            top += 1
+            o.update({"id": f"ORD-{top}", "createdAt": now_iso(), "placedBy": "vendor", "via": "whatsapp", "by": {"id": who.get("id"), "name": who.get("name"), "role": "vendor"}})
+            st.setdefault("orders", []).insert(0, o)
+            what = ", ".join(line_label(st, l) for l in o["items"]) or "no item"
+            label = f"{o['id']} {o.get('customer') or 'no name'}" + (f", {o['zone']}" if o.get("zone") else "")
+            if o["status"] == "open":
+                lines.append(f"✅ {label}: {what}. Collect {money(o.get('amount'))}.")
+            else:
+                fixes.append(f"⚠️ {label}: {' '.join(o['issues'])}")
+        reply = f"Got {len(found)} {'order' if len(found) == 1 else 'orders'}. " + ("They're with the office for a rider." if not fixes else "")
+        reply += "\n" + "\n".join(lines + fixes)
+        if fixes:
+            reply += "\n\nSend the orders marked ⚠️ again with what's missing, or fix them in the app."
+        return reply.strip(), None
+
+    if intent == "stock":
+        lines, unknown = intake.read_stock(st, text, vid)
+        for l in lines:
+            p = product(st, l["productId"])
+            st.setdefault("intake", []).insert(0, {"id": uid("in"), "vendorId": vid, "productId": l["productId"], "qty": l["qty"], "price": p.get("price") or 0,
+                                                   "at": now_iso(), "note": "Sent on WhatsApp", "status": "sent", "by": {"id": who.get("id"), "name": who.get("name"), "role": "vendor"}})
+        got = ", ".join(f"{l['qty']} × {product(st, l['productId']).get('name')}" for l in lines)
+        extra = f"\nI don't have {', '.join(unknown)} in your products yet. Add it in the app first." if unknown else ""
+        return f"📦 Noted: {got}. The office will count it in when it arrives, and I'll tell you.{extra}", None
+
+    if intent == "balance":
+        mine = [t for t in st.get("tasks", []) if t.get("vendorId") == vid and t.get("status") == "delivered"]
+        owed = [t for t in mine if is_paid(t) and not t.get("settled")]
+        waiting = [t for t in mine if not is_paid(t)]
+        days = week_days()
+        paid = [t for t in mine if t.get("settled") and (t["settled"].get("at") or "")[:10] in days]
+        lines = [f"💸 We owe you {money(sum(vendor_payable(st, t) for t in owed))} for {len(owed)} delivered {'order' if len(owed) == 1 else 'orders'} (after the {money(fees(st)['delivery'])} delivery fee each)."]
+        if waiting:
+            lines.append(f"{len(waiting)} more delivered, payment still being checked.")
+        if paid:
+            lines.append(f"Paid out this week: {money(sum(vendor_payable(st, t) for t in paid))}.")
+        lines.append(f"Details: {link(wid, 'vendor', vid, '/vendor', v['name'])}")
+        return "\n".join(lines), None
+
+    if intent == "today":
+        today = today_iso()
+        mine = [t for t in st.get("tasks", []) if t.get("vendorId") == vid and t.get("date") == today]
+        done = [t for t in mine if t.get("status") == "delivered"]
+        road = [t for t in mine if t.get("status") in ("assigned", "picked_up")]
+        failed = [t for t in mine if t.get("status") == "failed"]
+        waiting = [o for o in st.get("orders", []) if o.get("vendorId") == vid and o.get("status") == "open"]
+        fix = [o for o in st.get("orders", []) if o.get("vendorId") == vid and o.get("status") == "needs_fix"]
+        lines = [f"Today so far: {len(done)} delivered ({money(sum(collected(t) for t in done))} collected), {len(road)} on the way, {len(failed)} not delivered."]
+        if waiting:
+            lines.append(f"{len(waiting)} {'order is' if len(waiting) == 1 else 'orders are'} waiting for a rider.")
+        if fix:
+            lines.append(f"{len(fix)} {'order needs' if len(fix) == 1 else 'orders need'} a fix: " + "; ".join(f"{o['id']} {o.get('customer') or ''}: {' '.join(o.get('issues') or [])}" for o in fix[:3]))
+        return "\n".join(lines), None
+
+    if intent == "record":
+        day = parse_day(st, text) or today_iso()
+        return f"{day_record(st, 'vendor', vid, day)}\nSee it with photos: {link(wid, 'vendor', vid, f'/vendor?day={day}', v['name'])}", None
+
+    if intent == "cancel":
+        o = next((o for o in st.get("orders", []) if o.get("id") == it.get("ref") and o.get("vendorId") == vid), None)
+        if not o:
+            return f"I can't find {it.get('ref')} among your orders.", None
+        if o.get("status") not in ("open", "needs_fix"):
+            return f"{o['id']} is already with a rider, so I've passed your message to the office.", None
+        o["status"] = "cancelled"
+        return f"Done, {o['id']} for {o.get('customer')} is cancelled.", None
+    return None
+
+
+# ---------- receiving ----------
+
+def find_contact(digits: str) -> Optional[Tuple[int, str, str, Dict[str, Any]]]:
+    """Which company, and which rider or vendor, a WhatsApp number belongs to."""
+    if not digits:
+        return None
+    row = db.one("SELECT id, workspace_id, role, ref, name FROM users WHERE phone = %s AND role IN ('rider', 'vendor', 'company') AND demo = 0 ORDER BY last_seen DESC", ("+" + digits,))
+    if row and row[2] == "company":
+        return row[1], "staff", row[0], {"id": row[0], "name": row[4]}
+    if row and row[3]:
+        return row[1], row[2], row[3], {"id": row[0], "name": row[4]}
+    customer = None
+    for wid, text in db.all("SELECT id, state::text FROM workspace"):
+        try:
+            st = json.loads(text)
+        except ValueError:
+            continue
+        for role, lst in (("rider", st.get("riders", [])), ("vendor", st.get("vendors", []))):
+            for x in lst:
+                if intake.phone_digits(x.get("phone")) == digits:
+                    return int(wid), role, x["id"], {"id": None, "name": x.get("contact") or x.get("name")}
+        # A customer: the number is on one of this company's deliveries (the most recent company wins).
+        days = [t.get("date") or "" for t in st.get("tasks", []) if intake.phone_digits(t.get("phone")) == digits]
+        if days and (not customer or max(days) > customer[0]):
+            customer = (max(days), int(wid), next(t.get("customer") for t in st["tasks"] if intake.phone_digits(t.get("phone")) == digits))
+    if customer:
+        return customer[1], "customer", digits, {"id": None, "name": customer[2]}
+    return None
+
+
+def store_photo(wid: int, mime: str, data: bytes) -> str:
+    pid = secrets.token_urlsafe(12)
+    db.execute("INSERT INTO photos (id, workspace_id, mime, data, created_at) VALUES (%s, %s, %s, %s, %s)", (pid, wid, mime, db.blob(data), now()))
+    return f"/api/photos/{pid}"
+
+
+def first_time(digits: str) -> bool:
+    """False if this WhatsApp message id was already handled."""
+    try:
+        db.execute("INSERT INTO wa_seen (id, created_at) VALUES (%s, %s)", (digits, now()))
+        return True
+    except Exception:
+        return False
+
+
+LOGIN_WORDS = re.compile(r"^\W*(login|log ?in|sign ?in|dashboard|my dashboard|open (the )?app|app( link)?|link|open dashboard|web)\W*$", re.I)
+VOICE_REPLY = ("🎤 Got your voice note. The office can play it, but I can't listen to voice notes yet, so please type it too "
+               "if it's for me (e.g. {example}).")
+VOICE_EXAMPLE = {"rider": "DELIVERED 25000 CASH", "vendor": "BALANCE", "staff": "TODAY"}
+
+
+def login_reply(wid: int, st, role: str, ref: str) -> str:
+    if role == "staff":
+        return f"🔐 Your dashboard, signed in: {link_user(wid, ref, '/company')}\nThe link works once, for a day."
+    p = person(st, f"{role}:{ref}") or {}
+    url = link(wid, role, ref, "/" + role, p.get("name", ""))
+    if "/api/auth/link/" not in url:  # no login yet: the office sends an invite from Team
+        return f"🔐 Open your dashboard here: {url}\nNo account yet? Ask the office for your invite code."
+    return f"🔐 Your dashboard, signed in: {url}\nThe link works once, for a day."
+
+
+RIDER_INTENTS = {"accept", "decline", "collected", "arrived", "delivered", "amount", "problem", "earnings", "next", "paid_in", "record", "help"}
+VENDOR_INTENTS = {"orders", "stock", "balance", "today", "record", "cancel", "help"}
+CUSTOMER_INTENTS = {"confirm", "problem", "reschedule", "where", "later", "help"}
+
+
+def _think(wid: int, role: str, ref: str, said: str, chat_key: str) -> Optional[Dict[str, Any]]:
+    """Claude reads the message with the chat so far and what ADA knows (see brain.py)."""
+    _, st = workspace.Hub.load(wid)
+    if not st:
+        return None
+    return brain.understand(role, said, brain.history(st, chat_key), brain.context(st, role, ref))
+
+
+async def receive(wid: int, role: str, ref: str, text: str = "", photo: Optional[str] = None, button: str = "", wa_id: str = "", who: Optional[Dict[str, Any]] = None, url: str = "",
+                  audio: Optional[str] = None, location: Optional[Dict[str, Any]] = None, heard: bool = False, read: Optional[Dict[str, Any]] = None,
+                  channel: str = "whatsapp", group: Optional[str] = None, addressed: bool = True) -> Optional[str]:
+    """One message from a rider, vendor, customer or someone at the office: shown in the inbox, acted on by ADA, answered.
+
+    read is what Claude saw in a photo. channel "call" is a phone call (calls.py): the reply is spoken, not sent.
+    group is a WhatsApp group the message came from: ADA only acts when addressed, and answers in the group.
+    Returns ADA's reply, if there is one."""
+    import customers
+    import office
+
+    if url:
+        _base_urls[wid] = url.rstrip("/")
+    who = who or {}
+    key = f"{role}:{ref}"
+    chat_key = f"group:{group}" if group else key
+    if role == "staff":
+        staff = await asyncio.to_thread(staff_person, ref)
+        who = {**(staff or {}), **{k: v for k, v in who.items() if v}}
+    pic = read or {}
+    kind = pic.get("kind") or ""
+    said = text
+    if kind in ("order_list", "stock_note") and pic.get("text"):
+        said = (text + "\n" if text else "") + pic["text"]
+    smart = None
+    if addressed and said and not button and brain.ready() and kind not in ("order_list", "stock_note", "receipt") and (role != "staff" or who.get("id")):
+        smart = await asyncio.to_thread(_think, wid, role, ref, said, chat_key)
+    cmd = (smart or {}).get("command") or said
+    if smart:
+        log.info("ADA read a %s message as %s", role, smart["intent"])
+
+    rough = None
+    if role == "rider":
+        rough = rider_intent(cmd, button)
+        if smart and smart["intent"] in RIDER_INTENTS:
+            rough["intent"] = smart["intent"]
+            rough.update({k: smart[k] for k in ("amount", "method", "reason", "ref") if smart.get(k) not in (None, "")})
+        if kind == "receipt":
+            rough.update(intent="paid_in", amount=pic.get("amount") or None, reason=(pic.get("ref") or rough.get("reason") or "").upper(), receipt=photo)
+        rough["text"] = cmd
+    staff_intent, staff_text = "", said
+    if role == "staff":
+        staff_intent = office.office_intent(said, button)
+        if smart and smart["intent"] not in ("unknown", "answer"):
+            staff_intent, staff_text = smart["intent"], (said if smart["intent"] == "orders" else cmd)
+        if kind == "order_list":
+            staff_intent = "orders"
+        elif kind == "receipt":
+            staff_intent = "receipt"
+    wants_login = bool(LOGIN_WORDS.match(text or "")) or button == "LOGIN"
+    answer = smart["answer"] if smart and smart["intent"] == "answer" and smart.get("answer") else ""
+    replied: List[str] = []
+
+    def apply(st):
+        if role == "staff":
+            if not who.get("id"):
+                return False
+        elif not person(st, key):
+            return False
+        label = "📷 Photo" if photo else "🎤 Voice note" if audio else "📍 Location" if location else ""
+        msg = {"id": uid("m"), "at": now_iso(), "read": False, "from": role, "text": text or label, "channel": channel, "wa": {"status": "received", "id": wa_id}}
+        if group:
+            msg["groupId"] = group
+            msg["author"] = key
+            msg["authorName"] = who.get("name") or (person(st, key) or {}).get("name") or ""
+        else:
+            msg[{"rider": "riderId", "vendor": "vendorId", "staff": "staffId", "customer": "customerId"}[role]] = ref
+        if role == "customer":
+            t = customers.current_task(st, ref)
+            msg["taskId"] = t.get("id") if t else None
+        if role == "staff":
+            msg["staffName"] = who.get("name") or ""
+        if photo:
+            msg["photo"] = photo
+        if pic:
+            msg["photoRead"] = {k: pic.get(k) for k in ("kind", "summary", "amount", "ref", "bank") if pic.get(k)}
+        if audio:
+            msg["audio"] = audio
+            if heard:
+                msg["transcribed"] = True
+        if location:
+            msg["location"] = location
+            if role == "rider":
+                for r in st.get("riders", []):
+                    if r.get("id") == ref:
+                        r["location"] = {**location, "at": now_iso()}
+        if button:
+            msg["button"] = button
+        if who.get("name") and role == "vendor":
+            msg["by"] = {"id": who.get("id"), "name": who.get("name"), "role": "vendor"}
+        st.setdefault("messages", []).append(msg)
+        memo = contacts(st).setdefault(key, {})
+        if group:
+            contacts(st).setdefault(chat_key, {})["lastIn"] = now()
+        else:
+            memo["lastIn"] = now()
+        if not addressed:
+            return  # a group message that isn't for ADA: kept, not answered
+        s = settings(st)
+        if not s["enabled"] or not s["autoReply"] or s["paused"].get(chat_key):
+            return
+
+        def say(reply: str, buttons=None) -> None:
+            m = office_message(chat_key, reply, kind="reply", buttons=buttons)
+            if channel == "call":
+                m["channel"], m["wa"] = "call", {"status": "spoken"}
+            st["messages"].append(m)
+            replied.append(reply)
+
+        if role == "customer":
+            if not customers.enabled(st):
+                return  # kept for the office; ADA only talks to customers once the company turns it on
+            note = said or (f"📷 {pic['summary']}" if pic.get("summary") else label)
+            it = customers.intent(said, button)
+            if smart and smart["intent"] in CUSTOMER_INTENTS:
+                it = smart["intent"]
+            if kind == "damage" and it == "unknown":
+                it = "problem"
+            out = customers.awaiting_turn(st, wid, ref, note, photo) or (
+                (answer, None) if answer else customers.turn(st, wid, ref, it, cmd if it == "reschedule" else note, photo))
+            if out is None:
+                if now() - (memo.get("passedAt") or 0) < 600:
+                    return
+                memo["passedAt"] = now()
+                out = ("Thanks, I've passed your message to the team.", None)
+            say(*out)
+            return
+        if wants_login:
+            out = (login_reply(wid, st, role, ref), None)
+        elif audio and not text:
+            out = (VOICE_REPLY.format(example=VOICE_EXAMPLE[role]), None)
+        elif location and not text:
+            out = ("📍 Thanks, the office can see where you are now." if role == "rider" else "📍 Got your location.", None)
+        elif answer:
+            out = (answer, None)
+        elif role == "staff":
+            out = office.office_turn(st, wid, who, staff_intent, staff_text, memo, photo=photo, read=pic, chat=chat_key)
+            if out is None:
+                out = ("I didn't catch that. Reply HELP to see what I can do, or LOGIN to open the dashboard.", [{"id": "TODAY", "title": "Today"}])
+        elif role == "rider":
+            out = rider_turn(st, wid, ref, rough, photo, memo)
+        else:
+            it = vendor_intent(st, ref, said, button)
+            if smart and smart["intent"] in VENDOR_INTENTS and not (it["intent"] in ("orders", "stock") and smart["intent"] not in ("orders", "stock")):
+                it = {"intent": smart["intent"], "ref": smart.get("ref") or it.get("ref", "")}
+            if kind == "order_list":
+                it = {"intent": "orders"}
+            out = vendor_turn(st, wid, ref, it, said if it["intent"] in ("orders", "stock") else cmd, who)
+        if out is None:
+            last = memo.get("passedAt") or 0
+            if now() - last < 600:
+                return  # don't say "passed to the office" after every line of a chat
+            memo["passedAt"] = now()
+            out = ("Thanks, I've passed your message to the office. Reply HELP to see what I can do.", None)
+        say(*out)
+
+    await workspace.mutate(wid, apply, url)
+    return replied[0] if replied else None
+
+
+JOIN_WORDS = re.compile(r"^\W*(join|code|invite|my code is|register)?\W*([A-HJ-NP-Z2-9]{6})\W*$", re.I)
+
+
+async def join(digits: str, code: str, url: str = "") -> None:
+    """A new rider, vendor or staff member texts their invite code: their login is made with this number."""
+    try:
+        user = await asyncio.to_thread(auth.join_by_whatsapp, code, "+" + digits)
+    except ValueError as err:
+        await asyncio.to_thread(wa_providers.line.send, digits, f"{err}")
+        return
+    except Exception as err:  # e.g. a number that can't be a phone
+        log.info("WhatsApp join failed: %s", err)
+        await asyncio.to_thread(wa_providers.line.send, digits, "Sorry, that didn't work. Ask your delivery company for a new invite code.")
+        return
+    wid, role, ref = user["workspaceId"], user["role"], user["ref"]
+    if url:
+        _base_urls[wid] = url.rstrip("/")
+
+    def apply(st):
+        # Give the rider or vendor this WhatsApp number if they had none, so ADA reaches them here.
+        for x in st.get("riders" if role == "rider" else "vendors" if role == "vendor" else "_", []):
+            if x.get("id") == ref and not x.get("phone"):
+                x["phone"] = "+" + digits
+        st.setdefault("messages", [])
+
+    await workspace.mutate(wid, apply, url)
+    home = {"rider": "/rider", "vendor": "/vendor"}.get(role, "/company")
+    link_url = await asyncio.to_thread(link_user, wid, user["id"], home)
+    first = (user["name"] or "").split(" ")[0]
+    what = {"rider": "Your drops will come here. Reply YES to take them, then COLLECTED, ARRIVED and DELIVERED as you go.",
+            "vendor": "Send your orders and stock here as you'd normally type them. Reply BALANCE or TODAY any time.",
+            "company": "Run the day from here: TODAY, DISPATCH, CASH… ADA asks before changing anything."}.get(role, "")
+    await asyncio.to_thread(wa_providers.line.send, digits, f"Welcome to {user['company']}{', ' + first if first else ''}! 🎉 You're in, with this WhatsApp number. {what}\n\nYour dashboard: {link_url}\nReply HELP any time.")
+
+
+ADDRESSED = re.compile(r"^\s*@?(ada|ada bot)\b[\s,:;.!-]*", re.I)
+
+
+def find_group(group_id: str) -> Optional[int]:
+    for wid, text in db.all("SELECT id, state::text FROM workspace WHERE state::text LIKE %s", (f"%{group_id}%",)):
+        try:
+            if any(g.get("id") == group_id for g in groups(json.loads(text))):
+                return int(wid)
+        except ValueError:
+            continue
+    return None
+
+
+async def receive_group(group_id: str, digits: str, text: str = "", media: Optional[Tuple[str, bytes]] = None, button: str = "", wa_id: str = "", url: str = "", name: str = "") -> None:
+    """A message in a team group ADA is in. Kept for the office; ADA answers when someone starts with "ADA" (or taps one of its buttons)."""
+    wid = await asyncio.to_thread(find_group, group_id)
+    if wid is None:
+        log.info("WhatsApp group message from a group no company has")
+        return
+    found = await asyncio.to_thread(find_contact, digits)
+    if not found or found[0] != wid:
+        def keep(st):
+            st.setdefault("messages", []).append({"id": uid("m"), "at": now_iso(), "read": False, "from": "guest", "text": text or "📷 Photo", "channel": "whatsapp",
+                                                  "groupId": group_id, "authorName": name or "+" + digits, "wa": {"status": "received", "id": wa_id}})
+        await workspace.mutate(wid, keep, url)
+        return
+    _, role, ref, who = found
+    if role == "customer":
+        return
+    hit = ADDRESSED.match(text or "")
+    addressed = bool(hit) or bool(button)
+    await receive_from(digits, text[hit.end():] if hit else text, media, button, wa_id, url, group=group_id, addressed=addressed, found=found)
+
+
+async def receive_from(digits: str, text: str = "", media: Optional[Tuple[str, bytes]] = None, button: str = "", wa_id: str = "", url: str = "", location: Optional[Dict[str, Any]] = None,
+                       group: Optional[str] = None, addressed: bool = True, found=None) -> None:
+    found = found or await asyncio.to_thread(find_contact, digits)
+    if not found and JOIN_WORDS.match(text or ""):
+        await join(digits, JOIN_WORDS.match(text).group(2), url)
+        return
+    if not found:
+        log.info("WhatsApp from a number that isn't linked to anyone")
+        await asyncio.to_thread(wa_providers.line.send, digits, "Hi! This number isn't linked to a Delivery account yet. Ask the delivery company you work with to add your WhatsApp number to your profile.")
+        return
+    wid, role, ref, who = found
+    photo = audio = read = None
+    if media and media[1]:
+        stored = await asyncio.to_thread(store_photo, wid, media[0], media[1])
+        if media[0].startswith("audio/"):
+            audio = stored
+            if not text and stt.ready():
+                heard = await asyncio.to_thread(stt.transcribe, media[0], media[1])
+                text = f"🎤 {heard}" if heard else ""
+        else:
+            photo = stored
+            if addressed:
+                read = await asyncio.to_thread(brain.read_image, media[0], media[1], role, text)
+    heard = text.startswith("🎤 ")
+    await receive(wid, role, ref, text[2:] if heard else text, photo, button, wa_id, who, url, audio=audio, location=location, heard=heard, read=read, group=group, addressed=addressed)
+    if wa_id:
+        await asyncio.to_thread(wa_providers.line.mark_read, wa_id)
+
+
+# ---------- routes ----------
+
+class Simulated(BaseModel):
+    contact: str = Field(max_length=80)
+    text: str = Field(default="", max_length=4000)
+    button: str = Field(default="", max_length=40)
+    image: Optional[str] = Field(default=None, max_length=9_000_000)
+    group: Optional[str] = Field(default=None, max_length=80)
+    channel: str = Field(default="whatsapp", pattern="^(whatsapp|call)$")
+
+
+class Settings(BaseModel):
+    enabled: Optional[bool] = None
+    autoReply: Optional[bool] = None
+    paused: Optional[Dict[str, bool]] = None
+    notify: Optional[Dict[str, bool]] = None
+
+
+DATA_URL = re.compile(r"^data:(image/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$")
+
+
+def router() -> APIRouter:
+    api = APIRouter(prefix="/api")
+
+    @api.get("/whatsapp/status")
+    def status(request: Request, user=Depends(auth.require_company)):
+        line = wa_providers.line
+        base = base_url(user["workspaceId"], str(request.base_url))
+        return {
+            "provider": line.name, "live": line.live, "ready": line.ready(), "missing": line.missing(),
+            "number": wa_providers.DISPLAY_NUMBER, "simulator": not line.live,
+            "webhook": f"{base}/api/whatsapp/{'twilio' if line.name == 'twilio' else 'webhook'}",
+            "claude": brain.ready(), "voiceNotes": stt.ready(), "calls": __import__("calls").ready(),
+            "groups": line.name in ("meta", "test"), "voiceWebhook": f"{base}/api/voice/incoming",
+        }
+
+    @api.post("/whatsapp/simulate")
+    async def simulate(body: Simulated, request: Request, user=Depends(auth.require_company)):
+        """The phone simulator on the company's WhatsApp page: a message as if this rider or vendor sent it."""
+        if wa_providers.line.live:
+            raise HTTPException(409, "The simulator is off while a real WhatsApp number is connected.")
+        role, _, ref = body.contact.partition(":")
+        if role == "staff":
+            ref = user["id"]  # the office side of the simulator is always you
+        if role not in ("rider", "vendor", "staff", "customer") or not ref:
+            raise HTTPException(400, "Pick a rider or vendor.")
+        photo = read = None
+        text = body.text.strip()
+        hit = ADDRESSED.match(text) if body.group else None
+        addressed = not body.group or bool(hit) or bool(body.button)
+        if hit:
+            text = text[hit.end():]
+        if body.image:
+            m = DATA_URL.match(body.image)
+            if not m:
+                raise HTTPException(400, "That photo can't be read.")
+            data = base64.b64decode(m.group(2))
+            photo = await asyncio.to_thread(store_photo, user["workspaceId"], m.group(1), data)
+            if addressed:
+                read = await asyncio.to_thread(brain.read_image, m.group(1), data, role, text)
+        if not (text or body.button or photo):
+            raise HTTPException(400, "Type a message.")
+        who = {"id": user["id"], "name": user["name"]} if role == "staff" else {}
+        reply = await receive(user["workspaceId"], role, ref, text, photo, body.button, f"sim-{secrets.token_hex(6)}", who, str(request.base_url),
+                              read=read, channel=body.channel, group=body.group, addressed=addressed)
+        return {"ok": True, "reply": reply}
+
+    @api.put("/whatsapp/settings")
+    async def save_settings(body: Settings, user=Depends(auth.require_company)):
+        patch = body.model_dump(exclude_none=True)
+
+        def apply(st):
+            w = dict((st.setdefault("company", {})).get("whatsapp") or {})
+            for k, v in patch.items():
+                w[k] = {**(w.get(k) or {}), **v} if isinstance(v, dict) else v
+            if "paused" in w:
+                w["paused"] = {k: True for k, v in w["paused"].items() if v}
+            st["company"]["whatsapp"] = w
+
+        await workspace.mutate(user["workspaceId"], apply)
+        return {"ok": True}
+
+    # Meta: the one-time check when the webhook is set up in the Meta app dashboard.
+    @api.get("/whatsapp/webhook")
+    def verify(request: Request):
+        q = request.query_params
+        line = wa_providers.line
+        if q.get("hub.mode") == "subscribe" and isinstance(line, wa_providers.Meta) and line.verify_token and q.get("hub.verify_token") == line.verify_token:
+            return PlainTextResponse(q.get("hub.challenge", ""))
+        raise HTTPException(403, "Wrong verify token.")
+
+    @api.post("/whatsapp/webhook")
+    async def meta_events(request: Request):
+        line = wa_providers.line
+        raw = await request.body()
+        if not isinstance(line, wa_providers.Meta) or not line.check_signature(raw, request.headers.get("x-hub-signature-256")):
+            raise HTTPException(403, "Bad signature.")
+        try:
+            body = json.loads(raw)
+        except ValueError:
+            return {"ok": True}
+        url = base_url(0, str(request.base_url))
+        for entry in body.get("entry", []):
+            for change in entry.get("changes", []):
+                val = change.get("value") or {}
+                if change.get("field") == "group_lifecycle_update":
+                    import groups as G
+
+                    await G.lifecycle(val)
+                    continue
+                for st in val.get("statuses", []):
+                    await status_update(st.get("id", ""), st.get("status", ""), (st.get("errors") or [{}])[0].get("title", ""))
+                for m in val.get("messages", []):
+                    if not await asyncio.to_thread(first_time, m.get("id", "")):
+                        continue
+                    kind = m.get("type")
+                    text, button, media = "", "", None
+                    if kind == "text":
+                        text = (m.get("text") or {}).get("body", "")
+                    elif kind == "interactive":
+                        rep = (m.get("interactive") or {}).get("button_reply") or (m.get("interactive") or {}).get("list_reply") or {}
+                        text, button = rep.get("title", ""), rep.get("id", "")
+                    elif kind == "button":
+                        text = button = (m.get("button") or {}).get("payload", "")
+                    elif kind == "image":
+                        text = (m.get("image") or {}).get("caption", "")
+                        media = await asyncio.to_thread(line.media, (m.get("image") or {}).get("id", ""))
+                    elif kind in ("audio", "voice"):
+                        media = await asyncio.to_thread(line.media, (m.get(kind) or {}).get("id", ""))
+                        if media and not media[0].startswith("audio/"):
+                            media = ("audio/ogg", media[1])
+                    elif kind == "location":
+                        loc = m.get("location") or {}
+                        place = {"lat": loc.get("latitude"), "lng": loc.get("longitude"), "name": loc.get("name") or loc.get("address") or ""}
+                        asyncio.get_running_loop().create_task(receive_from(intake.phone_digits(m.get("from")), "", None, "", m.get("id", ""), url, location=place))
+                        continue
+                    else:
+                        text = f"[{kind} message]"
+                    if m.get("group_id"):
+                        names = {c.get("wa_id"): (c.get("profile") or {}).get("name", "") for c in val.get("contacts", [])}
+                        asyncio.get_running_loop().create_task(receive_group(m["group_id"], intake.phone_digits(m.get("from")), text, media, button, m.get("id", ""), url, names.get(m.get("from"), "")))
+                        continue
+                    asyncio.get_running_loop().create_task(receive_from(intake.phone_digits(m.get("from")), text, media, button, m.get("id", ""), url))
+        return {"ok": True}
+
+    # Twilio: messages and delivery reports both arrive here as a form.
+    @api.post("/whatsapp/twilio")
+    async def twilio_events(request: Request):
+        line = wa_providers.line
+        raw = (await request.body()).decode()
+        params = dict(parse_qsl(raw, keep_blank_values=True))
+        url = str(request.url)
+        if request.headers.get("x-forwarded-proto") == "https":
+            url = url.replace("http://", "https://", 1)
+        if not isinstance(line, wa_providers.Twilio) or not line.check_signature(url, params, request.headers.get("x-twilio-signature")):
+            raise HTTPException(403, "Bad signature.")
+        if params.get("MessageStatus") and not params.get("Body") and not params.get("NumMedia"):
+            await status_update(params.get("MessageSid", ""), params["MessageStatus"], params.get("ErrorMessage", ""))
+            return Response(status_code=204)
+        sid = params.get("MessageSid", "")
+        if not await asyncio.to_thread(first_time, sid):
+            return Response(status_code=204)
+        media = None
+        mime = params.get("MediaContentType0", "")
+        if int(params.get("NumMedia") or 0) and (mime.startswith("image/") or mime.startswith("audio/")):
+            got = await asyncio.to_thread(line.media, params.get("MediaUrl0", ""))
+            media = (mime, got[1]) if got else None
+        place = None
+        if params.get("Latitude") and params.get("Longitude"):
+            place = {"lat": params["Latitude"], "lng": params["Longitude"], "name": params.get("Address") or params.get("Label") or ""}
+        digits = intake.phone_digits(params.get("From", "").replace("whatsapp:", ""))
+        base = base_url(0, str(request.base_url))
+        asyncio.get_running_loop().create_task(receive_from(digits, params.get("Body", ""), media, params.get("ButtonPayload", ""), sid, base, location=place))
+        return Response(status_code=204)
+
+    return api
+
+
+STATUS_ORDER = {"queued": 0, "sent": 1, "delivered": 2, "read": 3, "failed": 4, "undelivered": 4}
+
+
+async def status_update(provider_id: str, status: str, error: str = "") -> None:
+    """sent -> delivered -> read (or failed), from Meta or Twilio, onto the message in the workspace."""
+    if not provider_id or not status:
+        return
+    status = "failed" if status == "undelivered" else status
+    if status not in STATUS_ORDER:
+        return
+    rows = await asyncio.to_thread(db.all, "SELECT id FROM workspace WHERE state::text LIKE %s", (f"%{provider_id}%",))
+    for (wid,) in rows:
+        def apply(st):
+            hit = False
+            for m in st.get("messages", []):
+                wa = m.get("wa") or {}
+                if wa.get("id") == provider_id and STATUS_ORDER.get(status, 0) > STATUS_ORDER.get(wa.get("status"), 0):
+                    m["wa"] = {**wa, "status": status, **({"error": error} if error else {})}
+                    hit = True
+            return hit
+
+        await workspace.mutate(int(wid), apply)
+
+
+workspace.hooks.append(on_change)
