@@ -1,10 +1,12 @@
 // The company's WhatsApp page: every rider and vendor conversation in one inbox. ADA answers on WhatsApp by itself
 // (drops, "arrived", "delivered", orders, stock, balances); staff can read along, step in, and hand the chat back.
 // While no real WhatsApp number is connected, the phone simulator lets anyone try it as a rider or a vendor.
+// The office has its own chat with ADA too ("You · Office"): staff run the day from WhatsApp with the number on their
+// login, and ADA follows up first (nudges, the morning brief, the evening wrap). See backend/office.py and nudges.py.
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { CalendarCheck, Camera, Check, CheckCheck, Clock, Hand, MessageCircle, Send, Settings2, Smartphone, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
-import { api } from "./auth";
+import { api, useAuth } from "./auth";
 import { useWorkspace } from "./store";
 import { AdaMark, Avatar, Btn, Card, Empty, inputCls, Modal } from "./ui";
 import { clock, shrinkPhoto } from "./utils";
@@ -16,7 +18,7 @@ export function waSettings(state) {
   const w = (state.company && state.company.whatsapp) || {};
   return {
     enabled: w.enabled !== false, autoReply: w.autoReply !== false, paused: w.paused || {},
-    notify: { drops: true, riderUpdates: true, vendorDeliveries: true, vendorPayouts: true, vendorStock: true, ...(w.notify || {}) },
+    notify: { drops: true, riderUpdates: true, vendorDeliveries: true, vendorPayouts: true, vendorStock: true, nudges: true, staffBriefs: true, ...(w.notify || {}) },
   };
 }
 
@@ -41,22 +43,25 @@ export function Ticks({ m, dark = false }) {
   return <CheckCheck className={cn("inline h-3.5 w-3.5", wa.status === "read" ? "text-sky-400" : dark ? "text-white/60" : "")} />;
 }
 
-const theirs = (m) => m.from === "rider" || m.from === "vendor";
-const keyOf = (t) => (t.riderId ? `rider:${t.riderId}` : `vendor:${t.vendorId}`);
+const theirs = (m) => m.from === "rider" || m.from === "vendor" || m.from === "staff";
+const keyOf = (t) => (t.staffId ? "staff:me" : t.riderId ? `rider:${t.riderId}` : `vendor:${t.vendorId}`);
 
-function threadsOf(state) {
+function threadsOf(state, user) {
+  const office = user && user.role === "company" ? [{ key: `staff:${user.id}`, staffId: user.id, name: `${user.name || "You"} · Office`, color: "#0f1450", phone: user.phone, kind: "Office", first: "you" }] : [];
   return [
+    ...office,
     ...state.riders.map((r) => ({ key: `rider:${r.id}`, riderId: r.id, name: r.name, color: r.color, phone: r.phone, kind: "Rider", first: r.short || r.name })),
     ...state.vendors.map((v) => ({ key: `vendor:${v.id}`, vendorId: v.id, name: v.name, color: v.color, phone: v.phone, kind: "Vendor", first: (v.contact || v.name).split(" ")[0] })),
   ];
 }
-const inThread = (m, t) => (t.vendorId ? m.vendorId === t.vendorId : m.riderId === t.riderId && !m.vendorId);
+const inThread = (m, t) => (t.staffId ? m.staffId === t.staffId : t.vendorId ? m.vendorId === t.vendorId : m.riderId === t.riderId && !m.vendorId && !m.staffId);
 
 export default function WhatsAppInbox({ openDay }) {
   const { state, act } = useWorkspace();
   const status = useWaStatus();
+  const { user } = useAuth() || {};
   const s = waSettings(state);
-  const threads = useMemo(() => threadsOf(state), [state]);
+  const threads = useMemo(() => threadsOf(state, user), [state, user]);
   const lastAt = (t) => { const l = [...state.messages].reverse().find((m) => inThread(m, t)); return l ? l.at : ""; };
   const sorted = [...threads].sort((a, b) => (lastAt(a) < lastAt(b) ? 1 : -1));
   const [key, setKey] = useState("");
@@ -65,7 +70,8 @@ export default function WhatsAppInbox({ openDay }) {
   const [setup, setSetup] = useState(false);
   const th = threads.find((t) => t.key === key) || sorted[0];
   const thread = th ? state.messages.filter((m) => inThread(m, th)) : [];
-  const unreadIn = (t) => state.messages.filter((m) => inThread(m, t) && theirs(m) && !m.read).length;
+  // The office's own chat has nothing to mark read (and messages/read only knows rider and vendor chats).
+  const unreadIn = (t) => (t.staffId ? 0 : state.messages.filter((m) => inThread(m, t) && theirs(m) && !m.read).length);
   const openUnread = th ? unreadIn(th) : 0;
   const body = useRef(null);
   useEffect(() => { if (th && openUnread) act({ type: "messages/read", by: "company", riderId: th.riderId, vendorId: th.vendorId }); }, [th, openUnread, act]);
@@ -130,23 +136,25 @@ export default function WhatsAppInbox({ openDay }) {
               <div className="truncate text-[14.5px] font-semibold">{th.name}</div>
               <div className="text-[12px] text-neutral-500">{th.kind}{th.phone ? ` · ${th.phone}` : " · no WhatsApp number"}</div>
             </div>
-            {s.autoReply && (paused ? (
+            {s.autoReply && !th.staffId && (paused ? (
               <Btn size="sm" variant="ghost" onClick={() => save({ paused: { [th.key]: false } })} data-testid="wa-handback"><Sparkles className="h-4 w-4" /> Hand back to ADA</Btn>
             ) : (
               <Btn size="sm" onClick={() => save({ paused: { [th.key]: true } })} data-testid="wa-stepin"><Hand className="h-4 w-4" /> Step in</Btn>
             ))}
           </div>
           <div className={cn("flex items-center gap-2 px-5 py-2 text-[12.5px]", paused || !s.autoReply ? "bg-amber-50 text-amber-800" : "bg-emerald-50/70 text-emerald-800")}>
-            {paused || !s.autoReply ? <><Hand className="h-3.5 w-3.5" /> You're handling this chat. ADA won't answer {th.first} until you hand it back.</> : <><AdaMark size={16} /> ADA is answering {th.first} on WhatsApp. Step in any time.</>}
+            {th.staffId ? <><AdaMark size={16} /> Your own chat with ADA. Text {status && status.number ? status.number : "the business number"} from {th.phone || "the phone on your account"} to run the day: TODAY, DISPATCH, CASH, VERIFY TUNDE… ADA asks before changing anything.</>
+              : paused || !s.autoReply ? <><Hand className="h-3.5 w-3.5" /> You're handling this chat. ADA won't answer {th.first} until you hand it back.</> : <><AdaMark size={16} /> ADA is answering {th.first} on WhatsApp. Step in any time.</>}
           </div>
           <div ref={body} className="flex-1 space-y-2.5 overflow-y-auto bg-[#f4f1ec] p-4 sm:p-5" style={{ maxHeight: 560 }}>
             {thread.map((m) => <Bubble key={m.id} m={m} mine={!theirs(m)} day={dayOfMessage(state, m)} onDay={openDay} />)}
             {!thread.length && <Empty icon={MessageCircle} title="No messages yet" sub={th.phone ? `ADA will message ${th.first} here and on WhatsApp.` : `Add ${th.first}'s WhatsApp number under Team.`} />}
           </div>
-          <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { act({ type: "messages/send", messages: [{ riderId: th.riderId, vendorId: th.vendorId, from: "dispatcher", text: text.trim() }] }); setText(""); } }} className="flex gap-2 border-t border-neutral-100 p-3">
+          {!th.staffId && <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { act({ type: "messages/send", messages: [{ riderId: th.riderId, vendorId: th.vendorId, from: "dispatcher", text: text.trim() }] }); setText(""); } }} className="flex gap-2 border-t border-neutral-100 p-3">
             <input value={text} onChange={(e) => setText(e.target.value)} placeholder={`WhatsApp ${th.first}…`} className={`${inputCls} h-11 rounded-full px-4`} data-testid="wa-compose" />
             <Btn size="lg" className="h-11" type="submit" aria-label="Send"><Send className="h-4 w-4" /></Btn>
-          </form>
+          </form>}
+          {th.staffId && status && status.simulator && <div className="border-t border-neutral-100 p-3"><Btn size="sm" variant="green" onClick={() => setSim(true)}><Smartphone className="h-4 w-4" /> Try it in the phone simulator</Btn></div>}
         </div>
       </Card>
 
@@ -171,6 +179,7 @@ function Bubble({ m, mine, day, onDay }) {
       <div className={cn("rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-snug shadow-sm", mine ? (m.from === "ada" ? "rounded-br-md bg-[#0f1450] text-white" : "rounded-br-md bg-neutral-900 text-white") : "rounded-bl-md bg-white text-neutral-800")}>
         {who && <div className={cn("mb-0.5 flex items-center gap-1 text-[11px] font-bold", m.from === "ada" ? "text-sky-300" : "text-white/60")}>{m.from === "ada" && <AdaMark size={12} />}{who}</div>}
         {m.photo && <img src={m.photo} alt="" className="mb-1.5 max-h-56 rounded-xl object-cover" />}
+        <Media m={m} />
         <div className="whitespace-pre-line break-words">{m.text}</div>
         {!!(m.buttons && m.buttons.length) && (
           <div className="mt-2 flex flex-wrap gap-1.5">{m.buttons.map((b) => <span key={b.id} className="rounded-full bg-white/10 px-2.5 py-1 text-[11.5px] font-semibold text-white/85 ring-1 ring-white/15">{b.title}</span>)}</div>
@@ -187,6 +196,18 @@ function Bubble({ m, mine, day, onDay }) {
         {!mine && m.from && m.channel !== "whatsapp" && <span>· in the app</span>}
       </div>
     </div>
+  );
+}
+
+// A voice note to play, or a shared location to open in Maps.
+function Media({ m }) {
+  return (
+    <>
+      {m.audio && <audio controls src={m.audio} className="mb-1.5 h-10 w-60 max-w-full" data-testid="wa-audio" />}
+      {m.location && m.location.lat != null && (
+        <a href={`https://maps.google.com/?q=${m.location.lat},${m.location.lng}`} target="_blank" rel="noreferrer" className="mb-1.5 block text-[12.5px] font-semibold underline">Open location in Maps{m.location.name ? ` · ${m.location.name}` : ""}</a>
+      )}
+    </>
   );
 }
 
@@ -213,6 +234,8 @@ function SettingsModal({ open, onClose, s, save, status }) {
         <Toggle on={n.vendorDeliveries} onChange={(v) => save({ notify: { vendorDeliveries: v } })} label="Tell vendors each delivery" sub="Delivered, or couldn't deliver and why." />
         <Toggle on={n.vendorStock} onChange={(v) => save({ notify: { vendorStock: v } })} label="Tell vendors when stock is counted in" />
         <Toggle on={n.vendorPayouts} onChange={(v) => save({ notify: { vendorPayouts: v } })} label="Tell vendors about payouts" />
+        <Toggle on={n.nudges} onChange={(v) => save({ notify: { nudges: v } })} label="ADA follows up by itself" sub="Nudges riders who haven't answered or gone quiet, reminds them about cash, and tells the office who's still silent." />
+        <Toggle on={n.staffBriefs} onChange={(v) => save({ notify: { staffBriefs: v } })} label="Morning brief and evening wrap" sub="To everyone at the office with a WhatsApp number on their login." />
       </div>
       {status && !status.live && (
         <div className="mt-4 rounded-2xl bg-neutral-50 p-4 text-[13px] leading-relaxed text-neutral-600">
@@ -227,6 +250,7 @@ function SettingsModal({ open, onClose, s, save, status }) {
 /* ---------- The phone simulator: be a rider or vendor on WhatsApp ---------- */
 
 const RIDER_TRIES = ["Yes", "Collected", "Arrived", "Delivered", "Customer not picking calls", "How much did I earn today?", "Paid in ref TRF2231"];
+const OFFICE_TRIES = ["How far today?", "Dispatch", "GlowSkin dropped 40 serum", "Count in", "Cash", "What do we owe?", "Tell all riders to return unsold items by 6pm", "Login"];
 const VENDOR_TRIES = [
   "Tuesday orders\n1. Adaeze Nnaji 08035551234, 15 Adeniran Ogunsanya St Surulere, 2 serum, 25k\n2. Tayo 08123456677, 07012345678, 3 black soap, 10,500",
   "Sending 40 serum and 20 black soap tomorrow",
@@ -253,7 +277,7 @@ export function Simulator({ open, onClose, threads, start }) {
     setBusy(false);
   };
   const pick = async (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ""; if (f) send({ image: await shrinkPhoto(f, 1024) }); };
-  const tries = th.riderId ? RIDER_TRIES : VENDOR_TRIES;
+  const tries = th.staffId ? OFFICE_TRIES : th.riderId ? RIDER_TRIES : VENDOR_TRIES;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3 backdrop-blur-[3px]" onClick={onClose}>
       <div className="flex h-[min(820px,96dvh)] w-full max-w-[400px] flex-col overflow-hidden rounded-[40px] bg-black p-2.5 shadow-2xl" onClick={(e) => e.stopPropagation()} data-testid="wa-phone">
@@ -263,7 +287,7 @@ export function Simulator({ open, onClose, threads, start }) {
             <div className="min-w-0 flex-1">
               <div className="text-[15px] font-semibold">ADA · {state.company.name || "Delivery"}</div>
               <select value={th.key} onChange={(e) => setKey(e.target.value)} className="mt-0.5 max-w-full rounded-md bg-white/15 px-1.5 py-0.5 text-[12px] text-white outline-none" data-testid="wa-sim-as">
-                {threads.map((t) => <option key={t.key} value={t.key} className="text-neutral-900">You are {t.name} ({t.kind.toLowerCase()})</option>)}
+                {threads.map((t) => <option key={t.key} value={t.key} className="text-neutral-900">{t.staffId ? "You, at the office" : `You are ${t.name} (${t.kind.toLowerCase()})`}</option>)}
               </select>
             </div>
             <button onClick={onClose} aria-label="Close" className="grid h-9 w-9 place-items-center rounded-full bg-white/10"><X className="h-5 w-5" /></button>
@@ -276,6 +300,7 @@ export function Simulator({ open, onClose, threads, start }) {
                 <div key={m.id} className={cn("max-w-[86%]", me ? "ml-auto" : "")}>
                   <div className={cn("rounded-xl px-3 py-2 text-[13.5px] leading-snug text-neutral-900 shadow-sm", me ? "rounded-tr-sm bg-[#d9fdd3]" : "rounded-tl-sm bg-white")}>
                     {m.photo && <img src={m.photo} alt="" className="mb-1.5 max-h-48 rounded-lg object-cover" />}
+                    <Media m={m} />
                     <Linked text={m.waText || m.text} />
                     <div className="mt-0.5 flex items-center justify-end gap-1 text-[10.5px] text-neutral-500">{clock(m.at)}{me && <CheckCheck className="h-3.5 w-3.5 text-sky-500" />}</div>
                   </div>

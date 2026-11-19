@@ -29,6 +29,7 @@ from starlette.middleware.cors import CORSMiddleware
 import auth
 import intake
 import whatsapp
+import nudges
 import workspace
 from db import db
 
@@ -172,6 +173,11 @@ async def read_intake(body: IntakeRequest, user=Depends(auth.require_user)):
     vendor = user["ref"] if user["role"] == "vendor" else body.vendorId
     orders = intake.read_orders(state or {}, body.text, vendor or "", today=datetime.now(whatsapp.TZ).date())
     return {"orders": orders}
+
+
+@app.on_event("startup")
+async def start_follow_ups() -> None:
+    nudges.start()  # ADA's own follow-ups on WhatsApp (backend/nudges.py)
 
 
 @app.on_event("startup")

@@ -177,12 +177,14 @@ with TestClient(server.app) as c:
     assert res["orders"][0]["customer"] == "Bola" and res["orders"][0]["items"][0]["productId"] == "p-serum"
 
     # 15. A real Meta webhook: signature, number lookup, button reply
-    sent = []
+    sent, read = [], []
     class FakeMeta(wa_providers.Meta):
         def __init__(self):
             super().__init__(); self.verify_token = "vt"; self.secret = "s3cret"
         def send(self, to, text, buttons=None, outside_window=False, image=""):
             sent.append((to, text, outside_window)); return wa_providers.Result(id=f"wamid.{len(sent)}", status="sent")
+        def mark_read(self, message_id):
+            read.append(message_id)
     wa_providers.line = FakeMeta()
     assert c.get("/api/whatsapp/webhook", params={"hub.mode": "subscribe", "hub.verify_token": "vt", "hub.challenge": "42"}).text == "42"
     body = json.dumps({"entry": [{"changes": [{"value": {"messages": [{"from": "2348065529010", "id": "wamid.in1", "type": "text", "text": {"body": "help"}}]}}]}]}).encode()
@@ -197,6 +199,7 @@ with TestClient(server.app) as c:
     ok(c.post("/api/whatsapp/webhook", content=body2, headers={"x-hub-signature-256": "sha256=" + hmac.new(b"s3cret", body2, hashlib.sha256).hexdigest(), "content-type": "application/json"}))
     st = wait(c, lambda s: last(s, "riderId", "r-amaka")["from"] == "ada" and (last(s, "riderId", "r-amaka").get("wa") or {}).get("status") == "sent", "webhook reply")
     assert sent and sent[-1][0] == "2348065529010" and "I'm ADA" in sent[-1][1] and not sent[-1][2], sent
+    assert "wamid.in2" in read, read  # blue ticks on Amaka's phone
     wid = last(st, "riderId", "r-amaka")["wa"]["id"]
     body3 = json.dumps({"entry": [{"changes": [{"value": {"statuses": [{"id": wid, "status": "read"}]}}]}]}).encode()
     ok(c.post("/api/whatsapp/webhook", content=body3, headers={"x-hub-signature-256": "sha256=" + hmac.new(b"s3cret", body3, hashlib.sha256).hexdigest(), "content-type": "application/json"}))

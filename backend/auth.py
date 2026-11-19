@@ -548,6 +548,14 @@ def login_for(workspace_id: int, role: str, ref: str, name: str = "") -> Optiona
     return uid
 
 
+def make_user_link(user_id: str, target: str, base: str) -> str:
+    """A one-tap link for one login (staff at the office have no rider or vendor ref)."""
+    token = secrets.token_urlsafe(18)
+    db.execute("INSERT INTO links (token_hash, user_id, target, created_at, expires_at) VALUES (%s, %s, %s, %s, %s)",
+               (token_hash(token), user_id, target, now(), now() + LINK_HOURS * 3600))
+    return f"{base.rstrip('/')}/api/auth/link/{token}"
+
+
 def make_link(workspace_id: int, role: str, ref: str, target: str, base: str, name: str = "") -> str:
     """A one-tap link for WhatsApp. Without a login yet it opens the sign-in page, then the target."""
     base = base.rstrip("/")
