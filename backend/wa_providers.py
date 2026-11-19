@@ -65,6 +65,9 @@ class TestLine:
     def send(self, to: str, text: str, buttons: Optional[List[Button]] = None, outside_window: bool = False, image: str = "") -> Result:
         return Result(id=f"test-{secrets.token_hex(6)}", status="delivered")
 
+    def mark_read(self, message_id: str) -> None:
+        return None
+
 
 class Meta:
     name = "meta"
@@ -116,6 +119,16 @@ class Meta:
         err = (data.get("error") or {}).get("message") or raw[:200].decode(errors="replace")
         log.warning("WhatsApp (Meta) send failed %s: %s", status, err)
         return Result(id="", status="failed", error=err)
+
+    def mark_read(self, message_id: str) -> None:
+        """Blue ticks on the sender's phone, so they can see ADA has read it."""
+        if not message_id:
+            return
+        url = f"https://graph.facebook.com/{self.version}/{self.phone_id}/messages"
+        body = json.dumps({"messaging_product": "whatsapp", "status": "read", "message_id": message_id}).encode()
+        status, raw = http("POST", url, body, {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}, timeout=10)
+        if not 200 <= status < 300:
+            log.info("WhatsApp (Meta) mark read failed %s", status)
 
     def check_signature(self, raw: bytes, header: Optional[str]) -> bool:
         if not self.secret:
@@ -177,6 +190,9 @@ class Twilio:
         err = data.get("message") or raw[:200].decode(errors="replace")
         log.warning("WhatsApp (Twilio) send failed %s: %s", status, err)
         return Result(id="", status="failed", error=err)
+
+    def mark_read(self, message_id: str) -> None:
+        return None  # Twilio shows read receipts by itself
 
     def check_signature(self, url: str, params: Dict[str, str], header: Optional[str]) -> bool:
         payload = url + "".join(k + params[k] for k in sorted(params))

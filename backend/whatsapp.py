@@ -6,7 +6,14 @@ ARRIVED, DELIVERED, and tap one link to take the doorstep photo in the app.
 
   Riders   new drops (Accept / Can't take it), collect, arrive, deliver with the amount, problems, earnings, cash paid in
   Vendors  send orders or stock as a chat message; get "delivered", "couldn't deliver", stock counted and payouts back
-  Company  every conversation shows on the WhatsApp page; staff can step in, and ADA goes quiet in that chat
+  Company  every conversation shows on the WhatsApp page; staff can step in, and ADA goes quiet in that chat.
+           Staff with a WhatsApp number on their login run the day by texting ADA too (office.py), and ADA follows
+           up by itself: nudges, a morning brief and an evening wrap (nudges.py).
+  Customers  on the way / at your door / delivered, and they can confirm, report a problem or move the day
+           (customers.py; off until the company turns on "Message customers").
+  Anyone   LOGIN for a one-tap link to their dashboard; voice notes are typed out when a speech-to-text key is set
+           (stt.py) and kept for the office to play; a new rider, vendor or staff member joins by texting JOIN and
+           their invite code.
 
 How it fits: workspace.py calls on_change() after every save. New office messages and things worth telling someone
 (a drop given to a rider, a delivery done, a payout) become WhatsApp messages marked "queued" in the workspace; the
@@ -30,6 +37,7 @@ from pydantic import BaseModel, Field
 
 import auth
 import intake
+import stt
 import wa_providers
 import workspace
 from db import db, now
@@ -152,6 +160,10 @@ def settings(state) -> Dict[str, Any]:
 
 
 def key_of(m) -> Optional[str]:
+    if m.get("staffId"):
+        return f"staff:{m['staffId']}"
+    if m.get("customerId"):
+        return f"customer:{m['customerId']}"
     if m.get("riderId"):
         return f"rider:{m['riderId']}"
     if m.get("vendorId"):
@@ -161,12 +173,35 @@ def key_of(m) -> Optional[str]:
 
 def person(state, key: str) -> Optional[Dict[str, Any]]:
     role, _, ref = key.partition(":")
+    if role == "staff":
+        return staff_person(ref)
+    if role == "customer":
+        import customers
+
+        return customers.person(state, ref)
     lst = state.get("riders" if role == "rider" else "vendors", [])
     rec = next((x for x in lst if x.get("id") == ref), None)
     if not rec:
         return None
     first = (rec.get("short") or rec.get("contact") or rec.get("name") or "").split(" ")[0]
     return {"role": role, "ref": ref, "name": rec.get("name", ""), "first": first, "phone": intake.phone_digits(rec.get("phone"))}
+
+
+def staff_person(user_id: str) -> Optional[Dict[str, Any]]:
+    """A company login: the owner or someone on the office team. Their WhatsApp is the phone on their profile."""
+    try:
+        row = db.one("SELECT name, phone FROM users WHERE id = %s AND role = 'company'", (user_id,))
+    except Exception:
+        row = None
+    if not row:
+        return None
+    return {"role": "staff", "ref": user_id, "id": user_id, "name": row[0] or "", "first": (row[0] or "").split(" ")[0], "phone": intake.phone_digits(row[1])}
+
+
+def staff_of(wid: int) -> List[Dict[str, Any]]:
+    """Everyone at the office who can hear from ADA on WhatsApp."""
+    rows = db.all("SELECT id, name, phone FROM users WHERE workspace_id = %s AND role = 'company' AND demo = 0 AND phone IS NOT NULL", (wid,))
+    return [{"role": "staff", "ref": r[0], "id": r[0], "name": r[1] or "", "first": (r[1] or "").split(" ")[0], "phone": intake.phone_digits(r[2])} for r in rows if r[2]]
 
 
 def contacts(state) -> Dict[str, Any]:
@@ -188,10 +223,19 @@ def link(wid: int, role: str, ref: str, target: str, name: str = "") -> str:
         return f"{base_url(wid)}{target}"
 
 
+def link_user(wid: int, user_id: str, target: str) -> str:
+    """A one-tap link that signs this login in and opens target (staff have no rider or vendor ref)."""
+    try:
+        return auth.make_user_link(user_id, target, base_url(wid))
+    except Exception as err:
+        log.warning("Could not make a sign-in link: %s", err)
+        return f"{base_url(wid)}{target}"
+
+
 def office_message(key: str, text: str, kind: str = "", buttons=None, wa_text: str = "", **extra) -> Dict[str, Any]:
     role, _, ref = key.partition(":")
     m = {"id": uid("m"), "at": now_iso(), "read": False, "from": "ada", "text": text, "channel": "whatsapp", "wa": {"status": "queued"}, **extra}
-    m["riderId" if role == "rider" else "vendorId"] = ref
+    m[{"rider": "riderId", "vendor": "vendorId", "staff": "staffId", "customer": "customerId"}.get(role, "vendorId")] = ref
     if kind:
         m["kind"] = kind
     if buttons:
@@ -286,6 +330,9 @@ def plan(state_before, after, wid) -> Tuple[List[str], List[Dict[str, Any]]]:
             settled.setdefault(vid, []).append(t)
         if not (o.get("payment") or {}).get("handInVerified") and (t.get("payment") or {}).get("handInVerified") and rid:
             verified.setdefault(rid, []).append(t)
+    import customers
+
+    new += customers.updates(state_before, after)
     if s["notify"]["vendorDeliveries"]:
         new += planned_notices(state_before, after)
         new += day_wraps(state_before, after)
@@ -698,7 +745,7 @@ RIDER_HELP = ("Hi {first}, I'm ADA, the office assistant. You can reply:\n"
               "YES / NO — take or turn down new drops\nCOLLECTED — you have the parcels\nARRIVED — you're at the customer\n"
               "DELIVERED 25000 CASH — done, with what you collected\nPROBLEM — couldn't deliver\nNEXT — your drops today\n"
               "EARNINGS — what you've made\nPAID IN — you paid cash into the company account\n"
-              "RECORD — your day; RECORD YESTERDAY or RECORD 12 NOV for another day\nAnything else goes to the office.")
+              "RECORD — your day; RECORD YESTERDAY or RECORD 12 NOV for another day\nLOGIN — open the app\nAnything else goes to the office.")
 
 
 def amount_buttons(t) -> List[Dict[str, str]]:
@@ -877,6 +924,7 @@ VENDOR_HELP = ("Hi {first}, I'm ADA from {company}. Send me:\n"
                "• Stock you're sending, e.g. \"Sending 50 serum and 20 black soap\".\n"
                "BALANCE — what we owe you and payouts\nTODAY — how today's deliveries are going\nCANCEL ORD-3310 — call off an order\n"
                "RECORD YESTERDAY, RECORD 12 NOV or RECORD ORD-3310 — who delivered what and when, with photos\n"
+               "LOGIN — open your dashboard\n"
                "Anything else goes to the office.")
 
 
@@ -976,9 +1024,12 @@ def find_contact(digits: str) -> Optional[Tuple[int, str, str, Dict[str, Any]]]:
     """Which company, and which rider or vendor, a WhatsApp number belongs to."""
     if not digits:
         return None
-    row = db.one("SELECT id, workspace_id, role, ref, name FROM users WHERE phone = %s AND role IN ('rider', 'vendor') ORDER BY last_seen DESC", ("+" + digits,))
+    row = db.one("SELECT id, workspace_id, role, ref, name FROM users WHERE phone = %s AND role IN ('rider', 'vendor', 'company') AND demo = 0 ORDER BY last_seen DESC", ("+" + digits,))
+    if row and row[2] == "company":
+        return row[1], "staff", row[0], {"id": row[0], "name": row[4]}
     if row and row[3]:
         return row[1], row[2], row[3], {"id": row[0], "name": row[4]}
+    customer = None
     for wid, text in db.all("SELECT id, state::text FROM workspace"):
         try:
             st = json.loads(text)
@@ -988,6 +1039,12 @@ def find_contact(digits: str) -> Optional[Tuple[int, str, str, Dict[str, Any]]]:
             for x in lst:
                 if intake.phone_digits(x.get("phone")) == digits:
                     return int(wid), role, x["id"], {"id": None, "name": x.get("contact") or x.get("name")}
+        # A customer: the number is on one of this company's deliveries (the most recent company wins).
+        days = [t.get("date") or "" for t in st.get("tasks", []) if intake.phone_digits(t.get("phone")) == digits]
+        if days and (not customer or max(days) > customer[0]):
+            customer = (max(days), int(wid), next(t.get("customer") for t in st["tasks"] if intake.phone_digits(t.get("phone")) == digits))
+    if customer:
+        return customer[1], "customer", digits, {"id": None, "name": customer[2]}
     return None
 
 
@@ -1006,8 +1063,28 @@ def first_time(digits: str) -> bool:
         return False
 
 
-async def receive(wid: int, role: str, ref: str, text: str = "", photo: Optional[str] = None, button: str = "", wa_id: str = "", who: Optional[Dict[str, Any]] = None, url: str = "") -> None:
-    """One message from a rider or vendor: shown in the office's inbox, acted on by ADA, answered."""
+LOGIN_WORDS = re.compile(r"^\W*(login|log ?in|sign ?in|dashboard|my dashboard|open (the )?app|app( link)?|link|open dashboard|web)\W*$", re.I)
+VOICE_REPLY = ("🎤 Got your voice note. The office can play it, but I can't listen to voice notes yet, so please type it too "
+               "if it's for me (e.g. {example}).")
+VOICE_EXAMPLE = {"rider": "DELIVERED 25000 CASH", "vendor": "BALANCE", "staff": "TODAY"}
+
+
+def login_reply(wid: int, st, role: str, ref: str) -> str:
+    if role == "staff":
+        return f"🔐 Your dashboard, signed in: {link_user(wid, ref, '/company')}\nThe link works once, for a day."
+    p = person(st, f"{role}:{ref}") or {}
+    url = link(wid, role, ref, "/" + role, p.get("name", ""))
+    if "/api/auth/link/" not in url:  # no login yet: the office sends an invite from Team
+        return f"🔐 Open your dashboard here: {url}\nNo account yet? Ask the office for your invite code."
+    return f"🔐 Your dashboard, signed in: {url}\nThe link works once, for a day."
+
+
+async def receive(wid: int, role: str, ref: str, text: str = "", photo: Optional[str] = None, button: str = "", wa_id: str = "", who: Optional[Dict[str, Any]] = None, url: str = "",
+                  audio: Optional[str] = None, location: Optional[Dict[str, Any]] = None, heard: bool = False) -> None:
+    """One message from a rider, vendor, customer or someone at the office: shown in the inbox, acted on by ADA, answered."""
+    import customers
+    import office
+
     if url:
         _base_urls[wid] = url.rstrip("/")
     who = who or {}
@@ -1019,14 +1096,46 @@ async def receive(wid: int, role: str, ref: str, text: str = "", photo: Optional
             rough = {**rough, **{k: v for k, v in smart.items() if v not in (None, "")}}
     if rough is not None:
         rough["text"] = text
+    staff_intent, staff_text = "", text
+    if role == "staff":
+        staff_intent = office.office_intent(text, button)
+        if staff_intent == "unknown" and text and not (photo or audio):
+            smart = await asyncio.to_thread(office.claude_office, text)
+            if smart and smart["intent"] != "unknown":
+                staff_intent, staff_text = smart["intent"], smart["text"]
+        staff = await asyncio.to_thread(staff_person, ref)
+        who = {**(staff or {}), **{k: v for k, v in who.items() if v}}
+    vendor_smart = None
+    if role == "vendor" and text and not button and vendor_intent({"products": [], "orders": []}, ref, text)["intent"] == "unknown" and not intake.looks_like_orders(text):
+        vendor_smart = await asyncio.to_thread(claude_intent, "vendor", text)
+    wants_login = bool(LOGIN_WORDS.match(text or "")) or button == "LOGIN"
 
     def apply(st):
-        if not person(st, key):
+        if role == "staff":
+            if not who.get("id"):
+                return False
+        elif not person(st, key):
             return False
-        msg = {"id": uid("m"), "at": now_iso(), "read": False, "from": role, "text": text or ("📷 Photo" if photo else ""), "channel": "whatsapp", "wa": {"status": "received", "id": wa_id}}
-        msg["riderId" if role == "rider" else "vendorId"] = ref
+        label = "📷 Photo" if photo else "🎤 Voice note" if audio else "📍 Location" if location else ""
+        msg = {"id": uid("m"), "at": now_iso(), "read": False, "from": role, "text": text or label, "channel": "whatsapp", "wa": {"status": "received", "id": wa_id}}
+        msg[{"rider": "riderId", "vendor": "vendorId", "staff": "staffId", "customer": "customerId"}[role]] = ref
+        if role == "customer":
+            t = customers.current_task(st, ref)
+            msg["taskId"] = t.get("id") if t else None
+        if role == "staff":
+            msg["staffName"] = who.get("name") or ""
         if photo:
             msg["photo"] = photo
+        if audio:
+            msg["audio"] = audio
+            if heard:
+                msg["transcribed"] = True
+        if location:
+            msg["location"] = location
+            if role == "rider":
+                for r in st.get("riders", []):
+                    if r.get("id") == ref:
+                        r["location"] = {**location, "at": now_iso()}
         if button:
             msg["button"] = button
         if who.get("name") and role == "vendor":
@@ -1037,10 +1146,33 @@ async def receive(wid: int, role: str, ref: str, text: str = "", photo: Optional
         s = settings(st)
         if not s["enabled"] or not s["autoReply"] or s["paused"].get(key):
             return
-        if role == "rider":
+        if role == "customer":
+            if not customers.enabled(st):
+                return  # kept for the office; ADA only talks to customers once the company turns it on
+            out = customers.awaiting_turn(st, wid, ref, text or ("📷 Photo" if photo else "")) or customers.turn(st, wid, ref, customers.intent(text, button), text)
+            if out is None:
+                if now() - (memo.get("passedAt") or 0) < 600:
+                    return
+                memo["passedAt"] = now()
+                out = ("Thanks, I've passed your message to the team.", None)
+            st["messages"].append(office_message(key, out[0], kind="reply", buttons=out[1]))
+            return
+        if wants_login:
+            out = (login_reply(wid, st, role, ref), None)
+        elif audio and not text:
+            out = (VOICE_REPLY.format(example=VOICE_EXAMPLE[role]), None)
+        elif location and not text:
+            out = ("📍 Thanks, the office can see where you are now." if role == "rider" else "📍 Got your location.", None)
+        elif role == "staff":
+            out = office.office_turn(st, wid, who, staff_intent, staff_text, memo)
+            if out is None:
+                out = ("I didn't catch that. Reply HELP to see what I can do, or LOGIN to open the dashboard.", [{"id": "TODAY", "title": "Today"}])
+        elif role == "rider":
             out = rider_turn(st, wid, ref, rough, photo, memo)
         else:
             it = vendor_intent(st, ref, text, button)
+            if it["intent"] == "unknown" and vendor_smart and vendor_smart["intent"] in ("balance", "today", "record", "help"):
+                it = {"intent": vendor_smart["intent"]}
             out = vendor_turn(st, wid, ref, it, text, who)
         if out is None:
             last = memo.get("passedAt") or 0
@@ -1054,15 +1186,65 @@ async def receive(wid: int, role: str, ref: str, text: str = "", photo: Optional
     await workspace.mutate(wid, apply, url)
 
 
-async def receive_from(digits: str, text: str = "", media: Optional[Tuple[str, bytes]] = None, button: str = "", wa_id: str = "", url: str = "") -> None:
+JOIN_WORDS = re.compile(r"^\W*(join|code|invite|my code is|register)?\W*([A-HJ-NP-Z2-9]{6})\W*$", re.I)
+
+
+async def join(digits: str, code: str, url: str = "") -> None:
+    """A new rider, vendor or staff member texts their invite code: their login is made with this number."""
+    try:
+        user = await asyncio.to_thread(auth.join_by_whatsapp, code, "+" + digits)
+    except ValueError as err:
+        await asyncio.to_thread(wa_providers.line.send, digits, f"{err}")
+        return
+    except Exception as err:  # e.g. a number that can't be a phone
+        log.info("WhatsApp join failed: %s", err)
+        await asyncio.to_thread(wa_providers.line.send, digits, "Sorry, that didn't work. Ask your delivery company for a new invite code.")
+        return
+    wid, role, ref = user["workspaceId"], user["role"], user["ref"]
+    if url:
+        _base_urls[wid] = url.rstrip("/")
+
+    def apply(st):
+        # Give the rider or vendor this WhatsApp number if they had none, so ADA reaches them here.
+        for x in st.get("riders" if role == "rider" else "vendors" if role == "vendor" else "_", []):
+            if x.get("id") == ref and not x.get("phone"):
+                x["phone"] = "+" + digits
+        st.setdefault("messages", [])
+
+    await workspace.mutate(wid, apply, url)
+    home = {"rider": "/rider", "vendor": "/vendor"}.get(role, "/company")
+    link_url = await asyncio.to_thread(link_user, wid, user["id"], home)
+    first = (user["name"] or "").split(" ")[0]
+    what = {"rider": "Your drops will come here. Reply YES to take them, then COLLECTED, ARRIVED and DELIVERED as you go.",
+            "vendor": "Send your orders and stock here as you'd normally type them. Reply BALANCE or TODAY any time.",
+            "company": "Run the day from here: TODAY, DISPATCH, CASH… ADA asks before changing anything."}.get(role, "")
+    await asyncio.to_thread(wa_providers.line.send, digits, f"Welcome to {user['company']}{', ' + first if first else ''}! 🎉 You're in, with this WhatsApp number. {what}\n\nYour dashboard: {link_url}\nReply HELP any time.")
+
+
+async def receive_from(digits: str, text: str = "", media: Optional[Tuple[str, bytes]] = None, button: str = "", wa_id: str = "", url: str = "", location: Optional[Dict[str, Any]] = None) -> None:
     found = await asyncio.to_thread(find_contact, digits)
+    if not found and JOIN_WORDS.match(text or ""):
+        await join(digits, JOIN_WORDS.match(text).group(2), url)
+        return
     if not found:
         log.info("WhatsApp from a number that isn't linked to anyone")
         await asyncio.to_thread(wa_providers.line.send, digits, "Hi! This number isn't linked to a Delivery account yet. Ask the delivery company you work with to add your WhatsApp number to your profile.")
         return
     wid, role, ref, who = found
-    photo = await asyncio.to_thread(store_photo, wid, media[0], media[1]) if media and media[1] else None
-    await receive(wid, role, ref, text, photo, button, wa_id, who, url)
+    photo = audio = None
+    if media and media[1]:
+        stored = await asyncio.to_thread(store_photo, wid, media[0], media[1])
+        if media[0].startswith("audio/"):
+            audio = stored
+            if not text and stt.ready():
+                heard = await asyncio.to_thread(stt.transcribe, media[0], media[1])
+                text = f"🎤 {heard}" if heard else ""
+        else:
+            photo = stored
+    heard = text.startswith("🎤 ")
+    await receive(wid, role, ref, text[2:] if heard else text, photo, button, wa_id, who, url, audio=audio, location=location, heard=heard)
+    if wa_id:
+        await asyncio.to_thread(wa_providers.line.mark_read, wa_id)
 
 
 # ---------- routes ----------
@@ -1104,7 +1286,9 @@ def router() -> APIRouter:
         if wa_providers.line.live:
             raise HTTPException(409, "The simulator is off while a real WhatsApp number is connected.")
         role, _, ref = body.contact.partition(":")
-        if role not in ("rider", "vendor") or not ref:
+        if role == "staff":
+            ref = user["id"]  # the office side of the simulator is always you
+        if role not in ("rider", "vendor", "staff", "customer") or not ref:
             raise HTTPException(400, "Pick a rider or vendor.")
         photo = None
         if body.image:
@@ -1114,7 +1298,8 @@ def router() -> APIRouter:
             photo = await asyncio.to_thread(store_photo, user["workspaceId"], m.group(1), base64.b64decode(m.group(2)))
         if not (body.text.strip() or body.button or photo):
             raise HTTPException(400, "Type a message.")
-        await receive(user["workspaceId"], role, ref, body.text.strip(), photo, body.button, f"sim-{secrets.token_hex(6)}", {}, str(request.base_url))
+        who = {"id": user["id"], "name": user["name"]} if role == "staff" else {}
+        await receive(user["workspaceId"], role, ref, body.text.strip(), photo, body.button, f"sim-{secrets.token_hex(6)}", who, str(request.base_url))
         return {"ok": True}
 
     @api.put("/whatsapp/settings")
@@ -1172,6 +1357,15 @@ def router() -> APIRouter:
                     elif kind == "image":
                         text = (m.get("image") or {}).get("caption", "")
                         media = await asyncio.to_thread(line.media, (m.get("image") or {}).get("id", ""))
+                    elif kind in ("audio", "voice"):
+                        media = await asyncio.to_thread(line.media, (m.get(kind) or {}).get("id", ""))
+                        if media and not media[0].startswith("audio/"):
+                            media = ("audio/ogg", media[1])
+                    elif kind == "location":
+                        loc = m.get("location") or {}
+                        place = {"lat": loc.get("latitude"), "lng": loc.get("longitude"), "name": loc.get("name") or loc.get("address") or ""}
+                        asyncio.get_running_loop().create_task(receive_from(intake.phone_digits(m.get("from")), "", None, "", m.get("id", ""), url, location=place))
+                        continue
                     else:
                         text = f"[{kind} message]"
                     asyncio.get_running_loop().create_task(receive_from(intake.phone_digits(m.get("from")), text, media, button, m.get("id", ""), url))
@@ -1195,11 +1389,16 @@ def router() -> APIRouter:
         if not await asyncio.to_thread(first_time, sid):
             return Response(status_code=204)
         media = None
-        if int(params.get("NumMedia") or 0) and params.get("MediaContentType0", "").startswith("image/"):
-            media = await asyncio.to_thread(line.media, params.get("MediaUrl0", ""))
+        mime = params.get("MediaContentType0", "")
+        if int(params.get("NumMedia") or 0) and (mime.startswith("image/") or mime.startswith("audio/")):
+            got = await asyncio.to_thread(line.media, params.get("MediaUrl0", ""))
+            media = (mime, got[1]) if got else None
+        place = None
+        if params.get("Latitude") and params.get("Longitude"):
+            place = {"lat": params["Latitude"], "lng": params["Longitude"], "name": params.get("Address") or params.get("Label") or ""}
         digits = intake.phone_digits(params.get("From", "").replace("whatsapp:", ""))
         base = base_url(0, str(request.base_url))
-        asyncio.get_running_loop().create_task(receive_from(digits, params.get("Body", ""), media, params.get("ButtonPayload", ""), sid, base))
+        asyncio.get_running_loop().create_task(receive_from(digits, params.get("Body", ""), media, params.get("ButtonPayload", ""), sid, base, location=place))
         return Response(status_code=204)
 
     return api
