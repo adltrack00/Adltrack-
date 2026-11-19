@@ -60,7 +60,7 @@ export function QuickAdd({ onPick }) {
 const HOURS = Array.from({ length: 15 }, (_, i) => 7 + i); // 7am to 9pm
 const ROW = 56;
 
-export function CalendarPage() {
+export function CalendarPage({ openDay }) {
   const { state } = useWorkspace();
   const [anchor, setAnchor] = useState(new Date());
   const [view, setView] = useState(() => (typeof window !== "undefined" && window.innerWidth < 768 ? "day" : "week"));
@@ -126,6 +126,9 @@ export function CalendarPage() {
           </div>
           <div className="mx-auto px-2 text-[19px] font-bold tracking-tight sm:text-[22px]" data-testid="cal-title">{title}</div>
           <Chips className="[&>button]:h-10" options={[["day", "Day"], ["week", "Week"]]} value={view} onChange={setView} />
+          {openDay && view === "day" && isoOf(anchor) <= today && (
+            <button onClick={() => openDay(isoOf(anchor))} className="h-10 rounded-full bg-black px-4 text-[13.5px] font-semibold text-white hover:bg-neutral-800" data-testid="cal-day-record">Everything that happened ›</button>
+          )}
         </div>
         <div className="mt-4 overflow-x-auto">
           <div className={cn(view === "week" ? "min-w-[760px]" : "min-w-0")}>
