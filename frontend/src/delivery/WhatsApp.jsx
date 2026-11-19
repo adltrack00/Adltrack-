@@ -18,7 +18,7 @@ export function waSettings(state) {
   const w = (state.company && state.company.whatsapp) || {};
   return {
     enabled: w.enabled !== false, autoReply: w.autoReply !== false, paused: w.paused || {},
-    notify: { drops: true, riderUpdates: true, vendorDeliveries: true, vendorPayouts: true, vendorStock: true, nudges: true, staffBriefs: true, ...(w.notify || {}) },
+    notify: { drops: true, riderUpdates: true, vendorDeliveries: true, vendorPayouts: true, vendorStock: true, nudges: true, staffBriefs: true, customers: false, ...(w.notify || {}) },
   };
 }
 
@@ -43,8 +43,8 @@ export function Ticks({ m, dark = false }) {
   return <CheckCheck className={cn("inline h-3.5 w-3.5", wa.status === "read" ? "text-sky-400" : dark ? "text-white/60" : "")} />;
 }
 
-const theirs = (m) => m.from === "rider" || m.from === "vendor" || m.from === "staff";
-const keyOf = (t) => (t.staffId ? "staff:me" : t.riderId ? `rider:${t.riderId}` : `vendor:${t.vendorId}`);
+const theirs = (m) => m.from === "rider" || m.from === "vendor" || m.from === "staff" || m.from === "customer";
+const keyOf = (t) => (t.staffId ? "staff:me" : t.customerId ? `customer:${t.customerId}` : t.riderId ? `rider:${t.riderId}` : `vendor:${t.vendorId}`);
 
 function threadsOf(state, user) {
   const office = user && user.role === "company" ? [{ key: `staff:${user.id}`, staffId: user.id, name: `${user.name || "You"} · Office`, color: "#0f1450", phone: user.phone, kind: "Office", first: "you" }] : [];
@@ -52,9 +52,22 @@ function threadsOf(state, user) {
     ...office,
     ...state.riders.map((r) => ({ key: `rider:${r.id}`, riderId: r.id, name: r.name, color: r.color, phone: r.phone, kind: "Rider", first: r.short || r.name })),
     ...state.vendors.map((v) => ({ key: `vendor:${v.id}`, vendorId: v.id, name: v.name, color: v.color, phone: v.phone, kind: "Vendor", first: (v.contact || v.name).split(" ")[0] })),
+    ...customerThreads(state),
   ];
 }
-const inThread = (m, t) => (t.staffId ? m.staffId === t.staffId : t.vendorId ? m.vendorId === t.vendorId : m.riderId === t.riderId && !m.vendorId && !m.staffId);
+
+// Customers show up once ADA has written to them or they've written in (with "Message customers" on).
+const digitsOf = (p) => { let d = String(p || "").replace(/\D/g, ""); if (d.length === 11 && d.startsWith("0")) d = `234${d.slice(1)}`; return d; };
+function customerThreads(state) {
+  const seen = new Map();
+  for (const m of state.messages) if (m.customerId && !seen.has(m.customerId)) seen.set(m.customerId, m);
+  return [...seen.keys()].map((id) => {
+    const t = state.tasks.find((x) => digitsOf(x.phone) === id) || {};
+    const name = t.customer || `+${id}`;
+    return { key: `customer:${id}`, customerId: id, name, color: "#64748b", phone: `+${id}`, kind: "Customer", first: name.split(" ")[0] };
+  });
+}
+const inThread = (m, t) => (t.staffId ? m.staffId === t.staffId : t.customerId ? m.customerId === t.customerId : t.vendorId ? m.vendorId === t.vendorId : m.riderId === t.riderId && !m.vendorId && !m.staffId && !m.customerId);
 
 export default function WhatsAppInbox({ openDay }) {
   const { state, act } = useWorkspace();
@@ -71,7 +84,7 @@ export default function WhatsAppInbox({ openDay }) {
   const th = threads.find((t) => t.key === key) || sorted[0];
   const thread = th ? state.messages.filter((m) => inThread(m, th)) : [];
   // The office's own chat has nothing to mark read (and messages/read only knows rider and vendor chats).
-  const unreadIn = (t) => (t.staffId ? 0 : state.messages.filter((m) => inThread(m, t) && theirs(m) && !m.read).length);
+  const unreadIn = (t) => (t.staffId || t.customerId ? 0 : state.messages.filter((m) => inThread(m, t) && theirs(m) && !m.read).length);
   const openUnread = th ? unreadIn(th) : 0;
   const body = useRef(null);
   useEffect(() => { if (th && openUnread) act({ type: "messages/read", by: "company", riderId: th.riderId, vendorId: th.vendorId }); }, [th, openUnread, act]);
@@ -136,7 +149,7 @@ export default function WhatsAppInbox({ openDay }) {
               <div className="truncate text-[14.5px] font-semibold">{th.name}</div>
               <div className="text-[12px] text-neutral-500">{th.kind}{th.phone ? ` · ${th.phone}` : " · no WhatsApp number"}</div>
             </div>
-            {s.autoReply && !th.staffId && (paused ? (
+            {s.autoReply && !th.staffId && !th.customerId && (paused ? (
               <Btn size="sm" variant="ghost" onClick={() => save({ paused: { [th.key]: false } })} data-testid="wa-handback"><Sparkles className="h-4 w-4" /> Hand back to ADA</Btn>
             ) : (
               <Btn size="sm" onClick={() => save({ paused: { [th.key]: true } })} data-testid="wa-stepin"><Hand className="h-4 w-4" /> Step in</Btn>
@@ -144,13 +157,14 @@ export default function WhatsAppInbox({ openDay }) {
           </div>
           <div className={cn("flex items-center gap-2 px-5 py-2 text-[12.5px]", paused || !s.autoReply ? "bg-amber-50 text-amber-800" : "bg-emerald-50/70 text-emerald-800")}>
             {th.staffId ? <><AdaMark size={16} /> Your own chat with ADA. Text {status && status.number ? status.number : "the business number"} from {th.phone || "the phone on your account"} to run the day: TODAY, DISPATCH, CASH, VERIFY TUNDE… ADA asks before changing anything.</>
+              : th.customerId ? <><AdaMark size={16} /> {th.first} is a customer. ADA tells them when their order is on the way, at the door and delivered, and handles confirm, problem and new times.</>
               : paused || !s.autoReply ? <><Hand className="h-3.5 w-3.5" /> You're handling this chat. ADA won't answer {th.first} until you hand it back.</> : <><AdaMark size={16} /> ADA is answering {th.first} on WhatsApp. Step in any time.</>}
           </div>
           <div ref={body} className="flex-1 space-y-2.5 overflow-y-auto bg-[#f4f1ec] p-4 sm:p-5" style={{ maxHeight: 560 }}>
             {thread.map((m) => <Bubble key={m.id} m={m} mine={!theirs(m)} day={dayOfMessage(state, m)} onDay={openDay} />)}
             {!thread.length && <Empty icon={MessageCircle} title="No messages yet" sub={th.phone ? `ADA will message ${th.first} here and on WhatsApp.` : `Add ${th.first}'s WhatsApp number under Team.`} />}
           </div>
-          {!th.staffId && <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { act({ type: "messages/send", messages: [{ riderId: th.riderId, vendorId: th.vendorId, from: "dispatcher", text: text.trim() }] }); setText(""); } }} className="flex gap-2 border-t border-neutral-100 p-3">
+          {!th.staffId && !th.customerId && <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) { act({ type: "messages/send", messages: [{ riderId: th.riderId, vendorId: th.vendorId, from: "dispatcher", text: text.trim() }] }); setText(""); } }} className="flex gap-2 border-t border-neutral-100 p-3">
             <input value={text} onChange={(e) => setText(e.target.value)} placeholder={`WhatsApp ${th.first}…`} className={`${inputCls} h-11 rounded-full px-4`} data-testid="wa-compose" />
             <Btn size="lg" className="h-11" type="submit" aria-label="Send"><Send className="h-4 w-4" /></Btn>
           </form>}
@@ -204,6 +218,7 @@ function Media({ m }) {
   return (
     <>
       {m.audio && <audio controls src={m.audio} className="mb-1.5 h-10 w-60 max-w-full" data-testid="wa-audio" />}
+      {m.audio && m.transcribed && <div className="mb-0.5 text-[11px] font-semibold opacity-60">Voice note, typed out by ADA:</div>}
       {m.location && m.location.lat != null && (
         <a href={`https://maps.google.com/?q=${m.location.lat},${m.location.lng}`} target="_blank" rel="noreferrer" className="mb-1.5 block text-[12.5px] font-semibold underline">Open location in Maps{m.location.name ? ` · ${m.location.name}` : ""}</a>
       )}
@@ -235,6 +250,7 @@ function SettingsModal({ open, onClose, s, save, status }) {
         <Toggle on={n.vendorStock} onChange={(v) => save({ notify: { vendorStock: v } })} label="Tell vendors when stock is counted in" />
         <Toggle on={n.vendorPayouts} onChange={(v) => save({ notify: { vendorPayouts: v } })} label="Tell vendors about payouts" />
         <Toggle on={n.nudges} onChange={(v) => save({ notify: { nudges: v } })} label="ADA follows up by itself" sub="Nudges riders who haven't answered or gone quiet, reminds them about cash, and tells the office who's still silent." />
+        <Toggle on={n.customers} onChange={(v) => save({ notify: { customers: v } })} label="Message customers" sub="On the way, at the door, delivered. Customers can confirm, report a problem or pick a new time." testId="wa-customers" />
         <Toggle on={n.staffBriefs} onChange={(v) => save({ notify: { staffBriefs: v } })} label="Morning brief and evening wrap" sub="To everyone at the office with a WhatsApp number on their login." />
       </div>
       {status && !status.live && (
@@ -250,6 +266,7 @@ function SettingsModal({ open, onClose, s, save, status }) {
 /* ---------- The phone simulator: be a rider or vendor on WhatsApp ---------- */
 
 const RIDER_TRIES = ["Yes", "Collected", "Arrived", "Delivered", "Customer not picking calls", "How much did I earn today?", "Paid in ref TRF2231"];
+const CUSTOMER_TRIES = ["Where is my order?", "I won't be home, bring it tomorrow after 2pm", "Yes, I got it", "The serum is damaged"];
 const OFFICE_TRIES = ["How far today?", "Dispatch", "GlowSkin dropped 40 serum", "Count in", "Cash", "What do we owe?", "Tell all riders to return unsold items by 6pm", "Login"];
 const VENDOR_TRIES = [
   "Tuesday orders\n1. Adaeze Nnaji 08035551234, 15 Adeniran Ogunsanya St Surulere, 2 serum, 25k\n2. Tayo 08123456677, 07012345678, 3 black soap, 10,500",
@@ -277,7 +294,7 @@ export function Simulator({ open, onClose, threads, start }) {
     setBusy(false);
   };
   const pick = async (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ""; if (f) send({ image: await shrinkPhoto(f, 1024) }); };
-  const tries = th.staffId ? OFFICE_TRIES : th.riderId ? RIDER_TRIES : VENDOR_TRIES;
+  const tries = th.staffId ? OFFICE_TRIES : th.customerId ? CUSTOMER_TRIES : th.riderId ? RIDER_TRIES : VENDOR_TRIES;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-3 backdrop-blur-[3px]" onClick={onClose}>
       <div className="flex h-[min(820px,96dvh)] w-full max-w-[400px] flex-col overflow-hidden rounded-[40px] bg-black p-2.5 shadow-2xl" onClick={(e) => e.stopPropagation()} data-testid="wa-phone">

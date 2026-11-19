@@ -548,6 +548,36 @@ def login_for(workspace_id: int, role: str, ref: str, name: str = "") -> Optiona
     return uid
 
 
+def join_by_whatsapp(code: str, phone: str, name: str = "") -> Dict[str, Any]:
+    """Someone texts their invite code to the business number: their login is made with that WhatsApp number, no
+    form and no password (they sign in with the one-tap links ADA sends, or set a password later). ValueError says
+    what went wrong, in words to send back."""
+    db.setup()
+    code = (code or "").strip().upper()
+    phone = clean_phone(phone)
+    if _too_many("join-wa:" + (phone or "")):
+        raise ValueError("Too many tries. Wait a few minutes and try again.")
+    row = db.one("SELECT workspace_id, role, ref, used_at, team, name FROM invites WHERE code = %s", (code,))
+    if not row:
+        _failed("join-wa:" + (phone or ""))
+        raise ValueError("That invite code isn't valid. Check it with your delivery company.")
+    if row[3]:
+        raise ValueError("This invite has already been used. Ask your delivery company for a new one.")
+    if phone and db.one("SELECT id FROM users WHERE phone = %s", (phone,)):
+        raise ValueError("This WhatsApp number already has an account. Reply LOGIN to open it.")
+    workspace_id, role, ref, team = row[0], row[1], row[2], 1 if row[4] else 0
+    if ref and not team:
+        for (old_id,) in db.all("SELECT id FROM users WHERE workspace_id = %s AND role = %s AND ref = %s AND team = 0", (workspace_id, role, ref)):
+            _delete_user(old_id)
+    user_id = new_id("u")
+    db.execute(
+        "INSERT INTO users (id, workspace_id, role, ref, name, email, phone, password_hash, owner, demo, created_at, team) VALUES (%s, %s, %s, %s, %s, NULL, %s, NULL, 0, 0, %s, %s)",
+        (user_id, workspace_id, role, ref, (name or row[5] or role.capitalize()).strip()[:80], phone, now(), team),
+    )
+    db.execute("UPDATE invites SET used_at = %s, used_by = %s WHERE code = %s", (now(), user_id, code))
+    return {"id": user_id, "workspaceId": workspace_id, "role": role, "ref": ref, "team": team, "name": (name or row[5] or "").strip(), "company": company_name(workspace_id)}
+
+
 def make_user_link(user_id: str, target: str, base: str) -> str:
     """A one-tap link for one login (staff at the office have no rider or vendor ref)."""
     token = secrets.token_urlsafe(18)
