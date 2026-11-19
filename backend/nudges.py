@@ -24,6 +24,7 @@ log = logging.getLogger("whatsapp")
 
 OFFER_NUDGE = timedelta(minutes=20)
 OFFER_ESCALATE = timedelta(minutes=45)
+OFFER_CALL = timedelta(minutes=35)  # with notify.calls on: ring the rider before telling the office
 QUIET_DROP = timedelta(hours=3)
 
 
@@ -56,7 +57,7 @@ def last_news(t) -> Optional[datetime]:
 
 def nudge_settings(st) -> Dict[str, bool]:
     n = ((st.get("company") or {}).get("whatsapp") or {}).get("notify") or {}
-    return {"nudges": n.get("nudges", True), "staffBriefs": n.get("staffBriefs", True)}
+    return {"nudges": n.get("nudges", True), "staffBriefs": n.get("staffBriefs", True), "calls": n.get("calls", False)}
 
 
 def due(st, staff: List[Dict[str, Any]], now: datetime) -> List[Dict[str, Any]]:
@@ -97,6 +98,12 @@ def due(st, staff: List[Dict[str, Any]], now: datetime) -> List[Dict[str, Any]]:
             if rider_hours and now - at >= OFFER_NUDGE and once(f"offer:{rid}:{today}:{batch}"):
                 out.append(W.office_message(f"rider:{rid}", f"Hi {r.get('first', '')}, are you taking the {len(ts)} {'drop' if len(ts) == 1 else 'drops'} I sent at {W.clock(at.isoformat())}? Reply YES or NO so the office can plan.",
                                             kind="nudge", buttons=W.ACCEPT_BUTTONS))
+            if cfg["calls"] and rider_hours and now - at >= OFFER_CALL and once(f"call:{rid}:{today}:{batch}"):
+                import calls
+
+                company = (st.get("company") or {}).get("name") or "the office"
+                calls.queue(st, f"rider:{rid}", f"Hello {r.get('first', '')}, this is ADA from {company}. You have {len(ts)} new {'drop' if len(ts) == 1 else 'drops'} waiting since "
+                            f"{W.clock(at.isoformat())}. Say yes to take them, or no if you can't.", why="No answer to new drops on WhatsApp")
             if staff and now - at >= OFFER_ESCALATE:
                 need = sum(W.units(t) for t in ts)
                 others = sorted([x for x in st.get("riders", []) if x.get("id") != rid and x.get("online") and room.get(x["id"], 0) >= need], key=lambda x: -room.get(x["id"], 0))

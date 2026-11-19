@@ -131,4 +131,25 @@ or write after 24 hours of silence, with a template. Twilio works too: TWILIO_AC
 TWILIO_WHATSAPP_FROM (and TWILIO_CONTENT_SID for the template), webhook `https://<your site>/api/whatsapp/twilio`.
 Riders and vendors are matched by the phone number on their profile.
 
-Tests: `python3 backend/tests/test_intake.py && python3 backend/tests/test_whatsapp.py && python3 backend/tests/test_api.py`
+### ADA understands, reads pictures, calls and joins groups
+
+- **Claude reads every message** (backend/brain.py) when ANTHROPIC_API_KEY is set, with the last 8 lines of that
+  person's chat and what ADA knows right now (their drops, orders, cash). Follow-ups work ("and the one for Bola?",
+  "she don collect am"), and questions get answered from the workspace ("what's the next address?"). Anything that
+  changes stock, money or deliveries still goes through the usual steps, with Approve first for the office. Without
+  the key the word rules read messages as before.
+- **Pictures**: a rider's transfer receipt is recorded as PAID IN with the reference, the receipt kept and the amount
+  checked against the cash they hold; a receipt sent by the office finds whose cash it is and asks to verify; a
+  handwritten or screenshotted order list (from a vendor or the office) is typed out and read in as orders; a customer's
+  photo of a damaged item goes into their problem report. Same ANTHROPIC_API_KEY.
+- **Phone calls** (backend/calls.py, Twilio Voice): "CALL TUNDE: are you taking the drops?" (approved first), or ADA
+  rings a rider who still hasn't answered new drops (setting "ADA phones riders who don't answer"). What they say is
+  acted on like a WhatsApp message and the answer is spoken; the office gets a summary when the call ends. Set
+  TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_VOICE_FROM and point the number's incoming-call webhook at
+  `https://<your site>/api/voice/incoming`. Without them calls are simulated in the phone simulator (📞 button).
+- **Team groups** (backend/groups.py, Meta Groups API): "make a team group" (approved first) creates a WhatsApp group
+  and sends the invite link. In the group ADA answers messages that start with "ADA", as whoever wrote them, and the
+  office can "tell the group: ...". Needs the official business account (blue tick) and allows up to 8 people;
+  subscribe the webhook to the group_lifecycle_update field too.
+
+Tests: `for t in test_brain test_customers test_office test_whatsapp test_api test_intake; do python3 backend/tests/$t.py; done`

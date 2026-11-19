@@ -28,7 +28,8 @@ const historyAt = (t, status) => ((t.history || []).filter((h) => h.status === s
 // Phone numbers as WhatsApp writes them (2348020004411): how a customer's chat is keyed.
 export const digitsOf = (p) => { let d = String(p || "").replace(/\D/g, ""); if (d.length === 11 && d.startsWith("0")) d = `234${d.slice(1)}`; return d; };
 // Which conversation a message belongs to.
-export const threadKeyOf = (m) => (m.staffId ? `staff:${m.staffId}` : m.customerId ? `customer:${m.customerId}` : m.riderId ? `rider:${m.riderId}` : m.vendorId ? `vendor:${m.vendorId}` : "");
+// A team-group message counts in the day of whoever wrote it; ADA's answers there are the group's own thread.
+export const threadKeyOf = (m) => (m.groupId ? m.author || `group:${m.groupId}` : m.staffId ? `staff:${m.staffId}` : m.customerId ? `customer:${m.customerId}` : m.riderId ? `rider:${m.riderId}` : m.vendorId ? `vendor:${m.vendorId}` : "");
 // What a message is allowed to show on this dashboard: the company sees every conversation; a rider or vendor their own.
 const msgInScope = (scope, m) => (scope.role === "company" ? !!threadKeyOf(m) : inScope(scope, m) && !m.staffId && !m.customerId);
 
@@ -121,7 +122,8 @@ function peopleOf(state, entries, msgs, scope) {
       const m = role === "staff" ? msgs.find((x) => x.staffId === id && x.staffName) : null;
       const t = role === "customer" ? state.tasks.find((x) => digitsOf(x.phone) === id) : null;
       const e = role === "staff" ? entries.find((x) => x.who && x.who.id === id) : null;
-      const name = r ? r.name : role === "staff" ? (m && m.staffName) || (e && e.who.name) || "Office" : role === "customer" ? (t && t.customer) || `+${id}` : "?";
+      const g = role === "group" ? (((state.company || {}).whatsapp || {}).groups || []).find((x) => x.id === id) : null;
+      const name = r ? r.name : role === "group" ? (g && g.name) || "Team group" : role === "staff" ? (m && m.staffName) || (e && e.who.name) || "Office" : role === "customer" ? (t && t.customer) || `+${id}` : "?";
       p = by[key] = { key, role, id, name, color: r ? r.color : role === "staff" ? "#0f1450" : "#64748b", phone: r ? r.phone : role === "customer" ? `+${id}` : "", from: at, to: at, actions: 0, messages: 0, delivered: 0 };
     }
     if (at < p.from) p.from = at;
@@ -131,11 +133,11 @@ function peopleOf(state, entries, msgs, scope) {
   };
   entries.forEach((e) => [...new Set(keysOfEntry(e))].forEach((k) => touch(k, e.at, e.kind)));
   msgs.forEach((m) => { const k = threadKeyOf(m); if (k) touch(k, m.at, "message"); });
-  const order = { rider: 0, vendor: 1, staff: 2, customer: 3 };
+  const order = { rider: 0, vendor: 1, staff: 2, customer: 3, group: 4 };
   return Object.values(by).sort((a, b) => order[a.role] - order[b.role] || (a.name < b.name ? -1 : 1));
 }
 
-const KIND = { rider: "Rider", vendor: "Vendor", staff: "Office", customer: "Customer" };
+const KIND = { rider: "Rider", vendor: "Vendor", staff: "Office", customer: "Customer", group: "Group" };
 
 const TONES = { rose: "bg-rose-50 text-rose-600", green: "bg-emerald-50 text-emerald-600", amber: "bg-amber-50 text-amber-600", sky: "bg-[#aad9fd]/40 text-neutral-800", stone: "bg-neutral-100 text-neutral-600" };
 
@@ -399,6 +401,9 @@ function ChatBubble({ m, right }) {
       {m.photo && <img src={m.photo} alt="" className="mb-1.5 max-h-44 rounded-lg object-cover" />}
       {m.audio && <audio controls src={m.audio} className="mb-1.5 h-9 w-56 max-w-full" />}
       {m.audio && m.transcribed && <div className="text-[11px] font-semibold text-neutral-500">Voice note, typed out:</div>}
+      {m.channel === "call" && <div className="text-[11px] font-semibold text-neutral-500">📞 On a phone call</div>}
+      {m.groupId && <div className="text-[11px] font-semibold text-neutral-500">👥 In the team group</div>}
+      {m.photoRead && m.photoRead.summary && <div className="text-[11px] font-semibold text-neutral-500">ADA read: {m.photoRead.summary}</div>}
       {m.location && m.location.lat != null && <a href={`https://maps.google.com/?q=${m.location.lat},${m.location.lng}`} target="_blank" rel="noreferrer" className="mb-1 block text-[12.5px] font-semibold text-[#027eb5] underline">Shared location</a>}
       <div className="whitespace-pre-line break-words text-neutral-900">{m.text}</div>
       {!!(m.buttons && m.buttons.length) && <div className="mt-1 text-[11.5px] text-neutral-500">Buttons: {m.buttons.map((b) => b.title).join(" · ")}</div>}

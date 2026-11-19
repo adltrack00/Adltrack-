@@ -26,6 +26,16 @@ services:
         sync: false
       - key: WHATSAPP_DISPLAY_NUMBER
         sync: false
+      # Voice notes typed out (any OpenAI-compatible speech-to-text key).
+      - key: STT_API_KEY
+        sync: false
+      # Phone calls through Twilio Voice. Without these, calls are simulated in the app.
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_VOICE_FROM
+        sync: false
       # Where the shared delivery data (vendors, stock, riders, orders, deliveries) is kept.
       - key: DATABASE_URL
         fromDatabase:
