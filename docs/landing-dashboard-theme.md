@@ -13,14 +13,14 @@ The user requested a unified front using the existing company and vendor dashboa
 | ui.jsx Tile | Existing role-demo links receive neutral shortcut surfaces and circular action icons |
 | ui.jsx StatusPill | Existing delivered/approval labels use emerald, route labels use blue, informational stock/money tags stay neutral |
 
-`frontend/public/marketing/dashboard-theme.css` is additive and scoped to `.home-page`. The marketing build includes it on the homepage only. The existing landing JS, markup templates, four stylesheets, illustrations, links and behavior remain unchanged. Company, vendor, rider and authentication code is untouched.
+`frontend/public/marketing/dashboard-theme.css` is additive and scoped to `.home-page` and `.inner-page`. The marketing build includes it on every public marketing route. Homepage markup, existing artwork and the four original stylesheets remain unchanged. Secondary pages add narrative illustration wrappers and cartoon asset references while preserving visible copy, links and behavior. See `docs/marketing-storytelling.md` for the expanded scope. Company, vendor, rider and authentication code is untouched.
 
 No new copy, sample data, sections or illustrations were added. Image colors, files and placement are preserved.
 
 ## Validation
 
-- `node frontend/scripts/verify-landing-preservation.mjs` compares all 13 prerendered marketing page bodies, source JS/style files, original artwork and app screens against the base branch. It passes; text comparisons normalize Git checkout line endings.
-- The new CSS parses with PostCSS, and every selector is scoped to the homepage.
+- `node frontend/scripts/verify-landing-preservation.mjs` compares visible copy, links and form hooks on all 13 pages, exact homepage markup, original homepage artwork/style files and operational app screens against the base branch. It passes; text comparisons normalize Git checkout line endings.
+- The new CSS parses with PostCSS, and every selector is scoped to marketing page classes.
 - Frontend production build passes.
 - The private preview uses the same stylesheet, with all 17 page bodies and existing interactions preserved.
 - Visual browser QA remains unverified: the supported computer-use runtime fails to initialize with a missing runtime ownership error.
