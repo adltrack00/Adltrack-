@@ -30,6 +30,8 @@ import auth
 import intake
 import whatsapp
 import nudges
+import calls
+import groups  # noqa: F401  (its hook makes the groups the office asks for)
 import workspace
 from db import db
 
@@ -157,6 +159,7 @@ if os.environ.get("CORS_ORIGINS"):
 app.include_router(auth.router(workspace.new_workspace))
 app.include_router(workspace.router())
 app.include_router(whatsapp.router())
+app.include_router(calls.router())
 
 
 class IntakeRequest(BaseModel):

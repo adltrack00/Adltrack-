@@ -41,7 +41,10 @@ OFFICE_HELP = ("Hi {first}, ADA here. Run the day from this chat:\n"
                "CASH — cash with riders · VERIFY TUNDE — confirm what Tunde paid in\n"
                "OWED — what vendors are owed · PAY GLOWSKIN REF 123 — payout sent\n"
                "DL-1042 or WHERE IS CHIOMA — track a drop · MOVE DL-1042 TO AMAKA\n"
-               "TELL ALL RIDERS ... — message riders or a vendor\n"
+               "TELL ALL RIDERS ... — message riders, a vendor or the team group\n"
+               "CALL TUNDE: are you taking the drops? — ADA phones them and brings back the answer\n"
+               "MAKE A TEAM GROUP — a WhatsApp group with ADA in it\n"
+               "Send a photo of a transfer receipt or an order list and I'll read it.\n"
                "RECORD YESTERDAY — a day in a few lines · LOGIN — open your dashboard\n"
                "Paste a vendor's orders and I'll read them in.\n"
                "Anything that changes stock, money or riders waits for your Approve.")
@@ -328,20 +331,52 @@ def plan_count(st, memo) -> Tuple[str, Optional[List]]:
     return propose(memo, "count", {"ids": [i["id"] for i in sent]}, "🚚 Count in what vendors sent, as sent:\n" + "\n".join(lines) + "\n\nIf a number is different, count that one in the app.")
 
 
+def receipt_line(receipt: Optional[Dict[str, Any]], total: int) -> str:
+    if not receipt:
+        return ""
+    amount = receipt.get("amount") or 0
+    ref = f", ref {receipt['ref']}" if receipt.get("ref") else ""
+    if not amount:
+        return f"\n🧾 Receipt{ref} (I couldn't read the amount)."
+    if amount == total:
+        return f"\n🧾 The receipt shows {W.money(amount)}{ref}: it matches."
+    return f"\n🧾 The receipt shows {W.money(amount)}{ref}: {W.money(abs(total - amount))} {'short' if amount < total else 'over'}. Check before you approve."
+
+
+def rider_cash(st, rid: str) -> Tuple[List[Dict[str, Any]], str]:
+    tasks = [t for t in st.get("tasks", []) if t.get("riderId") == rid and hand_in_to_check(t)]
+    if tasks:
+        return tasks, "paid in"
+    return [t for t in st.get("tasks", []) if t.get("riderId") == rid and W.cash_held(t)], "handed over"
+
+
 def plan_verify(st, memo, text: str) -> Tuple[str, Optional[List]]:
     r = find_rider(st, text)
     if not r:
         return "Which rider? Reply VERIFY and their name, e.g. VERIFY TUNDE.", None
-    tasks = [t for t in st.get("tasks", []) if t.get("riderId") == r["id"] and hand_in_to_check(t)]
-    how = "paid in"
-    if not tasks:
-        tasks = [t for t in st.get("tasks", []) if t.get("riderId") == r["id"] and W.cash_held(t)]
-        how = "handed over"
+    receipt = memo.pop("receipt", None)
+    if receipt and W.now() - (receipt.get("at") or 0) > PENDING_SECONDS:
+        receipt = None
+    tasks, how = rider_cash(st, r["id"])
     if not tasks:
         return f"{r.get('short') or r['name']} has no cash waiting to be checked.", None
     total = sum(W.collected(t) for t in tasks)
-    return propose(memo, "verify", {"ids": [t["id"] for t in tasks], "riderId": r["id"]},
-                   f"🏦 Confirm {W.money(total)} {how} by {r.get('short') or r['name']} for {len(tasks)} {'drop' if len(tasks) == 1 else 'drops'} is in the company account?")
+    return propose(memo, "verify", {"ids": [t["id"] for t in tasks], "riderId": r["id"], **({"receipt": receipt} if receipt else {})},
+                   f"🏦 Confirm {W.money(total)} {how} by {r.get('short') or r['name']} for {len(tasks)} {'drop' if len(tasks) == 1 else 'drops'} is in the company account?"
+                   + receipt_line(receipt, total))
+
+
+def plan_receipt(st, memo, read: Dict[str, Any], photo: Optional[str], text: str) -> Tuple[str, Optional[List]]:
+    """A transfer receipt sent to ADA: whose cash it is (named in the caption, or the one rider whose cash matches), then verify."""
+    memo["receipt"] = {"amount": read.get("amount") or 0, "ref": read.get("ref") or "", "bank": read.get("bank") or "", "photo": photo, "at": W.now()}
+    r = find_rider(st, text) if text else None
+    if not r and read.get("amount"):
+        hits = [x for x in st.get("riders", []) if rider_cash(st, x["id"])[0] and sum(W.collected(t) for t in rider_cash(st, x["id"])[0]) == read["amount"]]
+        r = hits[0] if len(hits) == 1 else None
+    if r:
+        return plan_verify(st, memo, r.get("short") or r["name"])
+    what = f"{W.money(read['amount'])}" if read.get("amount") else "an amount I couldn't read"
+    return f"🧾 That's a receipt for {what}{' from ' + read['bank'] if read.get('bank') else ''}{', ref ' + read['ref'] if read.get('ref') else ''}. Whose cash is it? Reply VERIFY and the rider's name.", None
 
 
 def plan_payout(st, memo, text: str) -> Optional[Tuple[str, Optional[List]]]:
@@ -384,6 +419,9 @@ def plan_tell(st, memo, text: str) -> Optional[Tuple[str, Optional[List]]]:
     if re.search(r"\b(all|every|everybody|everyone)\b.*\briders?\b|^riders?$|^(everyone|everybody|all)$", who, re.I):
         targets = [("rider", r["id"]) for r in st.get("riders", []) if r.get("online")] or [("rider", r["id"]) for r in st.get("riders", [])]
         label = f"all {len(targets)} riders on duty"
+    elif re.search(r"\b(the )?(team )?group\b", who, re.I) and [g for g in W.groups(st) if g.get("status") == "ready"]:
+        g = next(g for g in W.groups(st) if g.get("status") == "ready")
+        targets, label = [("group", g["id"])], f"the {g.get('name') or 'team'} group"
     elif re.search(r"\b(all|every)\b.*\bvendors?\b", who, re.I):
         targets = [("vendor", v["id"]) for v in st.get("vendors", [])]
         label = f"all {len(targets)} vendors"
@@ -399,6 +437,70 @@ def plan_tell(st, memo, text: str) -> Optional[Tuple[str, Optional[List]]]:
         return None
     body = body[0].upper() + body[1:]
     return propose(memo, "tell", {"targets": targets, "text": body}, f"✉️ Send to {label}:\n\"{body}\"")
+
+
+CALL = re.compile(r"^\s*(?:please\s+)?(?:call|ring|phone|give)\s+(.+?)(?:\s+a (?:call|ring))?\s*(?:(?::|,|\band (?:say|ask|tell (?:him|her|them))|\bto (?:say|ask|tell (?:him|her|them)))\s*(.+))?$", re.I | re.S)
+
+
+def call_target(st, who: str) -> Optional[Tuple[str, str, Optional[Dict[str, Any]]]]:
+    r = find_rider(st, who)
+    if r:
+        return f"rider:{r['id']}", r.get("short") or r["name"], None
+    v = intake.find_vendor(st, who)
+    if v:
+        return f"vendor:{v['id']}", v.get("contact") or v["name"], None
+    t = find_task(st, who)
+    if t and intake.phone_digits(t.get("phone")):
+        return f"customer:{intake.phone_digits(t['phone'])}", t.get("customer") or "the customer", t
+    return None
+
+
+def call_script(st, key: str, body: str, t: Optional[Dict[str, Any]]) -> str:
+    import customers
+
+    role, _, ref = key.partition(":")
+    company = (st.get("company") or {}).get("name") or "the delivery company"
+    first = (W.person(st, key) or {}).get("first") or ""
+    hello = f"Hello {first}, this is ADA from {company}."
+    if body:
+        return f"{hello} The office asked me to call you: {body.rstrip('?.!')}?" if body.rstrip().endswith("?") else f"{hello} The office says: {body.rstrip('.')}. What would you like to say back?"
+    if role == "rider":
+        offers = offers_of(st, ref)
+        if offers:
+            return f"{hello} You have {len(offers)} new {'drop' if len(offers) == 1 else 'drops'} waiting. Say yes to take them, or no if you can't."
+        road = [x for x in st.get("tasks", []) if x.get("riderId") == ref and x.get("status") == "picked_up"]
+        if road:
+            return f"{hello} How is it going with {road[0].get('customer')}? Say delivered with the amount, or tell me the problem."
+        return f"{hello} The office asked me to check in. How is your day going?"
+    if role == "customer" and t:
+        return f"{hello} I'm calling about your order from {customers.vendor_name(st, t)}. {customers.where_text(st, t)} If you'd like it another day, say the day."
+    return f"{hello} The office asked me to call you. What would you like to tell them?"
+
+
+def plan_call(st, memo, text: str) -> Optional[Tuple[str, Optional[List]]]:
+    m = CALL.match(text or "")
+    if not m:
+        return None
+    found = call_target(st, m.group(1))
+    if not found:
+        return f"I couldn't find \"{m.group(1).strip()}\" among your riders, vendors or today's customers.", None
+    key, name, t = found
+    if not (W.person(st, key) or {}).get("phone"):
+        return f"{name} has no phone number on their profile, so I can't call them.", None
+    say = call_script(st, key, (m.group(2) or "").strip(), t)
+    return propose(memo, "call", {"key": key, "say": say, "why": (m.group(2) or "").strip()}, f"📞 Call {name} now? I'll say:\n\"{say}\"\nTheir answer comes back here.")
+
+
+def plan_group(st, memo, text: str) -> Tuple[str, Optional[List]]:
+    ready = [g for g in W.groups(st) if g.get("status") == "ready"]
+    making = [g for g in W.groups(st) if g.get("status") == "creating"]
+    if ready and not re.search(r"\b(new|another|second)\b", text or "", re.I):
+        return "👥 " + "\n".join(f"{g.get('name')}: {g.get('invite') or 'no invite link yet'}" for g in ready) + "\nShare the link with your riders and staff. In the group, start a message with ADA and I'll answer.", None
+    if making:
+        return f"👥 \"{making[0].get('name')}\" is still being made. I'll send the link when it's ready.", None
+    name = f"{(st.get('company') or {}).get('name') or 'Delivery'} team"
+    return propose(memo, "group", {"name": name}, f"👥 Make a WhatsApp group \"{name}\" with ADA in it? You'll get an invite link to share (WhatsApp allows up to 8 people in a business group). "
+                   "In the group, anyone can start a message with ADA, e.g. \"ADA, who has DL-1042?\", and I'll answer there.")
 
 
 def apply_pending(st, wid: int, memo, staff: Dict[str, Any]) -> Tuple[str, Optional[List]]:
@@ -447,7 +549,10 @@ def apply_pending(st, wid: int, memo, staff: Dict[str, Any]) -> Tuple[str, Optio
         n, total = 0, 0
         for t in st.get("tasks", []):
             if t.get("id") in d["ids"] and t.get("payment") and not t["payment"].get("handInVerified"):
-                t["payment"] = {**t["payment"], "handedIn": t["payment"].get("handedIn") or {"at": W.now_iso(), "ref": ""}, "handInVerified": W.now_iso()}
+                handed = t["payment"].get("handedIn") or {"at": W.now_iso(), "ref": ""}
+                if d.get("receipt"):
+                    handed = {**handed, "receipt": handed.get("receipt") or d["receipt"].get("photo"), "ref": handed.get("ref") or d["receipt"].get("ref") or ""}
+                t["payment"] = {**t["payment"], "handedIn": handed, "handInVerified": W.now_iso()}
                 n, total = n + 1, total + W.collected(t)
         name = (W.person(st, f"rider:{d['riderId']}") or {}).get("first") or "The rider"
         return f"✅ {W.money(total)} from {name} confirmed. {name} has been told.", None
@@ -475,9 +580,22 @@ def apply_pending(st, wid: int, memo, staff: Dict[str, Any]) -> Tuple[str, Optio
     if kind == "tell":
         for role, ref in d["targets"]:
             m = {"id": W.uid("m"), "at": W.now_iso(), "read": False, "from": "dispatcher", "text": d["text"], "by": by}
-            m["riderId" if role == "rider" else "vendorId"] = ref
+            m[{"rider": "riderId", "group": "groupId"}.get(role, "vendorId")] = ref
             st.setdefault("messages", []).append(m)
         return f"✅ Sent to {len(d['targets'])} on WhatsApp. Their answers come to the WhatsApp page, and I'll handle the usual ones.", None
+
+    if kind == "call":
+        import calls
+
+        call = calls.queue(st, d["key"], d["say"], by, d.get("why", ""))
+        name = (W.person(st, d["key"]) or {}).get("first") or "them"
+        return f"📞 Calling {name} now. I'll put what they say here." + ("" if call.get("live") else " (Test line: the call is shown in their chat, and you can answer it in the simulator.)"), None
+
+    if kind == "group":
+        g = {"key": W.uid("grp"), "id": "", "name": d["name"], "status": "creating", "at": W.now_iso(), "by": by}
+        w = st.setdefault("company", {}).setdefault("whatsapp", {})
+        w["groups"] = (w.get("groups") or []) + [g]
+        return f"👥 Making the group \"{d['name']}\". I'll send the invite link here in a moment.", None
 
     return "That plan has expired. Ask me again.", None
 
@@ -503,6 +621,10 @@ def office_intent(text: str, button: str = "") -> str:
     tell = TELL.match(text or "")
     if tell and tell.group(1).strip().lower() not in ("me", "us"):
         return "tell"
+    if re.match(r"^(please )?(call|ring|phone)\b|^give \w+ a (call|ring)\b", t):
+        return "call"
+    if re.search(r"\b(team group|whatsapp group|group link|group invite|invite link|(make|create|start|set up|open) (a |the |our )?(team )?group)\b", t):
+        return "group"
     if re.search(r"\b(move|reassign|give|switch|transfer)\b.*\bto\b", t) and (re.search(r"\bdl-?\s?\d+", t) or " to " in t):
         return "move"
     if re.search(r"\b(verify|confirm(ed)?|check(ed)?|received)\b.*\b(cash|money|payment|paid|transfer)\b|^verify\b", t):
@@ -530,35 +652,20 @@ def office_intent(text: str, button: str = "") -> str:
     return "unknown"
 
 
-CLAUDE_OFFICE = """You read one WhatsApp message the owner or a staff member of a delivery company sent to ADA, the company's assistant, and say what they want.
-Intents: today (how today is going, what needs attention), dispatch (send open orders out to riders), receive (stock a vendor brought to the office: keep the vendor and products in text), count (count in stock vendors sent), cash (cash with riders), verify (confirm a rider's cash is in the account: rider), owed (what vendors are owed), payout (a vendor was paid: vendor), track (where a delivery is: ref like DL-1042 or customer), move (give a delivery to another rider: ref and rider), tell (send a message to riders or a vendor: who and message), record (what happened on a day), help, unknown.
-Write `text` as a short plain command ADA can read, e.g. "verify Tunde", "move DL-1042 to Amaka", "tell all riders: return unsold items by 6pm", "GlowSkin dropped 40 serum". The message may be in Nigerian Pidgin, Yoruba, Igbo or Hausa mixed with English."""
-
-
-def claude_office(text: str) -> Optional[Dict[str, str]]:
-    if not os.environ.get("ANTHROPIC_API_KEY") or not (text or "").strip():
-        return None
-    try:
-        import anthropic
-
-        client = anthropic.Anthropic(timeout=20.0, max_retries=0)
-        schema = {"type": "object", "additionalProperties": False, "required": ["intent", "text"], "properties": {
-            "intent": {"type": "string", "enum": ["today", "dispatch", "receive", "count", "cash", "verify", "owed", "payout", "track", "move", "tell", "record", "help", "unknown"]},
-            "text": {"type": "string"}}}
-        res = client.messages.create(
-            model=os.environ.get("ADA_MODEL", "claude-opus-5-5"), max_tokens=300,
-            output_config={"effort": "low", "format": {"type": "json_schema", "schema": schema}},
-            system=CLAUDE_OFFICE, messages=[{"role": "user", "content": text[:1500]}],
-        )
-        out = json.loads(next((b.text for b in res.content if b.type == "text"), "{}"))
-        return {"intent": out.get("intent", "unknown"), "text": out.get("text") or text}
-    except Exception as err:
-        log.info("Claude couldn't read an office WhatsApp message: %s", err)
-        return None
-
-
-def office_turn(st, wid: int, staff: Dict[str, Any], intent: str, text: str, memo: Dict[str, Any]) -> Optional[Tuple[str, Optional[List]]]:
+def office_turn(st, wid: int, staff: Dict[str, Any], intent: str, text: str, memo: Dict[str, Any], photo: Optional[str] = None,
+                read: Optional[Dict[str, Any]] = None, chat: str = "") -> Optional[Tuple[str, Optional[List]]]:
     first = first_name(staff.get("name") or "")
+    # Orders read from a photo, waiting to hear whose they are.
+    held = memo.pop("ordersText", None)
+    if held and W.now() - (held.get("at") or 0) < PENDING_SECONDS and intent not in ("orders", "approve", "cancel") and intake.find_vendor(st, text):
+        intent, text = "orders", text.strip() + "\n" + held["text"]
+    if intent == "receipt":
+        return plan_receipt(st, memo, read or {}, photo, text)
+    if intent == "call":
+        memo.pop("pending", None)
+        return plan_call(st, memo, text) or ("Who should I call? e.g. CALL TUNDE: are you taking the 3 drops?", None)
+    if intent == "group":
+        return plan_group(st, memo, text)
     if intent == "approve":
         return apply_pending(st, wid, memo, staff)
     if intent == "cancel":
@@ -598,7 +705,8 @@ def office_turn(st, wid: int, staff: Dict[str, Any], intent: str, text: str, mem
     if intent == "orders":
         v = intake.find_vendor(st, text.split("\n")[0]) or intake.find_vendor(st, text)
         if not v:
-            return "Whose orders are these? Put the vendor's name on the first line, e.g. \"GlowSkin orders\".", None
+            memo["ordersText"] = {"text": text, "at": W.now()}
+            return "Whose orders are these? Reply with the vendor's name, e.g. \"GlowSkin\".", None
         found = intake.read_orders(st, text, v["id"], today=datetime.now(W.TZ).date())
         if not found:
             return None

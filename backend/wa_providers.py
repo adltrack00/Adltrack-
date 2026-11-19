@@ -68,6 +68,13 @@ class TestLine:
     def mark_read(self, message_id: str) -> None:
         return None
 
+    def create_group(self, subject: str, description: str = "") -> Dict[str, str]:
+        gid = f"sim-group-{secrets.token_hex(4)}"
+        return {"id": gid, "invite": f"https://chat.whatsapp.com/{gid}"}
+
+    def send_group(self, group_id: str, text: str, buttons: Optional[List[Button]] = None) -> Result:
+        return Result(id=f"test-{secrets.token_hex(6)}", status="delivered")
+
 
 class Meta:
     name = "meta"
@@ -118,6 +125,38 @@ class Meta:
             return Result(id=data["messages"][0].get("id", ""), status="sent")
         err = (data.get("error") or {}).get("message") or raw[:200].decode(errors="replace")
         log.warning("WhatsApp (Meta) send failed %s: %s", status, err)
+        return Result(id="", status="failed", error=err)
+
+    def _post(self, path: str, body: Dict[str, Any]) -> Tuple[int, Dict[str, Any]]:
+        status, raw = http("POST", f"https://graph.facebook.com/{self.version}/{path}", json.dumps(body).encode(), {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"})
+        try:
+            return status, json.loads(raw or b"{}")
+        except ValueError:
+            return status, {"error": {"message": raw[:200].decode(errors="replace")}}
+
+    def create_group(self, subject: str, description: str = "") -> Dict[str, str]:
+        """Groups API (official business accounts): the id and invite link come back now or in a group_lifecycle_update webhook."""
+        status, data = self._post(f"{self.phone_id}/groups", {"messaging_product": "whatsapp", "subject": subject[:128], "description": description[:2048], "join_approval_mode": "auto_approve"})
+        if not 200 <= status < 300:
+            return {"error": (data.get("error") or {}).get("message") or f"HTTP {status}"}
+        gid = data.get("id") or data.get("group_id") or ""
+        invite = data.get("invite_link") or ""
+        if gid and not invite:
+            st, raw = http("GET", f"https://graph.facebook.com/{self.version}/{gid}/invite_link", headers={"Authorization": f"Bearer {self.token}"})
+            try:
+                invite = json.loads(raw or b"{}").get("invite_link", "") if st == 200 else ""
+            except ValueError:
+                invite = ""
+        return {"id": gid, "requestId": data.get("request_id") or "", "invite": invite}
+
+    def send_group(self, group_id: str, text: str, buttons: Optional[List[Button]] = None) -> Result:
+        """Groups can't show reply buttons, so the choices are written out."""
+        status, data = self._post(f"{self.phone_id}/messages", {"messaging_product": "whatsapp", "recipient_type": "group", "to": group_id, "type": "text",
+                                                                 "text": {"body": with_choices(text, buttons)[:4096], "preview_url": False}})
+        if 200 <= status < 300 and data.get("messages"):
+            return Result(id=data["messages"][0].get("id", ""), status="sent")
+        err = (data.get("error") or {}).get("message") or f"HTTP {status}"
+        log.warning("WhatsApp (Meta) group send failed %s: %s", status, err)
         return Result(id="", status="failed", error=err)
 
     def mark_read(self, message_id: str) -> None:
@@ -193,6 +232,12 @@ class Twilio:
 
     def mark_read(self, message_id: str) -> None:
         return None  # Twilio shows read receipts by itself
+
+    def create_group(self, subject: str, description: str = "") -> Dict[str, str]:
+        return {"error": "Twilio can't make WhatsApp groups; groups need the Meta Cloud API"}
+
+    def send_group(self, group_id: str, text: str, buttons: Optional[List[Button]] = None) -> Result:
+        return Result(id="", status="failed", error="Twilio can't send to WhatsApp groups")
 
     def check_signature(self, url: str, params: Dict[str, str], header: Optional[str]) -> bool:
         payload = url + "".join(k + params[k] for k in sorted(params))
