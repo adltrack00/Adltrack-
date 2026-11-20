@@ -8,20 +8,29 @@ import { cn } from "../lib/utils";
 
 const field = "ada-auth-input";
 
-// Same cream, green and original parcel illustration as the approved marketing site.
-function Shell({ title, sub, children, go, back = "/" }) {
+// Same white/sky canvas, rounded surfaces and cartoon stories as the marketing site.
+const ENTRY_ART={
+ parcel:["delivery-parcel-mascot.webp","A cheerful parcel on its way"],
+ team:["delivery-illustration.webp","A vendor, dispatcher and courier share one connected delivery day"],
+ planning:["delivery-planning.webp","A vendor and dispatcher plan together with a cheerful parcel"],
+ vendor:["delivery-day-stock.webp","A vendor and smiling parcel keep stock and receipts together"],
+ rider:["delivery-day-rider.webp","A courier and customer complete a cheerful parcel handover"]
+};
+function Shell({ title, sub, children, go, back = "/", art = "parcel" }) {
+  const [image, imageAlt]=ENTRY_ART[art]||ENTRY_ART.parcel;
   useEffect(() => { document.title = title + " — Ada"; }, [title]);
   return (
     <div className="ada-auth">
+      <a className="ada-auth-skip" href="#main">Skip to content</a>
       <aside className="ada-auth-story" aria-label="Ada: a connected delivery day">
         <a className="ada-auth-name" href="/">Ada</a>
         <div className="ada-auth-story-copy"><span className="ada-auth-eyebrow">YOUR PEOPLE. ONE SHARED DAY.</span><h2>Less chasing.<br />More delivering.</h2><p>Your office, vendors and riders.<br />Together for the next delivery.</p></div>
-        <img className="ada-auth-parcel" src="/marketing/assets/delivery-parcel-mascot.webp" alt="A cheerful parcel on its way" width="1024" height="1536" />
+        <img className={`ada-auth-parcel ada-auth-art-${art}`} src={`/marketing/assets/${image}`} alt={imageAlt} width="1536" height="1024" decoding="async" />
         <span className="ada-auth-story-note">A little joy for the journey.</span>
       </aside>
-      <main className="ada-auth-main" id="main">
+      <main className="ada-auth-main" id="main" tabIndex={-1}>
         <div className="ada-auth-top"><a href="/" className="ada-auth-mobile-name">Ada</a><button type="button" onClick={() => back === "/" ? window.location.assign("/") : go(back)} className="ada-auth-back"><ArrowLeft size={16} /> Back</button></div>
-        <div className="ada-auth-form"><span className="ada-auth-eyebrow">LET’S GET MOVING</span><h1>{title}</h1>{sub && <p className="ada-auth-sub">{sub}</p>}<div className="ada-auth-fields">{children}</div></div>
+        <img className="ada-auth-mobile-art" src={`/marketing/assets/${image}`} alt="" aria-hidden="true" width="1536" height="1024" decoding="async" /><div className="ada-auth-form"><span className="ada-auth-eyebrow">LET’S GET MOVING</span><h1>{title}</h1>{sub && <p className="ada-auth-sub">{sub}</p>}<div className="ada-auth-fields">{children}</div></div>
         <p className="ada-auth-footnote">Your people. Your operation. One connected day.</p>
       </main>
     </div>
@@ -71,7 +80,7 @@ const CHOICES = [
 
 export function GetStarted({ go }) {
   return (
-    <Shell go={go} title="Get started" sub="Who are you? Each of you gets your own login and dashboard.">
+    <Shell go={go} art="team" title="Get started" sub="Who are you? Each of you gets your own login and dashboard.">
       <div className="grid gap-3">
         {CHOICES.map((c) => (
           <button key={c.id} onClick={() => go(c.to)} className="group flex items-center gap-4 rounded-[24px] border-2 border-neutral-100 bg-white p-5 text-left transition hover:border-blue-500" data-testid={`role-${c.id}`}>
@@ -131,7 +140,7 @@ export function SignUpCompany({ go }) {
     try { await signUpCompany(f); go("/setup"); } catch (err) { setError(err.message); setBusy(false); }
   };
   return (
-    <Shell go={go} back="/get-started" title="Sign up your company" sub="You'll add your vendors and riders next, and send each of them an invite.">
+    <Shell go={go} art="planning" back="/get-started" title="Sign up your company" sub="You'll add your vendors and riders next, and send each of them an invite.">
       <form onSubmit={submit} className="grid gap-5">
         <Input icon={LayoutGrid} label="Company name" autoComplete="organization" placeholder="e.g. Swift Couriers" required {...bind("company")} />
         <Input icon={User} label="Your name" autoComplete="name" placeholder="Full name" required {...bind("name")} />
@@ -184,7 +193,7 @@ export function Join({ go }) {
 
   if (!invite) {
     return (
-      <Shell go={go} back="/get-started" title={label ? `Join as a ${label}` : "Join your company"} sub="Enter the invite code your delivery company sent you.">
+      <Shell go={go} art={label === "vendor" ? "vendor" : label === "rider" ? "rider" : "parcel"} back="/get-started" title={label ? `Join as a ${label}` : "Join your company"} sub="Enter the invite code your delivery company sent you.">
         <form onSubmit={(e) => { e.preventDefault(); check(); }} className="grid gap-5">
           <Input icon={KeyRound} label="Invite code" placeholder="e.g. K7Q2XM" autoCapitalize="characters" autoComplete="one-time-code" required value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} className={cn(field, "font-mono text-[20px] tracking-[0.3em]")} />
           <ErrorNote text={error} />
@@ -196,7 +205,7 @@ export function Join({ go }) {
     );
   }
   return (
-    <Shell go={go} back="/get-started" title={`Join ${invite.company}`} sub={`You're joining as ${invite.role === "company" ? "part of the office team" : `a ${label}`}${invite.name ? `: ${invite.name}` : ""}. Create your login.`}>
+    <Shell go={go} art={label === "vendor" ? "vendor" : label === "rider" ? "rider" : "parcel"} back="/get-started" title={`Join ${invite.company}`} sub={`You're joining as ${invite.role === "company" ? "part of the office team" : `a ${label}`}${invite.name ? `: ${invite.name}` : ""}. Create your login.`}>
       <form onSubmit={submit} className="grid gap-5">
         <Input icon={User} label="Your name" autoComplete="name" required {...bind("name")} />
         <Input icon={Phone} label="Phone number" type="tel" autoComplete="tel" placeholder="0803 000 0000" {...bind("phone")} />

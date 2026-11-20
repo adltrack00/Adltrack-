@@ -1,0 +1,20 @@
+import fs from 'node:fs/promises';
+import {execFileSync} from 'node:child_process';
+import assert from 'node:assert/strict';
+import {parse} from '@babel/parser';
+import generator from '@babel/generator';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const generate=generator.default||generator;
+const root=fileURLToPath(new URL('../../',import.meta.url));
+const old=p=>execFileSync('git',['show','origin/main:'+p],{cwd:root,maxBuffer:8e6}).toString();
+const read=p=>fs.readFile(path.join(root,p),'utf8');
+const ast=s=>parse(s,{sourceType:'module',plugins:['jsx']});
+const fn=(tree,name)=>tree.program.body.map(n=>n.declaration||n).find(n=>n.type==='FunctionDeclaration'&&n.id.name===name);
+const code=nodes=>nodes.map(n=>generate(n,{comments:false}).code).join('\n');
+const authPath='frontend/src/delivery/AuthPages.jsx';const current=ast(await read(authPath)),baseline=ast(old(authPath));
+for(const name of ['SignIn','SignUpCompany','Join']){const logic=n=>n.body.body.filter(x=>!['IfStatement','ReturnStatement'].includes(x.type));assert.equal(code(logic(fn(current,name))),code(logic(fn(baseline,name))),'Account logic changed: '+name);}
+const setupPath='frontend/src/delivery/Setup.jsx';const a=fn(ast(await read(setupPath)),'Setup'),b=fn(ast(old(setupPath)),'Setup');const setupLogic=n=>n.body.body.filter(x=>x.type==='VariableDeclaration'&&!x.declarations.some(d=>['steps','s','next','tint'].includes(d.id.name)));assert.equal(code(setupLogic(a)),code(setupLogic(b)),'Setup state/actions changed');
+for(const p of ['frontend/src/delivery/auth.jsx','frontend/src/delivery/store.js','frontend/src/delivery/Company.jsx','frontend/src/delivery/Vendor.jsx','frontend/src/delivery/Rider.jsx'])assert.equal((await read(p)).replaceAll('\r\n','\n'),old(p).replaceAll('\r\n','\n'),'Protected operational source changed: '+p);
+const css=await read('frontend/src/delivery/AuthPages.css');assert.ok(css.includes('linear-gradient(180deg,#fff 0%,#aad9fd 50%,#fff 100%)'));assert.ok(!/#f8f7f2|#dce8c5|#42772d/.test(css),'Legacy entry palette remains');
+console.log('PASS: account/invite logic, setup state/actions, auth APIs and dashboard code unchanged; entry palette matches the shared canvas.');

@@ -26,11 +26,7 @@ function useGo() {
 }
 
 function Loading() {
-  return (
-    <div className="grid min-h-screen place-items-center bg-[radial-gradient(120%_80%_at_20%_0%,#141a5c_0%,#0a0d2e_45%,#05061a_100%)]">
-      <AdaMark size={56} spin />
-    </div>
-  );
+  return <div className="ada-entry-loading" role="status"><img src="/marketing/assets/delivery-parcel-mascot.webp" alt="" width="1024" height="1536" /><p>Opening Ada…</p></div>;
 }
 
 // Signed-in pages share one live workspace. Wrong role? Go to your own dashboard.

@@ -266,3 +266,14 @@ body:is(.home-page,.inner-page){
 .inner-page .setup-card.featured p{color:#d4d4d4}
 .inner-page .setup-card.featured .btn.white{background:#fff;color:#171717;box-shadow:none}
 .inner-page .demo-role-note{color:#737373}
+/* Remaining public entry pages use the same story-led frame as their real app counterparts. */
+.inner-page .entry-hero{max-width:1240px}
+.inner-page .entry-hero .setup-cards{grid-template-columns:1fr;margin-top:28px}
+.inner-page .entry-hero .setup-card{padding:26px}
+.inner-page .entry-hero .setup-card h3{font-size:25px}
+.inner-page .entry-hero .setup-card p{font-size:16px;line-height:1.65}
+.inner-page .entry-hero .page-story-art{height:480px;align-self:center}
+.inner-page .entry-hero .bordered-note{font-size:14px;line-height:1.7}
+.inner-page .entry-hero .field input{min-height:54px}
+.inner-page .route-error-art{display:block;width:160px;height:220px;object-fit:contain;margin:0 auto 24px}
+@media(max-width:700px){.inner-page .entry-hero .page-story-art{grid-row:1;height:230px}.inner-page .entry-hero .setup-card{padding:24px}.inner-page .entry-hero h1{font-size:clamp(42px,11vw,60px)}}

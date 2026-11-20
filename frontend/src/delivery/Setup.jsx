@@ -1,17 +1,26 @@
 // First-time setup for a new delivery company: a few full-screen steps that show what the app does,
 // ask about the business, and save the company's name, areas and dashboard look.
 import React, { useState } from "react";
-import { BellRing, Building2, User } from "lucide-react";
+import { Building2, User } from "lucide-react";
 import { useWorkspace } from "./store";
-import { AlertStack, BackBtn, Bubbles, ChoiceList, Digits, Faces, LabelCloud, NextBtn, ProgressScene, Scene, StopSlider, themeOf, ThemePicker, Tip } from "./scenes";
+import { BackBtn, Bubbles, ChoiceList, Faces, NextBtn, StopSlider, THEMES, Tip } from "./scenes";
+import "./AuthPages.css";
 import { cn } from "../lib/utils";
+
+function SetupArt({ source, alt, compact = false }) {
+ return <img className={`ada-setup-art${compact ? " compact" : ""}`} src={`/marketing/assets/${source}`} alt={alt} width="1536" height="1024" decoding="async" />;
+}
+
+function EntryThemePicker({value,onChange}) {
+ return <div className="ada-entry-themes" role="group" aria-label="Dashboard colour theme">{Object.entries(THEMES).map(([id,t])=><button type="button" key={id} aria-pressed={value===id} onClick={()=>onChange(id)} style={{"--theme-accent":t.tint}}><span className="ada-entry-theme-art"><img src="/marketing/assets/delivery-parcel-mascot.webp" alt="" width="1024" height="1536" /></span><strong>{t.name}</strong></button>)}</div>;
+}
 
 const AREAS = ["Ikeja", "Yaba", "Lekki", "Surulere", "Victoria Island", "Ikoyi", "Ajah", "Gbagada", "Maryland", "Magodo", "Festac", "Apapa", "Ogba", "Oshodi", "Agege", "Ikorodu"];
 const VOLUME = ["Under 20", "20 to 50", "50 to 150", "150 to 500", "500+"];
 const MOOD_TIP = {
   stressed: <><b>You're not alone.</b> Most of a dispatcher's day goes on chasing riders and re-typing orders. ADA takes that over.</>,
-  unsure: <><b>That's normal.</b> When orders live in WhatsApp chats, nobody sees the whole day at once. Delivery puts it on one screen.</>,
-  good: <><b>Nice.</b> Delivery keeps it that way as you grow, with every drop, photo and payment in one place.</>,
+  unsure: <><b>That's normal.</b> When orders live in WhatsApp chats, nobody sees the whole day at once. Ada puts it on one screen.</>,
+  good: <><b>Nice.</b> Ada keeps it that way as you grow, with every drop, photo and payment in one place.</>,
 };
 
 export default function Setup({ go }) {
@@ -35,26 +44,19 @@ export default function Setup({ go }) {
 
   const steps = [
     {
-      art: <LabelCloud labels={[["Pending", 7], ["With riders", 12], ["Delivered", 18], ["To verify", 3], ["Returned", 1]]} className="h-[400px]" />,
+      art: <SetupArt source="delivery-illustration.webp" alt="Your vendor, dispatcher and courier share one delivery day" />,
       title: "See every drop", sub: "What's pending, out with riders and paid, the second it happens",
     },
     {
-      art: <AlertStack items={["Tunde is 20 min past the window", "Order 3307 has no real address"]} action="Hold it back" className="h-[400px]" />,
+      art: <SetupArt source="delivery-day-ada.webp" alt="A dispatcher reviews the plan before parcels head out" />,
       title: "Stay ahead", sub: "ADA flags trouble before a rider leaves the office",
     },
     {
-      art: <ProgressScene label="18 of 24 drops delivered today" points={[24, 20, 15, 11, 6, 2]} className="h-[400px]" />,
+      art: <SetupArt source="delivery-journey.webp" alt="Parcels move from the vendor through dispatch to a happy customer" />,
       title: "See your progress", sub: "Watch the day count down to zero, rider by rider",
     },
     {
-      art: (
-        <Scene variant="dusk" className="h-[400px]">
-          <div className="mx-auto mt-14 w-[78%] rounded-[22px] bg-white px-6 py-5 text-center shadow-xl">
-            <div className="text-[11.5px] font-semibold uppercase tracking-[0.16em] text-neutral-400">From ADA</div>
-            <div className="mt-2 text-[18px] font-semibold leading-snug text-neutral-950">Today's plan is ready. 24 drops, 4 riders, all messaged.</div>
-          </div>
-        </Scene>
-      ),
+      art: <SetupArt source="delivery-planning.webp" alt="The team plans calmly together with a cheerful parcel" />,
       title: "Finally, breathe", sub: "ADA plans the day so you don't have to", next: "Let's go",
     },
     {
@@ -74,7 +76,7 @@ export default function Setup({ go }) {
       body: (
         <div>
           <div className="mb-6 text-center text-[16px] text-neutral-400">Tap to select</div>
-          <Faces options={[["stressed", "Stressed", "bad"], ["unsure", "Uncertain", "meh"], ["good", "Good", "good"]]} value={a.mood} onChange={set("mood")} />
+          <div className="ada-setup-mood"><Faces options={[["stressed", "Stressed", "bad"], ["unsure", "Uncertain", "meh"], ["good", "Good", "good"]]} value={a.mood} onChange={set("mood")} /></div>
           {a.mood && <Tip tone="amber" className="mt-10 justify-center text-center">{MOOD_TIP[a.mood]}</Tip>}
         </div>
       ),
@@ -86,10 +88,7 @@ export default function Setup({ go }) {
       q: "ADA also warns you before things go wrong", skip: true,
       body: (
         <div>
-          <div className="relative mx-auto grid h-56 w-56 place-items-center">
-            <span className="absolute inset-6 rounded-full bg-blue-400/20 blur-2xl" />
-            <BellRing className="relative h-36 w-36 -rotate-12 text-neutral-900" strokeWidth={1.1} />
-          </div>
+          <SetupArt source="delivery-day-ada.webp" alt="A dispatcher checks the details before delivery" compact />
           <Tip className="mt-6 rotate-[0.6deg]">A drop is flagged the moment its delivery window passes, not when the customer calls.</Tip>
           <Tip className="mt-3 -rotate-[0.4deg]">Orders with a missing address are held back before a rider sets off.</Tip>
         </div>
@@ -100,7 +99,7 @@ export default function Setup({ go }) {
       q: "Pick a look to match your vibe", tinted: true,
       body: (
         <div>
-          <ThemePicker value={a.theme} onChange={set("theme")} />
+          <EntryThemePicker value={a.theme} onChange={set("theme")} />
           <Tip>The look colours your dashboard and your riders' app. You can change it any time.</Tip>
         </div>
       ),
@@ -109,32 +108,30 @@ export default function Setup({ go }) {
   ];
   const s = steps[i];
   const next = s.onNext || (() => setI(i + 1));
-  const tint = themeOf(a.theme).tint;
 
   return (
-    <div className="relative min-h-[100svh] overflow-hidden bg-white" style={s.tinted ? { background: `linear-gradient(180deg, ${tint} 0%, ${tint}55 35%, #fff 60%)` } : undefined}>
-      <Digits light={s.tinted} />
-      <div className="relative mx-auto flex min-h-[100svh] max-w-[520px] flex-col px-5 pb-8 pt-6">
-        <div className="flex h-14 items-center justify-between">
+    <div className="ada-setup">
+      <div className="ada-setup-inner relative mx-auto flex min-h-[100svh] max-w-[600px] flex-col px-5 pb-8 pt-6">
+        <div className="ada-setup-header flex h-14 items-center justify-between">
           <BackBtn light={s.tinted} onClick={() => (i ? setI(i - 1) : go("/"))} />
-          <div className="flex gap-1.5">{steps.map((_, n) => <span key={n} className={cn("h-1.5 rounded-full transition-all", n === i ? "w-6 bg-neutral-900" : "w-1.5 bg-neutral-300")} />)}</div>
+          <div className="flex gap-1.5" aria-label={`Step ${i + 1} of ${steps.length}`} role="status">{steps.map((_, n) => <span key={n} className={cn("h-1.5 rounded-full transition-all", n === i ? "w-6 bg-neutral-900" : "w-1.5 bg-neutral-300")} />)}</div>
           {s.skip ? <button onClick={() => setI(i + 1)} className="w-[52px] text-[17px] text-neutral-400">Skip</button> : <span className="w-[52px]" />}
         </div>
 
         {s.art ? (
-          <div className="flex flex-1 flex-col items-center pt-8 text-center">
+          <div className="ada-setup-story flex flex-1 flex-col items-center pt-8 text-center">
             <div className="w-full max-w-[400px]">{s.art}</div>
             <h1 className="mt-8 text-[54px] font-black leading-[0.95] tracking-[-0.06em] text-black">{s.title}</h1>
             <p className="mt-4 max-w-sm text-[20px] leading-snug text-neutral-400">{s.sub}</p>
           </div>
         ) : (
-          <div className="flex flex-1 flex-col pt-10">
+          <div className="ada-setup-question flex flex-1 flex-col pt-10">
             <h1 className="text-center text-[36px] font-extrabold leading-[1.08] tracking-[-0.035em] text-black">{s.q}</h1>
-            <div className="mt-10">{s.body}</div>
+            <div className="ada-setup-question-body mt-10">{s.body}</div>
           </div>
         )}
 
-        <div className="mt-8 flex justify-center">
+        <div className="ada-setup-next mt-8 flex justify-center">
           <NextBtn onClick={next} disabled={s.ok !== undefined && !s.ok}>{s.next || "Next"}</NextBtn>
         </div>
       </div>
