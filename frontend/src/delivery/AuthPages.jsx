@@ -16,7 +16,7 @@ const ENTRY_ART={
  vendor:["delivery-day-stock.webp","A vendor and smiling parcel keep stock and receipts together"],
  rider:["delivery-day-rider.webp","A courier and customer complete a cheerful parcel handover"]
 };
-function Shell({ title, sub, children, go, back = "/", art = "parcel" }) {
+function Shell({ title, sub, children, go, back = "/", art = "parcel", showBack = true }) {
   const [image, imageAlt]=ENTRY_ART[art]||ENTRY_ART.parcel;
   useEffect(() => { document.title = title + " — Ada"; }, [title]);
   return (
@@ -29,7 +29,7 @@ function Shell({ title, sub, children, go, back = "/", art = "parcel" }) {
         <span className="ada-auth-story-note">A little joy for the journey.</span>
       </aside>
       <main className="ada-auth-main" id="main" tabIndex={-1}>
-        <div className="ada-auth-top"><a href="/" className="ada-auth-mobile-name">Ada</a><button type="button" onClick={() => back === "/" ? window.location.assign("/") : go(back)} className="ada-auth-back"><ArrowLeft size={16} /> Back</button></div>
+        <div className="ada-auth-top"><a href="/" className="ada-auth-mobile-name">Ada</a>{showBack && <button type="button" onClick={() => back === "/" ? window.location.assign("/") : go(back)} className="ada-auth-back"><ArrowLeft size={16} /> Back</button>}</div>
         <img className="ada-auth-mobile-art" src={`/marketing/assets/${image}`} alt="" aria-hidden="true" width="1536" height="1024" decoding="async" /><div className="ada-auth-form"><span className="ada-auth-eyebrow">LET’S GET MOVING</span><h1>{title}</h1>{sub && <p className="ada-auth-sub">{sub}</p>}<div className="ada-auth-fields">{children}</div></div>
         <p className="ada-auth-footnote">Your people. Your operation. One connected day.</p>
       </main>
@@ -114,7 +114,7 @@ export function SignIn({ go }) {
     setBusy(false);
   };
   return (
-    <Shell go={go} title="Welcome back" sub="Sign in to your dashboard.">
+    <Shell go={go} showBack={false} title="Welcome back" sub="Sign in to your dashboard.">
       <form onSubmit={submit} className="grid gap-5">
         <Input icon={Mail} label="Email or phone number" autoComplete="username" placeholder="you@company.com or 0803 000 0000" required {...bind("login")} />
         <Input icon={Lock} label="Password" type="password" autoComplete="current-password" placeholder="Your password" required {...bind("password")} />
@@ -140,7 +140,7 @@ export function SignUpCompany({ go }) {
     try { await signUpCompany(f); go("/setup"); } catch (err) { setError(err.message); setBusy(false); }
   };
   return (
-    <Shell go={go} art="planning" back="/get-started" title="Sign up your company" sub="You'll add your vendors and riders next, and send each of them an invite.">
+    <Shell go={go} showBack={false} art="planning" back="/get-started" title="Sign up your company" sub="You'll add your vendors and riders next, and send each of them an invite.">
       <form onSubmit={submit} className="grid gap-5">
         <Input icon={LayoutGrid} label="Company name" autoComplete="organization" placeholder="e.g. Swift Couriers" required {...bind("company")} />
         <Input icon={User} label="Your name" autoComplete="name" placeholder="Full name" required {...bind("name")} />
